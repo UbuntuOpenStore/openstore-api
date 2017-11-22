@@ -56,6 +56,22 @@ function setup(app) {
         else if (req.body && req.body.types) {
             types = req.body.types;
         }
+
+        //Handle non-pluralized form
+        if (req.query.type && Array.isArray(req.query.type)) {
+            types = req.query.type;
+        }
+        else if (req.query.type) {
+            types = [ req.query.type ];
+        }
+        else if (req.body && req.body.type) {
+            types = req.body.type;
+        }
+
+        if (types.indexOf('webapp') >= 0 && types.indexOf('webapp+') == -1) {
+            types.push('webapp+');
+        }
+
         if (types.length > 0) {
             query['types'] = {
                 $in: types,
@@ -184,7 +200,10 @@ function setup(app) {
                     packages: formatted,
                 });
             }
-            else if (req.originalUrl.substring(0, 12) == '/api/v1/apps') {
+            else if (
+                req.originalUrl.substring(0, 12) == '/api/v1/apps' ||
+                req.originalUrl.substring(0, 12) == '/api/v2/apps'
+            ) {
                 let next = null;
                 let previous = null;
 

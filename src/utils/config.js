@@ -13,13 +13,13 @@ var config = {
     server: {
         ip: process.env.NODEJS_IP || '0.0.0.0',
         port: process.env.PORT || process.env.NODEJS_PORT || 8080,
-        session_secret: process.env.SESSION_SECRET || 'open-appstore',
+        session_secret: process.env.SESSION_SECRET || 'openstore',
         host: process.env.HOST || 'http://local.open.uappexplorer.com:8080',
         process_limit: process.env.PROCESS_LIMIT || 0,
     },
     mongo: {
         uri: process.env.MONGODB_URI || 'mongodb://localhost',
-        database: process.env.MONGODB_DB || 'openappstore',
+        database: process.env.MONGODB_DB || 'openstore',
     },
     smartfile: {
         key: configFile.SMARTFILE_KEY || process.env.SMARTFILE_KEY || '',
