@@ -72,6 +72,10 @@ function setup(app) {
             types.push('webapp+');
         }
 
+        if (types.indexOf('snap') >= 0 && types.indexOf('snappy') == -1) {
+            types.push('snappy')
+        }
+
         if (types.length > 0) {
             query['types'] = {
                 $in: types,
@@ -133,6 +137,13 @@ function setup(app) {
         }
         else if (req.body && req.body.category) {
             query.category = req.body.category;
+        }
+
+        if (req.query.author) {
+            query.author = req.query.author;
+        }
+        else if (req.body && req.body.author) {
+            query.author = req.body.author;
         }
 
         if (req.query.search) {
@@ -261,7 +272,7 @@ function setup(app) {
     app.get(['/api/apps', '/repo/repolist.json', '/api/v1/apps', '/api/v2/apps'], apps);
     app.post(['/api/v2/apps'], apps);
 
-    app.get(['/api/apps/:id', '/api/v1/apps/:id'], function(req, res) {
+    app.get(['/api/apps/:id', '/api/v1/apps/:id', '/api/v2/apps/:id'], function(req, res) {
         let query = {
             published: true,
             id: req.params.id,
