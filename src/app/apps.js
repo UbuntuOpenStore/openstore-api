@@ -33,6 +33,205 @@ const APP_NOT_FOUND = 'App not found';
 const BAD_NAMESPACE = 'You package name is for a domain that you do not have access to';
 const EXISTING_VERSION = 'A revision already exists with this version';
 
+function queryPackages(req, query) {
+    let limit = req.query.limit ? parseInt(req.query.limit) : 0;
+    let skip = req.query.skip ? parseInt(req.query.skip) : 0;
+    let sort = req.query.sort ? req.query.sort : 'relevance';
+
+    let types = []
+    if (req.query.types && Array.isArray(req.query.types)) {
+        types = req.query.types;
+    }
+    else if (req.query.types) {
+        types = [ req.query.types ];
+    }
+    else if (req.body && req.body.types) {
+        types = req.body.types;
+    }
+
+    //Handle non-pluralized form
+    if (req.query.type && Array.isArray(req.query.type)) {
+        types = req.query.type;
+    }
+    else if (req.query.type) {
+        types = [ req.query.type ];
+    }
+    else if (req.body && req.body.type) {
+        types = req.body.type;
+    }
+
+    if (types.indexOf('webapp') >= 0 && types.indexOf('webapp+') == -1) {
+        types.push('webapp+');
+    }
+
+    if (types.indexOf('snap') >= 0 && types.indexOf('snappy') == -1) {
+        types.push('snappy')
+    }
+
+    if (types.length > 0) {
+        query['types'] = {
+            $in: types,
+        };
+    }
+
+    let ids = [];
+    if (req.query.apps) {
+        ids = req.query.apps.split(',');
+    }
+    else if (req.body && req.body.apps) {
+        ids = req.body.apps;
+    }
+    if (ids.length > 0) {
+        query.id = {
+            $in: ids
+        };
+    }
+
+    let frameworks = [];
+    if (req.query.frameworks) {
+        frameworks = req.query.frameworks.split(',');
+    }
+    else if (req.body && req.body.frameworks) {
+        frameworks = req.body.frameworks;
+    }
+    if (frameworks.length > 0) {
+        query.framework = {
+            $in: frameworks
+        };
+    }
+
+    let architecture = ""
+    if (req.query.architecture) {
+        architecture = req.query.architecture;
+    }
+    else if (req.body && req.body.architecture) {
+        architecture = req.body.architecture;
+    }
+    if (architecture) {
+        let architectures = [architecture];
+        if (architecture != 'all') {
+            architectures.push('all');
+        }
+
+        query.$or = [
+            {architecture: {$in: architectures}},
+            {architectures: {$in: architectures}},
+        ];
+    }
+
+    if (req.query.category) {
+        query.category = req.query.category;
+    }
+    else if (req.body && req.body.category) {
+        query.category = req.body.category;
+    }
+
+    if (req.query.author) {
+        query.author = req.query.author;
+    }
+    else if (req.body && req.body.author) {
+        query.author = req.body.author;
+    }
+
+    if (req.query.search) {
+        query['$text'] = {$search: req.query.search};
+    }
+    else if (req.body && req.body.search) {
+        query['$text'] = {$search: req.body.search};
+    }
+
+    if (
+        (req.query.nsfw === false || (req.query.nsfw && req.query.nsfw.toLowerCase() == 'false')) ||
+        (req.body && (req.body.nsfw === false || (req.query.nsfw && req.query.nsfw.toLowerCase() == 'false')))
+    ) {
+        query.nsfw = {$in: [null, false]};
+    }
+
+    if (
+        (req.query.nsfw === true || (req.query.nsfw && req.query.nsfw.toLowerCase() == 'true')) ||
+        (req.body && (req.body.nsfw === true || (req.query.nsfw && req.query.nsfw.toLowerCase() == 'true')))
+    ) {
+        query.nsfw = true;
+    }
+
+    return db.Package.count(query).then((count) => {
+        let findQuery = db.Package.find(query);
+
+        if (sort == 'relevance') {
+            if (req.query.search) {
+                findQuery.select({score : {$meta : 'textScore'}});
+                findQuery.sort({score : {$meta : 'textScore'}});
+            }
+            else {
+                findQuery.sort('name');
+            }
+        }
+        else {
+            findQuery.sort(sort);
+        }
+
+        if (limit) {
+            findQuery.limit(limit);
+        }
+
+        if (skip) {
+            findQuery.skip(skip);
+        }
+
+        return Promise.all([
+            findQuery,
+            count,
+        ]);
+    });
+}
+
+function nextPreviousLinks(req, count) {
+    let next = null;
+    let previous = null;
+    let limit = req.query.limit ? parseInt(req.query.limit) : 0;
+    let skip = req.query.skip ? parseInt(req.query.skip) : 0;
+
+    let url = config.server.host + req.originalUrl;
+    if (count == limit) {
+        let nextSkip = skip + limit;
+
+        //TODO use the url module once the node version is upgraded
+        if (url.indexOf('skip') == -1) {
+            if (url.indexOf('?') == -1) {
+                next = url + '?skip=' + nextSkip;
+            }
+            else {
+                next = url + '&skip=' + nextSkip;
+            }
+        }
+        else {
+            next = url.replace('skip=' + skip, 'skip=' + nextSkip);
+        }
+    }
+
+    if (skip > 0) {
+        let previousSkip = (skip - limit > 0) ? (skip - limit) : 0;
+
+        //TODO use the url module once the node version is upgraded
+        if (url.indexOf('skip') == -1) {
+            if (url.indexOf('?') == -1) {
+                previous = url + '?skip=' + previousSkip;
+            }
+            else {
+                previous = url + '&skip=' + previousSkip;
+            }
+        }
+        else {
+            previous = url.replace('skip=' + skip, 'skip=' + previousSkip);
+        }
+    }
+
+    return {
+        next: next,
+        previous: previous,
+    }
+}
+
 function setup(app) {
     app.get('/api/health', function(req, res) {
         helpers.success(res, {
@@ -41,161 +240,16 @@ function setup(app) {
     });
 
     function apps(req, res) {
-        let query = {published: true};
         let limit = req.query.limit ? parseInt(req.query.limit) : 0;
         let skip = req.query.skip ? parseInt(req.query.skip) : 0;
-        let sort = req.query.sort ? req.query.sort : 'relevance';
-
-        let types = []
-        if (req.query.types && Array.isArray(req.query.types)) {
-            types = req.query.types;
-        }
-        else if (req.query.types) {
-            types = [ req.query.types ];
-        }
-        else if (req.body && req.body.types) {
-            types = req.body.types;
-        }
-
-        //Handle non-pluralized form
-        if (req.query.type && Array.isArray(req.query.type)) {
-            types = req.query.type;
-        }
-        else if (req.query.type) {
-            types = [ req.query.type ];
-        }
-        else if (req.body && req.body.type) {
-            types = req.body.type;
-        }
-
-        if (types.indexOf('webapp') >= 0 && types.indexOf('webapp+') == -1) {
-            types.push('webapp+');
-        }
-
-        if (types.indexOf('snap') >= 0 && types.indexOf('snappy') == -1) {
-            types.push('snappy')
-        }
-
-        if (types.length > 0) {
-            query['types'] = {
-                $in: types,
-            };
-        }
-        else {
-            query['types'] = {
+        let defaultQuery = {
+            published: true,
+            types: {
                 $in: ['app', 'webapp', 'scope', 'webapp+'],
-            };
-        }
-
-        let ids = [];
-        if (req.query.apps) {
-            ids = req.query.apps.split(',');
-        }
-        else if (req.body && req.body.apps) {
-            ids = req.body.apps;
-        }
-        if (ids.length > 0) {
-            query.id = {
-                $in: ids
-            };
-        }
-
-        let frameworks = [];
-        if (req.query.frameworks) {
-            frameworks = req.query.frameworks.split(',');
-        }
-        else if (req.body && req.body.frameworks) {
-            frameworks = req.body.frameworks;
-        }
-        if (frameworks.length > 0) {
-            query.framework = {
-                $in: frameworks
-            };
-        }
-
-        let architecture = ""
-        if (req.query.architecture) {
-            architecture = req.query.architecture;
-        }
-        else if (req.body && req.body.architecture) {
-            architecture = req.body.architecture;
-        }
-        if (architecture) {
-            let architectures = [architecture];
-            if (architecture != 'all') {
-                architectures.push('all');
             }
+        };
 
-            query.$or = [
-                {architecture: {$in: architectures}},
-                {architectures: {$in: architectures}},
-            ];
-        }
-
-        if (req.query.category) {
-            query.category = req.query.category;
-        }
-        else if (req.body && req.body.category) {
-            query.category = req.body.category;
-        }
-
-        if (req.query.author) {
-            query.author = req.query.author;
-        }
-        else if (req.body && req.body.author) {
-            query.author = req.body.author;
-        }
-
-        if (req.query.search) {
-            query['$text'] = {$search: req.query.search};
-        }
-        else if (req.body && req.body.search) {
-            query['$text'] = {$search: req.body.search};
-        }
-
-        if (
-            (req.query.nsfw === false || (req.query.nsfw && req.query.nsfw.toLowerCase() == 'false')) ||
-            (req.body && (req.body.nsfw === false || (req.query.nsfw && req.query.nsfw.toLowerCase() == 'false')))
-        ) {
-            query.nsfw = {$in: [null, false]};
-        }
-
-        if (
-            (req.query.nsfw === true || (req.query.nsfw && req.query.nsfw.toLowerCase() == 'true')) ||
-            (req.body && (req.body.nsfw === true || (req.query.nsfw && req.query.nsfw.toLowerCase() == 'true')))
-        ) {
-            query.nsfw = true;
-        }
-
-        db.Package.count(query).then((count) => {
-            let findQuery = db.Package.find(query);
-
-            if (sort == 'relevance') {
-                if (req.query.search) {
-                    findQuery.select({score : {$meta : 'textScore'}});
-                    findQuery.sort({score : {$meta : 'textScore'}});
-                }
-                else {
-                    findQuery.sort('name');
-                }
-            }
-            else {
-                findQuery.sort(sort);
-            }
-
-            if (limit) {
-                findQuery.limit(limit);
-            }
-
-            if (skip) {
-                findQuery.skip(skip);
-            }
-
-            return Promise.all([
-                findQuery,
-                count,
-            ]);
-        }).then((results) => {
+        queryPackages(req, defaultQuery).then((results) => {
             let pkgs = results[0];
             let count = results[1];
 
@@ -215,49 +269,13 @@ function setup(app) {
                 req.originalUrl.substring(0, 12) == '/api/v1/apps' ||
                 req.originalUrl.substring(0, 12) == '/api/v2/apps'
             ) {
-                let next = null;
-                let previous = null;
-
-                let url = config.server.host + req.originalUrl;
-                if (formatted.length == limit) {
-                    let nextSkip = skip + limit;
-
-                    //TODO use the url module once the node version is upgraded
-                    if (url.indexOf('skip') == -1) {
-                        if (url.indexOf('?') == -1) {
-                            next = url + '?skip=' + nextSkip;
-                        }
-                        else {
-                            next = url + '&skip=' + nextSkip;
-                        }
-                    }
-                    else {
-                        next = url.replace('skip=' + skip, 'skip=' + nextSkip);
-                    }
-                }
-
-                if (skip > 0) {
-                    let previousSkip = (skip - limit > 0) ? (skip - limit) : 0;
-
-                    //TODO use the url module once the node version is upgraded
-                    if (url.indexOf('skip') == -1) {
-                        if (url.indexOf('?') == -1) {
-                            previous = url + '?skip=' + previousSkip;
-                        }
-                        else {
-                            previous = url + '&skip=' + previousSkip;
-                        }
-                    }
-                    else {
-                        previous = url.replace('skip=' + skip, 'skip=' + previousSkip);
-                    }
-                }
+                let links = nextPreviousLinks(req, formatted.length);
 
                 helpers.success(res, {
                     count: count,
                     packages: formatted,
-                    next: next,
-                    previous: previous,
+                    next: links.next,
+                    previous: links.previous,
                 });
             }
             else {
@@ -373,29 +391,44 @@ function setup(app) {
         });
     });
 
-    app.get('/api/v1/manage/apps', passport.authenticate('localapikey', {session: false}), function(req, res) {
-        let query = null;
+    app.get(['/api/v1/manage/apps', '/api/v2/manage/apps'], passport.authenticate('localapikey', {session: false}), function(req, res) {
+        let defaultQuery = null;
         if (helpers.isAdminUser(req)) {
-            query = db.Package.find({});
+            defaultQuery = {};
         }
         else {
-            query = db.Package.find({maintainer: req.user._id});
+            defaultQuery = {maintainer: req.user._id};
         }
 
-        //TODO paging
-        query.sort('name').then((pkgs) => {
-            let result = pkgs.map((pkg) => {
-                return packages.toJson(pkg, req);
+        queryPackages(req, defaultQuery).then((results) => {
+            let pkgs = results[0];
+            let count = results[1];
+
+            let formatted = [];
+            pkgs.forEach(function(pkg) {
+                formatted.push(packages.toJson(pkg, req));
             });
 
-            helpers.success(res, result);
+            if (req.originalUrl.substring(0, 19) == '/api/v1/manage/apps') {
+                helpers.success(res, formatted);
+            }
+            else {
+                let links = nextPreviousLinks(req, formatted.length);
+
+                helpers.success(res, {
+                    count: count,
+                    packages: formatted,
+                    next: links.next,
+                    previous: links.previous,
+                });
+            }
         }).catch((err) => {
             logger.error('Error fetching packages:', err);
             helpers.error(res, 'Could not fetch app list at this time');
         });
     });
 
-    app.get('/api/v1/manage/apps/:id', passport.authenticate('localapikey', {session: false}), function(req, res) {
+    app.get(['/api/v1/manage/apps/:id', '/api/v2/manage/apps/:id'], passport.authenticate('localapikey', {session: false}), function(req, res) {
         let query = null;
         if (helpers.isAdminUser(req)) {
             query = db.Package.findOne({id: req.params.id});
@@ -490,7 +523,7 @@ function setup(app) {
         });
     }
 
-    app.post(['/api/apps', '/api/v1/manage/apps'], passport.authenticate('localapikey', {session: false}), mupload.single('file'), helpers.isNotDisabled, helpers.downloadFileMiddleware, function(req, res) {
+    app.post(['/api/apps', '/api/v1/manage/apps', '/api/v2/manage/apps'], passport.authenticate('localapikey', {session: false}), mupload.single('file'), helpers.isNotDisabled, helpers.downloadFileMiddleware, function(req, res) {
         if (!req.file) {
             helpers.error(res, 'No file upload specified');
         }
@@ -555,7 +588,7 @@ function setup(app) {
         }
     });
 
-    app.put(['/api/apps/:id', '/api/v1/manage/apps/:id'], passport.authenticate('localapikey', {session: false}), mupload.single('file'), helpers.isNotDisabled, helpers.downloadFileMiddleware, function(req, res) {
+    app.put(['/api/apps/:id', '/api/v1/manage/apps/:id', '/api/v2/manage/apps/:id'], passport.authenticate('localapikey', {session: false}), mupload.single('file'), helpers.isNotDisabled, helpers.downloadFileMiddleware, function(req, res) {
         let packagePromise = db.Package.findOne({id: req.params.id});
 
         if (req.body && (!req.body.maintainer || req.body.maintainer == 'null')) {
