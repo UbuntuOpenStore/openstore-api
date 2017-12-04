@@ -123,7 +123,7 @@ function updateInfo(pkg, data, body, file, url, updateRevision) {
             }
 
             if (body.published !== undefined) {
-                pkg.published = (body.published == 'true');
+                pkg.published = (body.published == 'true' || body.published === true);
             }
 
             if (body.category || body.category === '') {

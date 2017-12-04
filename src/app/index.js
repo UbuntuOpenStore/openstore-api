@@ -46,12 +46,15 @@ function setup() {
     app.use(express.static(__dirname + '/../../www'));
 
     app.get('/telegram', function(req, res) {
-        console.log('telegram');
         res.redirect(301, 'https://telegram.me/joinchat/BMTh8AHtOL2foXLulmqDxw');
     });
 
     app.get('/app/openstore.mzanetti', function(req, res) {
         res.redirect(301, config.server.host + '/app/openstore.openstore-team')
+    });
+
+    app.get('/manage/create', function(req, res) {
+        res.redirect(301, config.server.host + '/submit')
     });
 
     app.get(['/app/:name', '/snap/:name'], function(req, res) { //For populating opengraph data, etc for bots that don't execute javascript (like twitter cards)
