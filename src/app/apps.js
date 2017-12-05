@@ -290,6 +290,60 @@ function setup(app) {
     app.get(['/api/apps', '/repo/repolist.json', '/api/v1/apps', '/api/v2/apps'], apps);
     app.post(['/api/v2/apps'], apps);
 
+    app.get('/api/v2/apps/stats', function(req, res) {
+        Promise.all([
+            db.Package.aggregate([
+                {
+                    $match: {published: true},
+                }, {
+                    $group: {
+                        _id: '$category',
+                        count: {$sum: 1},
+                    },
+                }, {
+                    $sort: {'_id': 1},
+                }
+            ]),
+            db.Package.aggregate([
+                {
+                    $match: {published: true},
+                }, {
+                    $group: {
+                        _id: '$types',
+                        count: {$sum: 1},
+                    },
+                }, {
+                    $sort: {'_id': 1},
+                }
+            ])
+        ]).then((results) => {
+            let categories = results[0];
+            let types = results[1];
+
+            let categoryMap = {};
+            categories.forEach((category) => {
+                categoryMap[category._id] = category.count;
+            });
+
+            let typeMap = {};
+            types.forEach((type) => {
+                type._id.forEach((t) => {
+                    if (typeMap[t]) {
+                        typeMap[t] += type.count;
+                    }
+                    else {
+                        typeMap[t] = type.count;
+                    }
+                });
+            });
+
+            helpers.success(res, {
+                categories: categoryMap,
+                types: typeMap,
+            });
+        });
+    });
+
     app.get(['/api/apps/:id', '/api/v1/apps/:id', '/api/v2/apps/:id'], function(req, res) {
         let query = {
             published: true,
