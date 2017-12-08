@@ -71,7 +71,8 @@ function setup() {
                     res.send();
                 }
                 else {
-                    fs.readFile(__dirname + '/../../www/index.html', {encoding: 'utf8'}, function(err, data) {
+                    //TODO update this to work with the new frontend
+                    fs.readFile(config.server.static_root + 'index.html', {encoding: 'utf8'}, function(err, data) {
                         if (err) {
                             res.status(500);
                             res.send();
@@ -90,12 +91,12 @@ function setup() {
             });
         }
         else {
-            res.sendFile('index.html', {root: __dirname + '/../../www'});
+            res.sendFile('index.html', {root: config.server.static_root});
         }
     });
 
     app.all(['/', '/docs', '/submit', '/apps', '/snaps', '/manage', '/users', '/manage/:name', '/login'], function(req, res) { //For html5mode on frontend
-        res.sendFile('index.html', {root: __dirname + '/../../www'});
+        res.sendFile('index.html', {root: config.server.static_root});
     });
 
     app.listen(config.server.port, config.server.ip);

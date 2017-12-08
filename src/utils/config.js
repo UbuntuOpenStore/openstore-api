@@ -16,6 +16,7 @@ var config = {
         session_secret: process.env.SESSION_SECRET || 'openstore',
         host: process.env.HOST || 'http://local.open.uappexplorer.com:8080',
         process_limit: process.env.PROCESS_LIMIT || 0,
+        static_root: process.env.STATIC_ROOT || __dirname + '/../../www/',
     },
     mongo: {
         uri: process.env.MONGODB_URI || 'mongodb://localhost',
