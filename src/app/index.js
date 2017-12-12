@@ -67,11 +67,9 @@ function setup() {
                 }
                 else if (!pkg) {
                     res.status(404);
-                    //fs.createReadStream(root: __dirname + '/../../www/404.html').pipe(res);
                     res.send();
                 }
                 else {
-                    //TODO update this to work with the new frontend
                     fs.readFile(config.server.static_root + 'index.html', {encoding: 'utf8'}, function(err, data) {
                         if (err) {
                             res.status(500);
