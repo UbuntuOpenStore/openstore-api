@@ -36,7 +36,7 @@ function replace(html, og) {
         '<meta property="og:description" content="' + og.description + '" />' +
         '<meta property="og:site_name" content="' + og.title + ' - OpenStore' + '" />';
 
-    return html.replace('<meta name="opengraphdata" />', og_html);
+    return html.replace('<meta name="opengraphdata" />', og_html).replace('<meta name=opengraphdata>', og_html);
 }
 
 function match(req) {
