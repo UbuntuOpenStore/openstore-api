@@ -184,13 +184,22 @@ function updateInfo(pkg, data, body, file, url, updateRevision) {
             }
 
             if (body.screenshots) {
-                pkg.screenshots = body.screenshots;
+                if (Array.isArray(body.screenshots)) {
+                    pkg.screenshots = body.screenshots;
+                }
+                else {
+                    pkg.screenshots = JSON.parse(body.screenshots);
+                }
             }
             else {
                 pkg.screenshots = [];
             }
 
             if (body.keywords) {
+                if (!Array.isArray(body.keywords)) {
+                    body.keywords = body.keywords.split(',');
+                }
+
                 pkg.keywords = body.keywords.map((keyword) => {
                     return keyword.trim();
                 });
