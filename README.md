@@ -6,32 +6,10 @@ Web viewer and api for the [OpenStore](https://open.uappexplorer.com/).
 
 Please report any bugs/features/requests in our [bug tracker](https://github.com/UbuntuOpenStore/openstore-meta/issues).
 
-## Translations
-
-If you would like to help out with translations head over to the OpenStore
-project on the [UBports Weblate instance](https://translate.ubports.com/projects/openstore/openstore-web/).
-
 ## Development
 
-* Install [vagrant](http://vagrantup.com/)
-* Install the docker compose vagrant plugin:
-    * Run: `vagrant plugin install vagrant-docker-compose`
-* Start vagrant:
-    * Run: `vagrant up`
-* Install NPM dependencies (it's best to run this in the vagrant VM):
-    * Install api dependencies: `cd api; npm install; cd ..`
-    * Install web dependencies: `cd www; npm install; cd ..`
-* Attach to the docker container (if needed - from inside the vagrant VM):
-    * Attach to the api container: `attach_api`
-    * Attach to the web container: `attach_web`
-* Update your system's hosts file:
-    * Add `192.168.58.123 local.open.uappexplorer.com`
-* Visit the site:
-    * In your browser go to: `local.open.uappexplorer.com`
-* Login
-    * Login to the OpenStore to setup your user
-    * Upgrade your user to an admin (From inside the vagrant VM): `docker exec -it openstore_api_1 node /srv/openstore/api/bin/setup-admin`
-* Profit!
+To get setup with development, checkout the
+[openstore-web-dev repo](https://github.com/UbuntuOpenStore/openstore-web-dev).
 
 ## Configuration
 
