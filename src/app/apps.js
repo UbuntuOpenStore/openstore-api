@@ -89,9 +89,18 @@ function setup(app) {
     });
 
     function apps(req, res) {
+        let useElasticsearch = true;
+        if (
+            req.originalUrl == '/repo/repolist.json' ||
+            req.originalUrl.substring(0, 12) == '/api/v1/apps' ||
+            req.originalUrl.substring(0, 9) == '/api/apps'
+        ) {
+            useElasticsearch = false;
+        }
+
         let filters = packages.parseFiltersFromRequest(req);
         let promise = null;
-        if (filters.search && filters.search.indexOf('author:') !== 0) {
+        if (useElasticsearch && filters.search && filters.search.indexOf('author:') !== 0) {
             let query = {
                 and: [], //No defaut published=true filter, only published apps are in elasticsearch
             };
