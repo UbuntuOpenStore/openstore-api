@@ -22,6 +22,9 @@ var config = {
         uri: process.env.MONGODB_URI || 'mongodb://localhost',
         database: process.env.MONGODB_DB || 'openstore',
     },
+    elasticsearch: {
+        uri: process.env.ELASTICSEARCH_URI || 'http://localhost:9200/',
+    },
     smartfile: {
         key: configFile.SMARTFILE_KEY || process.env.SMARTFILE_KEY || '',
         password: configFile.SMARTFILE_PASS || process.env.SMARTFILE_PASS || '',
@@ -47,6 +50,11 @@ var config = {
 //Mongo uri from docker
 if (process.env.MONGO_PORT) {
     config.mongo.uri = process.env.MONGO_PORT.replace('tcp', 'mongodb');
+}
+
+//Elasticsearch uri from docker
+if (process.env.ELASTICSEARCH_PORT) {
+    config.elasticsearch.uri = process.env.ELASTICSEARCH_PORT.replace('tcp', 'http');
 }
 
 module.exports = config;

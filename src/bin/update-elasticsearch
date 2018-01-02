@@ -1,0 +1,17 @@
+#!/usr/bin/env node
+
+'use strict';
+
+const db = require('../db');
+const Elasticsearch = require('../db/elasticsearch');
+
+db.Package.find({published: true}).then((pkgs) => {
+    let ces = new Elasticsearch();
+    return ces.bulk(pkgs);
+}).then(() => {
+    console.log('done');
+    process.exit(0);
+}).catch((err) => {
+    console.log(err);
+    process.exit(1);
+});

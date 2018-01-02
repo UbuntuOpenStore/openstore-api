@@ -1,6 +1,7 @@
 'use strict';
 
 const db = require('../db');
+const Elasticsearch = require('../db/elasticsearch');
 const config = require('../utils/config');
 const packages = require('../utils/packages');
 const logger = require('../utils/logger');
@@ -32,158 +33,6 @@ const WRONG_PACKAGE = 'The uploaded package does not match the name of the packa
 const APP_NOT_FOUND = 'App not found';
 const BAD_NAMESPACE = 'You package name is for a domain that you do not have access to';
 const EXISTING_VERSION = 'A revision already exists with this version';
-
-function queryPackages(req, query) {
-    let limit = req.query.limit ? parseInt(req.query.limit) : 0;
-    let skip = req.query.skip ? parseInt(req.query.skip) : 0;
-    let sort = req.query.sort ? req.query.sort : 'relevance';
-
-    let types = []
-    if (req.query.types && Array.isArray(req.query.types)) {
-        types = req.query.types;
-    }
-    else if (req.query.types) {
-        types = [ req.query.types ];
-    }
-    else if (req.body && req.body.types) {
-        types = req.body.types;
-    }
-
-    //Handle non-pluralized form
-    if (req.query.type && Array.isArray(req.query.type)) {
-        types = req.query.type;
-    }
-    else if (req.query.type) {
-        types = [ req.query.type ];
-    }
-    else if (req.body && req.body.type) {
-        types = req.body.type;
-    }
-
-    if (types.indexOf('webapp') >= 0 && types.indexOf('webapp+') == -1) {
-        types.push('webapp+');
-    }
-
-    if (types.indexOf('snap') >= 0 && types.indexOf('snappy') == -1) {
-        types.push('snappy')
-    }
-
-    if (types.length > 0) {
-        query['types'] = {
-            $in: types,
-        };
-    }
-
-    let ids = [];
-    if (req.query.apps) {
-        ids = req.query.apps.split(',');
-    }
-    else if (req.body && req.body.apps) {
-        ids = req.body.apps;
-    }
-    if (ids.length > 0) {
-        query.id = {
-            $in: ids
-        };
-    }
-
-    let frameworks = [];
-    if (req.query.frameworks) {
-        frameworks = req.query.frameworks.split(',');
-    }
-    else if (req.body && req.body.frameworks) {
-        frameworks = req.body.frameworks;
-    }
-    if (frameworks.length > 0) {
-        query.framework = {
-            $in: frameworks
-        };
-    }
-
-    let architecture = ""
-    if (req.query.architecture) {
-        architecture = req.query.architecture;
-    }
-    else if (req.body && req.body.architecture) {
-        architecture = req.body.architecture;
-    }
-    if (architecture) {
-        let architectures = [architecture];
-        if (architecture != 'all') {
-            architectures.push('all');
-        }
-
-        query.$or = [
-            {architecture: {$in: architectures}},
-            {architectures: {$in: architectures}},
-        ];
-    }
-
-    if (req.query.category) {
-        query.category = req.query.category;
-    }
-    else if (req.body && req.body.category) {
-        query.category = req.body.category;
-    }
-
-    if (req.query.author) {
-        query.author = req.query.author;
-    }
-    else if (req.body && req.body.author) {
-        query.author = req.body.author;
-    }
-
-    if (req.query.search) {
-        query['$text'] = {$search: req.query.search};
-    }
-    else if (req.body && req.body.search) {
-        query['$text'] = {$search: req.body.search};
-    }
-
-    if (
-        (req.query.nsfw === false || (req.query.nsfw && req.query.nsfw.toLowerCase() == 'false')) ||
-        (req.body && (req.body.nsfw === false || (req.query.nsfw && req.query.nsfw.toLowerCase() == 'false')))
-    ) {
-        query.nsfw = {$in: [null, false]};
-    }
-
-    if (
-        (req.query.nsfw === true || (req.query.nsfw && req.query.nsfw.toLowerCase() == 'true')) ||
-        (req.body && (req.body.nsfw === true || (req.query.nsfw && req.query.nsfw.toLowerCase() == 'true')))
-    ) {
-        query.nsfw = true;
-    }
-
-    return db.Package.count(query).then((count) => {
-        let findQuery = db.Package.find(query);
-
-        if (sort == 'relevance') {
-            if (req.query.search) {
-                findQuery.select({score : {$meta : 'textScore'}});
-                findQuery.sort({score : {$meta : 'textScore'}});
-            }
-            else {
-                findQuery.sort('name');
-            }
-        }
-        else {
-            findQuery.sort(sort);
-        }
-
-        if (limit) {
-            findQuery.limit(limit);
-        }
-
-        if (skip) {
-            findQuery.skip(skip);
-        }
-
-        return Promise.all([
-            findQuery,
-            count,
-        ]);
-    });
-}
 
 function nextPreviousLinks(req, count) {
     let next = null;
@@ -240,16 +89,129 @@ function setup(app) {
     });
 
     function apps(req, res) {
-        let limit = req.query.limit ? parseInt(req.query.limit) : 0;
-        let skip = req.query.skip ? parseInt(req.query.skip) : 0;
-        let defaultQuery = {
-            published: true,
-            types: {
-                $in: ['app', 'webapp', 'scope', 'webapp+'],
-            }
-        };
+        let filters = packages.parseFiltersFromRequest(req);
+        let promise = null;
+        if (filters.search && filters.search.indexOf('author:') !== 0) {
+            let query = {
+                and: [], //No defaut published=true filter, only published apps are in elasticsearch
+            };
 
-        queryPackages(req, defaultQuery).then((results) => {
+            if (filters.types.length > 0) {
+                query.and.push({
+                    in: {
+                        types: filters.types
+                    }
+                });
+            }
+            else {
+                query.and.push({
+                    in: {
+                        types: ['app', 'webapp', 'scope', 'webapp+']
+                    }
+                });
+            }
+
+            if (filters.ids.length > 0) {
+                query.and.push({
+                    in: {
+                        id: filters.ids
+                    }
+                });
+            }
+
+            if (filters.frameworks.length > 0) {
+                query.and.push({
+                    in: {
+                        framework: filters.frameworks
+                    }
+                });
+            }
+
+            if (filters.architectures.length > 0) {
+                query.and.push({
+                    in: {
+                        architectures: filters.architectures
+                    }
+                });
+            }
+
+            if (filters.category) {
+                query.and.push({
+                    term: {
+                        category: filters.category.replace(/&/g, '_').replace(/ /g, '_').toLowerCase()
+                    }
+                });
+            }
+
+            if (filters.author) {
+                query.and.push({
+                    term: {
+                        author: filters.author
+                    }
+                });
+            }
+
+            if (filters.nsfw) {
+                if (Array.isArray(filters.nsfw)) {
+                    //TODO This looks a big weird because the filters.nsfw == [null, false], clean it up
+                    query.and.push({
+                        term: {
+                            nsfw: false
+                        }
+                    });
+                }
+                else {
+                    query.and.push({
+                        term: {
+                            nsfw: filters.nsfw
+                        }
+                    });
+                }
+            }
+
+            let sort = '';
+            let direction = 'asc';
+            if (filters.sort && filters.sort != 'relevance') {
+                if (filters.sort.charAt(0) == '-') {
+                    direction = 'desc';
+                    sort = filters.sort.substring(1);
+                }
+                else {
+                    sort = filters.sort;
+                }
+            }
+
+            console.log(JSON.stringify(query, null, 2));
+
+            let es = new Elasticsearch();
+            promise = es.search(
+                filters.search,
+                {field: sort, direction: direction},
+                query,
+                filters.skip,
+                filters.limit
+            ).then((results) => {
+                //Format the results to be more like the mongo results
+                return [
+                    results.hits.hits.map((hit) => {
+                        return hit._source;
+                    }),
+                    results.hits.total,
+                ]
+            });
+        }
+        else {
+            let defaultQuery = {
+                published: true,
+                types: {
+                    $in: ['app', 'webapp', 'scope', 'webapp+'],
+                }
+            };
+
+            promise = db.queryPackages(filters, defaultQuery);
+        }
+
+        promise.then((results) => {
             let pkgs = results[0];
             let count = results[1];
 
@@ -265,10 +227,10 @@ function setup(app) {
                     packages: formatted,
                 });
             }
-            else if (
-                req.originalUrl.substring(0, 12) == '/api/v1/apps' ||
-                req.originalUrl.substring(0, 12) == '/api/v2/apps'
-            ) {
+            else if (req.originalUrl.substring(0, 9) == '/api/apps') {
+                helpers.success(res, formatted);
+            }
+            else {
                 let links = nextPreviousLinks(req, formatted.length);
 
                 helpers.success(res, {
@@ -277,9 +239,6 @@ function setup(app) {
                     next: links.next,
                     previous: links.previous,
                 });
-            }
-            else {
-                helpers.success(res, formatted);
             }
         }).catch((err) => {
             logger.error('Error fetching packages:', err);
@@ -454,7 +413,8 @@ function setup(app) {
             defaultQuery = {maintainer: req.user._id};
         }
 
-        queryPackages(req, defaultQuery).then((results) => {
+        let filters = packages.parseFiltersFromRequest(req);
+        db.queryPackages(filters, defaultQuery).then((results) => {
             let pkgs = results[0];
             let count = results[1];
 
@@ -629,6 +589,9 @@ function setup(app) {
             .then((pkg) => {
                 return pkg.save();
             }).then((pkg) => {
+                let es = new Elasticsearch();
+                return es.upsert(pkg);
+            }).then((pkg) => {
                 helpers.success(res, packages.toJson(pkg, req));
             }).catch((err) => {
                 if ((err && err.indexOf && err.indexOf(NEEDS_MANUAL_REVIEW) === 0) || err == MALFORMED_MANIFEST || err == DUPLICATE_PACKAGE || err == BAD_NAMESPACE) {
@@ -673,6 +636,9 @@ function setup(app) {
             }
         }).then((pkg) => {
             return pkg.save();
+        }).then((pkg) => {
+            let es = new Elasticsearch();
+            return es.upsert(pkg);
         }).then((pkg) => {
             helpers.success(res, packages.toJson(pkg, req));
         }).catch((err) => {

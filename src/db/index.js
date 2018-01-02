@@ -1,6 +1,7 @@
-var config = require('../utils/config');
-var logger = require('../utils/logger');
-var mongoose = require('mongoose');
+const mongoose = require('mongoose');
+
+const config = require('../utils/config');
+const logger = require('../utils/logger');
 
 mongoose.connect(config.mongo.uri + '/' + config.mongo.database, function(err) {
     if (err) {
@@ -78,5 +79,84 @@ var userSchema = mongoose.Schema({
 
 var User = mongoose.model('User', userSchema);
 
+function queryPackages(filters, query) {
+    if (filters.types.length > 0) {
+        query['types'] = {
+            $in: filters.types,
+        };
+    }
+
+    if (filters.ids.length > 0) {
+        query.id = {
+            $in: filters.ids
+        };
+    }
+
+    if (filters.frameworks.length > 0) {
+        query.framework = {
+            $in: filters.frameworks
+        };
+    }
+
+    if (filters.architectures.length > 0) {
+        query.$or = [
+            {architecture: {$in: filters.architectures}},
+            {architectures: {$in: filters.architectures}},
+        ];
+    }
+
+    if (filters.category) {
+        query.category = filters.category;
+    }
+
+    if (filters.author) {
+        query.author = filters.author;
+    }
+
+    if (filters.search) {
+        query['$text'] = {$search: filters.search};
+    }
+
+    if (filters.nsfw) {
+        if (Array.isArray(filters.nsfw)) {
+            query.nsfw = {$in: filters.nsfw};
+        }
+        else {
+            query.nsfw = filters.nsfw;
+        }
+    }
+
+    return Package.count(query).then((count) => {
+        let findQuery = Package.find(query);
+
+        if (filters.sort == 'relevance') {
+            if (filters.search) {
+                findQuery.select({score : {$meta : 'textScore'}});
+                findQuery.sort({score : {$meta : 'textScore'}});
+            }
+            else {
+                findQuery.sort('name');
+            }
+        }
+        else {
+            findQuery.sort(filters.sort);
+        }
+
+        if (filters.limit) {
+            findQuery.limit(filters.limit);
+        }
+
+        if (filters.skip) {
+            findQuery.skip(filters.skip);
+        }
+
+        return Promise.all([
+            findQuery,
+            count,
+        ]);
+    });
+}
+
 exports.Package = Package;
+exports.queryPackages = queryPackages;
 exports.User = User;

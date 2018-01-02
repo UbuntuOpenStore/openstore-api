@@ -18,6 +18,7 @@
     "click-parser": "^3.2.0",
     "cookie-parser": "^1.4.0",
     "cookie-session": "^1.2.0",
+    "elasticsearch": "^14.0.0",
     "express": "^4.13.3",
     "gettext-parser": "^1.2.2",
     "jimp": "^0.2.27",
