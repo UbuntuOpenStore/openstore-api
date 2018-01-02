@@ -45,7 +45,7 @@ class Elasticsearch {
         });
         doc.search_name = item.name;
         doc.keywords = doc.keywords ? doc.keywords.map((keyword) => keyword.toLowerCase()) : [];
-        doc.category = doc.category.replace(/&/g, '_').replace(/ /g, '_').toLowerCase();
+        doc.category = doc.category ? doc.category.replace(/&/g, '_').replace(/ /g, '_').toLowerCase() : '';
         doc.nsfw = !!doc.nsfw; //Force a boolean
 
         return doc;
