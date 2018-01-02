@@ -190,7 +190,7 @@ class Elasticsearch {
                             },
                             category: {
                                 type: 'string',
-                                analyzer: 'not_analyzed'
+                                index: 'not_analyzed'
                             },
                             license: {
                                 type: 'string',
