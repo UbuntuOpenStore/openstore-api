@@ -9,8 +9,8 @@ class Elasticsearch {
     constructor() {
         this.client = new elasticsearch.Client({host: config.elasticsearch.uri});
 
-        this.index = 'packages';
-        this.type = 'package';
+        this.index = 'openstore_packages';
+        this.type = 'openstore_package';
 
         this.properties = [
             'id',
@@ -66,12 +66,21 @@ class Elasticsearch {
         });
     }
 
-    remove(id) {
+    remove(item) {
         return this.client.delete({
             index: this.index,
             type: this.type,
-            id: id,
+            id: item.id,
             retryOnConflict: 3,
+        }).then(() => {
+            return item;
+        }).catch((err) => {
+            if (err.status == 404) {
+                return item;
+            }
+            else {
+                throw err;
+            }
         });
     }
 

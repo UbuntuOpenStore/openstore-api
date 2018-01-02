@@ -181,8 +181,6 @@ function setup(app) {
                 }
             }
 
-            console.log(JSON.stringify(query, null, 2));
-
             let es = new Elasticsearch();
             promise = es.search(
                 filters.search,
@@ -590,7 +588,12 @@ function setup(app) {
                 return pkg.save();
             }).then((pkg) => {
                 let es = new Elasticsearch();
-                return es.upsert(pkg);
+                if (pkg.published) {
+                    return es.upsert(pkg);
+                }
+                else {
+                    return es.remove(pkg);
+                }
             }).then((pkg) => {
                 helpers.success(res, packages.toJson(pkg, req));
             }).catch((err) => {
@@ -638,7 +641,12 @@ function setup(app) {
             return pkg.save();
         }).then((pkg) => {
             let es = new Elasticsearch();
-            return es.upsert(pkg);
+            if (pkg.published) {
+                return es.upsert(pkg);
+            }
+            else {
+                return es.remove(pkg);
+            }
         }).then((pkg) => {
             helpers.success(res, packages.toJson(pkg, req));
         }).catch((err) => {
