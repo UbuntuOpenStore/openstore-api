@@ -27,11 +27,6 @@ function updateInfo(pkg, data, body, file, url, updateRevision) {
             pkg.maintainer_name = user.name ? user.name : user.username;
         }
 
-        pkg.updated_date = moment().toISOString();
-        if (!pkg.published_date) {
-            pkg.published_date = moment().toISOString();
-        }
-
         if (data) {
             var manifest = {
                 architecture: data.architecture,
@@ -247,6 +242,11 @@ function updateInfo(pkg, data, body, file, url, updateRevision) {
                 version: pkg.version,
                 downloads: 0,
             });
+        }
+
+        pkg.updated_date = moment().toISOString();
+        if (!pkg.published_date && pkg.published) {
+            pkg.published_date = moment().toISOString();
         }
 
         return pkg;
