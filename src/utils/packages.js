@@ -368,7 +368,7 @@ function toJson(pkg, req) {
             icon: `${config.server.host}/api/icon/${pkg.version}/${pkg.id}${ext}`,
             id: pkg.id ? pkg.id : '',
             keywords: pkg.keywords ? pkg.keywords : [],
-            license: pkg.license ? pkg.license : '',
+            license: pkg.license ? pkg.license : 'Proprietary',
             maintainer_name: pkg.maintainer_name ? pkg.maintainer_name : null,
             maintainer: pkg.maintainer ? pkg.maintainer : null,
             manifest: pkg.manifest ? pkg.manifest : {},
