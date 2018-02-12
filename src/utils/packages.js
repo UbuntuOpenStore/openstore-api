@@ -242,11 +242,14 @@ function updateInfo(pkg, data, body, file, url, updateRevision) {
                 version: pkg.version,
                 downloads: 0,
             });
+
+            //Only update if we have a new version uploaded
+            pkg.updated_date = moment().toISOString();
         }
 
-        pkg.updated_date = moment().toISOString();
         if (!pkg.published_date && pkg.published) {
             pkg.published_date = moment().toISOString();
+            pkg.updated_date = moment().toISOString();
         }
 
         return pkg;
