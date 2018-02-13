@@ -25,8 +25,12 @@ function setup() {
     });
 
     app.use(function(req, res, next) {
-        let host = config.server.host.replace('https://', '').replace('http://', '')
-        if (req.headers.host != host) {
+        let host = config.server.host.replace('https://', '').replace('http://', '');
+        let secondary_host = config.server.host.replace('https://', '').replace('http://', '');
+
+        console.log(req.headers.host, host, secondary_host);
+
+        if (req.headers.host != host && req.headers.host != secondary_host) {
             res.redirect(301, config.server.host + req.originalUrl);
         }
         else {
