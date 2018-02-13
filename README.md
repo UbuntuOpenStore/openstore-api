@@ -1,6 +1,6 @@
 # OpenStore Web
 
-Web viewer and api for the [OpenStore](https://open.uappexplorer.com/).
+Web viewer and api for the [OpenStore](https://open-store.io/).
 
 ## Reporting Bugs
 

@@ -83,7 +83,7 @@ function setup() {
                             res.status(200);
                             res.send(opengraph.replace(data, {
                                 title: pkg.name,
-                                url: 'https://open.uappexplorer.com/app/' + pkg.id,
+                                url: 'https://open-store.io/app/' + pkg.id,
                                 image: pkg.icon,
                                 description: pkg.tagline ? pkg.tagline : '',
                             }));
