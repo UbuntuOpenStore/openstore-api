@@ -84,7 +84,8 @@ function updateInfo(pkg, data, body, file, url, updateRevision) {
                     }
                 }
 
-                manifest.hooks[app.name] = hook;
+                // Mongo will reject this if there are any `.`s
+                manifest.hooks[app.name.replace('.', '__')] = hook;
             });
 
             pkg.architecture = data.architecture;
