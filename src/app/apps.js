@@ -20,6 +20,7 @@ const exec = require('child_process').exec;
 const bluebird = require('bluebird');
 const path = require('path');
 const mime = require('mime');
+const uuid = require('node-uuid');
 
 bluebird.promisifyAll(fs);
 const mupload = multer({dest: '/tmp'});
@@ -378,7 +379,7 @@ function setup(app) {
                         logger.error(err);
                     }
                     else {
-                        res.redirect(301, pkg.package);
+                        res.redirect(302, pkg.package);
                     }
                 });
             }
@@ -409,6 +410,19 @@ function setup(app) {
             res.status(404);
             fs.createReadStream(path.join(__dirname, '../404.png')).pipe(res);
         });
+    });
+
+    app.get('/api/screenshot/:name', function(req, res) {
+        let filename = `${config.image_dir}/${req.params.name}`;
+        if (fs.existsSync(filename)) {
+            res.setHeader('Content-type', mime.lookup(filename));
+            res.setHeader('Cache-Control', 'public, max-age=2592000'); //30 days
+            fs.createReadStream(filename).pipe(res);
+        }
+        else {
+            res.status(404);
+            fs.createReadStream(path.join(__dirname, '../404.png')).pipe(res);
+        }
     });
 
     app.get(['/api/v1/manage/apps', '/api/v2/manage/apps'], passport.authenticate('localapikey', {session: false}), function(req, res) {
@@ -465,10 +479,10 @@ function setup(app) {
         });
     });
 
-    function fileName(req) {
-        let filePath = req.file.path;
+    function fileName(file) {
+        let filePath = file.path;
         //Rename the file so click-review doesn't freak out
-        if (req.file.originalname.endsWith('.click')) {
+        if (file.originalname.endsWith('.click')) {
             filePath += '.click';
         }
         else {
@@ -478,21 +492,21 @@ function setup(app) {
         return filePath;
     }
 
-    function checkPackage(req) {
+    function checkPackage(req, file) {
         if (
-            !req.file.originalname.endsWith('.click') &&
-            !req.file.originalname.endsWith('.snap')
+            !file.originalname.endsWith('.click') &&
+            !file.originalname.endsWith('.snap')
         ) {
-            fs.unlink(req.file.path);
+            fs.unlink(file.path);
             throw BAD_FILE;
         }
         else {
-            return fs.renameAsync(req.file.path, fileName(req)).then(() => {
+            return fs.renameAsync(file.path, fileName(file)).then(() => {
                 if (helpers.isAdminOrTrustedUser(req)) {
                     return false; //Admin & trusted users can upload apps without manual review
                 }
                 else {
-                    return reviewPackage(fileName(req));
+                    return reviewPackage(fileName(file));
                 }
             }).then((needsManualReview) => {
                 if (needsManualReview) {
@@ -533,17 +547,26 @@ function setup(app) {
             }
         }
 
-        return packages.updateInfo(pkg, parseData, req.body, req.file, null, true).then((pkg) => {
+        let file = null;
+        if (req.file) {
+            file = req.file;
+        }
+        else if (req.files.file.length > 0) {
+            file = req.files.file[0];
+        }
+
+        return packages.updateInfo(pkg, parseData, req.body, file, null, true).then((pkg) => {
             return upload.uploadPackage(
                 config.smartfile.url,
                 config.smartfile.share,
                 pkg,
-                fileName(req),
+                fileName(file),
                 parseData.icon
             );
         });
     }
 
+    // TODO rewrite post & put with async/await
     app.post(['/api/apps', '/api/v1/manage/apps', '/api/v2/manage/apps'], passport.authenticate('localapikey', {session: false}), mupload.single('file'), helpers.isNotDisabled, helpers.downloadFileMiddleware, function(req, res) {
         if (!req.file) {
             helpers.error(res, 'No file upload specified');
@@ -560,8 +583,8 @@ function setup(app) {
                 req.body.maintainer = req.user._id;
             }
 
-            checkPackage(req).then(() => {
-                let parsePromise = parse(fileName(req), true).then((parseData) => {
+            checkPackage(req, req.file).then(() => {
+                let parsePromise = parse(fileName(req.file), true).then((parseData) => {
                     if (!helpers.isAdminOrTrustedUser(req)) {
                         if (parseData.name.substring(0, 11) == 'com.ubuntu.' && parseData.name.substring(0, 21) != 'com.ubuntu.developer.') {
                             throw BAD_NAMESPACE;
@@ -588,7 +611,7 @@ function setup(app) {
                 return Promise.all([
                     new db.Package(),
                     parsePromise,
-                    checksum(fileName(req)),
+                    checksum(fileName(req.file)),
                     req,
                     existingPromise,
                 ]);
@@ -617,7 +640,12 @@ function setup(app) {
         }
     });
 
-    app.put(['/api/apps/:id', '/api/v1/manage/apps/:id', '/api/v2/manage/apps/:id'], passport.authenticate('localapikey', {session: false}), mupload.single('file'), helpers.isNotDisabled, helpers.downloadFileMiddleware, function(req, res) {
+    let putUpload = mupload.fields([
+        {name: 'file', maxCount: 1},
+        {name: 'screenshot_files', maxCount: 5},
+    ]);
+
+    app.put(['/api/apps/:id', '/api/v1/manage/apps/:id', '/api/v2/manage/apps/:id'], passport.authenticate('localapikey', {session: false}), putUpload, helpers.isNotDisabled, helpers.downloadFileMiddleware, function(req, res) {
         let packagePromise = db.Package.findOne({id: req.params.id});
 
         if (req.body && (!req.body.maintainer || req.body.maintainer == 'null')) {
@@ -626,9 +654,9 @@ function setup(app) {
 
         return packagePromise.then((pkg) => {
             if (helpers.isAdminUser(req) || req.user._id == pkg.maintainer) {
-                if (req.file) {
-                    return checkPackage(req).then(() => {
-                        let filePath = fileName(req);
+                if (req.files && req.files.file && req.files.file.length > 0) {
+                    return checkPackage(req, req.files.file[0]).then(() => {
+                        let filePath = fileName(req.files.file[0]);
                         let parsePromise = parse(filePath, true);
 
                         return Promise.all([
@@ -647,6 +675,43 @@ function setup(app) {
                 throw PERMISSION_DENIED;
             }
         }).then((pkg) => {
+            if (req.files && req.files.screenshot_files && req.files.screenshot_files.length > 0) {
+                let screenshotLimit = 5 - pkg.screenshots.length;
+                if (req.files.screenshot_files.length < screenshotLimit) {
+                    screenshotLimit = req.files.screenshot_files.length;
+                }
+
+                if (req.files.screenshot_files.length > screenshotLimit) {
+                    for (let i = screenshotLimit; i < req.files.screenshot_files.length; i++) {
+                        fs.unlink(req.files.screenshot_files[i].path);
+                    }
+                }
+
+                for (let i = 0; i < screenshotLimit; i++) {
+                    let file = req.files.screenshot_files[i];
+
+                    let ext = path.extname(file.originalname);
+                    if (['.png', '.jpg', '.jpeg'].indexOf(ext) == -1) {
+                        // Reject anything not an image we support
+                        fs.unlink(file.path);
+                        continue;
+                    }
+                    else {
+                        let id = uuid.v4();
+                        let filename = `${pkg.id}-screenshot-${id}${ext}`;
+
+                        fs.renameSync(
+                            req.files.screenshot_files[i].path,
+                            `${config.image_dir}/${filename}`
+                        );
+
+                        pkg.screenshots.push(`${config.server.host}/api/screenshot/${filename}`);
+                    }
+                }
+            }
+
+            return pkg;
+        }).then((pkg) => {
             return pkg.save();
         }).then((pkg) => {
             let es = new Elasticsearch();
@@ -659,7 +724,7 @@ function setup(app) {
         }).then((pkg) => {
             helpers.success(res, packages.toJson(pkg, req));
         }).catch((err) => {
-            if (err == PERMISSION_DENIED || err == BAD_FILE || err.indexOf(NEEDS_MANUAL_REVIEW) === 0 || err == MALFORMED_MANIFEST || err == WRONG_PACKAGE || err == EXISTING_VERSION) {
+            if (err == PERMISSION_DENIED || err == BAD_FILE || (err.indexOf && err.indexOf(NEEDS_MANUAL_REVIEW) === 0) || err == MALFORMED_MANIFEST || err == WRONG_PACKAGE || err == EXISTING_VERSION) {
                 helpers.error(res, err, 400);
             }
             else {

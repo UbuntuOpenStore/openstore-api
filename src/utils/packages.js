@@ -179,17 +179,25 @@ function updateInfo(pkg, data, body, file, url, updateRevision) {
                 pkg.tagline = body.tagline;
             }
 
+            let screenshots = [];
             if (body.screenshots) {
                 if (Array.isArray(body.screenshots)) {
-                    pkg.screenshots = body.screenshots;
+                    screenshots = body.screenshots;
                 }
                 else {
-                    pkg.screenshots = JSON.parse(body.screenshots);
+                    screenshots = JSON.parse(body.screenshots);
                 }
             }
-            else {
-                pkg.screenshots = [];
-            }
+
+            // Unlink the screenshot file if it gets removed
+            pkg.screenshots.forEach((screenshot) => {
+                let prefix = `${config.server.host}/api/screenshot/`;
+                if (screenshots.indexOf(screenshot) == -1 && screenshot.startsWith(prefix)) {
+                    let filename = screenshot.replace(prefix, '');
+                    fs.unlink(`${config.image_dir}/${filename}`);
+                }
+            });
+            pkg.screenshots = screenshots;
 
             if (body.keywords) {
                 if (!Array.isArray(body.keywords)) {
