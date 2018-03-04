@@ -11,7 +11,7 @@ mongoose.connect(config.mongo.uri + '/' + config.mongo.database, function(err) {
 });
 
 var packageSchema = mongoose.Schema({
-    architecture: String,
+    architecture: String,  // TODO remove this
     architectures: [String],
     author: String,
     category: String,
