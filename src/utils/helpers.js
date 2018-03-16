@@ -143,6 +143,53 @@ function downloadFileMiddleware(req, res, next) {
     }
 }
 
+function nextPreviousLinks(req, count) {
+    let next = null;
+    let previous = null;
+    let limit = req.query.limit ? parseInt(req.query.limit) : 0;
+    let skip = req.query.skip ? parseInt(req.query.skip) : 0;
+
+    let url = config.server.host + req.originalUrl;
+    if (count == limit) {
+        let nextSkip = skip + limit;
+
+        //TODO use the url module once the node version is upgraded
+        if (url.indexOf('skip') == -1) {
+            if (url.indexOf('?') == -1) {
+                next = url + '?skip=' + nextSkip;
+            }
+            else {
+                next = url + '&skip=' + nextSkip;
+            }
+        }
+        else {
+            next = url.replace('skip=' + skip, 'skip=' + nextSkip);
+        }
+    }
+
+    if (skip > 0) {
+        let previousSkip = (skip - limit > 0) ? (skip - limit) : 0;
+
+        //TODO use the url module once the node version is upgraded
+        if (url.indexOf('skip') == -1) {
+            if (url.indexOf('?') == -1) {
+                previous = url + '?skip=' + previousSkip;
+            }
+            else {
+                previous = url + '&skip=' + previousSkip;
+            }
+        }
+        else {
+            previous = url.replace('skip=' + skip, 'skip=' + previousSkip);
+        }
+    }
+
+    return {
+        next: next,
+        previous: previous,
+    }
+}
+
 exports.success = success;
 exports.error = error;
 exports.isNotDisabled = isNotDisabled;
@@ -153,3 +200,4 @@ exports.isAdminUser = isAdminUser;
 exports.isAdminOrTrustedUser = isAdminOrTrustedUser;
 exports.download = download;
 exports.downloadFileMiddleware = downloadFileMiddleware;
+exports.nextPreviousLinks = nextPreviousLinks;

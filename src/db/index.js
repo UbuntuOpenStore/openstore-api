@@ -46,7 +46,7 @@ var packageSchema = mongoose.Schema({
     revision: Number,
     revisions: [],
     languages: [],
-});
+}, {usePushEach: true});
 
 packageSchema.index({
     name: 'text',

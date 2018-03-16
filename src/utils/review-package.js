@@ -38,6 +38,8 @@ function reviewPackage(file) {
                     logger.error(stderr);
                 }
 
+                logger.error(stdout);
+
                 var error = true;
                 try {
                     let review = JSON.parse(stdout);

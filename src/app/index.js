@@ -1,5 +1,6 @@
 var config = require('../utils/config');
 var apps = require('./apps');
+var manage = require('./manage');
 var snaps = require('./snaps');
 var categories = require('./categories');
 var discover = require('./discover');
@@ -41,6 +42,7 @@ function setup() {
     discover.setup(app);
     updates.setup(app);
     apps.setup(app);
+    manage.setup(app);
     snaps.setup(app);
     categories.setup(app);
     users.setup(app);
