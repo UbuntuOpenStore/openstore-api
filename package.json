@@ -14,6 +14,7 @@
   "author": "Brian Douglass",
   "license": "GPL-3.0",
   "dependencies": {
+    "backblaze-b2": "git+https://github.com/bhdouglass/backblaze-b2.git",
     "body-parser": "^1.14.1",
     "click-parser": "^3.2.4",
     "cookie-parser": "^1.4.0",

@@ -1,117 +1,67 @@
-var config = require('../utils/config');
-var request = require('request');
-var fs = require('fs');
-var path = require('path');
-var jimp = require('jimp');
+const config = require('../utils/config');
+const fs = require('fs');
+const bluebird = require('bluebird');
+const path = require('path');
+const jimp = require('jimp');
+const B2 = require('backblaze-b2');
 
-function uploadToSmartfile(url, share, filepath, filename, callback) {
-    request.post({
-        url: url,
+bluebird.promisifyAll(fs);
 
-        formData: {
-            file: {
-                value: fs.createReadStream(filepath),
-                options: {
-                    filename: filename
-                }
-            }
-        },
+let b2 = new B2({
+    accountId: config.backblaze.accountId,
+    applicationKey: config.backblaze.applicationKey,
+});
 
-        headers: {
-            'Authorization': 'Basic ' + new Buffer(config.smartfile.key + ':' + config.smartfile.password).toString('base64'),
-        },
-    },
-    function(err, response) {
-        if (err) {
-            callback(err);
-        }
-        else if (response.statusCode != 200) {
-            callback('Could not upload "' + filename + '" to smartfile, error code ' + response.statusCode);
-        }
-        else {
-            callback(null, share + filename);
-        }
+async function uploadFile(filePath, fileName) {
+    await b2.authorize();
+
+    let urlInfo = await b2.getUploadUrl(config.backblaze.bucketId);
+    let uploadInfo = await b2.uploadFile({
+        uploadUrl: urlInfo.data.uploadUrl,
+        uploadAuthToken: urlInfo.data.authorizationToken,
+        filename: fileName,
+        data: await fs.readFileAsync(filePath),
     });
+
+    return config.backblaze.baseUrl + config.backblaze.bucketName + '/' + uploadInfo.data.fileName;
 }
 
-function uploadIcon(url, share, pkg, filepath, callback) {
-    var iconname = pkg.id + path.extname(filepath);
-
-    if (path.extname(filepath) == '.png') {
-        jimp.read(filepath, function(err, image) {
-            if (err) {
-                callback(err);
-            }
-            else {
-                image.resize(92, 92).write(filepath, function(err) {
-                    if (err) {
-                        callback(err);
-                    }
-                    else {
-                        uploadToSmartfile(url, share, filepath, iconname, function(err, url) {
-                            if (iconname.indexOf('404.png') > -1) {
-                                fs.unlink(filepath);
-                            }
-
-                            callback(err, url);
-                        });
-                    }
-                });
-            }
-        });
-    }
-    else {
-        uploadToSmartfile(url, share, filepath, iconname, function(err, url) {
-            fs.unlink(filepath);
-            callback(err, url);
-        });
-    }
-}
-
-function uploadClick(url, share, pkg, filepath, iconpath, callback) {
-    var extension = '.click';
+async function uploadPackage(pkg, packagePath, iconPath) {
+    let ext = '.click';
     if (pkg.types.indexOf('snappy') >= 0) {
-        extension = '.snap';
+        ext = '.snap';
     }
-    var filename = pkg.id + '_' + pkg.version + '_' + pkg.architecture + extension;
+    let packageName = `packages/${pkg.id}_${pkg.version}_${pkg.architecture}${ext}`;
 
-    uploadToSmartfile(url, share, filepath, filename, function(err, clickurl) {
-        fs.unlink(filepath);
+    let packageUrl = await uploadFile(packagePath, packageName);
 
-        if (err) {
-            callback(err);
-        }
-        else {
-            if (!iconpath) {
-                iconpath = path.join(__dirname, '../404.png');
-            }
-
-            uploadIcon(url, share, pkg, iconpath, function(err, imgurl) {
-                callback(err, clickurl, imgurl);
+    let iconUrl = '';
+    if (iconPath) {
+        let iconName = `icons/${pkg.id}${path.extname(iconPath)}`;
+        if (path.extname(iconPath) == '.png') {
+            jimp.read(iconPath, async (err, image) => {
+                if (err) {
+                    throw err;
+                }
+                else {
+                    image.resize(92, 92).write(iconPath, async (err) => {
+                        if (err) {
+                            throw err;
+                        }
+                        else {
+                            iconUrl = await uploadFile(iconPath, iconName);
+                        }
+                    });
+                }
             });
         }
-    });
-}
+        else {
+            iconUrl = await uploadFile(iconPath, iconName);
+        }
+    }
 
-//TODO Refactor this whole module
-function uploadPackage(url, share, pkg, filepath, iconpath) {
-    return new Promise((resolve, reject) => {
-        uploadClick(url, share, pkg, filepath, iconpath, (err, pkgUrl, imgUrl) => {
-            if (err) {
-                reject(err);
-            }
-            else {
-                pkg.package = pkgUrl;
-                pkg.icon = imgUrl;
-
-                resolve(pkg);
-            }
-        });
-    });
+    return [packageUrl, iconUrl];
 }
 
 
-exports.uploadToSmartfile = uploadToSmartfile;
-exports.uploadIcon = uploadIcon;
-exports.uploadClick = uploadClick;
 exports.uploadPackage = uploadPackage;

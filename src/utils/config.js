@@ -2,7 +2,7 @@
 
 const fs = require('fs');
 
-//Allow the smartfile api key/pass to be set when testing locally
+//Allow api key/pass to be set when testing locally
 let configFile = {};
 if (fs.existsSync(__dirname + '/config.json')) {
     configFile = JSON.parse(fs.readFileSync(__dirname + '/config.json'));
@@ -27,11 +27,12 @@ var config = {
     elasticsearch: {
         uri: process.env.ELASTICSEARCH_URI || 'http://localhost:9200/',
     },
-    smartfile: {
-        key: configFile.SMARTFILE_KEY || process.env.SMARTFILE_KEY || '',
-        password: configFile.SMARTFILE_PASS || process.env.SMARTFILE_PASS || '',
-        url: process.env.SMARTFILE_URL || 'https://app.smartfile.com/api/2/path/data/test/',
-        share: process.env.SMARTFILE_SHARE || 'https://file.ac/MjgQmGAVzEU/',
+    backblaze: {
+        accountId: configFile.BACKBLAZE_ACCOUNT_ID || process.env.BACKBLAZE_ACCOUNT_ID || '',
+        applicationKey: configFile.BACKBLAZE_APP_KEY || process.env.BACKBLAZE_APP_KEY || '',
+        bucketId: configFile.BACKBLAZE_BUCKET_ID || process.env.BACKBLAZE_BUCKET_ID || '',
+        bucketName: configFile.BACKBLAZE_BUCKET_NAME || process.env.BACKBLAZE_BUCKET_NAME || '',
+        baseUrl: process.env.BACKBLAZE_BASE_URL || 'https://files.open-store.io/file/',
     },
     papertrail: {
         host: process.env.PAPERTRAIL_HOST,

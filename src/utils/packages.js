@@ -362,7 +362,7 @@ function toJson(pkg, req) {
         }
         let download =  config.server.host + '/api/download/' + pkg.id + '/' + pkg.id + '_latest_' + pkg.architecture + extension;
 
-        let ext = path.extname(pkg.icon);
+        let ext = pkg.icon ? path.extname(pkg.icon) : '.png';
         json = {
             architecture: pkg.architecture ? pkg.architecture : '',
             architectures: pkg.architectures ? pkg.architectures : [],

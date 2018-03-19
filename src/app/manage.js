@@ -228,13 +228,14 @@ function setup(app) {
                 return helpers.error(res, DUPLICATE_PACKAGE, 400);
             }
 
-            pkg = await upload.uploadPackage(
-                config.smartfile.url,
-                config.smartfile.share,
+            [packageUrl, iconUrl] = await upload.uploadPackage(
                 pkg,
                 filePath,
                 parseData.icon
             );
+
+            pkg.package = packageUrl;
+            pkg.icon = iconUrl;
 
             pkg = await pkg.save();
 
@@ -284,13 +285,14 @@ function setup(app) {
                     return helpers.error(res, error, 400);
                 }
 
-                pkg = await upload.uploadPackage(
-                    config.smartfile.url,
-                    config.smartfile.share,
+                [packageUrl, iconUrl] = await upload.uploadPackage(
                     pkg,
                     filePath,
                     parseData.icon
                 );
+
+                pkg.package = packageUrl;
+                pkg.icon = iconUrl;
             }
             else {
                 // Just the app info was updated
@@ -314,6 +316,7 @@ function setup(app) {
             return helpers.success(res, packages.toJson(pkg, req));
         }
         catch (err) {
+            console.log(err);
             logger.error('Error updating package:', err);
             return helpers.error(res, 'There was an error updating your app, please try again later');
         }
