@@ -402,7 +402,6 @@ function toJson(pkg, req) {
         };
 
         if (req.isAuthenticated() && req.user && (req.user._id == pkg.maintainer || req.user.role == 'admin') && pkg.revisions) {
-            json.downloads = pkg.downloads;
             json.revisions = pkg.revisions;
 
             json.totalDownloads = 0;

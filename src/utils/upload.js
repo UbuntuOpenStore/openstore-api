@@ -1,4 +1,7 @@
+'use strict';
+
 const config = require('../utils/config');
+
 const fs = require('fs');
 const bluebird = require('bluebird');
 const path = require('path');

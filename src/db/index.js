@@ -11,41 +11,53 @@ mongoose.connect(config.mongo.uri + '/' + config.mongo.database, function(err) {
 });
 
 var packageSchema = mongoose.Schema({
-    architecture: String,  // TODO remove this
-    architectures: [String],
-    author: String,
-    category: String,
-    changelog: String,
-    description: String,
-    download_sha512: String,
-    downloads: {},
-    filesize: Number,
-    framework: String,
-    icon: String,
     id: {type: String, index: true},
-    keywords: [String],
-    license: String,
-    maintainer_name: String,
-    maintainer: String,
-    manifest: {},
+
+    // Presentation
     name: String,
-    nsfw: Boolean,
-    package: String,
-    published_date: String,
-    published: Boolean,
-    screenshots: [String],
-    snappy_meta: {},
-    source: String,
     tagline: String,
-    types: [String],
-    updated_date: String,
-    version: String,
+    description: String,
+    changelog: String,
+    screenshots: [String],
+
+    // Discovery
+    category: String,
+    keywords: [String],
+    nsfw: Boolean,
+
+    // Info
+    license: String,
+    source: String,
     support_url: String,
     donate_url: String,
     video_url: String,
-    revision: Number,
-    revisions: [],
+    maintainer: String,
+    maintainer_name: String,
+    framework: String,
+
+    // Metadata
+    author: String,
+    version: String,
+    filesize: Number,
+    manifest: {},
+    snappy_meta: {},
+    types: [String],
     languages: [],
+    architecture: String, // TODO remove this
+    architectures: [String],
+
+    // Publication metadata
+    published: Boolean,
+    published_date: String,
+    updated_date: String,
+
+    // Revisions
+    revision: Number,
+    revisions: [], // Revisions and stats
+
+    icon: String,
+    download_sha512: String,
+    package: String, // Download url
 }, {usePushEach: true});
 
 packageSchema.index({
@@ -99,10 +111,9 @@ function queryPackages(filters, query) {
     }
 
     if (filters.architectures.length > 0) {
-        query.$or = [
-            {architecture: {$in: filters.architectures}},
-            {architectures: {$in: filters.architectures}},
-        ];
+        query.architectures = {
+            $in: filters.architectures
+        };
     }
 
     if (filters.category) {
