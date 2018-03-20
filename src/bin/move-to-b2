@@ -1,0 +1,42 @@
+#!/usr/bin/env node
+
+'use strict';
+
+const db = require('../db');
+const helpers = require('../utils/helpers');
+const upload = require('../utils/upload');
+const clickParse = require('../utils/click-parser-async');
+
+db.Package.find().then(async (pkgs) => {
+    for (let i = 0; i < pkgs.length; i++) {
+        let pkg = pkgs[i];
+
+        console.log(`Uploading ${pkg.id}`);
+        let filePath = `/tmp/${pkg.id}`;
+        await helpers.download(pkg.package, filePath);
+
+        let parseData = await clickParse(filePath, true);
+        if (!pkg) {
+            throw error;
+        }
+
+        let packageUrl;
+        let iconUrl;
+        [packageUrl, iconUrl] = await upload.uploadPackage(
+            pkg,
+            filePath,
+            parseData.icon
+        );
+
+        pkg.package = packageUrl;
+        pkg.icon = iconUrl;
+
+        await pkg.save();
+    }
+}).then(() => {
+    console.log('done');
+    process.exit(0);
+}).catch((err) => {
+    console.log(err);
+    process.exit(1);
+});

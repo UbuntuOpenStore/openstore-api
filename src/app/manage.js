@@ -192,8 +192,13 @@ function setup(app) {
         });
     });
 
-    app.post(['/api/apps', '/api/v1/manage/apps', '/api/v2/manage/apps'], passport.authenticate('localapikey', {session: false}), mupload.single('file'), helpers.isNotDisabled, helpers.downloadFileMiddleware, async function(req, res) {
-        if (!req.file) {
+    // Make the post similar to the put
+    let postUpload = mupload.fields([
+        {name: 'file', maxCount: 1},
+    ]);
+
+    app.post(['/api/apps', '/api/v1/manage/apps', '/api/v2/manage/apps'], passport.authenticate('localapikey', {session: false}), postUpload, helpers.isNotDisabled, helpers.downloadFileMiddleware, async function(req, res) {
+        if (!req.files.file.length == 1) {
             return helpers.error(res, 'No file upload specified');
         }
 
@@ -202,14 +207,14 @@ function setup(app) {
                 req.body.maintainer = req.user._id;
             }
 
-            let filePath = fileName(req.file);
-            [success, error] = await review(req, req.file, filePath);
+            let filePath = fileName(req.files.file[0]);
+            [success, error] = await review(req, req.files.file[0], filePath);
             if (!success) {
                 return helpers.error(res, error, 400);
             }
 
             let pkg = new db.Package();
-            [pkg, parseData, error] = await parse(pkg, req.body, req.file, filePath);
+            [pkg, parseData, error] = await parse(pkg, req.body, req.files.file[0], filePath);
             if (!pkg) {
                 return helpers.error(res, error, 400);
             }
@@ -228,6 +233,8 @@ function setup(app) {
                 return helpers.error(res, DUPLICATE_PACKAGE, 400);
             }
 
+            let packageUrl;
+            let iconUrl;
             [packageUrl, iconUrl] = await upload.uploadPackage(
                 pkg,
                 filePath,
@@ -285,6 +292,8 @@ function setup(app) {
                     return helpers.error(res, error, 400);
                 }
 
+                let packageUrl;
+                let iconUrl;
                 [packageUrl, iconUrl] = await upload.uploadPackage(
                     pkg,
                     filePath,

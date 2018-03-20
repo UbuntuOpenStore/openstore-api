@@ -10,7 +10,7 @@ mongoose.connect(config.mongo.uri + '/' + config.mongo.database, function(err) {
     }
 });
 
-var packageSchema = mongoose.Schema({
+const packageSchema = mongoose.Schema({
     id: {type: String, index: true},
 
     // Presentation
@@ -53,7 +53,15 @@ var packageSchema = mongoose.Schema({
 
     // Revisions
     revision: Number,
-    revisions: [], // Revisions and stats
+    revisions: [
+        /*
+        {
+            revision: Number,
+            version: String, // Unique among versions
+            downloads: Number,
+        }
+        */
+    ], // Revisions and stats
 
     icon: String,
     download_sha512: String,
@@ -76,9 +84,9 @@ packageSchema.index({
     name: 'searchIndex',
 });
 
-var Package = mongoose.model('Package', packageSchema);
+const Package = mongoose.model('Package', packageSchema);
 
-var userSchema = mongoose.Schema({
+const userSchema = mongoose.Schema({
     apikey: String,
     email: String,
     language: String,
@@ -89,7 +97,7 @@ var userSchema = mongoose.Schema({
     username: String,
 });
 
-var User = mongoose.model('User', userSchema);
+const User = mongoose.model('User', userSchema);
 
 function queryPackages(filters, query) {
     if (filters.types.length > 0) {

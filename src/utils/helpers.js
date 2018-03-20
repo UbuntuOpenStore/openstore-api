@@ -128,10 +128,12 @@ function downloadFileMiddleware(req, res, next) {
         }
 
         download(req.body.downloadUrl, `${config.data_dir}/${filename}`).then((tmpfile) => {
-            req.file = {
-                originalname: filename,
-                path: tmpfile,
-                size: fs.statSync(tmpfile).size,
+            req.files = {
+                file: [{
+                    originalname: filename,
+                    path: tmpfile,
+                    size: fs.statSync(tmpfile).size,
+                }]
             };
             next();
         }).catch((err) => {
