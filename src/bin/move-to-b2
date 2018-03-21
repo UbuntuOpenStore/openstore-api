@@ -6,34 +6,40 @@ const db = require('../db');
 const helpers = require('../utils/helpers');
 const upload = require('../utils/upload');
 const clickParse = require('../utils/click-parser-async');
+const config = require('../utils/config');
 
 db.Package.find().then(async (pkgs) => {
     for (let i = 0; i < pkgs.length; i++) {
         let pkg = pkgs[i];
 
-        console.log(`Uploading ${pkg.id}`);
-        let filePath = `/tmp/${pkg.id}`;
-        await helpers.download(pkg.package, filePath);
-
-        let parseData = await clickParse(filePath, true);
-        if (!pkg) {
-            throw error;
+        if (pkg.package.indexOf(config.backblaze.bucketName) >= 0) {
+            console.log(`Skipping ${pkg.id}`);
         }
+        else {
+            console.log(`Uploading ${pkg.id}`);
+            let filePath = `/tmp/${pkg.id}`;
+            await helpers.download(pkg.package, filePath);
 
-        let packageUrl;
-        let iconUrl;
-        [packageUrl, iconUrl] = await upload.uploadPackage(
-            pkg,
-            filePath,
-            parseData.icon
-        );
+            let parseData = await clickParse(filePath, true);
+            if (!pkg) {
+                throw error;
+            }
 
-        pkg.old_package = pkg.package;
-        pkg.old_icon = pkg.icon;
-        pkg.package = packageUrl;
-        pkg.icon = iconUrl;
+            let packageUrl;
+            let iconUrl;
+            [packageUrl, iconUrl] = await upload.uploadPackage(
+                pkg,
+                filePath,
+                parseData.icon
+            );
 
-        await pkg.save();
+            pkg.old_package = pkg.package;
+            pkg.old_icon = pkg.icon;
+            pkg.package = packageUrl;
+            pkg.icon = iconUrl;
+
+            await pkg.save();
+        }
     }
 }).then(() => {
     console.log('done');
