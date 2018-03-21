@@ -314,7 +314,7 @@ function setup(app) {
                     }
                     else {
                         // TODO check if more url encoding is needed
-                        res.redirect(302, pkg.package.replace(',', '%2C'));
+                        res.redirect(302, pkg.package.replace(/,/g, '%2C'));
                     }
                 });
             }
