@@ -92,7 +92,7 @@
       }
     },
     "backblaze-b2": {
-      "version": "git+https://github.com/bhdouglass/backblaze-b2.git#8265a032e8cb69bc5f447801b2507f35861bb26d",
+      "version": "git+https://github.com/bhdouglass/backblaze-b2.git#d3c031570b0104efa69e8b9c0adcf9ded6cfa628",
       "requires": {
         "axios": "0.17.1",
         "q": "1.5.1",
@@ -173,6 +173,11 @@
       "version": "0.5.7",
       "resolved": "https://registry.npmjs.org/bson/-/bson-0.5.7.tgz",
       "integrity": "sha1-DRH+CTbB/uAp4R9wY/XQqyQi6j4="
+    },
+    "buffer-chunks": {
+      "version": "0.1.1",
+      "resolved": "https://registry.npmjs.org/buffer-chunks/-/buffer-chunks-0.1.1.tgz",
+      "integrity": "sha1-puGSAJoW48+zp+3UChuy6DytZxA="
     },
     "buffer-equal": {
       "version": "0.0.1",

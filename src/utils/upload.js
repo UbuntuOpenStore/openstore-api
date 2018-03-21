@@ -7,7 +7,10 @@ const bluebird = require('bluebird');
 const path = require('path');
 const jimp = require('jimp');
 const B2 = require('backblaze-b2');
+const chunks = require('buffer-chunks');
+const crypto = require('crypto');
 
+const SIZE_LIMIT = 5242880; // 5MB
 bluebird.promisifyAll(fs);
 
 let b2 = new B2({
@@ -16,17 +19,54 @@ let b2 = new B2({
 });
 
 async function uploadFile(filePath, fileName) {
-    await b2.authorize();
+    let stats = fs.statSync(filePath);
+    if (stats.size > SIZE_LIMIT) {
+        let fileData = await fs.readFileAsync(filePath);
+        let fileChunks = chunks(fileData, SIZE_LIMIT);
 
-    let urlInfo = await b2.getUploadUrl(config.backblaze.bucketId);
-    let uploadInfo = await b2.uploadFile({
-        uploadUrl: urlInfo.data.uploadUrl,
-        uploadAuthToken: urlInfo.data.authorizationToken,
-        filename: fileName,
-        data: await fs.readFileAsync(filePath),
-    });
+        await b2.authorize();
 
-    return config.backblaze.baseUrl + config.backblaze.bucketName + '/' + uploadInfo.data.fileName;
+        let largeFileData = await b2.startLargeFile({
+            bucketId: config.backblaze.bucketId,
+            fileName: fileName
+        });
+        let fileId = largeFileData.data.fileId;
+
+        await Promise.all(fileChunks.map((data, index) => {
+            return b2.getUploadPartUrl({fileId: fileId}).then((urlInfo) => {
+                return b2.uploadPart({
+                    partNumber: index + 1,
+                    uploadUrl: urlInfo.data.uploadUrl,
+                    uploadAuthToken: urlInfo.data.authorizationToken,
+                    data: data,
+                });
+            })
+        }))
+
+        let uploadInfo = await b2.finishLargeFile({
+            fileId: fileId,
+            partSha1Array: fileChunks.map((data) => {
+                let hash = crypto.createHash('sha1');
+                hash.update(data);
+                return hash.digest('hex');
+            })
+        });
+
+        return config.backblaze.baseUrl + config.backblaze.bucketName + '/' + uploadInfo.data.fileName;
+    }
+    else {
+        await b2.authorize();
+
+        let urlInfo = await b2.getUploadUrl(config.backblaze.bucketId);
+        let uploadInfo = await b2.uploadFile({
+            uploadUrl: urlInfo.data.uploadUrl,
+            uploadAuthToken: urlInfo.data.authorizationToken,
+            filename: fileName,
+            data: await fs.readFileAsync(filePath),
+        });
+
+        return config.backblaze.baseUrl + config.backblaze.bucketName + '/' + uploadInfo.data.fileName;
+    }
 }
 
 function resize(iconPath) {
