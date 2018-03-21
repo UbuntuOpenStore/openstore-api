@@ -7,22 +7,27 @@ const helpers = require('../utils/helpers');
 const upload = require('../utils/upload');
 const clickParse = require('../utils/click-parser-async');
 const config = require('../utils/config');
+const logger = require('../utils/logger');
 
 db.Package.find().then(async (pkgs) => {
     for (let i = 0; i < pkgs.length; i++) {
         let pkg = pkgs[i];
 
         if (pkg.package.indexOf(config.backblaze.bucketName) >= 0) {
-            console.log(`Skipping ${pkg.id}`);
+            logger.debug(`Skipping ${pkg.id} (already processed)`);
         }
         else {
-            console.log(`Uploading ${pkg.id}`);
+            logger.debug(`Uploading ${pkg.id}`);
             let filePath = `/tmp/${pkg.id}`;
             await helpers.download(pkg.package, filePath);
 
-            let parseData = await clickParse(filePath, true);
-            if (!pkg) {
-                throw error;
+            let parseData = {};
+            try {
+                parseData = await clickParse(filePath, true);
+            }
+            catch (err) {
+                logger.error(`Skipping ${pkg.id} due to error:`, err);
+                continue;
             }
 
             let packageUrl;
