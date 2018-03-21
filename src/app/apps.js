@@ -313,7 +313,8 @@ function setup(app) {
                         logger.error(err);
                     }
                     else {
-                        res.redirect(302, pkg.package);
+                        // TODO check if more url encoding is needed
+                        res.redirect(302, pkg.package.replace(',', '%2C'));
                     }
                 });
             }
