@@ -29,6 +29,26 @@ async function uploadFile(filePath, fileName) {
     return config.backblaze.baseUrl + config.backblaze.bucketName + '/' + uploadInfo.data.fileName;
 }
 
+function resize(iconPath) {
+    return new Promise((resolve, reject) => {
+        jimp.read(iconPath, (err, image) => {
+            if (err) {
+                reject(err);
+            }
+            else {
+                image.resize(92, 92).write(iconPath, (err) => {
+                    if (err) {
+                        reject(err);
+                    }
+                    else {
+                        resolve(iconPath);
+                    }
+                });
+            }
+        });
+    });
+}
+
 async function uploadPackage(pkg, packagePath, iconPath) {
     let ext = '.click';
     if (pkg.types.indexOf('snappy') >= 0) {
@@ -42,25 +62,10 @@ async function uploadPackage(pkg, packagePath, iconPath) {
     if (iconPath) {
         let iconName = `icons/${pkg.id}${path.extname(iconPath)}`;
         if (path.extname(iconPath) == '.png') {
-            jimp.read(iconPath, async (err, image) => {
-                if (err) {
-                    throw err;
-                }
-                else {
-                    image.resize(92, 92).write(iconPath, async (err) => {
-                        if (err) {
-                            throw err;
-                        }
-                        else {
-                            iconUrl = await uploadFile(iconPath, iconName);
-                        }
-                    });
-                }
-            });
+            await resize(iconPath);
         }
-        else {
-            iconUrl = await uploadFile(iconPath, iconName);
-        }
+
+        iconUrl = await uploadFile(iconPath, iconName);
     }
 
     return [packageUrl, iconUrl];
