@@ -17,7 +17,7 @@
     "backblaze-b2": "git+https://github.com/bhdouglass/backblaze-b2.git",
     "body-parser": "^1.14.1",
     "buffer-chunks": "^0.1.1",
-    "click-parser": "^3.2.5",
+    "click-parser": "^3.2.6",
     "cookie-parser": "^1.4.0",
     "cookie-session": "^1.2.0",
     "elasticsearch": "^14.0.0",

@@ -249,9 +249,9 @@
       "integrity": "sha1-wKHS86cJLgN3S/qD8UwPxXkKhmc="
     },
     "click-parser": {
-      "version": "3.2.5",
-      "resolved": "https://registry.npmjs.org/click-parser/-/click-parser-3.2.5.tgz",
-      "integrity": "sha512-4Ouy4DekuKiBnAEBUbJV29Aypii/sZoRlzujCdE1ERNQ0Y+y+U8vSIP11ZPyOg3VxTvmqPgyAg0vYCHZLp+Z/Q==",
+      "version": "3.2.6",
+      "resolved": "https://registry.npmjs.org/click-parser/-/click-parser-3.2.6.tgz",
+      "integrity": "sha512-Q/oM+yM6ymshXmSDq1l8AdIbSBvCowMlFrJ8CFVhCJ/laFPS+QQBhpUY9hvka2TvSq49GO7av5RXaPo5zhzI4Q==",
       "requires": {
         "ar": "0.0.1",
         "file-type": "7.6.0",
