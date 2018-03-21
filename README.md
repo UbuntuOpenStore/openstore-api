@@ -13,22 +13,24 @@ To get setup with development, checkout the
 
 ## Configuration
 
-By default there are no credentials stored for the GitHub login or Smartfile upload.
-Smart file is used to store clicks & snaps, it must be enabled for proper functionality.
-Once you've created your Smartfile account, visit your private FTP area and create a directory called `test` in it.
-In order to use either GitHub login or Smartfile upload you need to create a config.json file in `api/utils/`
+By default there are no credentials stored for the GitHub login or Backblaze B2 upload.
+Backblaze B2 is used to store clicks & snaps, it must be enabled for proper functionality.
+Once you've created your Backblaze account, create a B2 bucket.
+In order to use either GitHub login or Backblaze B2 upload you need to create a config.json file in `api/utils/`
 like this:
 
 ```
 {
-    "SMARTFILE_KEY": "INSERT_KEY",
-    "SMARTFILE_PASS": "INSERT_PASS",
     "GITHUB_CLIENT_ID": "INSERT_ID",
-    "GITHUB_CLIENT_SECRET": "INSERT_SECRET"
+    "GITHUB_CLIENT_SECRET": "INSERT_SECRET",
+    "BACKBLAZE_ACCOUNT_ID": "INSERT_ID",
+    "BACKBLAZE_APP_KEY": "INSERT_KEY",
+    "BACKBLAZE_BUCKET_ID": "INSERT_ID",
+    "BACKBLAZE_BUCKET_NAME": "openstore-local",
 }
 ```
 
-* [Sign up for a Smartfile account](https://app.smartfile.com/dev/)
+* [Sign up for a Backblaze account](https://www.backblaze.com/b2/sign-up.html)
 * [Create a GitHub OAuth App](https://developer.github.com/apps/building-integrations/setting-up-and-registering-oauth-apps/)
 
 ## Contributors

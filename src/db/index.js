@@ -57,15 +57,17 @@ const packageSchema = mongoose.Schema({
         /*
         {
             revision: Number,
-            version: String, // Unique among versions
+            version: String, // Unique among revisions
             downloads: Number,
         }
         */
     ], // Revisions and stats
 
     icon: String,
+    old_icon: String, // TODO remove when no longer needed
     download_sha512: String,
     package: String, // Download url
+    old_package: String, // TODO remove when no longer needed
 }, {usePushEach: true});
 
 packageSchema.index({

@@ -28,6 +28,8 @@ db.Package.find().then(async (pkgs) => {
             parseData.icon
         );
 
+        pkg.old_package = pkg.package;
+        pkg.old_icon = pkg.icon;
         pkg.package = packageUrl;
         pkg.icon = iconUrl;
 
