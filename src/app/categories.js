@@ -94,7 +94,7 @@ function setup(app) {
 
         db.Package.aggregate([
             {
-                $match: {types: {$ne: 'snappy'}}
+                $match: {published: true}
             }, {
                 $group: {
                     _id: '$category',

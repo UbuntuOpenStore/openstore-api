@@ -27,23 +27,15 @@ const NEEDS_MANUAL_REVIEW = 'This app needs to be reviewed manually';
 const MALFORMED_MANIFEST = 'Your package manifest is malformed';
 const DUPLICATE_PACKAGE = 'A package with the same name already exists';
 const PERMISSION_DENIED = 'You do not have permission to update this app';
-const BAD_FILE = 'The file must be a click or snap package';
+const BAD_FILE = 'The file must be a click package';
 const WRONG_PACKAGE = 'The uploaded package does not match the name of the package you are editing';
 const APP_NOT_FOUND = 'App not found';
 const BAD_NAMESPACE = 'You package name is for a domain that you do not have access to';
 const EXISTING_VERSION = 'A revision already exists with this version';
 
 function fileName(file) {
-    let filePath = file.path;
     //Rename the file so click-review doesn't freak out
-    if (file.originalname.endsWith('.click')) {
-        filePath += '.click';
-    }
-    else {
-        filePath += '.snap';
-    }
-
-    return filePath;
+    return file.path + '.click';
 }
 
 async function parse(pkg, body, file, filePath) {
@@ -72,10 +64,7 @@ async function parse(pkg, body, file, filePath) {
 }
 
 async function review(req, file, filePath) {
-    if (
-        !file.originalname.endsWith('.click') &&
-        !file.originalname.endsWith('.snap')
-    ) {
+    if (!file.originalname.endsWith('.click')) {
         fs.unlink(file.path);
         return [false, BAD_FILE];
     }

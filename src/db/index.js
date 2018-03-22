@@ -40,7 +40,6 @@ const packageSchema = mongoose.Schema({
     version: String,
     filesize: Number,
     manifest: {},
-    snappy_meta: {},
     types: [String],
     languages: [],
     architecture: String, // TODO remove this

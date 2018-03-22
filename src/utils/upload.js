@@ -90,11 +90,7 @@ function resize(iconPath) {
 }
 
 async function uploadPackage(pkg, packagePath, iconPath) {
-    let ext = '.click';
-    if (pkg.types.indexOf('snappy') >= 0) {
-        ext = '.snap';
-    }
-    let packageName = `packages/${pkg.id}_${pkg.version}_${pkg.architecture}${ext}`;
+    let packageName = `packages/${pkg.id}_${pkg.version}_${pkg.architecture}.click`;
 
     let packageUrl = await uploadFile(packagePath, packageName);
 

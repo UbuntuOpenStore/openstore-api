@@ -96,7 +96,6 @@ function updateInfo(pkg, data, body, file, url, updateRevision) {
             pkg.manifest = manifest;
             pkg.types = data.types;
             pkg.version = data.version;
-            pkg.snappy_meta = data.snappy_meta;
             pkg.languages = data.languages;
 
             //Don't overwrite the these if they already exists
@@ -356,12 +355,6 @@ function reparse() {
 function toJson(pkg, req) {
     let json = {};
     if (pkg) {
-        let extension = '.click';
-        if (pkg.types.indexOf('snappy') >= 0) {
-            extension = '.snap';
-        }
-        let download =  config.server.host + '/api/download/' + pkg.id + '/' + pkg.id + '_latest_' + pkg.architecture + extension;
-
         let ext = pkg.icon ? path.extname(pkg.icon) : '.png';
         json = {
             architecture: pkg.architecture ? pkg.architecture : '',
@@ -371,7 +364,7 @@ function toJson(pkg, req) {
             changelog: pkg.changelog ? pkg.changelog : '',
             description: pkg.description ? pkg.description : '',
             download_sha512: pkg.download_sha512 ? pkg.download_sha512 : '',
-            download: download,
+            download: `${config.server.host}/api/download/${pkg.id}/${pkg.id}_latest_${pkg.architecture}.click`,
             filesize: pkg.filesize ? pkg.filesize : 0,
             framework: pkg.framework ? pkg.framework : '',
             icon: `${config.server.host}/api/icon/${pkg.version}/${pkg.id}${ext}`,
@@ -388,7 +381,6 @@ function toJson(pkg, req) {
             published_date: pkg.published_date ? pkg.published_date : '',
             published: !!pkg.published,
             screenshots: pkg.screenshots ? pkg.screenshots : [],
-            snappy_meta: pkg.snappy_meta ? pkg.snappy_meta : {},
             source: pkg.source ? pkg.source : '',
             support_url: pkg.support_url ? pkg.support_url : '',
             donate_url: pkg.donate_url ? pkg.donate_url : '',
@@ -439,10 +431,6 @@ function parseFiltersFromRequest(req) {
 
     if (types.indexOf('webapp') >= 0 && types.indexOf('webapp+') == -1) {
         types.push('webapp+');
-    }
-
-    if (types.indexOf('snap') >= 0 && types.indexOf('snappy') == -1) {
-        types.push('snappy')
     }
 
     let ids = [];

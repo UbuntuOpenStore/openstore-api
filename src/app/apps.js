@@ -48,13 +48,6 @@ function setup(app) {
                     }
                 });
             }
-            else {
-                query.and.push({
-                    in: {
-                        types: ['app', 'webapp', 'scope', 'webapp+']
-                    }
-                });
-            }
 
             if (filters.ids.length > 0) {
                 query.and.push({
@@ -146,9 +139,6 @@ function setup(app) {
         else {
             let defaultQuery = {
                 published: true,
-                types: {
-                    $in: ['app', 'webapp', 'scope', 'webapp+'],
-                }
             };
 
             promise = db.queryPackages(filters, defaultQuery);

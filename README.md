@@ -14,7 +14,7 @@ To get setup with development, checkout the
 ## Configuration
 
 By default there are no credentials stored for the GitHub login or Backblaze B2 upload.
-Backblaze B2 is used to store clicks & snaps, it must be enabled for proper functionality.
+Backblaze B2 is used to store clicks, it must be enabled for proper functionality.
 Once you've created your Backblaze account, create a B2 bucket.
 In order to use either GitHub login or Backblaze B2 upload you need to create a config.json file in `api/utils/`
 like this:

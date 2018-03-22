@@ -1,7 +1,6 @@
 var config = require('../utils/config');
 var apps = require('./apps');
 var manage = require('./manage');
-var snaps = require('./snaps');
 var categories = require('./categories');
 var discover = require('./discover');
 var updates = require('./updates');
@@ -43,7 +42,6 @@ function setup() {
     updates.setup(app);
     apps.setup(app);
     manage.setup(app);
-    snaps.setup(app);
     categories.setup(app);
     users.setup(app);
 
@@ -61,7 +59,7 @@ function setup() {
         res.redirect(301, config.server.host + '/submit')
     });
 
-    app.get(['/app/:name', '/snap/:name'], function(req, res) { //For populating opengraph data, etc for bots that don't execute javascript (like twitter cards)
+    app.get(['/app/:name'], function(req, res) { //For populating opengraph data, etc for bots that don't execute javascript (like twitter cards)
         if (opengraph.match(req)) {
             res.header('Content-Type', 'text/html');
             db.Package.findOne({id: req.params.name}, function(err, pkg) {
@@ -97,7 +95,7 @@ function setup() {
         }
     });
 
-    app.all(['/', '/docs', '/submit', '/apps', '/snaps', '/manage', '/users', '/manage/:name', '/login', '/stats'], function(req, res) { //For html5mode on frontend
+    app.all(['/', '/docs', '/submit', '/apps', '/manage', '/users', '/manage/:name', '/login', '/stats'], function(req, res) { //For html5mode on frontend
         res.sendFile('index.html', {root: config.server.static_root});
     });
 
