@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "node src/index.js",
-    "dev": "cd src && supervisor -V -w app,db,utils,index.js index.js"
+    "dev": "cd src && supervisor -V -w app,db,utils,index.js index.js",
+    "lint": "node_modules/.bin/eslint ./src/"
   },
   "repository": {
     "type": "git",
@@ -42,5 +43,9 @@
     "winston": "^2.2.0",
     "winston-papertrail": "^1.0.2"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "eslint": "^4.19.1",
+    "eslint-config-airbnb-base": "^12.1.0",
+    "eslint-plugin-import": "^2.9.0"
+  }
 }
