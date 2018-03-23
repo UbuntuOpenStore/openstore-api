@@ -69,6 +69,25 @@ async function uploadFile(filePath, fileName) {
     }
 }
 
+async function removeFile(fileName) {
+    await b2.authorize();
+
+    let versions = await b2.listFileVersions({
+        bucketId: config.backblaze.bucketId,
+        startFileName: fileName,
+        maxFileCount: 1
+    });
+
+    if (versions.data.files.length >= 1) {
+        let fileId = versions.data.files[0].fileId;
+
+        await b2.deleteFileVersion({
+            fileId: fileId,
+            fileName: fileName
+        });
+    }
+}
+
 function resize(iconPath) {
     return new Promise((resolve, reject) => {
         jimp.read(iconPath, (err, image) => {
@@ -90,6 +109,12 @@ function resize(iconPath) {
 }
 
 async function uploadPackage(pkg, packagePath, iconPath) {
+    let removePackageName = null;
+    let base = config.backblaze.baseUrl + config.backblaze.bucketName + '/';
+    if (pkg.package && pkg.package.indexOf(base) === 0) {
+        removePackageName = pkg.package.replace(base, '');
+    }
+
     let packageName = `packages/${pkg.id}_${pkg.version}_${pkg.architecture}.click`;
 
     let packageUrl = await uploadFile(packagePath, packageName);
@@ -102,6 +127,11 @@ async function uploadPackage(pkg, packagePath, iconPath) {
         }
 
         iconUrl = await uploadFile(iconPath, iconName);
+    }
+
+    if (removePackageName) {
+        // Do this last in case uploading has an error
+        await removeFile(removePackageName);
     }
 
     return [packageUrl, iconUrl];
