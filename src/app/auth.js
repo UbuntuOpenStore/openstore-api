@@ -1,61 +1,75 @@
-'use strict';
+const config = require('../utils/config');
+const logger = require('../utils/logger');
+const User = require('../db').User;
 
-var config = require('../utils/config');
-var logger = require('../utils/logger');
-var db = require('../db');
-var passport = require('passport');
-var bodyParser = require('body-parser');
-var cookieParser = require('cookie-parser');
-var methodOverride = require('method-override');
-var session = require('cookie-session');
-var UbuntuStrategy = require('passport-ubuntu').Strategy;
-var LocalAPIKeyStrategy = require('passport-localapikey').Strategy;
-var GitHubStrategy = require('passport-github').Strategy;
-var uuid = require('node-uuid');
+const passport = require('passport');
+const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
+const methodOverride = require('method-override');
+const session = require('cookie-session');
+const UbuntuStrategy = require('passport-ubuntu').Strategy;
+const LocalAPIKeyStrategy = require('passport-localapikey').Strategy;
+const GitHubStrategy = require('passport-github').Strategy;
+const uuid = require('node-uuid');
+const express = require('express');
 
-function setup(app) {
-    app.use(cookieParser());
-    app.use(bodyParser.urlencoded({extended: false}));
-    app.use(bodyParser.json());
-    app.use(methodOverride());
-    app.use(session({
+const router = express.Router();
+
+router.use(cookieParser());
+router.use(bodyParser.urlencoded({extended: false}));
+router.use(bodyParser.json());
+router.use(methodOverride());
+router.use(session({
     secret: config.server.session_secret,
-        name: 'opensession',
-        maxAge: 604800000 //7 days in miliseconds
-    }));
-    app.use(passport.initialize());
-    app.use(passport.session());
+    name: 'opensession',
+    maxAge: 604800000, // 7 days in miliseconds
+}));
+router.use(passport.initialize());
+router.use(passport.session());
 
-    passport.serializeUser(function(user, done) {
-        done(null, user.email ? user.email : 'UBUNTU_' + user.ubuntu_id); //This is kinda hacky, but not all ubuntu logins will have an email
-    });
+passport.serializeUser((user, done) => {
+    // This is kinda hacky, but not all ubuntu logins will have an email
+    done(null, user.email ? user.email : `UBUNTU_${user.ubuntu_id}`);
+});
 
-    passport.deserializeUser(function(identifier, done) {
-        if (identifier.substring(0, 7) == 'UBUNTU_') {
-            db.User.findOne({ubuntu_id: identifier}, done);
+passport.deserializeUser((identifier, done) => {
+    if (identifier.substring(0, 7) == 'UBUNTU_') {
+        User.findOne({ubuntu_id: identifier}, done);
+    }
+    else {
+        User.findOne({email: identifier}, done);
+    }
+});
+
+passport.use(new LocalAPIKeyStrategy((apikey, done) => {
+    User.findOne({apikey: apikey}).then((user) => {
+        if (!user) {
+            done(null, false);
         }
         else {
-            db.User.findOne({email: identifier}, done);
+            done(null, user);
         }
+    }).catch((err) => {
+        done(err);
     });
+}));
 
-    passport.use(new LocalAPIKeyStrategy(function(apikey, done) {
-        db.User.findOne({apikey: apikey}, function(err, user) {
-            if (err) {
-                done(err);
-            }
-            else if (!user) {
-                done(null, false);
-            }
-            else {
-                done(null, user);
-            }
-        });
-    }));
+passport.use(new UbuntuStrategy({
+    returnURL: `${config.server.host}/auth/ubuntu/return`,
+    realm: config.server.host,
+    stateless: true,
+}, (identifier, profile, callback) => {
+    User.findOne({ubuntu_id: identifier}).then((user) => {
+        if (!user && profile.email) {
+            return User.findOne({email: profile.email}).then((emailUser) => {
+                return emailUser;
+            });
+        }
 
-    function updateOrCreateUbuntuUser(user, identifier, profile, callback) {
+        return user;
+    }).then((user) => {
         if (!user) {
-            user = new db.User();
+            user = new User();
             user.apikey = uuid.v4();
             user.username = Math.random();
             user.language = 'en';
@@ -68,133 +82,104 @@ function setup(app) {
         user.language = profile.language ? profile.language : user.language;
 
         user.save(callback);
-    }
+    }).catch((err) => {
+        callback(err);
+    });
+}));
 
-    passport.use(new UbuntuStrategy({
-        returnURL: config.server.host + '/auth/ubuntu/return',
-        realm: config.server.host,
-        stateless: true,
-    },
-    function(identifier, profile, callback) {
-        db.User.findOne({ubuntu_id: identifier}, function(err, user) {
-            if (err) {
-                callback(err);
+router.post('/ubuntu', passport.authenticate('ubuntu'));
+router.get('/ubuntu/return', passport.authenticate('ubuntu', {
+    successRedirect: '/manage',
+    failureRedirect: '/',
+}));
+router.post('/ubuntu/return', passport.authenticate('ubuntu', {
+    successRedirect: '/manage',
+    failureRedirect: '/',
+}));
+
+if (config.github.clientID && config.github.clientSecret) {
+    passport.use(new GitHubStrategy({
+        clientID: config.github.clientID,
+        clientSecret: config.github.clientSecret,
+        callbackURL: `${config.server.host}/auth/github/callback`,
+        scope: ['user:email'],
+    }, (accessToken, refreshToken, profile, callback) => {
+        User.findOne({github_id: profile.id}).then((user) => {
+            let emails = profile.emails.filter((email) => {
+                return email.verified;
+            }).map((email) => {
+                return email.value;
+            });
+
+            if (!user && emails) {
+                return User.findOne({email: {$in: emails}}).then((emailUser) => {
+                    return emailUser;
+                });
             }
-            else {
-                if (!user && profile.email) {
-                    db.User.findOne({email: profile.email}, function(err, user) {
-                        if (err) {
-                            callback(err);
-                        }
-                        else {
-                            updateOrCreateUbuntuUser(user, identifier, profile, callback);
-                        }
-                    });
-                }
-                else {
-                    updateOrCreateUbuntuUser(user, identifier, profile, callback);
-                }
+
+            return user;
+        }).then((user) => {
+            if (!user) {
+                user = new User();
+                user.apikey = uuid.v4();
+                user.language = 'en';
             }
+
+            let emails = profile.emails.filter((email) => {
+                return email.primary;
+            });
+
+            user.github_id = profile.id;
+            user.email = (emails.length >= 1) ? emails[0].value : '';
+            user.name = profile.displayName;
+            user.username = profile.username;
+
+            user.save(callback);
+        }).catch((err) => {
+            callback(err);
         });
     }));
 
-    app.post('/auth/ubuntu', passport.authenticate('ubuntu'));
-    app.get('/auth/ubuntu/return', passport.authenticate('ubuntu', {
+    router.get('/github', passport.authenticate('github'));
+    router.get('/github/callback', passport.authenticate('github', {
         successRedirect: '/manage',
-        failureRedirect: '/'
+        failureRedirect: '/',
     }));
-    app.post('/auth/ubuntu/return', passport.authenticate('ubuntu', {
-        successRedirect: '/manage',
-        failureRedirect: '/'
-    }));
-
-    function updateOrCreateGithubUser(user, profile, callback) {
-        if (!user) {
-            user = new db.User();
-            user.apikey = uuid.v4();
-            user.language = 'en';
-        }
-
-        let emails = profile.emails.filter((email) => email.primary);
-
-        user.github_id = profile.id;
-        user.email = (emails.length >= 1) ? emails[0].value : '';
-        user.name = profile.displayName;
-        user.username = profile.username;
-
-        user.save(callback);
-    }
-
-    if (config.github.clientID && config.github.clientSecret) {
-        passport.use(new GitHubStrategy({
-            clientID: config.github.clientID,
-            clientSecret: config.github.clientSecret,
-            callbackURL: config.server.host + '/auth/github/callback',
-            scope: ['user:email'],
-        },
-        function(accessToken, refreshToken, profile, callback) {
-            db.User.findOne({github_id: profile.id}, function(err, user) {
-                if (err) {
-                    callback(err);
-                }
-                else {
-                    let emails = profile.emails.filter((email) => email.verified).map((email) => email.value);
-                    if (!user && emails) {
-                        db.User.findOne({email: {$in: emails}}, function(err, user) {
-                            if (err) {
-                                callback(err);
-                            }
-                            else {
-                                updateOrCreateGithubUser(user, profile, callback);
-                            }
-                        });
-                    }
-                    else {
-                        updateOrCreateGithubUser(user, profile, callback);
-                    }
-                }
-            });
-        }));
-
-        app.get('/auth/github', passport.authenticate('github'));
-        app.get('/auth/github/callback', passport.authenticate('github', {
-            successRedirect: '/manage',
-            failureRedirect: '/'
-        }));
-    }
-    else {
-        logger.error('GitHub login is not available, set a client id & secret');
-    }
-
-    app.get('/auth/me', function(req, res) {
-        if (req.user) {
-            res.send({
-                success: true,
-                data: {
-                    _id: req.user._id,
-                    name: req.user.name,
-                    language: req.user.language,
-                    username: req.user.username,
-                    apikey: req.user.apikey,
-                    role: req.user.role,
-                },
-                message: null
-            });
-        }
-        else {
-            res.status(401);
-            res.send({
-                success: false,
-                data: null,
-                message: 'User not logged in'
-            });
-        }
-    });
-
-    app.get('/auth/logout', function(req, res){
-        req.logout();
-        res.redirect('/');
-    });
+}
+else {
+    logger.error('GitHub login is not available, set a client id & secret');
 }
 
-exports.setup = setup;
+router.get('/me', (req, res) => {
+    if (req.user) {
+        res.send({
+            success: true,
+            data: {
+                /* eslint-disable no-underscore-dangle */
+                _id: req.user._id,
+                name: req.user.name,
+                language: req.user.language,
+                username: req.user.username,
+                apikey: req.user.apikey,
+                role: req.user.role,
+            },
+            message: null,
+        });
+    }
+    else {
+        res.status(401);
+        res.send({
+            success: false,
+            data: null,
+            message: 'User not logged in',
+        });
+    }
+});
+
+router.get('/logout', (req, res) => {
+    req.logout();
+    res.redirect('/');
+});
+
+
+module.exports = router;

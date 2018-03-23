@@ -39,7 +39,6 @@ function setup() {
     });
 
     //TOOD see if there is a better way to do this
-    auth.setup(app);
     discover.setup(app);
     updates.setup(app);
     manage.setup(app);
@@ -51,7 +50,8 @@ function setup() {
     app.use('/api/v2/apps', apps.main);
     app.use('/api/download', apps.download);
     app.use('/api/icon', apps.icon);
-    app.use('/api/screenshot', apps.screenshot)
+    app.use('/api/screenshot', apps.screenshot);
+    app.use('/auth', auth);
 
     app.use(express.static(__dirname + '/../../www'));
 

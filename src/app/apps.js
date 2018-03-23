@@ -1,4 +1,5 @@
 const db = require('../db');
+const Package = require('../db').Package;
 const Elasticsearch = require('../db/elasticsearch');
 const config = require('../utils/config');
 const packages = require('../utils/packages');
@@ -9,7 +10,6 @@ const fs = require('fs');
 const bluebird = require('bluebird');
 const path = require('path');
 const mime = require('mime');
-
 const express = require('express');
 
 // TODO properly namespace these so we only need one router
@@ -176,7 +176,7 @@ router.post('/', apps);
 
 router.get('/stats', (req, res) => {
     Promise.all([
-        db.Package.aggregate([
+        Package.aggregate([
             {
                 $match: {published: true},
             }, {
@@ -188,7 +188,7 @@ router.get('/stats', (req, res) => {
                 $sort: {_id: 1},
             },
         ]),
-        db.Package.aggregate([
+        Package.aggregate([
             {
                 $match: {published: true},
             }, {
@@ -253,7 +253,7 @@ router.get('/:id', (req, res) => {
         ];
     }
 
-    db.Package.findOne(query).then((pkg) => {
+    Package.findOne(query).then((pkg) => {
         if (!pkg) {
             throw APP_NOT_FOUND;
         }
@@ -271,7 +271,7 @@ router.get('/:id', (req, res) => {
 });
 
 downloadRouter.get('/:id/:click', (req, res) => {
-    db.Package.findOne({
+    Package.findOne({
         id: req.params.id,
         published: true,
     }).then((pkg) => {
@@ -291,7 +291,7 @@ downloadRouter.get('/:id/:click', (req, res) => {
 
         return Promise.all([
             pkg,
-            db.Package.update({_id: pkg._id}, {$inc: inc}),
+            Package.update({_id: pkg._id}, {$inc: inc}),
         ]);
     }).then(([pkg]) => {
         // TODO check if more url encoding is needed
@@ -310,7 +310,7 @@ downloadRouter.get('/:id/:click', (req, res) => {
 iconRouter.get(['/:version/:id', '/:id'], (req, res) => {
     let id = req.params.id.replace('.png', '').replace('.svg', '').replace('.jpg', '').replace('.jpeg', '');
 
-    db.Package.findOne({id: id}).then((pkg) => {
+    Package.findOne({id: id}).then((pkg) => {
         if (!pkg || !pkg.icon) {
             throw APP_NOT_FOUND;
         }
