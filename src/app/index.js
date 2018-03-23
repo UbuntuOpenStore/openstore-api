@@ -39,12 +39,12 @@ function setup() {
     });
 
     //TOOD see if there is a better way to do this
-    discover.setup(app);
     updates.setup(app);
     manage.setup(app);
-    categories.setup(app);
     users.setup(app);
 
+    app.use('/api/apps/discover', discover);
+    app.use('/api/v1/apps/discover', discover);
     app.use('/api/apps', apps.main);
     app.use('/api/v1/apps', apps.main);
     app.use('/api/v2/apps', apps.main);
@@ -52,6 +52,9 @@ function setup() {
     app.use('/api/icon', apps.icon);
     app.use('/api/screenshot', apps.screenshot);
     app.use('/auth', auth);
+    app.use('/api/categories', categories);
+    app.use('/api/v1/categories', categories);
+    app.use('/api/v2/categories', categories);
 
     app.use(express.static(__dirname + '/../../www'));
 

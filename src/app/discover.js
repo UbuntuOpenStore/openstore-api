@@ -1,93 +1,90 @@
-'use strict';
-
-const db = require('../db');
+const Package = require('../db').Package;
 const config = require('../utils/config');
 const discoverJSON = require('./json/discover_apps.json');
 const helpers = require('../utils/helpers');
 const packages = require('../utils/packages');
+const logger = require('../utils/logger');
 
 const shuffle = require('shuffle-array');
 const moment = require('moment');
+const express = require('express');
 
-function setup(app) {
-    discoverJSON.highlight.image = config.server.host + discoverJSON.highlight.image;
+const router = express.Router();
 
-    let discoverCache = null;
-    let discoverDate = null;
-    function getDiscover(req) {
-        let now = moment();
-        if (!discoverDate || now.diff(discoverDate, 'minutes') > 10 || !discoverCache) { //Cache miss
-            let discover = JSON.parse(JSON.stringify(discoverJSON));
-            let staticCategories = discover.categories.filter((category) => (category.ids.length > 0));
+discoverJSON.highlight.image = config.server.host + discoverJSON.highlight.image;
+let discoverCache = null;
+let discoverDate = null;
 
-            return Promise.all([
-                db.Package.findOne({id: discover.highlight.id}),
-
-                Promise.all(staticCategories.map((category) => {
-                    return db.Package.find({id: {$in: category.ids}});
-                })),
-
-                db.Package.find({
-                    published: true,
-                    nsfw: {$in: [null, false]},
-                    types: {
-                        $in: ['app', 'webapp', 'scope', 'webapp+'],
-                    },
-                }).limit(8).sort('-published_date'),
-
-                db.Package.find({
-                    published: true,
-                    nsfw: {$in: [null, false]},
-                    types: {
-                        $in: ['app', 'webapp', 'scope', 'webapp+'],
-                    },
-                }).limit(8).sort('-published_date')
-            ]).then((results) => {
-                discover.highlight.app = packages.toJson(results[0], req);
-
-                staticCategories.forEach((category, index) => {
-                    category.apps = results[1][index];
-                });
-
-                let category = discover.categories.filter((category) => (category.name == 'New and Updated Apps'))[0];
-                let ids = results[2].map((app) => app.id).concat(results[3].map((app) => app.id));
-                ids = ids.filter(function(item, pos) {
-                    //Only unique ids;
-                    return ids.indexOf(item) == pos;
-                });
-                category.ids = ids.slice(0, 10);
-
-                let apps = results[2].concat(results[3]);
-                category.apps = category.ids.map((id) => {
-                    return apps.filter((app) => (app.id == id))[0];
-                });
-                category.apps = category.apps.map((app) => packages.toJson(app, req));
-
-                staticCategories.forEach((category) => {
-                    category.ids = shuffle(category.ids);
-                    category.apps = shuffle(category.apps);
-                });
-
-                discoverCache = discover;
-                discoverDate = now;
-                return discover;
-            });
-        }
-        else { //Cache hit
-            return new Promise((resolve) => {
-                resolve(discoverCache);
-            });
-        }
-    }
-
-    app.get(['/api/apps/discover', '/api/v1/apps/discover'], function(req, res) {
-        getDiscover(req).then((discover) => {
-            helpers.success(res, discover);
-        }).catch(() => {
-            helpers.error(res, 'Unable to fetch discovery data at this time');
+router.get('/', (req, res) => {
+    let now = moment();
+    if (!discoverDate || now.diff(discoverDate, 'minutes') > 10 || !discoverCache) { // Cache miss
+        let discover = JSON.parse(JSON.stringify(discoverJSON));
+        let staticCategories = discover.categories.filter((category) => {
+            return (category.ids.length > 0);
         });
 
-    });
-}
+        Promise.all([
+            Package.findOne({id: discover.highlight.id}),
 
-exports.setup = setup;
+            Promise.all(staticCategories.map((category) => {
+                return Package.find({id: {$in: category.ids}});
+            })),
+
+            Package.find({
+                published: true,
+                nsfw: {$in: [null, false]},
+            }).limit(8).sort('-published_date'),
+
+            Package.find({
+                published: true,
+                nsfw: {$in: [null, false]},
+            }).limit(8).sort('-updated_date'),
+        ]).then(([highlight, staticCategoriesApps, newApps, updatedApps]) => {
+            discover.highlight.app = packages.toJson(highlight, req);
+
+            staticCategories.forEach((category, index) => {
+                category.ids = shuffle(category.ids);
+                category.apps = shuffle(staticCategoriesApps[index]);
+            });
+
+            let newAndUpdatedCategory = discover.categories.filter((category) => {
+                return (category.name == 'New and Updated Apps');
+            })[0];
+
+            // Get the first 10 unique app ids
+            let ids = newApps.map((app) => {
+                return app.id;
+            }).concat(updatedApps.map((app) => {
+                return app.id;
+            }));
+            ids = ids.filter((item, pos) => {
+                // Only unique ids;
+                return ids.indexOf(item) == pos;
+            });
+            newAndUpdatedCategory.ids = ids.slice(0, 10);
+
+            let newAndUpdatedApps = newApps.concat(updatedApps);
+            newAndUpdatedCategory.apps = newAndUpdatedCategory.ids.map((id) => {
+                return newAndUpdatedApps.filter((app) => {
+                    return (app.id == id);
+                })[0];
+            });
+            newAndUpdatedCategory.apps = newAndUpdatedCategory.apps.map((app) => {
+                return packages.toJson(app, req);
+            });
+
+            discoverCache = discover;
+            discoverDate = now;
+
+            helpers.success(res, discover);
+        }).catch((err) => {
+            logger.error(err);
+            helpers.error(res, 'Unable to fetch discovery data at this time');
+        });
+    }
+    else { // Cache hit
+        helpers.success(res, discoverCache);
+    }
+});
+
+module.exports = router;
