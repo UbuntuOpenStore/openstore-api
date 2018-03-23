@@ -16,6 +16,7 @@
   "license": "GPL-3.0",
   "dependencies": {
     "backblaze-b2": "git+https://github.com/bhdouglass/backblaze-b2.git",
+    "bluebird": "^3.5.1",
     "body-parser": "^1.14.1",
     "buffer-chunks": "^0.1.1",
     "click-parser": "^3.2.6",

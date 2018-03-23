@@ -29,7 +29,6 @@ const DUPLICATE_PACKAGE = 'A package with the same name already exists';
 const PERMISSION_DENIED = 'You do not have permission to update this app';
 const BAD_FILE = 'The file must be a click package';
 const WRONG_PACKAGE = 'The uploaded package does not match the name of the package you are editing';
-const APP_NOT_FOUND = 'App not found';
 const BAD_NAMESPACE = 'You package name is for a domain that you do not have access to';
 const EXISTING_VERSION = 'A revision already exists with this version';
 
@@ -124,6 +123,8 @@ function updateScreenshotFiles(pkg, screenshotFiles) {
             pkg.screenshots.push(`${config.server.host}/api/screenshot/${filename}`);
         }
     }
+
+    return pkg;
 }
 
 function setup(app) {

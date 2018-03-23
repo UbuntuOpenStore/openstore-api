@@ -1,21 +1,22 @@
-var config = require('../utils/config');
-var apps = require('./apps');
-var manage = require('./manage');
-var categories = require('./categories');
-var discover = require('./discover');
-var updates = require('./updates');
-var auth = require('./auth');
-var users = require('./users');
-var db = require('../db');
-var opengraph = require('../utils/opengraph');
-var logger = require('../utils/logger');
-var fs = require('fs');
-var express = require('express');
+const config = require('../utils/config');
+const apps = require('./apps');
+const manage = require('./manage');
+const categories = require('./categories');
+const discover = require('./discover');
+const updates = require('./updates');
+const auth = require('./auth');
+const users = require('./users');
+const db = require('../db');
+const opengraph = require('../utils/opengraph');
+const logger = require('../utils/logger');
+const helpers = require('../utils/helpers');
+
+const fs = require('fs');
+const express = require('express');
+const cluster = require('cluster');
 
 function setup() {
-    var app = express();
-    //Pretty print json api
-    app.set('json spaces', 2);
+    const app = express();
 
     //Setup cors
     app.use(function(req, res, next) {
@@ -25,6 +26,7 @@ function setup() {
     });
 
     app.use(function(req, res, next) {
+        // Redirect to the main domain
         let host = config.server.host.replace('https://', '').replace('http://', '');
         let secondary_host = config.server.secondary_host.replace('https://', '').replace('http://', '');
 
@@ -40,12 +42,24 @@ function setup() {
     auth.setup(app);
     discover.setup(app);
     updates.setup(app);
-    apps.setup(app);
     manage.setup(app);
     categories.setup(app);
     users.setup(app);
 
+    app.use('/api/apps', apps.main);
+    app.use('/api/v1/apps', apps.main);
+    app.use('/api/v2/apps', apps.main);
+    app.use('/api/download', apps.download);
+    app.use('/api/icon', apps.icon);
+    app.use('/api/screenshot', apps.screenshot)
+
     app.use(express.static(__dirname + '/../../www'));
+
+    app.get('/api/health', function(req, res) {
+        helpers.success(res, {
+            id: cluster.worker.id
+        });
+    });
 
     app.get('/telegram', function(req, res) {
         res.redirect(301, 'https://telegram.me/joinchat/BMTh8AHtOL2foXLulmqDxw');
