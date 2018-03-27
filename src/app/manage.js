@@ -10,14 +10,10 @@ const checksum = require('../utils/checksum');
 const reviewPackage = require('../utils/review-package');
 
 const passport = require('passport');
-const multer  = require('multer');
-const cluster = require('cluster');
+const multer = require('multer');
 const fs = require('fs');
-const crypto = require('crypto');
-const exec = require('child_process').exec;
 const bluebird = require('bluebird');
 const path = require('path');
-const mime = require('mime');
 const uuid = require('node-uuid');
 
 bluebird.promisifyAll(fs);
@@ -33,8 +29,8 @@ const BAD_NAMESPACE = 'You package name is for a domain that you do not have acc
 const EXISTING_VERSION = 'A revision already exists with this version';
 
 function fileName(file) {
-    //Rename the file so click-review doesn't freak out
-    return file.path + '.click';
+    // Rename the file so click-review doesn't freak out
+    return `${file.path}.click`;
 }
 
 async function parse(pkg, body, file, filePath) {
@@ -48,9 +44,11 @@ async function parse(pkg, body, file, filePath) {
     }
 
     if (pkg.id && pkg.revisions) {
-        //Check for existing revisions with the same version string
+        // Check for existing revisions with the same version string
 
-        let matches = pkg.revisions.filter((revision) => (revision.version == parseData.version));
+        let matches = pkg.revisions.filter((revision) => {
+            return (revision.version == parseData.version);
+        });
         if (matches.length > 0) {
             return [false, false, EXISTING_VERSION];
         }
@@ -70,7 +68,8 @@ async function review(req, file, filePath) {
 
     await fs.renameAsync(file.path, filePath);
 
-    if (!helpers.isAdminOrTrustedUser(req)) { // Admin & trusted users can upload apps without manual review
+    if (!helpers.isAdminOrTrustedUser(req)) {
+        // Admin & trusted users can upload apps without manual review
         let needsManualReview = await reviewPackage(filePath);
         if (needsManualReview) {
             // TODO improve this feedback
@@ -84,7 +83,7 @@ async function review(req, file, filePath) {
 
             fs.unlink(filePath);
             return [false, error];
-        };
+        }
     }
 
     return [true, null];
@@ -109,7 +108,6 @@ function updateScreenshotFiles(pkg, screenshotFiles) {
         if (['.png', '.jpg', '.jpeg'].indexOf(ext) == -1) {
             // Reject anything not an image we support
             fs.unlink(file.path);
-            continue;
         }
         else {
             let id = uuid.v4();
@@ -117,7 +115,7 @@ function updateScreenshotFiles(pkg, screenshotFiles) {
 
             fs.renameSync(
                 screenshotFiles[i].path,
-                `${config.image_dir}/${filename}`
+                `${config.image_dir}/${filename}`,
             );
 
             pkg.screenshots.push(`${config.server.host}/api/screenshot/${filename}`);
@@ -128,12 +126,13 @@ function updateScreenshotFiles(pkg, screenshotFiles) {
 }
 
 function setup(app) {
-    app.get(['/api/v1/manage/apps', '/api/v2/manage/apps'], passport.authenticate('localapikey', {session: false}), function(req, res) {
+    app.get(['/api/v1/manage/apps', '/api/v2/manage/apps'], passport.authenticate('localapikey', {session: false}), (req, res) => {
         let defaultQuery = null;
         if (helpers.isAdminUser(req)) {
             defaultQuery = {};
         }
         else {
+            /* eslint-disable no-underscore-dangle */
             defaultQuery = {maintainer: req.user._id};
         }
 
@@ -143,7 +142,7 @@ function setup(app) {
             let count = results[1];
 
             let formatted = [];
-            pkgs.forEach(function(pkg) {
+            pkgs.forEach((pkg) => {
                 formatted.push(packages.toJson(pkg, req));
             });
 
@@ -166,7 +165,7 @@ function setup(app) {
         });
     });
 
-    app.get(['/api/v1/manage/apps/:id', '/api/v2/manage/apps/:id'], passport.authenticate('localapikey', {session: false}), function(req, res) {
+    app.get(['/api/v1/manage/apps/:id', '/api/v2/manage/apps/:id'], passport.authenticate('localapikey', {session: false}), (req, res) => {
         let query = null;
         if (helpers.isAdminUser(req)) {
             query = db.Package.findOne({id: req.params.id});
@@ -177,7 +176,7 @@ function setup(app) {
 
         query.then((pkg) => {
             helpers.success(res, packages.toJson(pkg, req));
-        }).catch((err) => {
+        }).catch(() => {
             helpers.error(res, 'App not found', 404);
         });
     });
@@ -187,7 +186,7 @@ function setup(app) {
         {name: 'file', maxCount: 1},
     ]);
 
-    app.post(['/api/apps', '/api/v1/manage/apps', '/api/v2/manage/apps'], passport.authenticate('localapikey', {session: false}), postUpload, helpers.isNotDisabled, helpers.downloadFileMiddleware, async function(req, res) {
+    app.post(['/api/apps', '/api/v1/manage/apps', '/api/v2/manage/apps'], passport.authenticate('localapikey', {session: false}), postUpload, helpers.isNotDisabled, helpers.downloadFileMiddleware, async (req, res) => {
         if (!req.files.file.length == 1) {
             return helpers.error(res, 'No file upload specified');
         }
@@ -197,12 +196,15 @@ function setup(app) {
                 req.body.maintainer = req.user._id;
             }
 
+            let success;
+            let error;
             let filePath = fileName(req.files.file[0]);
             [success, error] = await review(req, req.files.file[0], filePath);
             if (!success) {
                 return helpers.error(res, error, 400);
             }
 
+            let parseData;
             let pkg = new db.Package();
             [pkg, parseData, error] = await parse(pkg, req.body, req.files.file[0], filePath);
             if (!pkg) {
@@ -228,7 +230,7 @@ function setup(app) {
             [packageUrl, iconUrl] = await upload.uploadPackage(
                 pkg,
                 filePath,
-                parseData.icon
+                parseData.icon,
             );
 
             pkg.package = packageUrl;
@@ -257,7 +259,7 @@ function setup(app) {
         {name: 'screenshot_files', maxCount: 5},
     ]);
 
-    app.put(['/api/apps/:id', '/api/v1/manage/apps/:id', '/api/v2/manage/apps/:id'], passport.authenticate('localapikey', {session: false}), putUpload, helpers.isNotDisabled, helpers.downloadFileMiddleware, async function(req, res) {
+    app.put(['/api/apps/:id', '/api/v1/manage/apps/:id', '/api/v2/manage/apps/:id'], passport.authenticate('localapikey', {session: false}), putUpload, helpers.isNotDisabled, helpers.downloadFileMiddleware, async(req, res) => {
         try {
             if (req.body && (!req.body.maintainer || req.body.maintainer == 'null')) {
                 req.body.maintainer = req.user._id;
@@ -271,12 +273,15 @@ function setup(app) {
             if (req.files && req.files.file && req.files.file.length > 0) {
                 // A new revision was uploaded
 
+                let success;
+                let error;
                 let filePath = fileName(req.files.file[0]);
                 [success, error] = await review(req, req.files.file[0], filePath);
                 if (!success) {
                     return helpers.error(res, error, 400);
                 }
 
+                let parseData;
                 [pkg, parseData, error] = await parse(pkg, req.body, req.files.file[0], filePath);
                 if (!pkg) {
                     return helpers.error(res, error, 400);
@@ -287,7 +292,7 @@ function setup(app) {
                 [packageUrl, iconUrl] = await upload.uploadPackage(
                     pkg,
                     filePath,
-                    parseData.icon
+                    parseData.icon,
                 );
 
                 pkg.package = packageUrl;
