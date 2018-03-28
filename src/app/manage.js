@@ -8,15 +8,13 @@ const upload = require('../utils/upload');
 const clickParse = require('../utils/click-parser-async');
 const checksum = require('../utils/checksum');
 const reviewPackage = require('../utils/review-package');
+const fs = require('../utils/asyncFs');
 
 const passport = require('passport');
 const multer = require('multer');
-const fs = require('fs');
-const bluebird = require('bluebird');
 const path = require('path');
 const uuid = require('node-uuid');
 
-bluebird.promisifyAll(fs);
 const mupload = multer({dest: '/tmp'});
 
 const NEEDS_MANUAL_REVIEW = 'This app needs to be reviewed manually';

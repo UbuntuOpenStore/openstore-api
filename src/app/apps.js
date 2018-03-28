@@ -5,9 +5,8 @@ const config = require('../utils/config');
 const packages = require('../utils/packages');
 const logger = require('../utils/logger');
 const helpers = require('../utils/helpers');
+const fs = require('../utils/asyncFs');
 
-const fs = require('fs');
-const bluebird = require('bluebird');
 const path = require('path');
 const mime = require('mime');
 const express = require('express');
@@ -19,8 +18,6 @@ const iconRouter = express.Router();
 const screenshotRouter = express.Router();
 
 const APP_NOT_FOUND = 'App not found';
-
-bluebird.promisifyAll(fs);
 
 function apps(req, res) {
     let useElasticsearch = true;

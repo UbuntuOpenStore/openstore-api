@@ -1,9 +1,8 @@
 'use strict';
 
 const config = require('../utils/config');
+const fs = require('../utils/asyncFs');
 
-const fs = require('fs');
-const bluebird = require('bluebird');
 const path = require('path');
 const jimp = require('jimp');
 const B2 = require('backblaze-b2');
@@ -11,7 +10,6 @@ const chunks = require('buffer-chunks');
 const crypto = require('crypto');
 
 const SIZE_LIMIT = 5242880; // 5MB
-bluebird.promisifyAll(fs);
 
 let b2 = new B2({
     accountId: config.backblaze.accountId,
