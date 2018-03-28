@@ -41,8 +41,9 @@ function setup() {
 
     //TOOD see if there is a better way to do this
     manage.setup(app);
-    users.setup(app);
 
+    // TODO depricate pre-v1 and v1
+    // TODO clean up endpoints in the next version
     app.use('/api/apps/discover', discover);
     app.use('/api/v1/apps/discover', discover);
     app.use('/api/v1/apps/updates', updates);
@@ -56,6 +57,7 @@ function setup() {
     app.use('/api/icon', apps.icon);
     app.use('/api/screenshot', apps.screenshot);
     app.use('/auth', auth);
+    app.use('/api/users', users);
     app.use('/api/categories', categories);
     app.use('/api/v1/categories', categories);
     app.use('/api/v2/categories', categories);

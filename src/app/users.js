@@ -1,71 +1,67 @@
-var db = require('../db');
-var config = require('../utils/config');
-var logger = require('../utils/logger');
-var helpers = require('../utils/helpers');
-var passport = require('passport');
+const User = require('../db').User;
+const helpers = require('../utils/helpers');
+const passport = require('passport');
 
-function setup(app) {
-    app.get('/api/users', passport.authenticate('localapikey', {session: false}), helpers.isAdmin, function(req, res) {
-        db.User.find({}).exec(function(err, users) {
-            if (err) {
-                helpers.error(res, err);
-            }
-            else {
-                var result = [];
-                users.forEach(function(user) {
-                    user.apikey = undefined;
-                    user.ubuntu_id = undefined;
+const express = require('express');
 
-                    result.push(user);
-                });
+const router = express.Router();
+const USER_NOT_FOUND = 'User not found';
 
-                helpers.success(res, result);
-            }
-        });
-    });
-
-    app.get('/api/users/:id', passport.authenticate('localapikey', {session: false}), helpers.isAdmin, function(req, res) {
-        db.User.find({_id: req.params.id}).exec(function(err, users) {
-            if (err) {
-                helpers.error(res, err);
-            }
-            else if (users.length === 0) {
-                helpers.error(res, 'User not found', 404);
-            }
-            else {
-                var user = users[0];
-
-                user.apikey = undefined;
-                user.ubuntu_id = undefined;
-
-                helpers.success(res, user);
-            }
-        });
-    });
-
-    app.put('/api/users/:id', passport.authenticate('localapikey', {session: false}), helpers.isAdmin, function(req, res) {
-        db.User.find({_id: req.params.id}).exec(function(err, users) {
-            if (err) {
-                helpers.error(res, err);
-            }
-            else if (users.length === 0) {
-                helpers.error(res, 'User not found', 404);
-            }
-            else {
-                var user = users[0];
-                user.role = req.body.role;
-
-                user.save(function(err) {
-                    if (err) {
-                        helpers.error(res, err);
-                    }
-                    else {
-                        helpers.success(res, user);
-                    }
-                });
-            }
-        });
-    });
+function userToJson(user) {
+    return {
+        /* eslint-disable no-underscore-dangle */
+        _id: user._id,
+        email: user.email,
+        name: user.name,
+        role: user.role ? user.role : 'community',
+        username: user.username,
+    };
 }
 
-exports.setup = setup;
+router.get('/', passport.authenticate('localapikey', {session: false}), helpers.isAdmin, (req, res) => {
+    User.find({}).then((users) => {
+        helpers.success(res, users.map(userToJson));
+    }).catch((err) => {
+        helpers.error(res, err);
+    });
+});
+
+router.get('/:id', passport.authenticate('localapikey', {session: false}), helpers.isAdmin, (req, res) => {
+    User.findOne({_id: req.params.id}).then((user) => {
+        if (!user) {
+            throw USER_NOT_FOUND;
+        }
+
+        helpers.success(res, userToJson(user));
+    }).catch((err) => {
+        if (err == USER_NOT_FOUND) {
+            helpers.error(res, USER_NOT_FOUND, 404);
+        }
+        else {
+            helpers.error(res, err);
+        }
+    });
+});
+
+router.put('/:id', passport.authenticate('localapikey', {session: false}), helpers.isAdmin, (req, res) => {
+    User.findOne({_id: req.params.id}).then((user) => {
+        if (!user) {
+            throw USER_NOT_FOUND;
+        }
+
+        user.role = req.body.role;
+
+        return user.save();
+    }).then((user) => {
+        helpers.success(res, userToJson(user));
+    }).catch((err) => {
+        if (err == USER_NOT_FOUND) {
+            helpers.error(res, USER_NOT_FOUND, 404);
+        }
+        else {
+            helpers.error(res, err);
+        }
+    });
+});
+
+module.exports = router;
