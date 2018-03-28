@@ -1,4 +1,4 @@
-const app = require('./app');
+const api = require('./api');
 const config = require('./utils/config');
 const logger = require('./utils/logger');
 
@@ -13,7 +13,7 @@ if (config.server.process_limit > 0) {
 }
 
 if (processes == 1 || !cluster.isMaster) {
-    app.setup();
+    api.setup();
 }
 else {
     logger.debug('spawning ' + processes + ' processes');
