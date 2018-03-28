@@ -4,6 +4,7 @@ const manage = require('./manage');
 const categories = require('./categories');
 const discover = require('./discover');
 const updates = require('./updates');
+const revisions = require('./revisions');
 const auth = require('./auth');
 const users = require('./users');
 const db = require('../db');
@@ -39,12 +40,15 @@ function setup() {
     });
 
     //TOOD see if there is a better way to do this
-    updates.setup(app);
     manage.setup(app);
     users.setup(app);
 
     app.use('/api/apps/discover', discover);
     app.use('/api/v1/apps/discover', discover);
+    app.use('/api/v1/apps/updates', updates);
+    app.use('/api/v2/apps/updates', updates);
+    app.use('/api/v1/apps/revision', revisions);
+    app.use('/api/v2/apps/revision', revisions);
     app.use('/api/apps', apps.main);
     app.use('/api/v1/apps', apps.main);
     app.use('/api/v2/apps', apps.main);
