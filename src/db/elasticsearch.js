@@ -1,10 +1,8 @@
-'use strict';
-
 const elasticsearch = require('elasticsearch');
 
-var config = require('../utils/config');
+const config = require('../utils/config');
 
-//Modified from https://github.com/bhdouglass/uappexplorer/blob/master/src/db/elasticsearch/elasticsearch.js
+// Modified from https://github.com/bhdouglass/uappexplorer/blob/master/src/db/elasticsearch/elasticsearch.js
 class Elasticsearch {
     constructor() {
         this.client = new elasticsearch.Client({host: config.elasticsearch.uri});
@@ -38,15 +36,24 @@ class Elasticsearch {
         ];
     }
 
-    _convert(item) {
+    convert(item) {
         let doc = {};
         this.properties.forEach((prop) => {
             doc[prop] = item[prop] ? item[prop] : null;
         });
         doc.search_name = item.name;
-        doc.keywords = doc.keywords ? doc.keywords.map((keyword) => keyword.toLowerCase()) : [];
         doc.category = doc.category ? doc.category.replace(/&/g, '_').replace(/ /g, '_').toLowerCase() : '';
-        doc.nsfw = !!doc.nsfw; //Force a boolean
+        doc.nsfw = !!doc.nsfw; // Force a boolean
+
+        if (doc.keywords) {
+            doc.keywords = doc.keywords.map((keyword) => {
+                return keyword.toLowerCase();
+            });
+        }
+        else {
+            doc.keywords = [];
+        }
+
 
         return doc;
     }
@@ -59,8 +66,8 @@ class Elasticsearch {
             retryOnConflict: 3,
             body: {
                 doc_as_upsert: true,
-                doc: this._convert(item),
-            }
+                doc: this.convert(item),
+            },
         }).then(() => {
             return item;
         });
@@ -78,36 +85,39 @@ class Elasticsearch {
             if (err.status == 404) {
                 return item;
             }
-            else {
-                throw err;
-            }
+
+            throw err;
         });
     }
 
     bulk(upserts, removals) {
         let body = [];
         upserts.forEach((item) => {
-            body.push({update: {
-                _id: item.id,
-                _index: this.index,
-                _type: this.type,
-                _retry_on_conflict : 3
-            }});
+            body.push({
+                update: {
+                    _id: item.id,
+                    _index: this.index,
+                    _type: this.type,
+                    _retry_on_conflict: 3,
+                },
+            });
 
             body.push({
                 doc_as_upsert: true,
-                doc: this._convert(item),
+                doc: this.convert(item),
             });
         }, this);
 
         if (removals) {
             body = body.concat(removals.map((id) => {
-                return {delete: {
-                    _id: id,
-                    _index: this.index,
-                    _type: this.type,
-                    _retry_on_conflict : 3
-                }};
+                return {
+                    delete: {
+                        _id: id,
+                        _index: this.index,
+                        _type: this.type,
+                        _retry_on_conflict: 3,
+                    },
+                };
             }));
         }
 
@@ -119,8 +129,8 @@ class Elasticsearch {
             index: this.index,
             type: this.type,
             body: {
-                from: skip ? skip : 0,
-                size: limit ? limit : 30,
+                from: skip || 0,
+                size: limit || 30,
                 query: {
                     multi_match: {
                         query: query.toLowerCase(),
@@ -128,9 +138,9 @@ class Elasticsearch {
                         slop: 10,
                         max_expansions: 50,
                         type: 'phrase_prefix',
-                    }
-                }
-            }
+                    },
+                },
+            },
         };
 
         if (filters && filters.and && filters.and.length > 0) {
@@ -140,8 +150,8 @@ class Elasticsearch {
         if (sort && sort.field) {
             let s = {};
             s[sort.field] = {
-                'order': sort.direction,
-                'ignore_unmapped': true,
+                order: sort.direction,
+                ignore_unmapped: true,
             };
             request.body.sort = [s];
         }
@@ -164,58 +174,58 @@ class Elasticsearch {
                             lower_standard: {
                                 type: 'custom',
                                 tokenizer: 'standard',
-                                filter: 'lowercase'
-                            }
-                        }
-                    }
+                                filter: 'lowercase',
+                            },
+                        },
+                    },
                 },
                 mappings: {
-                    'package': {
+                    package: {
                         properties: {
                             search_name: {
                                 type: 'string',
-                                analyzer: 'lower_standard'
+                                analyzer: 'lower_standard',
                             },
                             description: {
                                 type: 'string',
-                                analyzer: 'lower_standard'
+                                analyzer: 'lower_standard',
                             },
                             keywords: {
                                 type: 'string',
-                                analyzer: 'lower_standard'
+                                analyzer: 'lower_standard',
                             },
                             author: {
                                 type: 'string',
-                                analyzer: 'lower_standard'
+                                analyzer: 'lower_standard',
                             },
                             category: {
                                 type: 'string',
-                                index: 'not_analyzed'
+                                index: 'not_analyzed',
                             },
                             license: {
                                 type: 'string',
-                                index: 'not_analyzed'
+                                index: 'not_analyzed',
                             },
                             architecture: {
                                 type: 'string',
-                                index: 'not_analyzed'
+                                index: 'not_analyzed',
                             },
                             name: {
                                 type: 'string',
-                                index: 'not_analyzed'
+                                index: 'not_analyzed',
                             },
                             framework: {
                                 type: 'string',
-                                index: 'not_analyzed'
+                                index: 'not_analyzed',
                             },
                             icon: {
                                 type: 'string',
-                                index: 'not_analyzed'
-                            }
-                        }
-                    }
-                }
-            }
+                                index: 'not_analyzed',
+                            },
+                        },
+                    },
+                },
+            },
         });
     }
 }

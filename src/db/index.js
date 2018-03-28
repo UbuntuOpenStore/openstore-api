@@ -2,10 +2,12 @@ const mongoose = require('mongoose');
 
 const config = require('../utils/config');
 const logger = require('../utils/logger');
+const bluebird = require('bluebird');
 
-mongoose.connect(config.mongo.uri + '/' + config.mongo.database, function(err) {
+mongoose.Promise = bluebird;
+mongoose.connect(`${config.mongo.uri}/${config.mongo.database}`, (err) => {
     if (err) {
-        logger.error('database: ' + err);
+        logger.error('database error:', err);
         process.exit(1);
     }
 });
@@ -69,21 +71,23 @@ const packageSchema = mongoose.Schema({
     old_package: String, // TODO remove when no longer needed
 }, {usePushEach: true});
 
-packageSchema.index({
-    name: 'text',
-    description: 'text',
-    keywords: 'text',
-    author: 'text',
-},
-{
-    weights: {
-        name: 10,
-        description: 5,
-        keywords: 3,
-        author: 1,
+packageSchema.index(
+    {
+        name: 'text',
+        description: 'text',
+        keywords: 'text',
+        author: 'text',
     },
-    name: 'searchIndex',
-});
+    {
+        weights: {
+            name: 10,
+            description: 5,
+            keywords: 3,
+            author: 1,
+        },
+        name: 'searchIndex',
+    },
+);
 
 const Package = mongoose.model('Package', packageSchema);
 
@@ -102,26 +106,26 @@ const User = mongoose.model('User', userSchema);
 
 function queryPackages(filters, query) {
     if (filters.types.length > 0) {
-        query['types'] = {
+        query.types = {
             $in: filters.types,
         };
     }
 
     if (filters.ids.length > 0) {
         query.id = {
-            $in: filters.ids
+            $in: filters.ids,
         };
     }
 
     if (filters.frameworks.length > 0) {
         query.framework = {
-            $in: filters.frameworks
+            $in: filters.frameworks,
         };
     }
 
     if (filters.architectures.length > 0) {
         query.architectures = {
-            $in: filters.architectures
+            $in: filters.architectures,
         };
     }
 
@@ -134,7 +138,7 @@ function queryPackages(filters, query) {
     }
 
     if (filters.search) {
-        query['$text'] = {$search: filters.search};
+        query.$text = {$search: filters.search};
     }
 
     if (filters.nsfw) {
@@ -151,8 +155,8 @@ function queryPackages(filters, query) {
 
         if (filters.sort == 'relevance') {
             if (filters.search) {
-                findQuery.select({score : {$meta : 'textScore'}});
-                findQuery.sort({score : {$meta : 'textScore'}});
+                findQuery.select({score: {$meta: 'textScore'}});
+                findQuery.sort({score: {$meta: 'textScore'}});
             }
             else {
                 findQuery.sort('name');

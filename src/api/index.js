@@ -95,7 +95,7 @@ function setup() {
 
         if (opengraph.match(req)) {
             try {
-                let pkg = await Package.findOne({id: req.params.name});
+                let pkg = await Package.findOne({id: req.params.name}).exec();
 
                 if (!pkg) {
                     throw APP_NOT_FOUND;

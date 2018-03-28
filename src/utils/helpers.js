@@ -115,7 +115,7 @@ function download(url, filename) {
 }
 
 function downloadFileMiddleware(req, res, next) {
-    if (!req.file && req.body.downloadUrl) {
+    if (!req.file && req.body && req.body.downloadUrl) {
         let filename = path.basename(req.body.downloadUrl);
 
         //Strip extra hashes & params

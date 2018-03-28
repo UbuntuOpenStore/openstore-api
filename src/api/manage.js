@@ -218,7 +218,7 @@ function setup(app) {
                 }
             }
 
-            let existing = await db.Package.findOne({id: parseData.name});
+            let existing = await db.Package.findOne({id: parseData.name}).exec();
             if (existing) {
                 return helpers.error(res, DUPLICATE_PACKAGE, 400);
             }
@@ -263,7 +263,7 @@ function setup(app) {
                 req.body.maintainer = req.user._id;
             }
 
-            let pkg = await db.Package.findOne({id: req.params.id});
+            let pkg = await db.Package.findOne({id: req.params.id}).exec();
             if (!helpers.isAdminUser(req) && req.user._id != pkg.maintainer) {
                 return helpers.error(res, PERMISSION_DENIED, 400);
             }
