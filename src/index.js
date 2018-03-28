@@ -1,28 +1,28 @@
-var app = require('./app');
-var config = require('./utils/config');
-var logger = require('./utils/logger');
-var cluster = require('cluster');
-var os = require('os');
+const app = require('./app');
+const config = require('./utils/config');
+const logger = require('./utils/logger');
 
-if (cluster.isMaster) {
-    var cpus = os.cpus().length;
-    var processes = cpus;
-    if (config.server.process_limit > 0) {
-        processes = config.server.process_limit;
-        logger.debug('limiting processes to ' + processes + ' (CPUs: ' + cpus + ')');
-    }
-    else {
-        logger.debug('spawning ' + processes + ' processes');
-    }
+const cluster = require('cluster');
+const os = require('os');
 
-    for (var i = 0; i < processes; i += 1) {
+let cpus = os.cpus().length;
+let processes = cpus;
+if (config.server.process_limit > 0) {
+    processes = config.server.process_limit;
+    logger.debug('limiting processes to ' + processes + ' (CPUs: ' + cpus + ')');
+}
+
+if (processes == 1 || !cluster.isMaster) {
+    app.setup();
+}
+else {
+    logger.debug('spawning ' + processes + ' processes');
+
+    for (let i = 0; i < processes; i += 1) {
         cluster.fork();
     }
 
     cluster.on('exit', function() {
         cluster.fork();
     });
-}
-else {
-    app.setup();
 }
