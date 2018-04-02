@@ -1,5 +1,3 @@
-'use strict';
-
 const config = require('../utils/config');
 const fs = require('../utils/asyncFs');
 
@@ -26,7 +24,7 @@ async function uploadFile(filePath, fileName) {
 
         let largeFileData = await b2.startLargeFile({
             bucketId: config.backblaze.bucketId,
-            fileName: fileName
+            fileName: fileName,
         });
         let fileId = largeFileData.data.fileId;
 
@@ -38,8 +36,8 @@ async function uploadFile(filePath, fileName) {
                     uploadAuthToken: urlInfo.data.authorizationToken,
                     data: data,
                 });
-            })
-        }))
+            });
+        }));
 
         let uploadInfo = await b2.finishLargeFile({
             fileId: fileId,
@@ -47,24 +45,23 @@ async function uploadFile(filePath, fileName) {
                 let hash = crypto.createHash('sha1');
                 hash.update(data);
                 return hash.digest('hex');
-            })
+            }),
         });
 
-        return config.backblaze.baseUrl + config.backblaze.bucketName + '/' + uploadInfo.data.fileName;
+        return `${config.backblaze.baseUrl}${config.backblaze.bucketName}/${uploadInfo.data.fileName}`;
     }
-    else {
-        await b2.authorize();
 
-        let urlInfo = await b2.getUploadUrl(config.backblaze.bucketId);
-        let uploadInfo = await b2.uploadFile({
-            uploadUrl: urlInfo.data.uploadUrl,
-            uploadAuthToken: urlInfo.data.authorizationToken,
-            filename: fileName,
-            data: await fs.readFileAsync(filePath),
-        });
+    await b2.authorize();
 
-        return config.backblaze.baseUrl + config.backblaze.bucketName + '/' + uploadInfo.data.fileName;
-    }
+    let urlInfo = await b2.getUploadUrl(config.backblaze.bucketId);
+    let uploadInfo = await b2.uploadFile({
+        uploadUrl: urlInfo.data.uploadUrl,
+        uploadAuthToken: urlInfo.data.authorizationToken,
+        filename: fileName,
+        data: await fs.readFileAsync(filePath),
+    });
+
+    return `${config.backblaze.baseUrl}${config.backblaze.bucketName}/${uploadInfo.data.fileName}`;
 }
 
 async function removeFile(fileName) {
@@ -73,7 +70,7 @@ async function removeFile(fileName) {
     let versions = await b2.listFileVersions({
         bucketId: config.backblaze.bucketId,
         startFileName: fileName,
-        maxFileCount: 1
+        maxFileCount: 1,
     });
 
     if (versions.data.files.length >= 1) {
@@ -81,21 +78,21 @@ async function removeFile(fileName) {
 
         await b2.deleteFileVersion({
             fileId: fileId,
-            fileName: fileName
+            fileName: fileName,
         });
     }
 }
 
 function resize(iconPath) {
     return new Promise((resolve, reject) => {
-        jimp.read(iconPath, (err, image) => {
-            if (err) {
-                reject(err);
+        jimp.read(iconPath, (readErr, image) => {
+            if (readErr) {
+                reject(readErr);
             }
             else {
-                image.resize(92, 92).write(iconPath, (err) => {
-                    if (err) {
-                        reject(err);
+                image.resize(92, 92).write(iconPath, (writeErr) => {
+                    if (writeErr) {
+                        reject(writeErr);
                     }
                     else {
                         resolve(iconPath);
@@ -108,7 +105,7 @@ function resize(iconPath) {
 
 async function uploadPackage(pkg, packagePath, iconPath) {
     let removePackageName = null;
-    let base = config.backblaze.baseUrl + config.backblaze.bucketName + '/';
+    let base = `${config.backblaze.baseUrl}${config.backblaze.bucketName}/`;
     if (pkg.package && pkg.package.indexOf(base) === 0) {
         removePackageName = pkg.package.replace(base, '');
     }

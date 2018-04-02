@@ -1,8 +1,5 @@
-'use strict';
-
 const crypto = require('crypto');
 const fs = require('fs');
-
 
 function checksum(filePath) {
     return new Promise((resolve, reject) => {
@@ -10,7 +7,7 @@ function checksum(filePath) {
         let stream = fs.createReadStream(filePath);
 
         stream.on('data', (data) => {
-            hash.update(data, 'utf8')
+            hash.update(data, 'utf8');
         });
 
         stream.on('error', (err) => {

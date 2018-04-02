@@ -1,14 +1,14 @@
-'use strict';
-
 const fs = require('fs');
+const path = require('path');
 
-//Allow api key/pass to be set when testing locally
+// Allow api key/pass to be set when testing locally
 let configFile = {};
-if (fs.existsSync(__dirname + '/config.json')) {
-    configFile = JSON.parse(fs.readFileSync(__dirname + '/config.json'));
+let configFilePath = path.join(__dirname, 'config.json');
+if (fs.existsSync(configFilePath)) {
+    configFile = JSON.parse(fs.readFileSync(configFilePath));
 }
 
-var config = {
+let config = {
     data_dir: process.env.DATA_DIR || '/tmp',
     image_dir: process.env.IMAGE_DIR || '/tmp',
     server: {
@@ -18,7 +18,7 @@ var config = {
         host: process.env.HOST || 'http://local.open-store.io',
         secondary_host: process.env.SECONDARY_HOST || 'http://local.open.uappexplorer.com',
         process_limit: process.env.PROCESS_LIMIT || 0,
-        static_root: process.env.STATIC_ROOT || __dirname + '/../../www/',
+        static_root: process.env.STATIC_ROOT || path.join(__dirname, '../../www/'),
     },
     mongo: {
         uri: process.env.MONGODB_URI || 'mongodb://localhost',
@@ -39,23 +39,23 @@ var config = {
         port: process.env.PAPERTRAIL_PORT,
     },
     clickreview: {
-        //Heroku command: /app/.apt/usr/bin/click-review
+        // Heroku command: /app/.apt/usr/bin/click-review
         command: process.env.CLICK_REVIEW_COMMAND || 'click-review',
-        //Heroku pythonpath: /app/.apt/usr/lib/python3/dist-packages/
+        // Heroku pythonpath: /app/.apt/usr/lib/python3/dist-packages/
         pythonpath: process.env.CLICK_REVIEW_PYTHONPATH || '',
     },
     github: {
         clientID: configFile.GITHUB_CLIENT_ID || process.env.GITHUB_CLIENT_ID || '',
         clientSecret: configFile.GITHUB_CLIENT_SECRET || process.env.GITHUB_CLIENT_SECRET || '',
-    }
+    },
 };
 
-//Mongo uri from docker
+// Mongo uri from docker
 if (process.env.MONGO_PORT) {
     config.mongo.uri = process.env.MONGO_PORT.replace('tcp', 'mongodb');
 }
 
-//Elasticsearch uri from docker
+// Elasticsearch uri from docker
 if (process.env.ELASTICSEARCH_PORT) {
     config.elasticsearch.uri = process.env.ELASTICSEARCH_PORT.replace('tcp', 'http');
 }

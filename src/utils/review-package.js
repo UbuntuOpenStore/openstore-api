@@ -1,11 +1,9 @@
-'use strict';
-
 const config = require('./config');
 const logger = require('./logger');
 
 const exec = require('child_process').exec;
 
-//TODO return the actual problem
+// TODO return the actual problem
 function parseReview(review) {
     let manualReview = false;
 
@@ -29,23 +27,31 @@ function parseReview(review) {
 }
 
 function reviewPackage(file) {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
         let command = `${config.clickreview.command} --json ${file}`;
-        exec(command, {env: {PYTHONPATH: config.clickreview.pythonpath}}, function callback(err, stdout, stderr) {
+        exec(command, {
+            env: {
+                PYTHONPATH: config.clickreview.pythonpath,
+            },
+        }, (err, stdout, stderr) => {
             if (err) {
-                logger.error('Error processing package for review: ' + err);
+                logger.error(`Error processing package for review: ${err}`);
                 if (stderr) {
                     logger.error(stderr);
                 }
 
                 logger.error(stdout);
 
-                var error = true;
+                let error = true;
                 try {
                     let review = JSON.parse(stdout);
                     error = parseReview(review);
                     if (!error) {
-                        //If we don't find a manual review flag, but this still failed (for example, "Could not find compiled binaries for architecture 'armhf'")
+                        /*
+                        If we don't find a manual review flag, but this still
+                        failed (for example, "Could not find compiled binaries
+                        or architecture 'armhf'")
+                        */
                         error = true;
                     }
                 }

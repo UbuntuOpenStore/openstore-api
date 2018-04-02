@@ -1,5 +1,3 @@
-'use strict';
-
 const parse = require('click-parser');
 
 function parsePackage(file, getIcon) {

@@ -1,28 +1,27 @@
-'use strict';
-
 const logger = require('../utils/logger');
 const config = require('../utils/config');
 
 const fs = require('fs');
 const request = require('request');
 const path = require('path');
+const URL = require('url').URL;
 
 function success(res, data, message) {
     res.send({
         success: true,
         data: data,
-        message: message ? message : null
+        message: message || null,
     });
 }
 
 function error(res, message, code) {
-    logger.error('server: ' + message);
+    logger.error(`server: ${message}`);
 
-    res.status(code ? code : 500);
+    res.status(code || 500);
     res.send({
         success: false,
         data: null,
-        message: message
+        message: message,
     });
 }
 
@@ -54,7 +53,7 @@ function isAdminOrTrusted(req, res, next) {
 }
 
 function isAdminUser(req) {
-    var ok = false;
+    let ok = false;
     if (req.isAuthenticated()) {
         if (req.user.role == 'admin') {
             ok = true;
@@ -65,7 +64,7 @@ function isAdminUser(req) {
 }
 
 function isAdminOrTrustedUser(req) {
-    var ok = false;
+    let ok = false;
     if (req.isAuthenticated()) {
         if (req.user.role == 'admin' || req.user.role == 'trusted') {
             ok = true;
@@ -76,11 +75,12 @@ function isAdminOrTrustedUser(req) {
 }
 
 function isAdminOrTrustedOwner(req, pkg) {
-    var ok = false;
+    let ok = false;
     if (req.isAuthenticated()) {
         if (req.user.role == 'admin') {
             ok = true;
         }
+        /* eslint-disable no-underscore-dangle */
         else if (req.user.role == 'trusted' && pkg && pkg.maintainer == req.user._id) {
             ok = true;
         }
@@ -94,21 +94,19 @@ function download(url, filename) {
         let r = request(url);
         r.on('error', (err) => {
             reject(err);
-        })
-        .on('response', (response) => {
+        }).on('response', (response) => {
             if (response.statusCode == 200) {
                 let f = fs.createWriteStream(filename);
                 f.on('error', (err) => {
                     reject(err);
-                })
-                .on('finish', () => {
+                }).on('finish', () => {
                     resolve(filename);
                 });
 
                 r.pipe(f);
             }
             else {
-                reject('Failed to download "' + url + '": ' + response.statusCode);
+                reject(new Error(`Failed to download "${url}": ${response.statusCode}`));
             }
         });
     });
@@ -118,7 +116,7 @@ function downloadFileMiddleware(req, res, next) {
     if (!req.file && req.body && req.body.downloadUrl) {
         let filename = path.basename(req.body.downloadUrl);
 
-        //Strip extra hashes & params
+        // Strip extra hashes & params
         if (filename.indexOf('?') >= 0) {
             filename = filename.substring(0, filename.indexOf('?'));
         }
@@ -133,10 +131,10 @@ function downloadFileMiddleware(req, res, next) {
                     originalname: filename,
                     path: tmpfile,
                     size: fs.statSync(tmpfile).size,
-                }]
+                }],
             };
             next();
-        }).catch((err) => {
+        }).catch(() => {
             error(res, 'Failed to download remote file', 400);
         });
     }
@@ -148,48 +146,26 @@ function downloadFileMiddleware(req, res, next) {
 function nextPreviousLinks(req, count) {
     let next = null;
     let previous = null;
-    let limit = req.query.limit ? parseInt(req.query.limit) : 0;
-    let skip = req.query.skip ? parseInt(req.query.skip) : 0;
+    let limit = req.query.limit ? parseInt(req.query.limit, 10) : 0;
+    let skip = req.query.skip ? parseInt(req.query.skip, 10) : 0;
 
-    let url = config.server.host + req.originalUrl;
+    let url = new URL(config.server.host + req.originalUrl);
     if (count == limit) {
         let nextSkip = skip + limit;
-
-        //TODO use the url module once the node version is upgraded
-        if (url.indexOf('skip') == -1) {
-            if (url.indexOf('?') == -1) {
-                next = url + '?skip=' + nextSkip;
-            }
-            else {
-                next = url + '&skip=' + nextSkip;
-            }
-        }
-        else {
-            next = url.replace('skip=' + skip, 'skip=' + nextSkip);
-        }
+        url.searchParams.set('skip', nextSkip);
+        next = url.toString();
     }
 
     if (skip > 0) {
         let previousSkip = (skip - limit > 0) ? (skip - limit) : 0;
-
-        //TODO use the url module once the node version is upgraded
-        if (url.indexOf('skip') == -1) {
-            if (url.indexOf('?') == -1) {
-                previous = url + '?skip=' + previousSkip;
-            }
-            else {
-                previous = url + '&skip=' + previousSkip;
-            }
-        }
-        else {
-            previous = url.replace('skip=' + skip, 'skip=' + previousSkip);
-        }
+        url.searchParams.set('skip', previousSkip);
+        previous = url.toString();
     }
 
     return {
         next: next,
         previous: previous,
-    }
+    };
 }
 
 exports.success = success;

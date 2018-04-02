@@ -1,10 +1,6 @@
-'use strict';
-
 const db = require('../db');
 const config = require('./config');
-const logger = require('./logger');
-const request = require('request');
-const parse = require('click-parser');
+
 const fs = require('fs');
 const sanitizeHtml = require('sanitize-html');
 const moment = require('moment');
@@ -12,11 +8,10 @@ const path = require('path');
 
 function sanitize(html) {
     return sanitizeHtml(html, {
-      allowedTags: [],
-      allowedAttributes: [],
+        allowedTags: [],
+        allowedAttributes: [],
     }).replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/\r/g, '');
 }
-
 
 function updateInfo(pkg, data, body, file, url, updateRevision) {
     updateRevision = (updateRevision === undefined) ? false : updateRevision;
@@ -28,7 +23,7 @@ function updateInfo(pkg, data, body, file, url, updateRevision) {
         }
 
         if (data) {
-            var manifest = {
+            let manifest = {
                 architecture: data.architecture,
                 changelog: data.changelog,
                 description: data.description,
@@ -40,8 +35,8 @@ function updateInfo(pkg, data, body, file, url, updateRevision) {
                 version: data.version,
             };
 
-            data.apps.forEach(function(app) {
-                var hook = {};
+            data.apps.forEach((app) => {
+                let hook = {};
 
                 if (Object.keys(app.apparmor).length > 0) {
                     hook.apparmor = app.apparmor;
@@ -78,8 +73,8 @@ function updateInfo(pkg, data, body, file, url, updateRevision) {
                 if (Object.keys(app.scopeIni).length > 0) {
                     hook.scope = {};
 
-                    for (let key in app.scopeIni) {
-                        //Remove any ini properties with a `.` as mongo will reject them
+                    for (let key in Object.keys(app.scopeIni)) {
+                        // Remove any ini properties with a `.` as mongo will reject them
                         hook.scope[key.replace('.', '__')] = app.scopeIni[key];
                     }
                 }
@@ -98,7 +93,7 @@ function updateInfo(pkg, data, body, file, url, updateRevision) {
             pkg.version = data.version;
             pkg.languages = data.languages;
 
-            //Don't overwrite the these if they already exists
+            // Don't overwrite the these if they already exists
             pkg.name = pkg.name ? pkg.name : data.title;
             pkg.description = pkg.description ? pkg.description : data.description;
             pkg.tagline = pkg.tagline ? pkg.tagline : data.description;
@@ -165,7 +160,7 @@ function updateInfo(pkg, data, body, file, url, updateRevision) {
             }
 
             if (body.video_url || body.video_url === '') {
-                //TODO support regular youtube urls and transform them into embedded urls
+                // TODO support regular youtube urls and transform them into embedded urls
                 if (body.video_url.indexOf('https://www.youtube.com/embed/') === 0) {
                     pkg.video_url = body.video_url;
                 }
@@ -251,7 +246,7 @@ function updateInfo(pkg, data, body, file, url, updateRevision) {
                 downloads: 0,
             });
 
-            //Only update if we have a new version uploaded
+            // Only update if we have a new version uploaded
             pkg.updated_date = moment().toISOString();
         }
 
@@ -261,94 +256,6 @@ function updateInfo(pkg, data, body, file, url, updateRevision) {
         }
 
         return pkg;
-    });
-}
-
-function fixMaintainer() {
-    db.User.find({}, function(err, users) {
-        if (err) {
-            logger.error(err);
-        }
-        else {
-            db.Package.find({}, function(err, pkgs) {
-                if (err) {
-                    logger.error(err);
-                }
-                else {
-                    pkgs.forEach(function(pkg) {
-                        if (pkg.maintainer) {
-                            users.forEach(function(user) {
-                                if (user._id == pkg.maintainer) {
-                                    pkg.maintainer_name = user.name ? user.name : user.username;
-                                    pkg.save(function(err) {
-                                        if (err) {
-                                            logger.error(err);
-                                        }
-                                        else {
-                                            logger.debug(pkg.id + ' saved');
-                                        }
-                                    });
-                                }
-                            });
-
-                            logger.info(pkg.id + ' ' + pkg.maintainer_name);
-                        }
-                        else {
-                            logger.error(pkg.id + ' has no maintainer');
-                        }
-                    });
-                }
-            });
-        }
-    });
-}
-
-function reparse() {
-    db.Package.find({}, function(err, pkgs) {
-        if (err) {
-            logger.error(err);
-        }
-        else {
-            pkgs.forEach(function(pkg) {
-                var r = request(pkg.package);
-                r.on('error', function(err) {
-                    logger.error(pkg.id + ': ' + err);
-                })
-                .on('response', function(response) {
-                    if (response.statusCode == 200) {
-                        var filename = '/tmp/' + pkg.id + '.click';
-                        var f = fs.createWriteStream(filename);
-                        f.on('error', function(err) {
-                            logger.error(pkg.id + ': ' + err);
-                        })
-                        .on('finish', function() {
-                            parse(filename, function(err, data) {
-                                fs.unlink(filename);
-                                if (err) {
-                                    logger.error(pkg.id + ': ' + err);
-                                }
-                                else {
-                                    updateInfo(pkg, data, null, null, null, false);
-                                    pkg.save(function(err) {
-                                        if (err) {
-                                            logger.error(pkg.id + ': ' + err);
-                                        }
-                                        else {
-                                            logger.debug(pkg.id + ': success!');
-                                        }
-                                    });
-                                }
-                            });
-                        });
-
-                        r.pipe(f);
-                    }
-                    else {
-                        logger.error(pkg.id + ': http error ' + response.statusCode);
-                    }
-                });
-            });
-        }
     });
 }
 
@@ -377,7 +284,7 @@ function toJson(pkg, req) {
             name: pkg.name ? pkg.name : '',
             nsfw: !!pkg.nsfw,
             package: pkg.package ? pkg.package : '',
-            permissions: pkg.permissions ? pkg.permissions: [],
+            permissions: pkg.permissions ? pkg.permissions : [],
             published_date: pkg.published_date ? pkg.published_date : '',
             published: !!pkg.published,
             screenshots: pkg.screenshots ? pkg.screenshots : [],
@@ -393,6 +300,7 @@ function toJson(pkg, req) {
             languages: pkg.languages ? pkg.languages.sort() : [],
         };
 
+        /* eslint-disable no-underscore-dangle */
         if (req.isAuthenticated() && req.user && (req.user._id == pkg.maintainer || req.user.role == 'admin') && pkg.revisions) {
             json.revisions = pkg.revisions;
 
@@ -407,23 +315,23 @@ function toJson(pkg, req) {
 }
 
 function parseFiltersFromRequest(req) {
-    let types = []
+    let types = [];
     if (req.query.types && Array.isArray(req.query.types)) {
         types = req.query.types;
     }
     else if (req.query.types) {
-        types = [ req.query.types ];
+        types = [req.query.types];
     }
     else if (req.body && req.body.types) {
         types = req.body.types;
     }
 
-    //Handle non-pluralized form
+    // Handle non-pluralized form
     if (req.query.type && Array.isArray(req.query.type)) {
         types = req.query.type;
     }
     else if (req.query.type) {
-        types = [ req.query.type ];
+        types = [req.query.type];
     }
     else if (req.body && req.body.type) {
         types = req.body.type;
@@ -449,7 +357,7 @@ function parseFiltersFromRequest(req) {
         frameworks = req.body.frameworks;
     }
 
-    let architecture = "";
+    let architecture = '';
     let architectures = [];
     if (req.query.architecture) {
         architecture = req.query.architecture;
@@ -505,8 +413,8 @@ function parseFiltersFromRequest(req) {
     }
 
     return {
-        limit: req.query.limit ? parseInt(req.query.limit) : 0,
-        skip: req.query.skip ? parseInt(req.query.skip) : 0,
+        limit: req.query.limit ? parseInt(req.query.limit, 10) : 0,
+        skip: req.query.skip ? parseInt(req.query.skip, 10) : 0,
         sort: req.query.sort ? req.query.sort : 'relevance',
         types: types,
         ids: ids,
@@ -520,7 +428,5 @@ function parseFiltersFromRequest(req) {
 }
 
 exports.updateInfo = updateInfo;
-exports.fixMaintainer = fixMaintainer;
-exports.reparse = reparse;
 exports.toJson = toJson;
 exports.parseFiltersFromRequest = parseFiltersFromRequest;

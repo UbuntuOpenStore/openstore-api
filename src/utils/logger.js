@@ -1,11 +1,12 @@
-var config = require('./config');
-var winston = require('winston');
-var papertrail = require('winston-papertrail');
+const config = require('./config');
 
-var logger = new (winston.Logger)({
+const winston = require('winston');
+const papertrail = require('winston-papertrail');
+
+const logger = new (winston.Logger)({
     transports: [
-        new (winston.transports.Console)({level: 'debug'})
-    ]
+        new (winston.transports.Console)({level: 'debug'}),
+    ],
 });
 
 logger.cli();
@@ -20,8 +21,8 @@ else {
     logger.debug('No papertrail token');
 }
 
-process.on('uncaughtException', function(err) {
-    logger.error('uncaughtException: ' + err);
+process.on('uncaughtException', (err) => {
+    logger.error('uncaughtException', err);
 
     if (err && err.stack) {
         logger.error(err.stack);
@@ -29,7 +30,7 @@ process.on('uncaughtException', function(err) {
 });
 
 process.on('unhandledRejection', (reason) => {
-  logger.error('unhandledRejection: ' + reason);
+    logger.error('unhandledRejection', reason);
 });
 
 module.exports = logger;
