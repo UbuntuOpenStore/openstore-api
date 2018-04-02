@@ -43,9 +43,6 @@ function setup() {
         }
     });
 
-    // TODO see if there is a better way to do this
-    manage.setup(app);
-
     // TODO depricate pre-v1 and v1
     // TODO clean up endpoints in the next version
     app.use('/api/apps/discover', discover);
@@ -54,6 +51,8 @@ function setup() {
     app.use('/api/v2/apps/updates', updates);
     app.use('/api/v1/apps/revision', revisions);
     app.use('/api/v2/apps/revision', revisions);
+    app.use('/api/v1/manage/apps', manage);
+    app.use('/api/v2/manage/apps', manage);
     app.use('/api/apps', apps.main);
     app.use('/api/v1/apps', apps.main);
     app.use('/api/v2/apps', apps.main);
