@@ -44,7 +44,7 @@ const packageSchema = mongoose.Schema({
     manifest: {},
     types: [String],
     languages: [],
-    architecture: String, // TODO remove this
+    architecture: String, // TODO remove this and replace with something like this: https://futurestud.io/tutorials/understanding-virtuals-in-mongoose
     architectures: [String],
 
     // Publication metadata

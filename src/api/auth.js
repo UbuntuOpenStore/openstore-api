@@ -3,10 +3,6 @@ const logger = require('../utils/logger');
 const User = require('../db').User;
 
 const passport = require('passport');
-const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser');
-const methodOverride = require('method-override');
-const session = require('cookie-session');
 const UbuntuStrategy = require('passport-ubuntu').Strategy;
 const LocalAPIKeyStrategy = require('passport-localapikey').Strategy;
 const GitHubStrategy = require('passport-github').Strategy;
@@ -14,18 +10,6 @@ const uuid = require('node-uuid');
 const express = require('express');
 
 const router = express.Router();
-
-router.use(cookieParser());
-router.use(bodyParser.urlencoded({extended: false}));
-router.use(bodyParser.json());
-router.use(methodOverride());
-router.use(session({
-    secret: config.server.session_secret,
-    name: 'opensession',
-    maxAge: 604800000, // 7 days in miliseconds
-}));
-router.use(passport.initialize());
-router.use(passport.session());
 
 passport.serializeUser((user, done) => {
     // This is kinda hacky, but not all ubuntu logins will have an email

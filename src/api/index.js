@@ -12,6 +12,11 @@ const opengraph = require('../utils/opengraph');
 const logger = require('../utils/logger');
 const helpers = require('../utils/helpers');
 const fs = require('../utils/asyncFs');
+const passport = require('passport');
+const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
+const methodOverride = require('method-override');
+const session = require('cookie-session');
 
 const express = require('express');
 const cluster = require('cluster');
@@ -42,6 +47,18 @@ function setup() {
             next();
         }
     });
+
+    app.use(cookieParser());
+    app.use(bodyParser.urlencoded({extended: false}));
+    app.use(bodyParser.json());
+    app.use(methodOverride());
+    app.use(session({
+        secret: config.server.session_secret,
+        name: 'opensession',
+        maxAge: 604800000, // 7 days in miliseconds
+    }));
+    app.use(passport.initialize());
+    app.use(passport.session());
 
     // TODO depricate pre-v1 and v1
     // TODO clean up endpoints in the next version
