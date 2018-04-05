@@ -267,13 +267,19 @@ router.get('/:id', (req, res) => {
     });
 });
 
-downloadRouter.get('/:id/:click', (req, res) => {
-    Package.findOne({
-        id: req.params.id,
-        published: true,
-    }).then((pkg) => {
+downloadRouter.get('/:id/:click', async (req, res) => {
+    try {
+        let pkg = await Package.findOne({id: req.params.id, published: true}).exec();
         if (!pkg) {
-            throw APP_NOT_FOUND;
+            return helpers.error(res, APP_NOT_FOUND, 404);
+        }
+
+        // TODO check if more url encoding is needed
+        let downloadUrl = pkg.package.replace(/,/g, '%2C');
+        let ext = path.extname(downloadUrl);
+        let filename = `${config.data_dir}/${pkg.version}-${pkg.id}${ext}`;
+        if (!fs.existsSync(filename)) {
+            filename = await helpers.download(downloadUrl, filename);
         }
 
         let index = 0;
@@ -286,22 +292,16 @@ downloadRouter.get('/:id/:click', (req, res) => {
         let inc = {};
         inc[`revisions.${index}.downloads`] = 1;
 
-        return Promise.all([
-            pkg,
-            Package.update({_id: pkg._id}, {$inc: inc}),
-        ]);
-    }).then(([pkg]) => {
-        // TODO check if more url encoding is needed
-        res.redirect(302, pkg.package.replace(/,/g, '%2C'));
-    }).catch((err) => {
-        if (err == APP_NOT_FOUND) {
-            helpers.error(res, err, 404);
-        }
-        else {
-            logger.error('Error downloading package:', err);
-            helpers.error(res, 'Could not download package at this time');
-        }
-    });
+        await Package.update({_id: pkg._id}, {$inc: inc});
+
+        res.setHeader('Content-type', mime.lookup(filename));
+        res.setHeader('Content-Disposition', `attachment; filename=${pkg.id}_${pkg.version}_${pkg.architecture}.click`);
+        return fs.createReadStream(filename).pipe(res);
+    }
+    catch (err) {
+        logger.error('Error downloading package:', err);
+        return helpers.error(res, 'Could not download package at this time');
+    }
 });
 
 iconRouter.get(['/:version/:id', '/:id'], (req, res) => {

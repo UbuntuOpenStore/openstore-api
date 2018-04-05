@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node src/index.js",
-    "dev": "cd src && supervisor -V -w app,db,utils,index.js index.js",
+    "dev": "cd src && supervisor -V -w api,db,utils,index.js index.js",
     "lint": "node_modules/.bin/eslint ./src/"
   },
   "repository": {

@@ -19,6 +19,7 @@ const express = require('express');
 const mupload = multer({dest: '/tmp'});
 const router = express.Router();
 
+const APP_NOT_FOUND = 'App not found';
 const NEEDS_MANUAL_REVIEW = 'This app needs to be reviewed manually';
 const MALFORMED_MANIFEST = 'Your package manifest is malformed';
 const DUPLICATE_PACKAGE = 'A package with the same name already exists';
@@ -176,7 +177,7 @@ router.get('/:id', passport.authenticate('localapikey', {session: false}), (req,
     query.then((pkg) => {
         helpers.success(res, packages.toJson(pkg, req));
     }).catch(() => {
-        helpers.error(res, 'App not found', 404);
+        helpers.error(res, APP_NOT_FOUND, 404);
     });
 });
 
@@ -265,6 +266,10 @@ router.put('/:id', passport.authenticate('localapikey', {session: false}), putUp
         }
 
         let pkg = await db.Package.findOne({id: req.params.id}).exec();
+        if (!pkg) {
+            return helpers.error(res, APP_NOT_FOUND, 404);
+        }
+
         if (!helpers.isAdminUser(req) && req.user._id != pkg.maintainer) {
             return helpers.error(res, PERMISSION_DENIED, 400);
         }
