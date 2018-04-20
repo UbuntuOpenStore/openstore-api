@@ -294,7 +294,9 @@ downloadRouter.get('/:id/:click', async (req, res) => {
 
         await Package.update({_id: pkg._id}, {$inc: inc});
 
-        res.setHeader('Content-type', mime.lookup(filename));
+        let stat = await fs.statAsync(filename);
+        res.setHeader('Content-Length', stat.size);
+        res.setHeader('Content-Type', mime.lookup(filename));
         res.setHeader('Content-Disposition', `attachment; filename=${pkg.id}_${pkg.version}_${pkg.architecture}.click`);
         return fs.createReadStream(filename).pipe(res);
     }

@@ -26,6 +26,7 @@ const APP_NOT_FOUND = 'App not found';
 
 function setup() {
     const app = express();
+    app.disable('x-powered-by');
 
     app.use((req, res, next) => {
         // Setup cors
