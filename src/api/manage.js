@@ -215,6 +215,9 @@ router.post('/', passport.authenticate('localapikey', {session: false}), postUpl
             if (parseData.name.substring(0, 11) == 'com.ubuntu.' && parseData.name.substring(0, 21) != 'com.ubuntu.developer.') {
                 return helpers.error(res, BAD_NAMESPACE, 400);
             }
+            else if (parseData.name.startsWith('com.canonical.')) {
+                return helpers.error(res, BAD_NAMESPACE, 400);
+            }
             else if (parseData.name.substring(0, 12) == 'com.ubports.') {
                 return helpers.error(res, BAD_NAMESPACE, 400);
             }
