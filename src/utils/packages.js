@@ -259,9 +259,51 @@ function updateInfo(pkg, data, body, file, url, updateRevision) {
     });
 }
 
+function toSlimJson(pkg, req) {
+    let json = {};
+    if (pkg) {
+        let ext = pkg.icon ? path.extname(pkg.icon) : '.png';
+        json = {
+            architectures: pkg.architectures ? pkg.architectures : [],
+            author: pkg.author ? pkg.author : '',
+            name: pkg.name ? pkg.name : '',
+            id: pkg.id ? pkg.id : '',
+            category: pkg.category ? pkg.category : '',
+            description: pkg.description ? pkg.description : '',
+            framework: pkg.framework ? pkg.framework : '',
+            icon: `${config.server.host}/api/icon/${pkg.version}/${pkg.id}${ext}`,
+            keywords: pkg.keywords ? pkg.keywords : [],
+            license: pkg.license ? pkg.license : 'Proprietary',
+            nsfw: !!pkg.nsfw,
+            published_date: pkg.published_date ? pkg.published_date : '',
+            tagline: pkg.tagline ? pkg.tagline : '',
+            types: pkg.types ? pkg.types : [],
+            updated_date: pkg.published_date ? pkg.updated_date : '',
+        };
+    }
+
+    return json;
+}
+
+function downloadUrl(pkg, channel) {
+    return `${config.server.host}/api/v3/apps/${pkg.id}/download/${channel}`;
+}
+
 function toJson(pkg, req) {
     let json = {};
     if (pkg) {
+        let vividRevisionData = {};
+        let xenialRevisionData = null;
+        pkg.revisions.forEach((data) => {
+            if (data.revision == pkg.xenial_revision) {
+                xenialRevisionData = data;
+            }
+
+            if (data.revision == pkg.revision) {
+                vividRevisionData = data;
+            }
+        });
+
         let ext = pkg.icon ? path.extname(pkg.icon) : '.png';
         json = {
             architecture: pkg.architecture ? pkg.architecture : '',
@@ -269,9 +311,10 @@ function toJson(pkg, req) {
             author: pkg.author ? pkg.author : '',
             category: pkg.category ? pkg.category : '',
             changelog: pkg.changelog ? pkg.changelog : '',
+            channels: pkg.channels ? pkg.channels : [db.Package.VIVID],
             description: pkg.description ? pkg.description : '',
-            download_sha512: pkg.download_sha512 ? pkg.download_sha512 : '',
-            download: `${config.server.host}/api/download/${pkg.id}/${pkg.id}_latest_${pkg.architecture}.click`,
+            download: downloadUrl(pkg, db.Package.VIVID),
+            download_sha512: vividRevisionData.download_sha512 ? vividRevisionData.download_sha512 : '',
             filesize: pkg.filesize ? pkg.filesize : 0,
             framework: pkg.framework ? pkg.framework : '',
             icon: `${config.server.host}/api/icon/${pkg.version}/${pkg.id}${ext}`,
@@ -299,6 +342,22 @@ function toJson(pkg, req) {
             revision: pkg.revision ? pkg.revision : 1,
             languages: pkg.languages ? pkg.languages.sort() : [],
         };
+
+        json.downloads = [
+            {
+                channel: db.Package.VIVID,
+                download_url: downloadUrl(pkg, db.Package.VIVID),
+                download_sha512: vividRevisionData.download_sha512,
+            }
+        ];
+
+        if (xenialRevisionData) {
+            json.downloads.push({
+                channel: db.Package.XENIAL,
+                download_url: downloadUrl(pkg, db.Package.XENIAL),
+                download_sha512: xenialRevisionData.download_sha512,
+            });
+        }
 
         /* eslint-disable no-underscore-dangle */
         if (req.isAuthenticated() && req.user && (req.user._id == pkg.maintainer || req.user.role == 'admin') && pkg.revisions) {
@@ -428,5 +487,6 @@ function parseFiltersFromRequest(req) {
 }
 
 exports.updateInfo = updateInfo;
+exports.toSlimJson = toSlimJson;
 exports.toJson = toJson;
 exports.parseFiltersFromRequest = parseFiltersFromRequest;

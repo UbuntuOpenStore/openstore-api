@@ -49,6 +49,18 @@ function setup() {
         }
     });
 
+    app.use((req, res, next) => {
+        req.apiVersion = 1;
+        if (req.originalUrl.startsWith('/api/v2')) {
+            req.apiVersion = 2;
+        }
+        else if (req.originalUrl.startsWith('/api/v3')) {
+            req.apiVersion = 3;
+        }
+
+        next();
+    });
+
     app.use(cookieParser());
     app.use(bodyParser.urlencoded({extended: false}));
     app.use(bodyParser.json());
@@ -61,8 +73,7 @@ function setup() {
     app.use(passport.initialize());
     app.use(passport.session());
 
-    // TODO depricate pre-v1 and v1
-    // TODO clean up endpoints in the next version
+    // TODO depricate pre-v1 and v1 and v2
     app.use('/api/apps/discover', discover);
     app.use('/api/v1/apps/discover', discover);
     app.use('/api/v1/apps/updates', updates);
@@ -77,11 +88,15 @@ function setup() {
     app.use('/api/download', apps.download);
     app.use('/api/icon', apps.icon);
     app.use('/api/screenshot', apps.screenshot);
-    app.use('/auth', auth);
-    app.use('/api/users', users);
     app.use('/api/categories', categories);
     app.use('/api/v1/categories', categories);
     app.use('/api/v2/categories', categories);
+
+    app.use('/auth', auth);
+    app.use('/api/users', users);
+
+    // TODO flesh out the rest of v3
+    app.use('/api/v3/apps', apps.main);
 
     app.use(express.static(path.join(__dirname, '../../www')));
 
