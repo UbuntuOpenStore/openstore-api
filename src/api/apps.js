@@ -16,6 +16,7 @@ const router = express.Router();
 const downloadRouter = express.Router();
 const iconRouter = express.Router();
 const screenshotRouter = express.Router();
+const statsRouter = express.Router();
 
 const APP_NOT_FOUND = 'App not found';
 const DOWNLOAD_NOT_FOUND_FOR_CHANNEL = 'Download not available for this channel';
@@ -174,7 +175,7 @@ function apps(req, res) {
 router.get('/', apps);
 router.post('/', apps);
 
-router.get('/stats', (req, res) => {
+function stats(req, res) {
     Promise.all([
         Package.aggregate([
             {
@@ -226,7 +227,10 @@ router.get('/stats', (req, res) => {
             types: typeMap,
         });
     });
-});
+}
+
+router.get('/stats', stats); // TODO depricate
+statsRouter.get('/', stats);
 
 router.get('/:id', (req, res) => {
     let query = {
@@ -377,3 +381,4 @@ exports.main = router;
 exports.download = downloadRouter;
 exports.icon = iconRouter;
 exports.screenshot = screenshotRouter;
+exports.stats = statsRouter;

@@ -96,6 +96,7 @@ function setup() {
     app.use('/api/users', users);
 
     app.use('/api/v3/apps', apps.main);
+    app.use('/api/v3/stats', apps.stats);
     app.use('/api/v3/manage', manage);
     app.use('/api/v3/discover', discover);
     app.use('/api/v3/updates', updates);
