@@ -97,6 +97,7 @@ function setup() {
 
     // TODO flesh out the rest of v3
     app.use('/api/v3/apps', apps.main);
+    app.use('/api/v3/manage', manage);
 
     app.use(express.static(path.join(__dirname, '../../www')));
 

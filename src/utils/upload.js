@@ -1,5 +1,6 @@
 const config = require('../utils/config');
 const fs = require('../utils/asyncFs');
+const { Package } = require('../db');
 
 const path = require('path');
 const jimp = require('jimp');
@@ -64,22 +65,30 @@ async function uploadFile(filePath, fileName) {
     return `${config.backblaze.baseUrl}${config.backblaze.bucketName}/${uploadInfo.data.fileName}`;
 }
 
-async function removeFile(fileName) {
-    await b2.authorize();
+async function removeFile(url) {
+    let base = `${config.backblaze.baseUrl}${config.backblaze.bucketName}/`;
+    console.log(url);
+    if (url && url.indexOf(base) === 0) {
+        let fileName = url.replace(base, '');
+        console.log(fileName);
 
-    let versions = await b2.listFileVersions({
-        bucketId: config.backblaze.bucketId,
-        startFileName: fileName,
-        maxFileCount: 1,
-    });
+        await b2.authorize();
 
-    if (versions.data.files.length >= 1) {
-        let fileId = versions.data.files[0].fileId;
-
-        await b2.deleteFileVersion({
-            fileId: fileId,
-            fileName: fileName,
+        let versions = await b2.listFileVersions({
+            bucketId: config.backblaze.bucketId,
+            startFileName: fileName,
+            maxFileCount: 1,
         });
+
+        if (versions.data.files.length >= 1) {
+            let fileId = versions.data.files[0].fileId;
+            console.log(fileId);
+
+            await b2.deleteFileVersion({
+                fileId: fileId,
+                fileName: fileName,
+            });
+        }
     }
 }
 
@@ -103,15 +112,12 @@ function resize(iconPath) {
     });
 }
 
-async function uploadPackage(pkg, packagePath, iconPath) {
-    let removePackageName = null;
+async function uploadPackage(pkg, packagePath, iconPath, channel) {
+    channel = channel || Package.VIVID;
+
     let base = `${config.backblaze.baseUrl}${config.backblaze.bucketName}/`;
-    if (pkg.package && pkg.package.indexOf(base) === 0) {
-        removePackageName = pkg.package.replace(base, '');
-    }
 
-    let packageName = `packages/${pkg.id}_${pkg.version}_${pkg.architecture}.click`;
-
+    let packageName = `packages/${channel}/${pkg.id}_${pkg.version}_${pkg.architecture}.click`;
     let packageUrl = await uploadFile(packagePath, packageName);
 
     let iconUrl = '';
@@ -124,13 +130,9 @@ async function uploadPackage(pkg, packagePath, iconPath) {
         iconUrl = await uploadFile(iconPath, iconName);
     }
 
-    if (removePackageName) {
-        // Do this last in case uploading has an error
-        await removeFile(removePackageName);
-    }
-
     return [packageUrl, iconUrl];
 }
 
 
 exports.uploadPackage = uploadPackage;
+exports.removeFile = removeFile;

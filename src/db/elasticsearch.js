@@ -16,6 +16,7 @@ class Elasticsearch {
             'architectures',
             'author',
             'category',
+            'channels',
             'description',
             'framework',
             'icon',

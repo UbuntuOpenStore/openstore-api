@@ -18,7 +18,7 @@ const iconRouter = express.Router();
 const screenshotRouter = express.Router();
 
 const APP_NOT_FOUND = 'App not found';
-const DOWNLOAD_NOT_FOUND_FOR_CHANNEL = 'Download not available for this channel'
+const DOWNLOAD_NOT_FOUND_FOR_CHANNEL = 'Download not available for this channel';
 
 function apps(req, res) {
     let useElasticsearch = true;
@@ -281,12 +281,12 @@ async function download(req, res) {
         channel = channel.toLowerCase();
         let revision = (channel == Package.XENIAL) ? pkg.xenial_revision : pkg.revision;
 
-        let downloadUrl = ''
+        let downloadUrl = '';
         let revisionData = null;
         let revisionIndex = 0;
         pkg.revisions.forEach((data, idx) => {
-            if (revision == revision.revision) {
-                index = idx;
+            if (data.revision == revision && data.channel == channel) {
+                revisionIndex = idx;
                 revisionData = data;
             }
         });

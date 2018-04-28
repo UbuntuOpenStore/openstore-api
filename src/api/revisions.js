@@ -38,6 +38,7 @@ router.get('/:id', (req, res) => {
     });
 });
 
+// TODO support channels
 function revisionsByVersion(req, res) {
     let versions = [];
     if (req.query.apps) {

@@ -1,4 +1,5 @@
 const db = require('../db');
+const { Package } = require('../db');
 const config = require('./config');
 
 const fs = require('fs');
@@ -13,8 +14,10 @@ function sanitize(html) {
     }).replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/\r/g, '');
 }
 
-function updateInfo(pkg, data, body, file, url, updateRevision) {
+// TODO clean up arguments
+function updateInfo(pkg, data, body, file, url, updateRevision, channel, version, download_sha512) {
     updateRevision = (updateRevision === undefined) ? false : updateRevision;
+    channel = channel || Package.VIVID;
 
     let maintainer = body ? body.maintainer : pkg.maintainer;
     return db.User.findOne({_id: maintainer}).then((user) => {
@@ -233,17 +236,23 @@ function updateInfo(pkg, data, body, file, url, updateRevision) {
         }
 
         if (updateRevision) {
-            if (pkg.revision) {
-                pkg.revision++;
+            let revision = 1;
+            if (channel == Package.VIVID) {
+                pkg.revision = pkg.revisions.length + 1;
+                revision = pkg.revision;
             }
             else {
-                pkg.revision = 1;
+                pkg.xenial_revision = pkg.revisions.length + 1;
+                revision = pkg.xenial_revision;
             }
 
             pkg.revisions.push({
-                revision: pkg.revision,
-                version: pkg.version,
+                revision: revision,
+                version: version || pkg.version,
                 downloads: 0,
+                channel: channel,
+                download_url: url || pkg.package,
+                download_sha512: download_sha512 || pkg.download_sha512,
             });
 
             // Only update if we have a new version uploaded
@@ -259,7 +268,7 @@ function updateInfo(pkg, data, body, file, url, updateRevision) {
     });
 }
 
-function toSlimJson(pkg, req) {
+function toSlimJson(pkg) {
     let json = {};
     if (pkg) {
         let ext = pkg.icon ? path.extname(pkg.icon) : '.png';
@@ -340,6 +349,7 @@ function toJson(pkg, req) {
             updated_date: pkg.published_date ? pkg.updated_date : '',
             version: pkg.version ? pkg.version : '',
             revision: pkg.revision ? pkg.revision : 1,
+            xenial_revision: pkg.xenial_revision ? pkg.xenial_revision : 0,
             languages: pkg.languages ? pkg.languages.sort() : [],
         };
 
@@ -348,7 +358,7 @@ function toJson(pkg, req) {
                 channel: db.Package.VIVID,
                 download_url: downloadUrl(pkg, db.Package.VIVID),
                 download_sha512: vividRevisionData.download_sha512,
-            }
+            },
         ];
 
         if (xenialRevisionData) {

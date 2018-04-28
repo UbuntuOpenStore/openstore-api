@@ -1,4 +1,5 @@
 const db = require('../db');
+const { Package } = require('../db');
 const Elasticsearch = require('../db/elasticsearch');
 const config = require('../utils/config');
 const packages = require('../utils/packages');
@@ -28,13 +29,17 @@ const BAD_FILE = 'The file must be a click package';
 const WRONG_PACKAGE = 'The uploaded package does not match the name of the package you are editing';
 const BAD_NAMESPACE = 'You package name is for a domain that you do not have access to';
 const EXISTING_VERSION = 'A revision already exists with this version';
+const NO_FILE = 'No file upload specified';
+const INVALID_CHANNEL = 'The provided channel is not valid';
 
 function fileName(file) {
     // Rename the file so click-review doesn't freak out
     return `${file.path}.click`;
 }
 
-async function parse(pkg, body, file, filePath) {
+async function parse(pkg, body, file, filePath, channel) {
+    channel = channel || Package.VIVID;
+
     let parseData = await clickParse(filePath, true);
     if (!parseData.name || !parseData.version || !parseData.architecture) {
         return [false, false, MALFORMED_MANIFEST];
@@ -45,18 +50,24 @@ async function parse(pkg, body, file, filePath) {
     }
 
     if (pkg.id && pkg.revisions) {
-        // Check for existing revisions with the same version string
+        // Check for existing revisions (for this channel) with the same version string
 
         let matches = pkg.revisions.filter((revision) => {
-            return (revision.version == parseData.version);
+            return (revision.version == parseData.version && revision.channel == channel);
         });
         if (matches.length > 0) {
             return [false, false, EXISTING_VERSION];
         }
     }
 
-    pkg = await packages.updateInfo(pkg, parseData, body, file, null, true);
-    pkg.download_sha512 = await checksum(filePath);
+    // Only update the data from the parsed click if it's for vivid
+    let data = (channel == Package.VIVID) ? parseData : null;
+    let download_sha512 = await checksum(filePath);
+
+    pkg = await packages.updateInfo(pkg, data, body, file, null, true, channel, parseData.version, download_sha512);
+    if (channel == Package.VIVID) {
+        pkg.download_sha512 = download_sha512;
+    }
 
     return [pkg, parseData, null];
 }
@@ -168,10 +179,10 @@ router.get('/', passport.authenticate('localapikey', {session: false}), (req, re
 router.get('/:id', passport.authenticate('localapikey', {session: false}), (req, res) => {
     let query = null;
     if (helpers.isAdminUser(req)) {
-        query = db.Package.findOne({id: req.params.id});
+        query = Package.findOne({id: req.params.id});
     }
     else {
-        query = db.Package.findOne({id: req.params.id, maintainer: req.user._id});
+        query = Package.findOne({id: req.params.id, maintainer: req.user._id});
     }
 
     query.then((pkg) => {
@@ -188,7 +199,7 @@ let postUpload = mupload.fields([
 
 router.post('/', passport.authenticate('localapikey', {session: false}), postUpload, helpers.isNotDisabled, helpers.downloadFileMiddleware, async (req, res) => {
     if (!req.files.file.length == 1) {
-        return helpers.error(res, 'No file upload specified');
+        return helpers.error(res, NO_FILE);
     }
 
     try {
@@ -205,7 +216,7 @@ router.post('/', passport.authenticate('localapikey', {session: false}), postUpl
         }
 
         let parseData;
-        let pkg = new db.Package();
+        let pkg = new Package();
         [pkg, parseData, error] = await parse(pkg, req.body, req.files.file[0], filePath);
         if (!pkg) {
             return helpers.error(res, error, 400);
@@ -223,7 +234,7 @@ router.post('/', passport.authenticate('localapikey', {session: false}), postUpl
             }
         }
 
-        let existing = await db.Package.findOne({id: parseData.name}).exec();
+        let existing = await Package.findOne({id: parseData.name}).exec();
         if (existing) {
             return helpers.error(res, DUPLICATE_PACKAGE, 400);
         }
@@ -238,6 +249,12 @@ router.post('/', passport.authenticate('localapikey', {session: false}), postUpl
 
         pkg.package = packageUrl;
         pkg.icon = iconUrl;
+
+        pkg.revisions.forEach((data) => {
+            if (data.revision == pkg.revision) {
+                data.download_url = packageUrl;
+            }
+        });
 
         pkg = await pkg.save();
 
@@ -262,16 +279,19 @@ let putUpload = mupload.fields([
     {name: 'screenshot_files', maxCount: 5},
 ]);
 
+// TODO depricate file uploads
 router.put('/:id', passport.authenticate('localapikey', {session: false}), putUpload, helpers.isNotDisabled, helpers.downloadFileMiddleware, async(req, res) => {
     try {
         if (req.body && (!req.body.maintainer || req.body.maintainer == 'null')) {
             req.body.maintainer = req.user._id;
         }
 
-        let pkg = await db.Package.findOne({id: req.params.id}).exec();
+        let pkg = await Package.findOne({id: req.params.id}).exec();
         if (!pkg) {
             return helpers.error(res, APP_NOT_FOUND, 404);
         }
+
+        let previousRevision = pkg.revision;
 
         if (!helpers.isAdminUser(req) && req.user._id != pkg.maintainer) {
             return helpers.error(res, PERMISSION_DENIED, 400);
@@ -304,6 +324,17 @@ router.put('/:id', passport.authenticate('localapikey', {session: false}), putUp
 
             pkg.package = packageUrl;
             pkg.icon = iconUrl;
+
+            for (let i = 0; i < pkg.revisions.length; i++) {
+                let data = pkg.revisions[i];
+                if (data.revision == pkg.revision) {
+                    data.download_url = packageUrl;
+                }
+
+                if (data.revision == previousRevision) {
+                    await upload.removeFile(data.download_url);
+                }
+            }
         }
         else {
             // Just the app info was updated
@@ -322,6 +353,90 @@ router.put('/:id', passport.authenticate('localapikey', {session: false}), putUp
         }
         else {
             await es.remove(pkg);
+        }
+
+        return helpers.success(res, packages.toJson(pkg, req));
+    }
+    catch (err) {
+        console.log(err);
+        logger.error('Error updating package:', err);
+        return helpers.error(res, 'There was an error updating your app, please try again later');
+    }
+});
+
+router.post('/:id/revision', passport.authenticate('localapikey', {session: false}), postUpload, helpers.isNotDisabled, helpers.downloadFileMiddleware, async(req, res) => {
+    if (!req.files || !req.files.file || !req.files.file.length == 1) {
+        return helpers.error(res, NO_FILE, 400);
+    }
+
+    let channel = req.body.channel ? req.body.channel.toLowerCase() : '';
+    if (!Package.CHANNELS.includes(channel)) {
+        return helpers.error(res, INVALID_CHANNEL, 400);
+    }
+
+    try {
+        let pkg = await Package.findOne({id: req.params.id}).exec();
+        if (!pkg) {
+            return helpers.error(res, APP_NOT_FOUND, 404);
+        }
+
+        let previousRevision = (channel == Package.XENIAL) ? pkg.xenial_revision : pkg.revision;
+
+        if (!helpers.isAdminUser(req) && req.user._id != pkg.maintainer) {
+            return helpers.error(res, PERMISSION_DENIED, 400);
+        }
+
+        let success;
+        let error;
+        let filePath = fileName(req.files.file[0]);
+        [success, error] = await review(req, req.files.file[0], filePath);
+        if (!success) {
+            return helpers.error(res, error, 400);
+        }
+
+        let parseData;
+        [pkg, parseData, error] = await parse(pkg, null, req.files.file[0], filePath, channel);
+        if (!pkg) {
+            return helpers.error(res, error, 400);
+        }
+
+        let packageUrl;
+        let iconUrl;
+        [packageUrl, iconUrl] = await upload.uploadPackage(
+            pkg,
+            filePath,
+            (channel == Package.VIVID) ? parseData.icon : null,
+            channel,
+        );
+
+        let revision = (channel == Package.XENIAL) ? pkg.xenial_revision : pkg.revision;
+        if (channel == Package.VIVID) {
+            pkg.package = packageUrl;
+            pkg.icon = iconUrl;
+        }
+
+        for (let i = 0; i < pkg.revisions.length; i++) {
+            let data = pkg.revisions[i];
+            if (data.channel == channel) {
+                if (data.revision == revision) {
+                    data.download_url = packageUrl;
+                }
+
+                if (data.revision == previousRevision) {
+                    await upload.removeFile(data.download_url);
+                }
+            }
+        }
+
+        if (!pkg.channels.includes(channel)) {
+            pkg.channels.push(channel);
+        }
+
+        pkg = await pkg.save();
+
+        if (pkg.published) {
+            let es = new Elasticsearch();
+            await es.upsert(pkg);
         }
 
         return helpers.success(res, packages.toJson(pkg, req));

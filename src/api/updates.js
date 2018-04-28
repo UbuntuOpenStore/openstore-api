@@ -5,6 +5,7 @@ const express = require('express');
 
 const router = express.Router();
 
+// TODO support channels
 function updates(req, res) {
     let byRevision = true;
     if (req.originalUrl.substring(0, 20) == '/api/v1/apps/updates') {
