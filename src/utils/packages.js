@@ -268,10 +268,18 @@ function updateInfo(pkg, data, body, file, url, updateRevision, channel, version
     });
 }
 
+function iconUrl(pkg) {
+    let ext = pkg.icon ? path.extname(pkg.icon) : '.png';
+    return `${config.server.host}/api/v3/apps/${pkg.id}/icon/${pkg.version}${ext}`;
+}
+
+function downloadUrl(pkg, channel) {
+    return `${config.server.host}/api/v3/apps/${pkg.id}/download/${channel}`;
+}
+
 function toSlimJson(pkg) {
     let json = {};
     if (pkg) {
-        let ext = pkg.icon ? path.extname(pkg.icon) : '.png';
         json = {
             architectures: pkg.architectures ? pkg.architectures : [],
             author: pkg.author ? pkg.author : '',
@@ -280,7 +288,7 @@ function toSlimJson(pkg) {
             category: pkg.category ? pkg.category : '',
             description: pkg.description ? pkg.description : '',
             framework: pkg.framework ? pkg.framework : '',
-            icon: `${config.server.host}/api/icon/${pkg.version}/${pkg.id}${ext}`,
+            icon: iconUrl(pkg),
             keywords: pkg.keywords ? pkg.keywords : [],
             license: pkg.license ? pkg.license : 'Proprietary',
             nsfw: !!pkg.nsfw,
@@ -292,10 +300,6 @@ function toSlimJson(pkg) {
     }
 
     return json;
-}
-
-function downloadUrl(pkg, channel) {
-    return `${config.server.host}/api/v3/apps/${pkg.id}/download/${channel}`;
 }
 
 function toJson(pkg, req) {
@@ -313,7 +317,6 @@ function toJson(pkg, req) {
             }
         });
 
-        let ext = pkg.icon ? path.extname(pkg.icon) : '.png';
         json = {
             architecture: pkg.architecture ? pkg.architecture : '',
             architectures: pkg.architectures ? pkg.architectures : [],
@@ -326,7 +329,7 @@ function toJson(pkg, req) {
             download_sha512: vividRevisionData.download_sha512 ? vividRevisionData.download_sha512 : '',
             filesize: pkg.filesize ? pkg.filesize : 0,
             framework: pkg.framework ? pkg.framework : '',
-            icon: `${config.server.host}/api/icon/${pkg.version}/${pkg.id}${ext}`,
+            icon: iconUrl(pkg),
             id: pkg.id ? pkg.id : '',
             keywords: pkg.keywords ? pkg.keywords : [],
             license: pkg.license ? pkg.license : 'Proprietary',

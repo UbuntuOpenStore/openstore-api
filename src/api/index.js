@@ -95,9 +95,12 @@ function setup() {
     app.use('/auth', auth);
     app.use('/api/users', users);
 
-    // TODO flesh out the rest of v3
     app.use('/api/v3/apps', apps.main);
     app.use('/api/v3/manage', manage);
+    app.use('/api/v3/discover', discover);
+    app.use('/api/v3/updates', updates);
+    app.use('/api/v3/revisions', revisions);
+    app.use('/api/v3/categories', categories);
 
     app.use(express.static(path.join(__dirname, '../../www')));
 

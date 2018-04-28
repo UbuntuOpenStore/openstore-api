@@ -325,32 +325,37 @@ async function download(req, res) {
 downloadRouter.get('/:id/:click', download); // TODO depricate this
 router.get('/:id/download/:channel', download);
 
-iconRouter.get(['/:version/:id', '/:id'], (req, res) => {
+async function icon(req, res) {
     let id = req.params.id.replace('.png', '').replace('.svg', '').replace('.jpg', '').replace('.jpeg', '');
 
-    Package.findOne({id: id}).then((pkg) => {
+    try {
+        let pkg = await Package.findOne({id: id});
         if (!pkg || !pkg.icon) {
             throw APP_NOT_FOUND;
         }
 
         let ext = path.extname(pkg.icon);
         let filename = `${config.data_dir}/${pkg.version}-${pkg.id}${ext}`;
-        if (fs.existsSync(filename)) {
-            return filename;
+        if (!fs.existsSync(filename)) {
+            filename = await helpers.download(pkg.icon, filename);
         }
 
-        return helpers.download(pkg.icon, filename);
-    }).then((filename) => {
+        let stat = await fs.statAsync(filename);
+        res.setHeader('Content-Length', stat.size);
         res.setHeader('Content-type', mime.lookup(filename));
         res.setHeader('Cache-Control', 'public, max-age=2592000'); // 30 days
         fs.createReadStream(filename).pipe(res);
-    }).catch(() => {
+    }
+    catch (e) {
         res.status(404);
         fs.createReadStream(path.join(__dirname, '../404.png')).pipe(res);
-    });
-});
+    }
+}
 
-screenshotRouter.get('/:name', (req, res) => {
+iconRouter.get(['/:version/:id', '/:id'], icon); // TODO depricate
+router.get('/:id/icon/:version', icon);
+
+function screenshot(req, res) {
     let filename = `${config.image_dir}/${req.params.name}`;
     if (fs.existsSync(filename)) {
         res.setHeader('Content-type', mime.lookup(filename));
@@ -361,7 +366,12 @@ screenshotRouter.get('/:name', (req, res) => {
         res.status(404);
         fs.createReadStream(path.join(__dirname, '../404.png')).pipe(res);
     }
-});
+}
+
+// TODO depricate & update existing urls
+// TODO make urls be generated based on file name
+screenshotRouter.get('/:name', screenshot);
+router.get('/:id/screenshot/:name', screenshot);
 
 exports.main = router;
 exports.download = downloadRouter;
