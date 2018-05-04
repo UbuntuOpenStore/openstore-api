@@ -5,13 +5,7 @@ const express = require('express');
 
 const router = express.Router();
 
-// TODO support channels
 function updates(req, res) {
-    let byRevision = true;
-    if (req.originalUrl.substring(0, 20) == '/api/v1/apps/updates') {
-        byRevision = false;
-    }
-
     let ids = [];
     if (req.query.apps) {
         ids = req.query.apps.split(',');
@@ -20,14 +14,26 @@ function updates(req, res) {
         ids = req.body.apps;
     }
 
+    let channel = Package.VIVID;
+    if (req.query.channel) {
+        channel = req.query.channel.toLowerCase();
+    }
+    else if (req.body && req.body.channel) {
+        channel = req.body.channel.toLowerCase();
+    }
+
+    if (!Package.CHANNELS.includes(channel)) {
+        channel = Package.VIVID;
+    }
+
     if (ids.length > 0) {
         Package.find({id: {$in: ids}, published: true}).then((pkgs) => {
             helpers.success(res, pkgs.reduce((value, pkg) => {
-                if (byRevision) {
-                    value[pkg.id] = pkg.revision;
+                if (req.apiVersion == 1) {
+                    value[pkg.id] = pkg.version;
                 }
                 else {
-                    value[pkg.id] = pkg.version;
+                    value[pkg.id] = (channel == Package.VIVID) ? pkg.revision : pkg.xenial_revision;
                 }
 
                 return value;

@@ -7,38 +7,6 @@ const express = require('express');
 const router = express.Router();
 const APP_NOT_FOUND = 'App not found';
 
-router.get('/:id', (req, res) => {
-    let query = {
-        published: true,
-        id: req.params.id,
-    };
-
-    Package.findOne(query).then((pkg) => {
-        if (!pkg) {
-            helpers.error(res, APP_NOT_FOUND, 404);
-        }
-        else {
-            let version = req.query.version ? req.query.version : pkg.version;
-            let revision = pkg.revisions.filter((rev) => {
-                return (rev.version == version);
-            })[0];
-            revision = revision ? revision.revision : 0;
-
-            helpers.success(res, {
-                id: pkg.id,
-                version: version,
-                revision: revision,
-                latest_version: pkg.version,
-                latest_revision: pkg.revision,
-            });
-        }
-    }).catch((err) => {
-        logger.error('Error finding package for revision:', err);
-        helpers.error(res, 'Could not fetch app revision at this time');
-    });
-});
-
-// TODO support channels
 function revisionsByVersion(req, res) {
     let versions = [];
     if (req.query.apps) {
@@ -46,6 +14,18 @@ function revisionsByVersion(req, res) {
     }
     else if (req.body && req.body.apps) {
         versions = req.body.apps;
+    }
+
+    let defaultChannel = Package.VIVID;
+    if (req.query.channel) {
+        defaultChannel = req.query.channel.toLowerCase();
+    }
+    else if (req.body && req.body.channel) {
+        defaultChannel = req.body.channel.toLowerCase();
+    }
+
+    if (!Package.CHANNELS.includes(defaultChannel)) {
+        defaultChannel = Package.VIVID;
     }
 
     let ids = versions.map((version) => {
@@ -56,10 +36,13 @@ function revisionsByVersion(req, res) {
             let version = versions.filter((v) => {
                 return (v.split('@')[0] == pkg.id);
             })[0];
-            version = version.split('@')[1];
+
+            let parts = version.split('@');
+            let channel = (parts.length > 2) ? parts[2] : defaultChannel;
+            version = parts[1];
 
             let revision = pkg.revisions.filter((rev) => {
-                return (rev.version == version);
+                return (rev.version == version && rev.channel == channel);
             })[0];
             revision = revision ? revision.revision : 0;
 
@@ -68,7 +51,7 @@ function revisionsByVersion(req, res) {
                 version: version,
                 revision: revision,
                 latest_version: pkg.version,
-                latest_revision: pkg.revision,
+                latest_revision: (channel == Package.VIVID) ? pkg.revision : pkg.xenial_revision,
             };
         }));
     }).catch((err) => {
