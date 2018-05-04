@@ -370,7 +370,11 @@ router.post('/:id/revision', passport.authenticate('localapikey', {session: fals
     }
 
     let channel = req.body.channel ? req.body.channel.toLowerCase() : '';
-    if (!Package.CHANNELS.includes(channel)) {
+    let bothChannels = (channel == 'vivid-xenial');
+    if (bothChannels) {
+        channel = Package.VIVID;
+    }
+    else if (!Package.CHANNELS.includes(channel)) {
         return helpers.error(res, INVALID_CHANNEL, 400);
     }
 
@@ -415,6 +419,14 @@ router.post('/:id/revision', passport.authenticate('localapikey', {session: fals
             pkg.icon = iconUrl;
         }
 
+        if (bothChannels) {
+            pkg = await packages.updateInfo(pkg, null, null, req.files.file[0], null, true, Package.XENIAL, parseData.version, pkg.download_sha512);
+
+            if (!pkg.channels.includes(Package.XENIAL)) {
+                pkg.channels.push(Package.XENIAL);
+            }
+        }
+
         for (let i = 0; i < pkg.revisions.length; i++) {
             let data = pkg.revisions[i];
             if (data.channel == channel) {
@@ -424,6 +436,12 @@ router.post('/:id/revision', passport.authenticate('localapikey', {session: fals
 
                 if (data.revision == previousRevision) {
                     await upload.removeFile(data.download_url);
+                }
+            }
+
+            if (bothChannels && data.channel == Package.XENIAL) {
+                if (data.revision == pkg.xenial_revision) {
+                    data.download_url = packageUrl;
                 }
             }
         }

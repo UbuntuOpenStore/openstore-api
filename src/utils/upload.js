@@ -67,10 +67,8 @@ async function uploadFile(filePath, fileName) {
 
 async function removeFile(url) {
     let base = `${config.backblaze.baseUrl}${config.backblaze.bucketName}/`;
-    console.log(url);
     if (url && url.indexOf(base) === 0) {
         let fileName = url.replace(base, '');
-        console.log(fileName);
 
         await b2.authorize();
 
@@ -82,7 +80,6 @@ async function removeFile(url) {
 
         if (versions.data.files.length >= 1) {
             let fileId = versions.data.files[0].fileId;
-            console.log(fileId);
 
             await b2.deleteFileVersion({
                 fileId: fileId,

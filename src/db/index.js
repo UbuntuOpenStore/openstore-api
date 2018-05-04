@@ -69,10 +69,6 @@ const packageSchema = mongoose.Schema({
     channels: [], // vivid, xenial
     xenial_revision: Number, // TODO remove when no longer needed
 
-    // TODO implement this
-    // When creating a new revision and this equals true, then we created revisions for each channel
-    dual_support: Boolean, // TODO remove when no longer needed
-
     icon: String,
     download_sha512: String, // TODO depricated
     package: String, // TODO depricated
