@@ -286,6 +286,7 @@ function toSlimJson(pkg) {
             name: pkg.name ? pkg.name : '',
             id: pkg.id ? pkg.id : '',
             category: pkg.category ? pkg.category : '',
+            channels: pkg.channels ? pkg.channels : [],
             description: pkg.description ? pkg.description : '',
             framework: pkg.framework ? pkg.framework : '',
             icon: iconUrl(pkg),
@@ -469,6 +470,14 @@ function parseFiltersFromRequest(req) {
         search = req.body.search;
     }
 
+    let channel = null;
+    if (req.query.channel) {
+        channel = req.query.channel;
+    }
+    else if (req.body && req.body.channel) {
+        channel = req.body.channel;
+    }
+
     let nsfw = null;
     if (
         (req.query.nsfw === false || (req.query.nsfw && req.query.nsfw.toLowerCase() == 'false')) ||
@@ -495,6 +504,7 @@ function parseFiltersFromRequest(req) {
         category: category,
         author: author,
         search: search,
+        channel: channel,
         nsfw: nsfw,
     };
 }

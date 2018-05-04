@@ -151,6 +151,12 @@ function queryPackages(filters, query) {
         query.author = filters.author;
     }
 
+    if (filters.channel) {
+        query.channels = {
+            $in: [filters.channel],
+        };
+    }
+
     if (filters.search) {
         query.$text = {$search: filters.search};
     }

@@ -82,6 +82,14 @@ function apps(req, res) {
             });
         }
 
+        if (filters.channel) {
+            query.and.push({
+                in: {
+                    channels: [filters.channel],
+                },
+            });
+        }
+
         if (filters.nsfw) {
             if (Array.isArray(filters.nsfw)) {
                 // This looks a big weird because the filters.nsfw == [null, false]
@@ -201,10 +209,7 @@ function stats(req, res) {
                 $sort: {_id: 1},
             },
         ]),
-    ]).then((results) => {
-        let categories = results[0];
-        let types = results[1];
-
+    ]).then(([categories, types]) => {
         let categoryMap = {};
         categories.forEach((category) => {
             categoryMap[category._id] = category.count;
