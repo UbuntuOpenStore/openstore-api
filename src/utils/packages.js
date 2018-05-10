@@ -1,4 +1,5 @@
 const db = require('../db');
+const { Package } = require('../db');
 const config = require('./config');
 
 const fs = require('fs');
@@ -13,8 +14,10 @@ function sanitize(html) {
     }).replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/\r/g, '');
 }
 
-function updateInfo(pkg, data, body, file, url, updateRevision) {
+// TODO clean up arguments
+function updateInfo(pkg, data, body, file, url, updateRevision, channel, version, download_sha512) {
     updateRevision = (updateRevision === undefined) ? false : updateRevision;
+    channel = channel || Package.VIVID;
 
     let maintainer = body ? body.maintainer : pkg.maintainer;
     return db.User.findOne({_id: maintainer}).then((user) => {
@@ -233,17 +236,23 @@ function updateInfo(pkg, data, body, file, url, updateRevision) {
         }
 
         if (updateRevision) {
-            if (pkg.revision) {
-                pkg.revision++;
+            let revision = 1;
+            if (channel == Package.VIVID) {
+                pkg.revision = pkg.revisions.length + 1;
+                revision = pkg.revision;
             }
             else {
-                pkg.revision = 1;
+                pkg.xenial_revision = pkg.revisions.length + 1;
+                revision = pkg.xenial_revision;
             }
 
             pkg.revisions.push({
-                revision: pkg.revision,
-                version: pkg.version,
+                revision: revision,
+                version: version || pkg.version,
                 downloads: 0,
+                channel: channel,
+                download_url: url || pkg.package,
+                download_sha512: download_sha512 || pkg.download_sha512,
             });
 
             // Only update if we have a new version uploaded
@@ -259,22 +268,69 @@ function updateInfo(pkg, data, body, file, url, updateRevision) {
     });
 }
 
+function iconUrl(pkg) {
+    let ext = pkg.icon ? path.extname(pkg.icon) : '.png';
+    return `${config.server.host}/api/v3/apps/${pkg.id}/icon/${pkg.version}${ext}`;
+}
+
+function downloadUrl(pkg, channel) {
+    return `${config.server.host}/api/v3/apps/${pkg.id}/download/${channel}`;
+}
+
+function toSlimJson(pkg) {
+    let json = {};
+    if (pkg) {
+        json = {
+            architectures: pkg.architectures ? pkg.architectures : [],
+            author: pkg.author ? pkg.author : '',
+            name: pkg.name ? pkg.name : '',
+            id: pkg.id ? pkg.id : '',
+            category: pkg.category ? pkg.category : '',
+            channels: pkg.channels ? pkg.channels : [],
+            description: pkg.description ? pkg.description : '',
+            framework: pkg.framework ? pkg.framework : '',
+            icon: iconUrl(pkg),
+            keywords: pkg.keywords ? pkg.keywords : [],
+            license: pkg.license ? pkg.license : 'Proprietary',
+            nsfw: !!pkg.nsfw,
+            published_date: pkg.published_date ? pkg.published_date : '',
+            tagline: pkg.tagline ? pkg.tagline : '',
+            types: pkg.types ? pkg.types : [],
+            updated_date: pkg.published_date ? pkg.updated_date : '',
+        };
+    }
+
+    return json;
+}
+
 function toJson(pkg, req) {
     let json = {};
     if (pkg) {
-        let ext = pkg.icon ? path.extname(pkg.icon) : '.png';
+        let vividRevisionData = {};
+        let xenialRevisionData = null;
+        pkg.revisions.forEach((data) => {
+            if (data.revision == pkg.xenial_revision) {
+                xenialRevisionData = data;
+            }
+
+            if (data.revision == pkg.revision) {
+                vividRevisionData = data;
+            }
+        });
+
         json = {
             architecture: pkg.architecture ? pkg.architecture : '',
             architectures: pkg.architectures ? pkg.architectures : [],
             author: pkg.author ? pkg.author : '',
             category: pkg.category ? pkg.category : '',
             changelog: pkg.changelog ? pkg.changelog : '',
+            channels: pkg.channels ? pkg.channels : [db.Package.VIVID],
             description: pkg.description ? pkg.description : '',
-            download_sha512: pkg.download_sha512 ? pkg.download_sha512 : '',
-            download: `${config.server.host}/api/download/${pkg.id}/${pkg.id}_latest_${pkg.architecture}.click`,
+            download: downloadUrl(pkg, db.Package.VIVID),
+            download_sha512: vividRevisionData.download_sha512 ? vividRevisionData.download_sha512 : '',
             filesize: pkg.filesize ? pkg.filesize : 0,
             framework: pkg.framework ? pkg.framework : '',
-            icon: `${config.server.host}/api/icon/${pkg.version}/${pkg.id}${ext}`,
+            icon: iconUrl(pkg),
             id: pkg.id ? pkg.id : '',
             keywords: pkg.keywords ? pkg.keywords : [],
             license: pkg.license ? pkg.license : 'Proprietary',
@@ -297,8 +353,25 @@ function toJson(pkg, req) {
             updated_date: pkg.published_date ? pkg.updated_date : '',
             version: pkg.version ? pkg.version : '',
             revision: pkg.revision ? pkg.revision : 1,
+            xenial_revision: pkg.xenial_revision ? pkg.xenial_revision : 0,
             languages: pkg.languages ? pkg.languages.sort() : [],
         };
+
+        json.downloads = [
+            {
+                channel: db.Package.VIVID,
+                download_url: downloadUrl(pkg, db.Package.VIVID),
+                download_sha512: vividRevisionData.download_sha512,
+            },
+        ];
+
+        if (xenialRevisionData) {
+            json.downloads.push({
+                channel: db.Package.XENIAL,
+                download_url: downloadUrl(pkg, db.Package.XENIAL),
+                download_sha512: xenialRevisionData.download_sha512,
+            });
+        }
 
         /* eslint-disable no-underscore-dangle */
         if (req.isAuthenticated() && req.user && (req.user._id == pkg.maintainer || req.user.role == 'admin') && pkg.revisions) {
@@ -397,6 +470,14 @@ function parseFiltersFromRequest(req) {
         search = req.body.search;
     }
 
+    let channel = null;
+    if (req.query.channel) {
+        channel = req.query.channel;
+    }
+    else if (req.body && req.body.channel) {
+        channel = req.body.channel;
+    }
+
     let nsfw = null;
     if (
         (req.query.nsfw === false || (req.query.nsfw && req.query.nsfw.toLowerCase() == 'false')) ||
@@ -423,10 +504,12 @@ function parseFiltersFromRequest(req) {
         category: category,
         author: author,
         search: search,
+        channel: channel,
         nsfw: nsfw,
     };
 }
 
 exports.updateInfo = updateInfo;
+exports.toSlimJson = toSlimJson;
 exports.toJson = toJson;
 exports.parseFiltersFromRequest = parseFiltersFromRequest;

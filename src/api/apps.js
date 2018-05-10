@@ -16,15 +16,14 @@ const router = express.Router();
 const downloadRouter = express.Router();
 const iconRouter = express.Router();
 const screenshotRouter = express.Router();
+const statsRouter = express.Router();
 
 const APP_NOT_FOUND = 'App not found';
+const DOWNLOAD_NOT_FOUND_FOR_CHANNEL = 'Download not available for this channel';
 
 function apps(req, res) {
     let useElasticsearch = true;
-    if (
-        req.originalUrl.substring(0, 12) == '/api/v1/apps' ||
-        req.originalUrl.substring(0, 9) == '/api/apps'
-    ) {
+    if (req.apiVersion == 1) {
         useElasticsearch = false;
     }
 
@@ -79,6 +78,14 @@ function apps(req, res) {
             query.and.push({
                 term: {
                     author: filters.author,
+                },
+            });
+        }
+
+        if (filters.channel) {
+            query.and.push({
+                in: {
+                    channels: [filters.channel],
                 },
             });
         }
@@ -146,10 +153,15 @@ function apps(req, res) {
 
         let formatted = [];
         pkgs.forEach((pkg) => {
-            formatted.push(packages.toJson(pkg, req));
+            if (req.apiVersion == 3) {
+                formatted.push(packages.toSlimJson(pkg, req));
+            }
+            else {
+                formatted.push(packages.toJson(pkg, req));
+            }
         });
 
-        if (req.originalUrl.substring(0, 9) == '/api/apps') {
+        if (req.apiVersion == 1) {
             helpers.success(res, formatted);
         }
         else {
@@ -171,7 +183,7 @@ function apps(req, res) {
 router.get('/', apps);
 router.post('/', apps);
 
-router.get('/stats', (req, res) => {
+function stats(req, res) {
     Promise.all([
         Package.aggregate([
             {
@@ -197,10 +209,7 @@ router.get('/stats', (req, res) => {
                 $sort: {_id: 1},
             },
         ]),
-    ]).then((results) => {
-        let categories = results[0];
-        let types = results[1];
-
+    ]).then(([categories, types]) => {
         let categoryMap = {};
         categories.forEach((category) => {
             categoryMap[category._id] = category.count;
@@ -223,7 +232,10 @@ router.get('/stats', (req, res) => {
             types: typeMap,
         });
     });
-});
+}
+
+router.get('/stats', stats); // TODO depricate
+statsRouter.get('/', stats);
 
 router.get('/:id', (req, res) => {
     let query = {
@@ -267,30 +279,43 @@ router.get('/:id', (req, res) => {
     });
 });
 
-downloadRouter.get('/:id/:click', async (req, res) => {
+async function download(req, res) {
     try {
         let pkg = await Package.findOne({id: req.params.id, published: true}).exec();
         if (!pkg) {
             return helpers.error(res, APP_NOT_FOUND, 404);
         }
 
-        // TODO check if more url encoding is needed
-        let downloadUrl = pkg.package.replace(/,/g, '%2C');
+        let channel = req.params.channel ? req.params.channel : Package.VIVID;
+        channel = channel.toLowerCase();
+        let revision = (channel == Package.XENIAL) ? pkg.xenial_revision : pkg.revision;
+
+        let downloadUrl = '';
+        let revisionData = null;
+        let revisionIndex = 0;
+        pkg.revisions.forEach((data, idx) => {
+            if (data.revision == revision && data.channel == channel) {
+                revisionIndex = idx;
+                revisionData = data;
+            }
+        });
+
+        if (revisionData) {
+            // TODO check if more url encoding is needed
+            downloadUrl = revisionData.download_url.replace(/,/g, '%2C');
+        }
+        else {
+            return helpers.error(res, DOWNLOAD_NOT_FOUND_FOR_CHANNEL, 404);
+        }
+
         let ext = path.extname(downloadUrl);
-        let filename = `${config.data_dir}/${pkg.version}-${pkg.id}${ext}`;
+        let filename = `${config.data_dir}/${pkg.id}-${channel}-${pkg.version}${ext}`;
         if (!fs.existsSync(filename)) {
             filename = await helpers.download(downloadUrl, filename);
         }
 
-        let index = 0;
-        pkg.revisions.forEach((revision, idx) => {
-            if (pkg.revision == revision.revision) {
-                index = idx;
-            }
-        });
-
         let inc = {};
-        inc[`revisions.${index}.downloads`] = 1;
+        inc[`revisions.${revisionIndex}.downloads`] = 1;
 
         await Package.update({_id: pkg._id}, {$inc: inc});
 
@@ -304,34 +329,42 @@ downloadRouter.get('/:id/:click', async (req, res) => {
         logger.error('Error downloading package:', err);
         return helpers.error(res, 'Could not download package at this time');
     }
-});
+}
 
-iconRouter.get(['/:version/:id', '/:id'], (req, res) => {
+downloadRouter.get('/:id/:click', download); // TODO depricate this
+router.get('/:id/download/:channel', download);
+
+async function icon(req, res) {
     let id = req.params.id.replace('.png', '').replace('.svg', '').replace('.jpg', '').replace('.jpeg', '');
 
-    Package.findOne({id: id}).then((pkg) => {
+    try {
+        let pkg = await Package.findOne({id: id});
         if (!pkg || !pkg.icon) {
             throw APP_NOT_FOUND;
         }
 
         let ext = path.extname(pkg.icon);
         let filename = `${config.data_dir}/${pkg.version}-${pkg.id}${ext}`;
-        if (fs.existsSync(filename)) {
-            return filename;
+        if (!fs.existsSync(filename)) {
+            filename = await helpers.download(pkg.icon, filename);
         }
 
-        return helpers.download(pkg.icon, filename);
-    }).then((filename) => {
+        let stat = await fs.statAsync(filename);
+        res.setHeader('Content-Length', stat.size);
         res.setHeader('Content-type', mime.lookup(filename));
         res.setHeader('Cache-Control', 'public, max-age=2592000'); // 30 days
         fs.createReadStream(filename).pipe(res);
-    }).catch(() => {
+    }
+    catch (e) {
         res.status(404);
         fs.createReadStream(path.join(__dirname, '../404.png')).pipe(res);
-    });
-});
+    }
+}
 
-screenshotRouter.get('/:name', (req, res) => {
+iconRouter.get(['/:version/:id', '/:id'], icon); // TODO depricate
+router.get('/:id/icon/:version', icon);
+
+function screenshot(req, res) {
     let filename = `${config.image_dir}/${req.params.name}`;
     if (fs.existsSync(filename)) {
         res.setHeader('Content-type', mime.lookup(filename));
@@ -342,9 +375,15 @@ screenshotRouter.get('/:name', (req, res) => {
         res.status(404);
         fs.createReadStream(path.join(__dirname, '../404.png')).pipe(res);
     }
-});
+}
+
+// TODO depricate & update existing urls
+// TODO make urls be generated based on file name
+screenshotRouter.get('/:name', screenshot);
+router.get('/:id/screenshot/:name', screenshot);
 
 exports.main = router;
 exports.download = downloadRouter;
 exports.icon = iconRouter;
 exports.screenshot = screenshotRouter;
+exports.stats = statsRouter;

@@ -60,15 +60,18 @@ const packageSchema = mongoose.Schema({
             revision: Number,
             version: String, // Unique among revisions
             downloads: Number,
+            channel: String, // vivid, xenial
+            download_url: String,
+            download_sha512: String,
         }
         */
     ], // Revisions and stats
+    channels: [], // vivid, xenial
+    xenial_revision: Number, // TODO remove when no longer needed
 
     icon: String,
-    old_icon: String, // TODO remove when no longer needed
-    download_sha512: String,
-    package: String, // Download url
-    old_package: String, // TODO remove when no longer needed
+    download_sha512: String, // TODO depricated
+    package: String, // TODO depricated
 }, {usePushEach: true});
 
 packageSchema.index(
@@ -90,6 +93,13 @@ packageSchema.index(
 );
 
 const Package = mongoose.model('Package', packageSchema);
+
+Package.XENIAL = 'xenial';
+Package.VIVID = 'vivid';
+Package.CHANNELS = [
+    Package.XENIAL,
+    Package.VIVID,
+];
 
 const userSchema = mongoose.Schema({
     apikey: String,
@@ -135,6 +145,12 @@ function queryPackages(filters, query) {
 
     if (filters.author) {
         query.author = filters.author;
+    }
+
+    if (filters.channel) {
+        query.channels = {
+            $in: [filters.channel],
+        };
     }
 
     if (filters.search) {
