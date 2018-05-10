@@ -308,15 +308,17 @@ function toJson(pkg, req) {
     if (pkg) {
         let vividRevisionData = {};
         let xenialRevisionData = null;
-        pkg.revisions.forEach((data) => {
-            if (data.revision == pkg.xenial_revision) {
-                xenialRevisionData = data;
-            }
+        if (pkg.revisions) {
+            pkg.revisions.forEach((data) => {
+                if (data.revision == pkg.xenial_revision) {
+                    xenialRevisionData = data;
+                }
 
-            if (data.revision == pkg.revision) {
-                vividRevisionData = data;
-            }
-        });
+                if (data.revision == pkg.revision) {
+                    vividRevisionData = data;
+                }
+            });
+        }
 
         json = {
             architecture: pkg.architecture ? pkg.architecture : '',
