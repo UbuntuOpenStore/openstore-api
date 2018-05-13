@@ -73,6 +73,11 @@ router.get('/', (req, res) => {
             gt.setLocale('en_US');
         }
 
+        let channel = req.query.channel ? req.query.channel.toLowerCase() : Package.VIVID;
+        if (!Package.CHANNELS.includes(channel)) {
+            channel = Package.VIVID;
+        }
+
         let categoryTranslations = {
             Accessibility: gt.gettext('Accessibility'),
             'Books & Comics': gt.gettext('Books & Comics'),
@@ -100,7 +105,7 @@ router.get('/', (req, res) => {
 
         Package.aggregate([
             {
-                $match: {published: true},
+                $match: {published: true, channels: channel},
             }, {
                 $group: {
                     _id: '$category',
