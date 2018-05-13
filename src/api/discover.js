@@ -12,12 +12,17 @@ const express = require('express');
 const router = express.Router();
 
 discoverJSON.highlight.image = config.server.host + discoverJSON.highlight.image;
-let discoverCache = null;
-let discoverDate = null;
+let discoverCache = {};
+let discoverDate = {};
 
 router.get('/', (req, res) => {
+    let channel = req.query.channel ? req.query.channel.toLowerCase() : Package.VIVID;
+    if (!Package.CHANNELS.includes(channel)) {
+        channel = Package.VIVID;
+    }
+
     let now = moment();
-    if (!discoverDate || now.diff(discoverDate, 'minutes') > 10 || !discoverCache) { // Cache miss
+    if (!discoverDate[channel] || now.diff(discoverDate[channel], 'minutes') > 10 || !discoverCache[channel]) { // Cache miss
         let discover = JSON.parse(JSON.stringify(discoverJSON));
         let staticCategories = discover.categories.filter((category) => {
             return (category.ids.length > 0);
@@ -27,16 +32,18 @@ router.get('/', (req, res) => {
             Package.findOne({id: discover.highlight.id}),
 
             Promise.all(staticCategories.map((category) => {
-                return Package.find({id: {$in: category.ids}});
+                return Package.find({id: {$in: category.ids}, channels: [channel]});
             })),
 
             Package.find({
                 published: true,
+                channels: [channel],
                 nsfw: {$in: [null, false]},
             }).limit(8).sort('-published_date'),
 
             Package.find({
                 published: true,
+                channels: [channel],
                 nsfw: {$in: [null, false]},
             }).limit(8).sort('-updated_date'),
         ]).then(([highlight, staticCategoriesApps, newApps, updatedApps]) => {
@@ -73,8 +80,12 @@ router.get('/', (req, res) => {
                 return packages.toJson(app, req);
             });
 
-            discoverCache = discover;
-            discoverDate = now;
+            discover.categories = discover.categories.filter((category) => {
+                return (category.apps.length > 0);
+            });
+
+            discoverCache[channel] = discover;
+            discoverDate[channel] = now;
 
             helpers.success(res, discover);
         }).catch((err) => {
@@ -83,7 +94,7 @@ router.get('/', (req, res) => {
         });
     }
     else { // Cache hit
-        helpers.success(res, discoverCache);
+        helpers.success(res, discoverCache[channel]);
     }
 });
 

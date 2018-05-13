@@ -41,10 +41,11 @@ function revisionsByVersion(req, res) {
             let channel = (parts.length > 2) ? parts[2] : defaultChannel;
             version = parts[1];
 
-            let revision = pkg.revisions.filter((rev) => {
+            let revisionData = pkg.revisions.filter((rev) => {
                 return (rev.version == version && rev.channel == channel);
             })[0];
-            revision = revision ? revision.revision : 0;
+            let revision = revisionData ? revisionData.revision : 0;
+            console.log(pkg.id, revision, channel);
 
             return {
                 id: pkg.id,

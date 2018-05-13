@@ -47,6 +47,7 @@ function updates(req, res) {
     }
 }
 
+// TODO remove this, it's not being used by the app
 router.get('/', updates);
 router.post('/', updates);
 
