@@ -32,18 +32,18 @@ router.get('/', (req, res) => {
             Package.findOne({id: discover.highlight.id}),
 
             Promise.all(staticCategories.map((category) => {
-                return Package.find({id: {$in: category.ids}, channels: [channel]});
+                return Package.find({id: {$in: category.ids}, channels: channel});
             })),
 
             Package.find({
                 published: true,
-                channels: [channel],
+                channels: channel,
                 nsfw: {$in: [null, false]},
             }).limit(8).sort('-published_date'),
 
             Package.find({
                 published: true,
-                channels: [channel],
+                channels: channel,
                 nsfw: {$in: [null, false]},
             }).limit(8).sort('-updated_date'),
         ]).then(([highlight, staticCategoriesApps, newApps, updatedApps]) => {
