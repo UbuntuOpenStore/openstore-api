@@ -47,7 +47,7 @@ router.get('/', (req, res) => {
                 nsfw: {$in: [null, false]},
             }).limit(8).sort('-updated_date'),
         ]).then(([highlight, staticCategoriesApps, newApps, updatedApps]) => {
-            discover.highlight.app = packages.toJson(highlight, req);
+            discover.highlight.app = packages.toSlimJson(highlight, req);
 
             staticCategories.forEach((category, index) => {
                 category.ids = shuffle(category.ids);
@@ -77,7 +77,7 @@ router.get('/', (req, res) => {
                 })[0];
             });
             newAndUpdatedCategory.apps = newAndUpdatedCategory.apps.map((app) => {
-                return packages.toJson(app, req);
+                return packages.toSlimJson(app, req);
             });
 
             discover.categories = discover.categories.filter((category) => {
