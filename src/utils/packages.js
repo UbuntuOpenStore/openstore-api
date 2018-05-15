@@ -364,6 +364,8 @@ function toJson(pkg, req) {
                 channel: db.Package.VIVID,
                 download_url: downloadUrl(pkg, db.Package.VIVID),
                 download_sha512: vividRevisionData.download_sha512,
+                version: pkg.version,
+                revision: pkg.revision,
             },
         ];
 
@@ -372,6 +374,8 @@ function toJson(pkg, req) {
                 channel: db.Package.XENIAL,
                 download_url: downloadUrl(pkg, db.Package.XENIAL),
                 download_sha512: xenialRevisionData.download_sha512,
+                version: xenialRevisionData.version,
+                revision: pkg.xenial_revision,
             });
         }
 
