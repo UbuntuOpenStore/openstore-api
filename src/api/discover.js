@@ -85,6 +85,12 @@ router.get('/', (req, res) => {
                 return (category.apps.length > 0);
             });
 
+            discover.categories.forEach((category) => {
+                category.ids = shuffle(category.apps.map((app) => {
+                    return app.id;
+                }));
+            });
+
             discoverCache[channel] = discover;
             discoverDate[channel] = now;
 
