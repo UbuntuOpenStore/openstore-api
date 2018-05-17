@@ -1,7 +1,7 @@
 {
     "highlight": {
-        "id": "navigator.costales",
-        "image": "/static/banners/unav.svg"
+        "id": "com.ubuntu.telegram",
+        "image": "/static/banners/telegram.svg"
     },
     "categories": [
         {
