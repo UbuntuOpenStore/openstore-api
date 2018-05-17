@@ -85,7 +85,7 @@ function apps(req, res) {
         if (filters.channel) {
             query.and.push({
                 in: {
-                    channels: filters.channel,
+                    channels: [filters.channel],
                 },
             });
         }
