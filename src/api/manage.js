@@ -256,6 +256,10 @@ router.post('/', passport.authenticate('localapikey', {session: false}), postUpl
             }
         });
 
+        if (!pkg.channels.includes(Package.VIVID)) {
+            pkg.channels.push(Package.VIVID);
+        }
+
         pkg = await pkg.save();
 
         let es = new Elasticsearch();
