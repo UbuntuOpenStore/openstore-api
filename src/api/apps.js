@@ -309,7 +309,7 @@ async function download(req, res) {
         }
 
         let ext = path.extname(downloadUrl);
-        let filename = `${config.data_dir}/${pkg.id}-${channel}-${pkg.version}${ext}`;
+        let filename = `${config.data_dir}/${pkg.id}-${channel}-${revisionData.version}${ext}`;
         if (!fs.existsSync(filename)) {
             filename = await helpers.download(downloadUrl, filename);
         }
@@ -322,7 +322,7 @@ async function download(req, res) {
         let stat = await fs.statAsync(filename);
         res.setHeader('Content-Length', stat.size);
         res.setHeader('Content-Type', mime.lookup(filename));
-        res.setHeader('Content-Disposition', `attachment; filename=${pkg.id}_${pkg.version}_${pkg.architecture}.click`);
+        res.setHeader('Content-Disposition', `attachment; filename=${pkg.id}_${revisionData.version}_${pkg.architecture}.click`);
         return fs.createReadStream(filename).pipe(res);
     }
     catch (err) {
