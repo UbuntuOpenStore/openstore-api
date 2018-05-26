@@ -123,6 +123,12 @@ function setup() {
         res.redirect(301, `${config.server.host}/submit`);
     });
 
+    app.get('/docs', (req, res) => {
+        // Redirect docs page to the about page
+        // Using a 302 because the docs page may come back in the future
+        res.redirect(302, `${config.server.host}/about`);
+    });
+
     app.get('/app/:name', async (req, res) => {
         /*
         For populating opengraph data, etc for bots that don't
