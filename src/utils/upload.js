@@ -109,12 +109,13 @@ function resize(iconPath) {
     });
 }
 
-async function uploadPackage(pkg, packagePath, iconPath, channel) {
+async function uploadPackage(pkg, packagePath, iconPath, channel, version) {
     channel = channel || Package.VIVID;
+    version = version || pkg.version;
 
     let base = `${config.backblaze.baseUrl}${config.backblaze.bucketName}/`;
 
-    let packageName = `packages/${channel}/${pkg.id}_${pkg.version}_${pkg.architecture}.click`;
+    let packageName = `packages/${channel}/${pkg.id}_${version}_${pkg.architecture}.click`;
     let packageUrl = await uploadFile(packagePath, packageName);
 
     let iconUrl = '';

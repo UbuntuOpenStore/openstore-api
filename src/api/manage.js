@@ -415,6 +415,7 @@ router.post('/:id/revision', passport.authenticate('localapikey', {session: fals
             filePath,
             (channel == Package.VIVID) ? parseData.icon : null,
             channel,
+            parseData.version, // Don't use pkg.version as that is only the vivid version number
         );
 
         let revision = (channel == Package.XENIAL) ? pkg.xenial_revision : pkg.revision;
