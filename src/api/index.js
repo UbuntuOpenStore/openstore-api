@@ -170,7 +170,7 @@ function setup() {
         }
     });
 
-    app.all(['/', '/docs', '/submit', '/apps', '/manage', '/users', '/manage/:name', '/login', '/stats'], (req, res) => {
+    app.all(['/', '/submit', '/apps', '/manage', '/users', '/manage/:name', '/login', '/stats', '/about'], (req, res) => {
         // For html5mode on frontend
         res.sendFile('index.html', {root: config.server.static_root});
     });
