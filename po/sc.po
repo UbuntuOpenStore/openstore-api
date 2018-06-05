@@ -2,24 +2,28 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2017-06-20 01:45:+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Language-Team: none\n"
+"PO-Revision-Date: 2018-06-05 14:37+0000\n"
+"Last-Translator: Flavia <flavia.efloris@gmail.com>\n"
+"Language-Team: Sardinian <https://translate.ubports.com/projects/openstore"
+"/openstore-api/sc/>\n"
 "Language: sc\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 2.15\n"
 
 #: api/app/categories.js:12
 msgid "Accessibility"
-msgstr ""
+msgstr "Atzessibilidade"
 
 #: api/app/categories.js:13
 msgid "Books & Comics"
-msgstr ""
+msgstr "Libros e fumigheddos"
 
 #: api/app/categories.js:14
 msgid "Business & Finance"
-msgstr ""
+msgstr "Afàrios e finantzia"
 
 #: api/app/categories.js:15
 msgid "Communication & Social"
@@ -27,11 +31,11 @@ msgstr ""
 
 #: api/app/categories.js:16
 msgid "Developer Tools"
-msgstr ""
+msgstr "Ainas de s'isvilupadore"
 
 #: api/app/categories.js:17
 msgid "Education & Reference"
-msgstr ""
+msgstr "Educatzione e riferimentos"
 
 #: api/app/categories.js:18
 msgid "Entertainment"
@@ -39,39 +43,39 @@ msgstr ""
 
 #: api/app/categories.js:19
 msgid "Food & Drink"
-msgstr ""
+msgstr "Papare e bufare"
 
 #: api/app/categories.js:20
 msgid "Games"
-msgstr ""
+msgstr "Giogos"
 
 #: api/app/categories.js:21
 msgid "Graphics"
-msgstr ""
+msgstr "Gràfica"
 
 #: api/app/categories.js:22
 msgid "Health & Fitness"
-msgstr ""
+msgstr "Salude e benèssere"
 
 #: api/app/categories.js:23
 msgid "Lifestyle"
-msgstr ""
+msgstr "Istile de vida"
 
 #: api/app/categories.js:24
 msgid "Media & Video"
-msgstr ""
+msgstr "Multimèdia e vìdeo"
 
 #: api/app/categories.js:25
 msgid "Music & Audio"
-msgstr ""
+msgstr "Mùsica e àudio"
 
 #: api/app/categories.js:26
 msgid "News & Magazines"
-msgstr ""
+msgstr "Noas e rivistas"
 
 #: api/app/categories.js:27
 msgid "Personalisation"
-msgstr ""
+msgstr "Personalizatzione"
 
 #: api/app/categories.js:28
 msgid "Productivity"
@@ -79,20 +83,20 @@ msgstr ""
 
 #: api/app/categories.js:29
 msgid "Science & Engineering"
-msgstr ""
+msgstr "Iscèntzia e ingegneria"
 
 #: api/app/categories.js:30
 msgid "Shopping"
-msgstr ""
+msgstr "Còmporas"
 
 #: api/app/categories.js:31
 msgid "Sports"
-msgstr ""
+msgstr "Isport"
 
 #: api/app/categories.js:32
 msgid "Travel & Weather"
-msgstr ""
+msgstr "Biàgios e tempus"
 
 #: api/app/categories.js:33
 msgid "Utilities"
-msgstr ""
+msgstr "Utilidades"
