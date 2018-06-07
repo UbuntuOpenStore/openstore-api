@@ -19,7 +19,7 @@
     "bluebird": "^3.5.1",
     "body-parser": "^1.14.1",
     "buffer-chunks": "^0.1.1",
-    "click-parser": "^3.2.6",
+    "click-parser": "^3.2.7",
     "cookie-parser": "^1.4.0",
     "cookie-session": "^1.2.0",
     "elasticsearch": "^14.0.0",
