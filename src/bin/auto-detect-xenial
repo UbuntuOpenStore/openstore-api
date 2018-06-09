@@ -25,7 +25,7 @@ Package.find().then((pkgs) => {
             reason = 'webapp';
         }
 
-        if (pkg.manifest && pkg.manifest.hooks) {
+        if (pkg.manifest && pkg.manifest.hooks && pkg.architectures.includes('all')) {
             let desktopHooks = Object.keys(pkg.manifest.hooks).filter((hook) => {
                 return !!pkg.manifest.hooks[hook].desktop;
             });
