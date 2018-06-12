@@ -329,6 +329,11 @@ router.put('/:id', passport.authenticate('localapikey', {session: false}), putUp
             pkg.package = packageUrl;
             pkg.icon = iconUrl;
 
+            let xenialRevisionData = pkg.revisions.filter((data) => {
+                return (data.revision == pkg.xenial_revision);
+            });
+            xenialRevisionData = (xenialRevisionData.length > 0) ? xenialRevisionData[0] : null;
+
             for (let i = 0; i < pkg.revisions.length; i++) {
                 let data = pkg.revisions[i];
                 if (data.revision == pkg.revision) {
@@ -336,7 +341,15 @@ router.put('/:id', passport.authenticate('localapikey', {session: false}), putUp
                 }
 
                 if (data.revision == previousRevision) {
-                    await upload.removeFile(data.download_url);
+                    if (data.channel == Package.VIVID && xenialRevisionData && xenialRevisionData.download_url == data.download_url) {
+                        /*
+                        Do nothing, this revision has a migrated xenial revision
+                        relying on the same download_url.
+                        */
+                    }
+                    else {
+                        await upload.removeFile(data.download_url);
+                    }
                 }
             }
         }
@@ -432,6 +445,11 @@ router.post('/:id/revision', passport.authenticate('localapikey', {session: fals
             }
         }
 
+        let xenialRevisionData = pkg.revisions.filter((data) => {
+            return (data.revision == pkg.xenial_revision);
+        });
+        xenialRevisionData = (xenialRevisionData.length > 0) ? xenialRevisionData[0] : null;
+
         for (let i = 0; i < pkg.revisions.length; i++) {
             let data = pkg.revisions[i];
             if (data.channel == channel) {
@@ -440,7 +458,17 @@ router.post('/:id/revision', passport.authenticate('localapikey', {session: fals
                 }
 
                 if (data.revision == previousRevision) {
-                    await upload.removeFile(data.download_url);
+                    if (data.channel == Package.VIVID && xenialRevisionData && xenialRevisionData.download_url == data.download_url) {
+                        /*
+                        Do nothing, this revision has a migrated xenial revision
+                        relying on the same download_url.
+                        */
+                        console.log('no delete');
+                    }
+                    else {
+                        console.log('delete');
+                        await upload.removeFile(data.download_url);
+                    }
                 }
             }
 
