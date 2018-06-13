@@ -72,19 +72,29 @@ async function removeFile(url) {
 
         await b2.authorize();
 
-        let versions = await b2.listFileVersions({
-            bucketId: config.backblaze.bucketId,
-            startFileName: fileName,
-            maxFileCount: 1,
-        });
-
-        if (versions.data.files.length >= 1) {
-            let fileId = versions.data.files[0].fileId;
-
-            await b2.deleteFileVersion({
-                fileId: fileId,
-                fileName: fileName,
+        try {
+            let versions = await b2.listFileVersions({
+                bucketId: config.backblaze.bucketId,
+                startFileName: fileName,
+                maxFileCount: 1,
             });
+
+            if (versions.data.files.length >= 1) {
+                let fileId = versions.data.files[0].fileId;
+
+                await b2.deleteFileVersion({
+                    fileId: fileId,
+                    fileName: fileName,
+                });
+            }
+        }
+        catch (e) {
+            if (e.data && e.data.code && e.data.code == 'file_not_present') {
+                return; // Nothin to do, the file we wanted to delete is already gone
+            }
+            else {
+                throw e;
+            }
         }
     }
 }

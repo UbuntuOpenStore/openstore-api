@@ -40,7 +40,7 @@ function reviewPackage(file) {
                     logger.error(stderr);
                 }
 
-                logger.error(stdout);
+                //logger.error(stdout);
 
                 let error = true;
                 try {

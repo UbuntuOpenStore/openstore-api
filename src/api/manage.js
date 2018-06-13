@@ -333,6 +333,10 @@ router.put('/:id', passport.authenticate('localapikey', {session: false}), putUp
                 return (data.revision == pkg.xenial_revision);
             });
             xenialRevisionData = (xenialRevisionData.length > 0) ? xenialRevisionData[0] : null;
+            let vividRevisionData = pkg.revisions.filter((data) => {
+                return (data.revision == pkg.revision);
+            });
+            vividRevisionData = (vividRevisionData.length > 0) ? vividRevisionData[0] : null;
 
             for (let i = 0; i < pkg.revisions.length; i++) {
                 let data = pkg.revisions[i];
@@ -344,6 +348,12 @@ router.put('/:id', passport.authenticate('localapikey', {session: false}), putUp
                     if (data.channel == Package.VIVID && xenialRevisionData && xenialRevisionData.download_url == data.download_url) {
                         /*
                         Do nothing, this revision has a migrated xenial revision
+                        relying on the same download_url.
+                        */
+                    }
+                    else if (data.channel == Package.XENIAL && vividRevisionData && vividRevisionData.download_url == data.download_url) {
+                        /*
+                        Do nothing, this revision has a migrated vivid revision
                         relying on the same download_url.
                         */
                     }
@@ -449,6 +459,10 @@ router.post('/:id/revision', passport.authenticate('localapikey', {session: fals
             return (data.revision == pkg.xenial_revision);
         });
         xenialRevisionData = (xenialRevisionData.length > 0) ? xenialRevisionData[0] : null;
+        let vividRevisionData = pkg.revisions.filter((data) => {
+            return (data.revision == pkg.revision);
+        });
+        vividRevisionData = (vividRevisionData.length > 0) ? vividRevisionData[0] : null;
 
         for (let i = 0; i < pkg.revisions.length; i++) {
             let data = pkg.revisions[i];
@@ -463,10 +477,14 @@ router.post('/:id/revision', passport.authenticate('localapikey', {session: fals
                         Do nothing, this revision has a migrated xenial revision
                         relying on the same download_url.
                         */
-                        console.log('no delete');
+                    }
+                    else if (data.channel == Package.XENIAL && vividRevisionData && vividRevisionData.download_url == data.download_url) {
+                        /*
+                        Do nothing, this revision has a migrated vivid revision
+                        relying on the same download_url.
+                        */
                     }
                     else {
-                        console.log('delete');
                         await upload.removeFile(data.download_url);
                     }
                 }
