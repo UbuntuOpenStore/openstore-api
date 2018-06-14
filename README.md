@@ -16,13 +16,15 @@ To get setup with development, checkout the
 By default there are no credentials stored for the GitHub login or Backblaze B2 upload.
 Backblaze B2 is used to store clicks, it must be enabled for proper functionality.
 Once you've created your Backblaze account, create a B2 bucket.
-In order to use either GitHub login or Backblaze B2 upload you need to create a config.json file in `api/utils/`
-like this:
+In order to use either GitHub login or GitLab or Backblaze B2 upload you need to
+create a config.json file in `api/utils/` like this:
 
 ```
 {
     "GITHUB_CLIENT_ID": "INSERT_ID",
     "GITHUB_CLIENT_SECRET": "INSERT_SECRET",
+    "GITLAB_CLIENT_ID": "INSERT_ID",
+    "GITLAB_CLIENT_SECRET": "INSERT_SECRET",
     "BACKBLAZE_ACCOUNT_ID": "INSERT_ID",
     "BACKBLAZE_APP_KEY": "INSERT_KEY",
     "BACKBLAZE_BUCKET_ID": "INSERT_ID",
