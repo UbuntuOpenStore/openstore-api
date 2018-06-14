@@ -109,6 +109,7 @@ const userSchema = mongoose.Schema({
     role: String,
     ubuntu_id: {type: String, index: true},
     github_id: String,
+    gitlab_id: String,
     username: String,
 });
 

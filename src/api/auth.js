@@ -6,6 +6,7 @@ const passport = require('passport');
 const UbuntuStrategy = require('passport-ubuntu').Strategy;
 const LocalAPIKeyStrategy = require('passport-localapikey').Strategy;
 const GitHubStrategy = require('passport-github').Strategy;
+const GitLabStrategy = require('passport-gitlab2').Strategy;
 const uuid = require('node-uuid');
 const express = require('express');
 
@@ -132,6 +133,54 @@ if (config.github.clientID && config.github.clientSecret) {
 }
 else {
     logger.error('GitHub login is not available, set a client id & secret');
+}
+
+if (config.gitlab.clientID && config.gitlab.clientSecret) {
+    passport.use(new GitLabStrategy({
+        clientID: config.gitlab.clientID,
+        clientSecret: config.gitlab.clientSecret,
+        callbackURL: `${config.server.host}/auth/gitlab/callback`,
+    }, (accessToken, refreshToken, profile, callback) => {
+        User.findOne({gitlab_id: profile.id}).then((user) => {
+            let emails = profile.emails.map((email) => {
+                return email.value;
+            });
+
+            if (!user && emails.length > 0) {
+                return User.findOne({email: {$in: emails}}).then((emailUser) => {
+                    return emailUser;
+                });
+            }
+
+            return user;
+        }).then((user) => {
+            if (!user) {
+                user = new User();
+                user.apikey = uuid.v4();
+                user.language = 'en';
+            }
+
+            let emails = (profile.emails.length > 0) ? profile.emails[0].value : '';
+
+            user.gitlab_id = profile.id;
+            user.email = (emails.length >= 1) ? emails[0] : '';
+            user.name = profile.displayName;
+            user.username = profile.username;
+
+            user.save(callback);
+        }).catch((err) => {
+            callback(err);
+        });
+    }));
+
+    router.get('/gitlab', passport.authenticate('gitlab'));
+    router.get('/gitlab/callback', passport.authenticate('gitlab', {
+        successRedirect: '/manage',
+        failureRedirect: '/',
+    }));
+}
+else {
+    logger.error('GitLab login is not available, set a client id & secret');
 }
 
 router.get('/me', (req, res) => {

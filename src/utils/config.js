@@ -48,6 +48,10 @@ let config = {
         clientID: configFile.GITHUB_CLIENT_ID || process.env.GITHUB_CLIENT_ID || '',
         clientSecret: configFile.GITHUB_CLIENT_SECRET || process.env.GITHUB_CLIENT_SECRET || '',
     },
+    gitlab: {
+        clientID: configFile.GITLAB_CLIENT_ID || process.env.GITLAB_CLIENT_ID || '',
+        clientSecret: configFile.GITLAB_CLIENT_SECRET || process.env.GITLAB_CLIENT_SECRET || '',
+    },
 };
 
 // Mongo uri from docker
