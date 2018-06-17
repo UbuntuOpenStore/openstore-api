@@ -89,7 +89,12 @@ async function removeFile(url) {
             }
         }
         catch (e) {
-            if (e.data && e.data.code && e.data.code == 'file_not_present') {
+            if (
+                e.response &&
+                e.response.data &&
+                e.response.data.code &&
+                e.response.data.code == 'file_not_present'
+            ) {
                 return; // Nothin to do, the file we wanted to delete is already gone
             }
             else {
