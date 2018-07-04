@@ -135,6 +135,7 @@ else {
     logger.error('GitHub login is not available, set a client id & secret');
 }
 
+/*
 if (config.gitlab.clientID && config.gitlab.clientSecret) {
     passport.use(new GitLabStrategy({
         clientID: config.gitlab.clientID,
@@ -182,6 +183,7 @@ if (config.gitlab.clientID && config.gitlab.clientSecret) {
 else {
     logger.error('GitLab login is not available, set a client id & secret');
 }
+*/
 
 router.get('/me', (req, res) => {
     if (req.user) {
