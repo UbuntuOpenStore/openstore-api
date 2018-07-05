@@ -135,7 +135,6 @@ else {
     logger.error('GitHub login is not available, set a client id & secret');
 }
 
-/*
 if (config.gitlab.clientID && config.gitlab.clientSecret) {
     passport.use(new GitLabStrategy({
         clientID: config.gitlab.clientID,
@@ -161,10 +160,8 @@ if (config.gitlab.clientID && config.gitlab.clientSecret) {
                 user.language = 'en';
             }
 
-            let emails = (profile.emails.length > 0) ? profile.emails[0].value : '';
-
             user.gitlab_id = profile.id;
-            user.email = (emails.length >= 1) ? emails[0] : '';
+            user.email = (profile.emails.length > 0) ? profile.emails[0].value : '';
             user.name = profile.displayName;
             user.username = profile.username;
 
@@ -183,7 +180,6 @@ if (config.gitlab.clientID && config.gitlab.clientSecret) {
 else {
     logger.error('GitLab login is not available, set a client id & secret');
 }
-*/
 
 router.get('/me', (req, res) => {
     if (req.user) {
