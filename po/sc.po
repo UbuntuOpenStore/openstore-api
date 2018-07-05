@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2017-06-20 01:45:+0000\n"
-"PO-Revision-Date: 2018-06-05 14:37+0000\n"
+"PO-Revision-Date: 2018-07-05 15:27+0000\n"
 "Last-Translator: Flavia <flavia.efloris@gmail.com>\n"
 "Language-Team: Sardinian <https://translate.ubports.com/projects/openstore"
 "/openstore-api/sc/>\n"
@@ -27,7 +27,7 @@ msgstr "Afàrios e finantzia"
 
 #: api/app/categories.js:15
 msgid "Communication & Social"
-msgstr ""
+msgstr "Comunicatzione e redes sotziales"
 
 #: api/app/categories.js:16
 msgid "Developer Tools"
