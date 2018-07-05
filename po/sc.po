@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2017-06-20 01:45:+0000\n"
 "PO-Revision-Date: 2018-07-05 15:28+0000\n"
-"Last-Translator: Adrià <adriamartinmor@gmail.com>\n"
+"Last-Translator: Matteo Mandis <mandismatteo@gmail.com>\n"
 "Language-Team: Sardinian <https://translate.ubports.com/projects/openstore"
 "/openstore-api/sc/>\n"
 "Language: sc\n"
@@ -79,7 +79,7 @@ msgstr "Personalizatzione"
 
 #: api/app/categories.js:28
 msgid "Productivity"
-msgstr ""
+msgstr "Produtividade"
 
 #: api/app/categories.js:29
 msgid "Science & Engineering"
