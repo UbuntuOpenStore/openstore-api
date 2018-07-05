@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2017-06-20 01:45:+0000\n"
-"PO-Revision-Date: 2018-07-05 15:27+0000\n"
-"Last-Translator: Flavia <flavia.efloris@gmail.com>\n"
+"PO-Revision-Date: 2018-07-05 15:28+0000\n"
+"Last-Translator: Adrià <adriamartinmor@gmail.com>\n"
 "Language-Team: Sardinian <https://translate.ubports.com/projects/openstore"
 "/openstore-api/sc/>\n"
 "Language: sc\n"
@@ -27,7 +27,7 @@ msgstr "Afàrios e finantzia"
 
 #: api/app/categories.js:15
 msgid "Communication & Social"
-msgstr "Comunicatzione e redes sotziales"
+msgstr "Comunicatzione e retes sotziales"
 
 #: api/app/categories.js:16
 msgid "Developer Tools"
@@ -39,7 +39,7 @@ msgstr "Educatzione e riferimentos"
 
 #: api/app/categories.js:18
 msgid "Entertainment"
-msgstr ""
+msgstr "Ispàssiu"
 
 #: api/app/categories.js:19
 msgid "Food & Drink"
