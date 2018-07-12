@@ -223,13 +223,17 @@ router.post('/', passport.authenticate('localapikey', {session: false}), postUpl
         }
 
         if (!helpers.isAdminOrTrustedUser(req)) {
-            if (parseData.name.substring(0, 11) == 'com.ubuntu.' && parseData.name.substring(0, 21) != 'com.ubuntu.developer.') {
+            let name = parseData.name.toLowerCase()
+            if (name.startsWith('com.ubuntu.') && !name.startsWith('com.ubuntu.developer.')) {
                 return helpers.error(res, BAD_NAMESPACE, 400);
             }
-            else if (parseData.name.startsWith('com.canonical.')) {
+            else if (name.startsWith('com.canonical.')) {
                 return helpers.error(res, BAD_NAMESPACE, 400);
             }
-            else if (parseData.name.substring(0, 12) == 'com.ubports.') {
+            else if (name.includes('ubports')) {
+                return helpers.error(res, BAD_NAMESPACE, 400);
+            }
+            else if (name.includes('openstore')) {
                 return helpers.error(res, BAD_NAMESPACE, 400);
             }
         }

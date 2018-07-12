@@ -45,7 +45,6 @@ function revisionsByVersion(req, res) {
                 return (rev.version == version && rev.channel == channel);
             })[0];
             let revision = revisionData ? revisionData.revision : 0;
-            console.log(pkg.id, revision, channel);
 
             return {
                 id: pkg.id,
