@@ -21,7 +21,7 @@ let config = {
         static_root: process.env.STATIC_ROOT || path.join(__dirname, '../../www/'),
     },
     mongo: {
-        uri: process.env.MONGODB_URI || 'mongodb://localhost',
+        uri: process.env.MONGODB_URI || 'mongodb://localhost:27017',
         database: process.env.MONGODB_DB || 'openstore',
     },
     elasticsearch: {

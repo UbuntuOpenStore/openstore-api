@@ -5,7 +5,7 @@ const logger = require('../utils/logger');
 const bluebird = require('bluebird');
 
 mongoose.Promise = bluebird;
-mongoose.connect(`${config.mongo.uri}/${config.mongo.database}`, (err) => {
+mongoose.connect(`${config.mongo.uri}/${config.mongo.database}`,  {useNewUrlParser: true}, (err) => {
     if (err) {
         logger.error('database error:', err);
         process.exit(1);
