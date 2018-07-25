@@ -519,3 +519,4 @@ exports.updateInfo = updateInfo;
 exports.toSlimJson = toSlimJson;
 exports.toJson = toJson;
 exports.parseFiltersFromRequest = parseFiltersFromRequest;
+exports.iconUrl = iconUrl;

@@ -7,6 +7,7 @@ const updates = require('./updates');
 const revisions = require('./revisions');
 const auth = require('./auth');
 const users = require('./users');
+const rss = require('./rss');
 const Package = require('../db').Package;
 const opengraph = require('../utils/opengraph');
 const logger = require('../utils/logger');
@@ -94,6 +95,7 @@ function setup() {
 
     app.use('/auth', auth);
     app.use('/api/users', users);
+    app.use('/rss', rss);
 
     app.use('/api/v3/apps', apps.main);
     app.use('/api/v3/stats', apps.stats);
