@@ -183,6 +183,7 @@ function setup() {
         '/login',
         '/stats',
         '/about',
+        '/feeds',
     ], (req, res) => {
         // For html5mode on frontend
         res.sendFile('index.html', {root: config.server.static_root});
