@@ -51,8 +51,12 @@ router.get('/', (req, res) => {
             discover.highlight.app = packages.toJson(highlight, req);
 
             staticCategories.forEach((category, index) => {
+                let apps = staticCategoriesApps[index].map((app) => {
+                    return packages.toJson(app, req);
+                });
+
                 category.ids = shuffle(category.ids);
-                category.apps = shuffle(staticCategoriesApps[index]);
+                category.apps = shuffle(apps);
             });
 
             let newAndUpdatedCategory = discover.categories.filter((category) => {
