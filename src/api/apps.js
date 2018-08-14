@@ -31,7 +31,7 @@ function apps(req, res) {
     let promise = null;
     if (useElasticsearch && filters.search && filters.search.indexOf('author:') !== 0) {
         let query = {
-            and: [], // No defaut published=true filter, only published apps are in elasticsearch
+            and: [], // No default published=true filter, only published apps are in elasticsearch
         };
 
         if (filters.types.length > 0) {

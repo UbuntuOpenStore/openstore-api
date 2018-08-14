@@ -112,7 +112,7 @@ function setup() {
 
     app.get('/telegram', (req, res) => {
         // Short link
-        res.redirect(301, 'https://telegram.me/joinchat/BMTh8AHtOL2foXLulmqDxw');
+        res.redirect(301, 'https://t.me/joinchat/BrbmOVDzIzySSUxa7Ktmiw');
     });
 
     app.get('/app/openstore.mzanetti', (req, res) => {
