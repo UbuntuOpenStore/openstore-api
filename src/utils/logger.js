@@ -3,13 +3,14 @@ const papertrail = require('winston-papertrail');
 
 const config = require('./config');
 
-const logger = new (winston.Logger)({
+const logger = winston.createLogger({
     transports: [
-        new (winston.transports.Console)({level: 'debug'}),
+        new winston.transports.Console({
+            level: 'debug',
+            format: winston.format.simple(),
+        }),
     ],
 });
-
-logger.cli();
 
 if (config.papertrail.port) {
     logger.add(papertrail.Papertrail, {
