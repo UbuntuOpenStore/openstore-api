@@ -1,11 +1,11 @@
+const RSS = require('rss');
+const express = require('express');
+
 const Package = require('../db').Package;
 const logger = require('../utils/logger');
 const config = require('../utils/config');
 const packages = require('../utils/packages');
 const helpers = require('../utils/helpers');
-
-const RSS = require('rss');
-const express = require('express');
 
 const router = express.Router();
 

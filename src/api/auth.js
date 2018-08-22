@@ -1,7 +1,3 @@
-const config = require('../utils/config');
-const logger = require('../utils/logger');
-const User = require('../db').User;
-
 const passport = require('passport');
 const UbuntuStrategy = require('passport-ubuntu').Strategy;
 const LocalAPIKeyStrategy = require('passport-localapikey').Strategy;
@@ -9,6 +5,10 @@ const GitHubStrategy = require('passport-github').Strategy;
 const GitLabStrategy = require('passport-gitlab2').Strategy;
 const uuid = require('node-uuid');
 const express = require('express');
+
+const config = require('../utils/config');
+const logger = require('../utils/logger');
+const User = require('../db').User;
 
 const router = express.Router();
 

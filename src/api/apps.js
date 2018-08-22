@@ -1,3 +1,7 @@
+const path = require('path');
+const mime = require('mime');
+const express = require('express');
+
 const db = require('../db');
 const Package = require('../db').Package;
 const Elasticsearch = require('../db/elasticsearch');
@@ -6,10 +10,6 @@ const packages = require('../utils/packages');
 const logger = require('../utils/logger');
 const helpers = require('../utils/helpers');
 const fs = require('../utils/asyncFs');
-
-const path = require('path');
-const mime = require('mime');
-const express = require('express');
 
 // TODO properly namespace these so we only need one router
 const router = express.Router();

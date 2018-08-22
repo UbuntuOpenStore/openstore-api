@@ -1,7 +1,7 @@
-const config = require('./config');
-
 const winston = require('winston');
 const papertrail = require('winston-papertrail');
+
+const config = require('./config');
 
 const logger = new (winston.Logger)({
     transports: [

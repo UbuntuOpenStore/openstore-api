@@ -1,11 +1,11 @@
 const mongoose = require('mongoose');
+const bluebird = require('bluebird');
 
 const config = require('../utils/config');
 const logger = require('../utils/logger');
-const bluebird = require('bluebird');
 
 mongoose.Promise = bluebird;
-mongoose.connect(`${config.mongo.uri}/${config.mongo.database}`,  {useNewUrlParser: true}, (err) => {
+mongoose.connect(`${config.mongo.uri}/${config.mongo.database}`, {useNewUrlParser: true}, (err) => {
     if (err) {
         logger.error('database error:', err);
         process.exit(1);
@@ -44,8 +44,10 @@ const packageSchema = mongoose.Schema({
     manifest: {},
     types: [String],
     languages: [],
-    architecture: String, // TODO remove this and replace with something like this: https://futurestud.io/tutorials/understanding-virtuals-in-mongoose
     architectures: [String],
+
+    // TODO remove this and replace with something like this: https://futurestud.io/tutorials/understanding-virtuals-in-mongoose
+    architecture: String,
 
     // Publication metadata
     published: Boolean,

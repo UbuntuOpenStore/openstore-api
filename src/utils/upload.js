@@ -1,12 +1,12 @@
-const config = require('../utils/config');
-const fs = require('../utils/asyncFs');
-const { Package } = require('../db');
-
 const path = require('path');
 const jimp = require('jimp');
 const B2 = require('backblaze-b2');
 const chunks = require('buffer-chunks');
 const crypto = require('crypto');
+
+const config = require('../utils/config');
+const fs = require('../utils/asyncFs');
+const { Package } = require('../db');
 
 const SIZE_LIMIT = 5242880; // 5MB
 
@@ -95,7 +95,7 @@ async function removeFile(url) {
                 e.response.data.code &&
                 e.response.data.code == 'file_not_present'
             ) {
-                return; // Nothin to do, the file we wanted to delete is already gone
+                // Nothin to do, the file we wanted to delete is already gone
             }
             else {
                 throw e;
@@ -127,8 +127,6 @@ function resize(iconPath) {
 async function uploadPackage(pkg, packagePath, iconPath, channel, version) {
     channel = channel || Package.VIVID;
     version = version || pkg.version;
-
-    let base = `${config.backblaze.baseUrl}${config.backblaze.bucketName}/`;
 
     let packageName = `packages/${channel}/${pkg.id}_${version}_${pkg.architecture}.click`;
     let packageUrl = await uploadFile(packagePath, packageName);

@@ -13,6 +13,7 @@ module.exports = {
     'no-debugger': process.env.NODE_ENV === 'production' ? 2 : 0,
     'no-console': process.env.NODE_ENV === 'production' ? 1 : 0,
 
+    'max-len': ['error', {code: 140}],
     'object-curly-spacing': 0,
     'object-shorthand': 0,
     'prefer-const': 0,
@@ -25,6 +26,7 @@ module.exports = {
     'space-before-function-paren': 0,
     'func-names': 0,
     'newline-per-chained-call': 0,
+    'operator-linebreak': [2, 'after'],
     'prefer-destructuring': 0,
   }
 }

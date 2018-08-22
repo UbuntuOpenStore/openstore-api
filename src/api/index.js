@@ -1,3 +1,12 @@
+const passport = require('passport');
+const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
+const methodOverride = require('method-override');
+const session = require('cookie-session');
+const express = require('express');
+const cluster = require('cluster');
+const path = require('path');
+
 const config = require('../utils/config');
 const apps = require('./apps');
 const manage = require('./manage');
@@ -13,15 +22,6 @@ const opengraph = require('../utils/opengraph');
 const logger = require('../utils/logger');
 const helpers = require('../utils/helpers');
 const fs = require('../utils/asyncFs');
-const passport = require('passport');
-const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser');
-const methodOverride = require('method-override');
-const session = require('cookie-session');
-
-const express = require('express');
-const cluster = require('cluster');
-const path = require('path');
 
 const APP_NOT_FOUND = 'App not found';
 

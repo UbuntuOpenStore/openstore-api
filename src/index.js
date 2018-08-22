@@ -1,9 +1,9 @@
+const cluster = require('cluster');
+const os = require('os');
+
 const api = require('./api');
 const config = require('./utils/config');
 const logger = require('./utils/logger');
-
-const cluster = require('cluster');
-const os = require('os');
 
 let cpus = os.cpus().length;
 let processes = cpus;

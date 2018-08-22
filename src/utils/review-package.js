@@ -1,27 +1,27 @@
+const exec = require('child_process').exec;
+
 const config = require('./config');
 const logger = require('./logger');
-
-const exec = require('child_process').exec;
 
 // TODO return the actual problem
 function parseReview(review) {
     let manualReview = false;
 
-    for (let key in review) {
-        for (let level in review[key]) {
-            for (let label in review[key][level]) {
-                if (review[key][level][label].manual_review) {
-                    if (review[key][level][label].text.indexOf('OK') == -1) {
-                        manualReview = review[key][level][label].text;
+    Object.values(review).forEach((rev) => {
+        Object.values(rev).forEach((level) => {
+            Object.values(level).forEach((label) => {
+                if (label.manual_review) {
+                    if (label.text.indexOf('OK') == -1) {
+                        manualReview = label.text;
                         manualReview = manualReview.replace('(NEEDS REVIEW)', '');
                     }
                     else {
                         manualReview = true;
                     }
                 }
-            }
-        }
-    }
+            });
+        });
+    });
 
     return manualReview;
 }
@@ -40,7 +40,7 @@ function reviewPackage(file) {
                     logger.error(stderr);
                 }
 
-                //logger.error(stdout);
+                // logger.error(stdout);
 
                 let error = true;
                 try {

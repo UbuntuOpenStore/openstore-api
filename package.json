@@ -17,10 +17,10 @@
   "dependencies": {
     "backblaze-b2": "git+https://github.com/bhdouglass/backblaze-b2.git",
     "bluebird": "^3.5.1",
-    "body-parser": "^1.14.1",
+    "body-parser": "^1.18.3",
     "buffer-chunks": "^0.1.1",
     "click-parser": "^3.2.7",
-    "cookie-parser": "^1.4.0",
+    "cookie-parser": "^1.4.3",
     "cookie-session": "^1.2.0",
     "elasticsearch": "^14.0.0",
     "express": "^4.13.3",
@@ -47,8 +47,8 @@
     "winston-papertrail": "^1.0.2"
   },
   "devDependencies": {
-    "eslint": "^4.19.1",
-    "eslint-config-airbnb-base": "^12.1.0",
-    "eslint-plugin-import": "^2.9.0"
+    "eslint": "^5.4.0",
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-plugin-import": "^2.14.0"
   }
 }

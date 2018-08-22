@@ -1,8 +1,8 @@
-const User = require('../db').User;
-const helpers = require('../utils/helpers');
+const express = require('express');
 const passport = require('passport');
 
-const express = require('express');
+const User = require('../db').User;
+const helpers = require('../utils/helpers');
 
 const router = express.Router();
 const USER_NOT_FOUND = 'User not found';

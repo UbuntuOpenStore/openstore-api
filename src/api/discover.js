@@ -1,13 +1,13 @@
+const shuffle = require('shuffle-array');
+const moment = require('moment');
+const express = require('express');
+
 const Package = require('../db').Package;
 const config = require('../utils/config');
 const discoverJSON = require('./json/discover_apps.json');
 const helpers = require('../utils/helpers');
 const packages = require('../utils/packages');
 const logger = require('../utils/logger');
-
-const shuffle = require('shuffle-array');
-const moment = require('moment');
-const express = require('express');
 
 const router = express.Router();
 

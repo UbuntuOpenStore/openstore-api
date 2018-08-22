@@ -1,11 +1,11 @@
-const db = require('../db');
-const { Package } = require('../db');
-const config = require('./config');
-
 const fs = require('fs');
 const sanitizeHtml = require('sanitize-html');
 const moment = require('moment');
 const path = require('path');
+
+const db = require('../db');
+const { Package } = require('../db');
+const config = require('./config');
 
 function sanitize(html) {
     return sanitizeHtml(html, {
@@ -15,7 +15,7 @@ function sanitize(html) {
 }
 
 // TODO clean up arguments
-function updateInfo(pkg, data, body, file, url, updateRevision, channel, version, download_sha512) {
+function updateInfo(pkg, data, body, file, url, updateRevision, channel, version, downloadSha512) {
     updateRevision = (updateRevision === undefined) ? false : updateRevision;
     channel = channel || Package.VIVID;
 
@@ -76,10 +76,10 @@ function updateInfo(pkg, data, body, file, url, updateRevision, channel, version
                 if (Object.keys(app.scopeIni).length > 0) {
                     hook.scope = {};
 
-                    for (let key in Object.keys(app.scopeIni)) {
+                    Object.keys(app.scopeIni).forEach((key) => {
                         // Remove any ini properties with a `.` as mongo will reject them
                         hook.scope[key.replace('.', '__')] = app.scopeIni[key];
-                    }
+                    });
                 }
 
                 // Mongo will reject this if there are any `.`s
@@ -252,7 +252,7 @@ function updateInfo(pkg, data, body, file, url, updateRevision, channel, version
                 downloads: 0,
                 channel: channel,
                 download_url: url || pkg.package,
-                download_sha512: download_sha512 || pkg.download_sha512,
+                download_sha512: downloadSha512 || pkg.download_sha512,
             });
 
             // Only update if we have a new version uploaded
@@ -328,6 +328,8 @@ function toJson(pkg, req) {
             changelog: pkg.changelog ? pkg.changelog : '',
             channels: pkg.channels ? pkg.channels : [db.Package.VIVID],
             description: pkg.description ? pkg.description : '',
+
+            // TODO make this based on req
             download: downloadUrl(pkg, db.Package.VIVID),
             download_sha512: vividRevisionData.download_sha512 ? vividRevisionData.download_sha512 : '',
             filesize: pkg.filesize ? pkg.filesize : 0,
@@ -341,6 +343,8 @@ function toJson(pkg, req) {
             manifest: pkg.manifest ? pkg.manifest : {},
             name: pkg.name ? pkg.name : '',
             nsfw: !!pkg.nsfw,
+
+            // TODO make this based on req
             package: pkg.package ? pkg.package : '',
             permissions: pkg.permissions ? pkg.permissions : [],
             published_date: pkg.published_date ? pkg.published_date : '',

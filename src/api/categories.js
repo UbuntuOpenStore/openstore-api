@@ -1,13 +1,13 @@
+const fs = require('fs');
+const Gettext = require('node-gettext');
+const po = require('gettext-parser').po;
+const express = require('express');
+
 const Package = require('../db').Package;
 const config = require('../utils/config');
 const logger = require('../utils/logger');
 const helpers = require('../utils/helpers');
 const categoryIcons = require('./json/category_icons.json');
-
-const fs = require('fs');
-const Gettext = require('node-gettext');
-const po = require('gettext-parser').po;
-const express = require('express');
 
 const router = express.Router();
 const gt = new Gettext();

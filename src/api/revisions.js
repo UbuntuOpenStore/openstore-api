@@ -1,11 +1,10 @@
+const express = require('express');
+
 const Package = require('../db').Package;
 const helpers = require('../utils/helpers');
 const logger = require('../utils/logger');
 
-const express = require('express');
-
 const router = express.Router();
-const APP_NOT_FOUND = 'App not found';
 
 function revisionsByVersion(req, res) {
     let versions = [];

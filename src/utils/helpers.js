@@ -1,10 +1,10 @@
-const logger = require('../utils/logger');
-const config = require('../utils/config');
-
 const fs = require('fs');
 const request = require('request');
 const path = require('path');
 const URL = require('url').URL;
+
+const logger = require('../utils/logger');
+const config = require('../utils/config');
 
 function success(res, data, message) {
     res.send({
