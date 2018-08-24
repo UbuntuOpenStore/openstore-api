@@ -110,7 +110,7 @@ function setup() {
     app.use('/api/v3/revisions', revisions);
     app.use('/api/v3/categories', categories);
 
-    app.use(express.static(path.join(__dirname, '../../www')));
+    app.use(express.static(config.server.static_root));
 
     app.get('/api/health', (req, res) => {
         helpers.success(res, {id: cluster.worker.id});
