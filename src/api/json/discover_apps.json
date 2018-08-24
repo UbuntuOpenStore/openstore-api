@@ -1,7 +1,7 @@
 {
     "highlight": {
         "id": "com.ubuntu.telegram",
-        "image": "/static/banners/telegram.svg"
+        "image": "/banners/telegram.svg"
     },
     "categories": [
         {
