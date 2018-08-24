@@ -13,10 +13,12 @@ const logger = winston.createLogger({
 });
 
 if (config.papertrail.port) {
-    logger.add(papertrail.Papertrail, {
+    let winstonPapertrail = new winston.transports.Papertrail({
         host: config.papertrail.host,
         port: config.papertrail.port,
     });
+
+    logger.add(winstonPapertrail);
 }
 else {
     logger.debug('No papertrail token');
