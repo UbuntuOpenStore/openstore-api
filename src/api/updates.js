@@ -23,7 +23,7 @@ function updates(req, res) {
     }
 
     if (!Package.CHANNELS.includes(channel)) {
-        channel = Package.VIVID;
+        channel = Package.XENIAL;
     }
 
     if (ids.length > 0) {

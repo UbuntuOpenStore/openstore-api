@@ -17,7 +17,7 @@ let config = {
         session_secret: process.env.SESSION_SECRET || 'openstore',
         host: process.env.HOST || 'http://local.open-store.io',
         secondary_host: process.env.SECONDARY_HOST || 'http://local.open.uappexplorer.com',
-        process_limit: process.env.PROCESS_LIMIT || 0,
+        process_limit: process.env.PROCESS_LIMIT || 2,
         static_root: process.env.STATIC_ROOT || path.join(__dirname, '../../www/'),
     },
     mongo: {

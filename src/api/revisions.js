@@ -24,7 +24,7 @@ function revisionsByVersion(req, res) {
     }
 
     if (!Package.CHANNELS.includes(defaultChannel)) {
-        defaultChannel = Package.VIVID;
+        defaultChannel = Package.XENIAL;
     }
 
     let ids = versions.map((version) => {

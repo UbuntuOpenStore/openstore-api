@@ -39,7 +39,7 @@ const packageSchema = mongoose.Schema({
 
     // Metadata
     author: String,
-    version: String,
+    version: String, // TODO depricate
     filesize: Number,
     manifest: {},
     types: [String],
@@ -55,7 +55,7 @@ const packageSchema = mongoose.Schema({
     updated_date: String,
 
     // Revisions
-    revision: Number,
+    revision: Number, // TODO depricate
     revisions: [
         /*
         {
@@ -69,11 +69,9 @@ const packageSchema = mongoose.Schema({
         */
     ], // Revisions and stats
     channels: [], // vivid, xenial
-    xenial_revision: Number, // TODO remove when no longer needed
+    xenial_revision: Number, // TODO depricate
 
     icon: String,
-    download_sha512: String, // TODO depricated
-    package: String, // TODO depricated
 }, {usePushEach: true});
 
 packageSchema.index(

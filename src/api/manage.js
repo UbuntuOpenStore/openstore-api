@@ -31,45 +31,11 @@ const BAD_NAMESPACE = 'You package name is for a domain that you do not have acc
 const EXISTING_VERSION = 'A revision already exists with this version';
 const NO_FILE = 'No file upload specified';
 const INVALID_CHANNEL = 'The provided channel is not valid';
+const NO_REVISIONS = 'You cannot publish your package until you upload a revision';
 
 function fileName(file) {
     // Rename the file so click-review doesn't freak out
     return `${file.path}.click`;
-}
-
-async function parse(pkg, body, file, filePath, channel) {
-    channel = channel || Package.VIVID;
-
-    let parseData = await clickParse(filePath, true);
-    if (!parseData.name || !parseData.version || !parseData.architecture) {
-        return [false, false, MALFORMED_MANIFEST];
-    }
-
-    if (pkg.id && parseData.name != pkg.id) {
-        return [false, false, WRONG_PACKAGE];
-    }
-
-    if (pkg.id && pkg.revisions) {
-        // Check for existing revisions (for this channel) with the same version string
-
-        let matches = pkg.revisions.filter((revision) => {
-            return (revision.version == parseData.version && revision.channel == channel);
-        });
-        if (matches.length > 0) {
-            return [false, false, EXISTING_VERSION];
-        }
-    }
-
-    // Only update the data from the parsed click if it's for vivid
-    let data = (channel == Package.VIVID) ? parseData : null;
-    let downloadSha512 = await checksum(filePath);
-
-    pkg = await packages.updateInfo(pkg, data, body, file, null, true, channel, parseData.version, downloadSha512);
-    if (channel == Package.VIVID) {
-        pkg.download_sha512 = downloadSha512;
-    }
-
-    return [pkg, parseData, null];
 }
 
 async function review(req, file, filePath) {
@@ -192,93 +158,42 @@ router.get('/:id', passport.authenticate('localapikey', {session: false}), (req,
     });
 });
 
-// Make the post similar to the put
-let postUpload = mupload.fields([
-    {name: 'file', maxCount: 1},
-]);
-
 router.post(
     '/',
     passport.authenticate('localapikey', {session: false}),
-    postUpload,
     helpers.isNotDisabled,
     helpers.downloadFileMiddleware,
     async (req, res) => {
-        if (!req.files.file.length == 1) {
-            return helpers.error(res, NO_FILE);
-        }
+        let name = req.body.name;
+        let id = req.body.id.toLowerCase();
 
         try {
-            if (req.body && !req.body.maintainer) {
-                req.body.maintainer = req.user._id;
-            }
-
-            let success;
-            let error;
-            let filePath = fileName(req.files.file[0]);
-            [success, error] = await review(req, req.files.file[0], filePath);
-            if (!success) {
-                return helpers.error(res, error, 400);
-            }
-
-            let parseData;
-            let pkg = new Package();
-            [pkg, parseData, error] = await parse(pkg, req.body, req.files.file[0], filePath);
-            if (!pkg) {
-                return helpers.error(res, error, 400);
-            }
-
-            if (!helpers.isAdminOrTrustedUser(req)) {
-                let name = parseData.name.toLowerCase();
-                if (name.startsWith('com.ubuntu.') && !name.startsWith('com.ubuntu.developer.')) {
-                    return helpers.error(res, BAD_NAMESPACE, 400);
-                }
-                else if (name.startsWith('com.canonical.')) {
-                    return helpers.error(res, BAD_NAMESPACE, 400);
-                }
-                else if (name.includes('ubports')) {
-                    return helpers.error(res, BAD_NAMESPACE, 400);
-                }
-                else if (name.includes('openstore')) {
-                    return helpers.error(res, BAD_NAMESPACE, 400);
-                }
-            }
-
-            let existing = await Package.findOne({id: parseData.name}).exec();
+            let existing = await Package.findOne({id: id}).exec();
             if (existing) {
                 return helpers.error(res, DUPLICATE_PACKAGE, 400);
             }
 
-            let packageUrl;
-            let iconUrl;
-            [packageUrl, iconUrl] = await upload.uploadPackage(
-                pkg,
-                filePath,
-                parseData.icon,
-            );
-
-            pkg.package = packageUrl;
-            pkg.icon = iconUrl;
-
-            pkg.revisions.forEach((data) => {
-                if (data.revision == pkg.revision) {
-                    data.download_url = packageUrl;
+            if (!helpers.isAdminOrTrustedUser(req)) {
+                if (id.startsWith('com.ubuntu.') && !id.startsWith('com.ubuntu.developer.')) {
+                    return helpers.error(res, BAD_NAMESPACE, 400);
                 }
-            });
-
-            if (!pkg.channels.includes(Package.VIVID)) {
-                pkg.channels.push(Package.VIVID);
+                else if (id.startsWith('com.canonical.')) {
+                    return helpers.error(res, BAD_NAMESPACE, 400);
+                }
+                else if (id.includes('ubports')) {
+                    return helpers.error(res, BAD_NAMESPACE, 400);
+                }
+                else if (id.includes('openstore')) {
+                    return helpers.error(res, BAD_NAMESPACE, 400);
+                }
             }
 
+            let pkg = new Package();
+            pkg.id = id;
+            pkg.name = name;
+            pkg.maintainer = req.user._id;
+            pkg.maintainer_name = req.user.name ? req.user.name : req.user.username;
             pkg = await pkg.save();
-
-            let es = new Elasticsearch();
-            if (pkg.published) {
-                await es.upsert(pkg);
-            }
-            else {
-                await es.remove(pkg);
-            }
 
             return helpers.success(res, packages.toJson(pkg, req));
         }
@@ -290,17 +205,14 @@ router.post(
 );
 
 let putUpload = mupload.fields([
-    {name: 'file', maxCount: 1},
     {name: 'screenshot_files', maxCount: 5},
 ]);
 
-// TODO depricate file uploads
 router.put(
     '/:id',
     passport.authenticate('localapikey', {session: false}),
     putUpload,
     helpers.isNotDisabled,
-    helpers.downloadFileMiddleware,
     async(req, res) => {
         try {
             if (req.body && (!req.body.maintainer || req.body.maintainer == 'null')) {
@@ -312,87 +224,15 @@ router.put(
                 return helpers.error(res, APP_NOT_FOUND, 404);
             }
 
-            let previousRevision = pkg.revision;
-
             if (!helpers.isAdminUser(req) && req.user._id != pkg.maintainer) {
                 return helpers.error(res, PERMISSION_DENIED, 400);
             }
 
-            if (req.files && req.files.file && req.files.file.length > 0) {
-                // A new revision was uploaded
-
-                let success;
-                let error;
-                let filePath = fileName(req.files.file[0]);
-                [success, error] = await review(req, req.files.file[0], filePath);
-                if (!success) {
-                    return helpers.error(res, error, 400);
-                }
-
-                let parseData;
-                [pkg, parseData, error] = await parse(pkg, req.body, req.files.file[0], filePath);
-                if (!pkg) {
-                    return helpers.error(res, error, 400);
-                }
-
-                let packageUrl;
-                let iconUrl;
-                [packageUrl, iconUrl] = await upload.uploadPackage(
-                    pkg,
-                    filePath,
-                    parseData.icon,
-                );
-
-                pkg.package = packageUrl;
-                pkg.icon = iconUrl;
-
-                let xenialRevisionData = pkg.revisions.filter((data) => {
-                    return (data.revision == pkg.xenial_revision);
-                });
-                xenialRevisionData = (xenialRevisionData.length > 0) ? xenialRevisionData[0] : null;
-                let vividRevisionData = pkg.revisions.filter((data) => {
-                    return (data.revision == pkg.revision);
-                });
-                vividRevisionData = (vividRevisionData.length > 0) ? vividRevisionData[0] : null;
-
-                for (let i = 0; i < pkg.revisions.length; i++) {
-                    let data = pkg.revisions[i];
-                    if (data.revision == pkg.revision) {
-                        data.download_url = packageUrl;
-                    }
-
-                    if (data.revision == previousRevision) {
-                        if (
-                            data.channel == Package.VIVID &&
-                            xenialRevisionData &&
-                            xenialRevisionData.download_url == data.download_url
-                        ) {
-                            /*
-                            Do nothing, this revision has a migrated xenial revision
-                            relying on the same download_url.
-                            */
-                        }
-                        else if (
-                            data.channel == Package.XENIAL &&
-                            vividRevisionData &&
-                            vividRevisionData.download_url == data.download_url
-                        ) {
-                            /*
-                            Do nothing, this revision has a migrated vivid revision
-                            relying on the same download_url.
-                            */
-                        }
-                        else {
-                            /* eslint-disable no-await-in-loop */
-                            await upload.removeFile(data.download_url);
-                        }
-                    }
-                }
+            if (req.body.published && pkg.revisions.length == 0) {
+                return helpers.error(res, NO_REVISIONS, 400)
             }
-            else {
-                // Just the app info was updated
-                pkg = await packages.updateInfo(pkg, null, req.body, null, null, false);
-            }
+
+            pkg = await packages.updateInfo(pkg, null, req.body, null, null, false);
 
             if (req.files && req.files.screenshot_files && req.files.screenshot_files.length > 0) {
                 pkg = updateScreenshotFiles(pkg, req.files.screenshot_files);
@@ -418,6 +258,10 @@ router.put(
     },
 );
 
+let postUpload = mupload.fields([
+    {name: 'file', maxCount: 1},
+]);
+
 router.post(
     '/:id/revision',
     passport.authenticate('localapikey', {session: false}),
@@ -432,7 +276,7 @@ router.post(
         let channel = req.body.channel ? req.body.channel.toLowerCase() : '';
         let bothChannels = (channel == 'vivid-xenial');
         if (bothChannels) {
-            channel = Package.VIVID;
+            channel = Package.XENIAL;
         }
         else if (!Package.CHANNELS.includes(channel)) {
             return helpers.error(res, INVALID_CHANNEL, 400);
@@ -458,26 +302,48 @@ router.post(
                 return helpers.error(res, error, 400);
             }
 
-            let parseData;
-            [pkg, parseData, error] = await parse(pkg, null, req.files.file[0], filePath, channel);
-            if (!pkg) {
-                return helpers.error(res, error, 400);
+            let parseData = await clickParse(filePath, true);
+            if (!parseData.name || !parseData.version || !parseData.architecture) {
+                return helpers.error(res, MALFORMED_MANIFEST, 400);
             }
+
+            if (pkg.id && parseData.name != pkg.id) {
+                return helpers.error(res, WRONG_PACKAGE, 400);
+            }
+
+            if (pkg.id && pkg.revisions) {
+                // Check for existing revisions (for this channel) with the same version string
+
+                let matches = pkg.revisions.filter((revision) => {
+                    return (revision.version == parseData.version && revision.channel == channel);
+                });
+                if (matches.length > 0) {
+                    return helpers.error(res, EXISTING_VERSION, 400);
+                }
+            }
+
+            // Only update the data from the parsed click if it's for XENIAL
+            let data = (channel == Package.XENIAL) ? parseData : null;
+            let downloadSha512 = await checksum(filePath);
+            pkg = await packages.updateInfo(pkg, data, null, req.files.file[0], null, true, channel, parseData.version, downloadSha512);
 
             let packageUrl;
             let iconUrl;
             [packageUrl, iconUrl] = await upload.uploadPackage(
                 pkg,
                 filePath,
-                (channel == Package.VIVID) ? parseData.icon : null,
+                (channel == Package.XENIAL) ? parseData.icon : null,
                 channel,
-                parseData.version, // Don't use pkg.version as that is only the vivid version number
+                parseData.version,
             );
 
             let revision = (channel == Package.XENIAL) ? pkg.xenial_revision : pkg.revision;
-            if (channel == Package.VIVID) {
-                pkg.package = packageUrl;
+            if (channel == Package.XENIAL) {
                 pkg.icon = iconUrl;
+            }
+
+            if (!pkg.channels.includes(channel)) {
+                pkg.channels.push(channel);
             }
 
             if (bothChannels) {
@@ -488,13 +354,13 @@ router.post(
                     req.files.file[0],
                     null,
                     true,
-                    Package.XENIAL,
+                    Package.VIVID,
                     parseData.version,
-                    pkg.download_sha512,
+                    downloadSha512,
                 );
 
-                if (!pkg.channels.includes(Package.XENIAL)) {
-                    pkg.channels.push(Package.XENIAL);
+                if (!pkg.channels.includes(Package.VIVID)) {
+                    pkg.channels.push(Package.VIVID);
                 }
             }
 
@@ -546,10 +412,6 @@ router.post(
                         data.download_url = packageUrl;
                     }
                 }
-            }
-
-            if (!pkg.channels.includes(channel)) {
-                pkg.channels.push(channel);
             }
 
             pkg = await pkg.save();
