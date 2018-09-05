@@ -15,9 +15,10 @@ function sanitize(html) {
 }
 
 // TODO clean up arguments
+// TODO simplify and clean up
 function updateInfo(pkg, data, body, file, url, updateRevision, channel, version, downloadSha512) {
     updateRevision = (updateRevision === undefined) ? false : updateRevision;
-    channel = channel || Package.VIVID;
+    channel = channel || Package.XENIAL;
 
     let maintainer = body ? body.maintainer : pkg.maintainer;
     return db.User.findOne({_id: maintainer}).then((user) => {
@@ -104,10 +105,6 @@ function updateInfo(pkg, data, body, file, url, updateRevision, channel, version
 
         if (file && file.size) {
             pkg.filesize = file.size;
-        }
-
-        if (url) {
-            pkg.package = url;
         }
 
         if (body) {
@@ -236,23 +233,13 @@ function updateInfo(pkg, data, body, file, url, updateRevision, channel, version
         }
 
         if (updateRevision) {
-            let revision = 1;
-            if (channel == Package.VIVID) {
-                pkg.revision = pkg.revisions.length + 1;
-                revision = pkg.revision;
-            }
-            else {
-                pkg.xenial_revision = pkg.revisions.length + 1;
-                revision = pkg.xenial_revision;
-            }
-
             pkg.revisions.push({
-                revision: revision,
-                version: version || pkg.version,
+                revision: pkg.next_revision,
+                version: version,
                 downloads: 0,
                 channel: channel,
-                download_url: url || pkg.package,
-                download_sha512: downloadSha512 || pkg.download_sha512,
+                download_url: url,
+                download_sha512: downloadSha512,
             });
 
             // Only update if we have a new version uploaded
@@ -270,7 +257,21 @@ function updateInfo(pkg, data, body, file, url, updateRevision, channel, version
 
 function iconUrl(pkg) {
     let ext = pkg.icon ? path.extname(pkg.icon) : '.png';
-    return `${config.server.host}/api/v3/apps/${pkg.id}/icon/${pkg.version}${ext}`;
+    let version = '';
+    if (pkg.revisions) {
+        let xenialRevisionData = pkg.xenial_revision_data;
+        if (xenialRevisionData) {
+            version = xenialRevisionData.version;
+        }
+        else {
+            let vividRevisionData = pkg.vivid_revision_data;
+            if (vividRevisionData) {
+                version = vividRevisionData.version;
+            }
+        }
+    }
+
+    return `${config.server.host}/api/v3/apps/${pkg.id}/icon/${version}${ext}`;
 }
 
 function downloadUrl(pkg, channel) {
@@ -304,20 +305,30 @@ function toSlimJson(pkg) {
 }
 
 function toJson(pkg, req) {
+    channel = req.query.channel || Package.VIVID;
+    if (!Package.CHANNELS.includes(channel)) {
+        channel = Package.XENIAL;
+    }
+
     let json = {};
     if (pkg) {
-        let vividRevisionData = {};
+        let vividRevisionData = null;
         let xenialRevisionData = null;
-        if (pkg.revisions) {
-            pkg.revisions.forEach((data) => {
-                if (data.revision == pkg.xenial_revision) {
-                    xenialRevisionData = data;
-                }
+        let download_sha512 = '';
+        let version = '';
 
-                if (data.revision == pkg.revision) {
-                    vividRevisionData = data;
-                }
-            });
+        if (pkg.revisions) {
+            xenialRevisionData = pkg.xenial_revision_data;
+            if (channel == Package.XENIAL) {
+                download_sha512 = xenialRevisionData.download_sha512;
+                version = xenialRevisionData.version;
+            }
+
+            vividRevisionData = pkg.vivid_revision_data;
+            if (channel == Package.VIVID) {
+                download_sha512 = vividRevisionData.download_sha512;
+                version = vividRevisionData.version;
+            }
         }
 
         json = {
@@ -326,12 +337,11 @@ function toJson(pkg, req) {
             author: pkg.author ? pkg.author : '',
             category: pkg.category ? pkg.category : '',
             changelog: pkg.changelog ? pkg.changelog : '',
-            channels: pkg.channels ? pkg.channels : [db.Package.VIVID],
+            channels: pkg.channels ? pkg.channels : [Package.VIVID],
             description: pkg.description ? pkg.description : '',
-
-            // TODO make this based on req
-            download: downloadUrl(pkg, db.Package.VIVID),
-            download_sha512: vividRevisionData.download_sha512 ? vividRevisionData.download_sha512 : '',
+            download: downloadUrl(pkg, channel),
+            download_sha512: download_sha512,
+            downloads: [],
             filesize: pkg.filesize ? pkg.filesize : 0,
             framework: pkg.framework ? pkg.framework : '',
             icon: iconUrl(pkg),
@@ -343,9 +353,6 @@ function toJson(pkg, req) {
             manifest: pkg.manifest ? pkg.manifest : {},
             name: pkg.name ? pkg.name : '',
             nsfw: !!pkg.nsfw,
-
-            // TODO make this based on req
-            package: pkg.package ? pkg.package : '',
             permissions: pkg.permissions ? pkg.permissions : [],
             published_date: pkg.published_date ? pkg.published_date : '',
             published: !!pkg.published,
@@ -357,29 +364,29 @@ function toJson(pkg, req) {
             tagline: pkg.tagline ? pkg.tagline : '',
             types: pkg.types ? pkg.types : [],
             updated_date: pkg.published_date ? pkg.updated_date : '',
-            version: pkg.version ? pkg.version : '',
-            revision: pkg.revision ? pkg.revision : 1,
-            xenial_revision: pkg.xenial_revision ? pkg.xenial_revision : 0,
+            version: version ? version : '',
+            revision: pkg.vivid_revision, // TODO depricate this
+            xenial_revision: pkg.xenial_revision, // TODO depricate this
             languages: pkg.languages ? pkg.languages.sort() : [],
         };
 
-        json.downloads = [
-            {
-                channel: db.Package.VIVID,
-                download_url: downloadUrl(pkg, db.Package.VIVID),
+        if (vividRevisionData) {
+            json.downloads.push({
+                channel: Package.VIVID,
+                download_url: downloadUrl(pkg, Package.VIVID),
                 download_sha512: vividRevisionData.download_sha512,
-                version: pkg.version,
-                revision: pkg.revision,
-            },
-        ];
+                version: vividRevisionData.version,
+                revision: vividRevisionData.revision,
+            });
+        }
 
         if (xenialRevisionData) {
             json.downloads.push({
-                channel: db.Package.XENIAL,
-                download_url: downloadUrl(pkg, db.Package.XENIAL),
+                channel: Package.XENIAL,
+                download_url: downloadUrl(pkg, Package.XENIAL),
                 download_sha512: xenialRevisionData.download_sha512,
                 version: xenialRevisionData.version,
-                revision: pkg.xenial_revision,
+                revision: xenialRevisionData.revision,
             });
         }
 

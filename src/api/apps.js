@@ -288,7 +288,7 @@ async function download(req, res) {
 
         let channel = req.params.channel ? req.params.channel : Package.VIVID;
         channel = channel.toLowerCase();
-        let revision = (channel == Package.XENIAL) ? pkg.xenial_revision : pkg.revision;
+        let revision = (channel == Package.XENIAL) ? pkg.xenial_revision : pkg.vivid_revision;
 
         let downloadUrl = '';
         let revisionData = null;

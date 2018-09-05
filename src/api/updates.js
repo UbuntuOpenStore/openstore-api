@@ -23,7 +23,7 @@ function updates(req, res) {
     }
 
     if (!Package.CHANNELS.includes(channel)) {
-        channel = Package.VIVID;
+        channel = Package.XENIAL;
     }
 
     if (ids.length > 0) {
@@ -33,7 +33,7 @@ function updates(req, res) {
                     value[pkg.id] = pkg.version;
                 }
                 else {
-                    value[pkg.id] = (channel == Package.VIVID) ? pkg.revision : pkg.xenial_revision;
+                    value[pkg.id] = (channel == Package.XENIAL) ? pkg.xenial_revision : pkg.vivid_revision;
                 }
 
                 return value;

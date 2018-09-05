@@ -75,7 +75,7 @@ router.get('/', (req, res) => {
 
         let channel = req.query.channel ? req.query.channel.toLowerCase() : Package.VIVID;
         if (!Package.CHANNELS.includes(channel)) {
-            channel = Package.VIVID;
+            channel = Package.XENIAL;
         }
 
         let categoryTranslations = {
