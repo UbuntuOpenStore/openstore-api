@@ -323,23 +323,26 @@ router.post(
                 }
             }
 
-            // Only update the data from the parsed click if it's for XENIAL
-            let data = (channel == Package.XENIAL) ? parseData : null;
+            // Only update the data from the parsed click if it's for XENIAL or if it's the first one
+            let data = (channel == Package.XENIAL || pkg.revisions.length === 0) ? parseData : null;
             let downloadSha512 = await checksum(filePath);
             pkg = await packages.updateInfo(pkg, data, null, req.files.file[0], null, true, channel, parseData.version, downloadSha512);
+
+            let updateIcon = (channel == Package.XENIAL || !pkg.icon);
+            let icon = updateIcon ? parseData.icon : null;
 
             let packageUrl;
             let iconUrl;
             [packageUrl, iconUrl] = await upload.uploadPackage(
                 pkg,
                 filePath,
-                (channel == Package.XENIAL) ? parseData.icon : null,
+                icon,
                 channel,
                 parseData.version,
             );
 
             let revision = (channel == Package.XENIAL) ? pkg.xenial_revision : pkg.vivid_revision;
-            if (channel == Package.XENIAL) {
+            if (updateIcon) {
                 pkg.icon = iconUrl;
             }
 
