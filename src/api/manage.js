@@ -137,7 +137,8 @@ router.get('/', passport.authenticate('localapikey', {session: false}), (req, re
             });
         }
     }).catch((err) => {
-        logger.error('Error fetching packages:', err);
+        logger.error('Error fetching packages:');
+        logger.error(err);
         helpers.error(res, 'Could not fetch app list at this time');
     });
 });
