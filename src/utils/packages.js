@@ -319,13 +319,13 @@ function toJson(pkg, req) {
 
         if (pkg.revisions) {
             xenialRevisionData = pkg.xenial_revision_data;
-            if (channel == Package.XENIAL) {
+            if (xenialRevisionData && channel == Package.XENIAL) {
                 download_sha512 = xenialRevisionData.download_sha512;
                 version = xenialRevisionData.version;
             }
 
             vividRevisionData = pkg.vivid_revision_data;
-            if (channel == Package.VIVID) {
+            if (vividRevisionData && channel == Package.VIVID) {
                 download_sha512 = vividRevisionData.download_sha512;
                 version = vividRevisionData.version;
             }
