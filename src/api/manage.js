@@ -289,7 +289,7 @@ router.post(
                 return helpers.error(res, APP_NOT_FOUND, 404);
             }
 
-            let previousRevision = (channel == Package.XENIAL) ? pkg.xenial_revision : pkg.revision;
+            let previousRevision = (channel == Package.XENIAL) ? pkg.xenial_revision : pkg.vivid_revision;
 
             if (!helpers.isAdminUser(req) && req.user._id != pkg.maintainer) {
                 return helpers.error(res, PERMISSION_DENIED, 400);
@@ -338,7 +338,7 @@ router.post(
                 parseData.version,
             );
 
-            let revision = (channel == Package.XENIAL) ? pkg.xenial_revision : pkg.revision;
+            let revision = (channel == Package.XENIAL) ? pkg.xenial_revision : pkg.vivid_revision;
             if (channel == Package.XENIAL) {
                 pkg.icon = iconUrl;
             }
