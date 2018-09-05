@@ -364,14 +364,8 @@ router.post(
                 }
             }
 
-            let xenialRevisionData = pkg.revisions.filter((data) => {
-                return (data.revision == pkg.xenial_revision);
-            });
-            xenialRevisionData = (xenialRevisionData.length > 0) ? xenialRevisionData[0] : null;
-            let vividRevisionData = pkg.revisions.filter((data) => {
-                return (data.revision == pkg.revision);
-            });
-            vividRevisionData = (vividRevisionData.length > 0) ? vividRevisionData[0] : null;
+            let xenialRevisionData = pkg.xenial_revision_data;
+            let vividRevisionData = pkg.vivid_revision_data;
 
             for (let i = 0; i < pkg.revisions.length; i++) {
                 let data = pkg.revisions[i];

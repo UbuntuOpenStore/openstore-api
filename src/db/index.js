@@ -46,16 +46,12 @@ const packageSchema = mongoose.Schema({
     languages: [],
     architectures: [String],
 
-    // TODO remove this and replace with something like this: https://futurestud.io/tutorials/understanding-virtuals-in-mongoose
-    architecture: String,
-
     // Publication metadata
     published: Boolean,
     published_date: String,
     updated_date: String,
 
     // Revisions
-    revision: Number, // TODO depricate
     revisions: [
         /*
         {
@@ -69,10 +65,57 @@ const packageSchema = mongoose.Schema({
         */
     ], // Revisions and stats
     channels: [], // vivid, xenial
-    xenial_revision: Number, // TODO depricate
 
     icon: String,
 }, {usePushEach: true});
+
+packageSchema.virtual('architecture').get(function() {
+    return this.architectures.join(',');
+});
+
+function getRevision(pkg, channel) {
+    let data = null;
+    pkg.revisions.filter((revisionData) => {
+        return (revisionData.channel == channel);
+    }).forEach((revisionData) => {
+        if (!data || data.revision < revisionData.revision) {
+            data = revisionData;
+        }
+    });
+
+    return data;
+}
+
+packageSchema.virtual('vivid_revision').get(function() {
+    let data = getRevision(this, 'vivid');
+    return data ? data.revision : -1;
+});
+
+packageSchema.virtual('vivid_revision_data').get(function() {
+    return getRevision(this, 'vivid');
+});
+
+packageSchema.virtual('xenial_revision').get(function() {
+    let data = getRevision(this, 'xenial');
+    return data ? data.revision : -1;
+});
+
+packageSchema.virtual('xenial_revision_data').get(function() {
+    return getRevision(this, 'xenial');
+});
+
+packageSchema.virtual('next_revision').get(function() {
+    let revision = 0;
+    let revisions = this.revisions.map((data) => {
+        return data.revision;
+    });
+
+    if (revisions.length > 0) {
+        revision = Math.max(...revisions);
+    }
+
+    return revision + 1;
+});
 
 packageSchema.index(
     {

@@ -233,18 +233,8 @@ function updateInfo(pkg, data, body, file, url, updateRevision, channel, version
         }
 
         if (updateRevision) {
-            let revision = 1;
-            if (channel == Package.VIVID) {
-                pkg.revision = pkg.revisions.length + 1;
-                revision = pkg.revision;
-            }
-            else {
-                pkg.xenial_revision = pkg.revisions.length + 1;
-                revision = pkg.xenial_revision;
-            }
-
             pkg.revisions.push({
-                revision: revision,
+                revision: pkg.next_revision,
                 version: version,
                 downloads: 0,
                 channel: channel,
@@ -269,11 +259,16 @@ function iconUrl(pkg) {
     let ext = pkg.icon ? path.extname(pkg.icon) : '.png';
     let version = '';
     if (pkg.revisions) {
-        pkg.revisions.forEach((data) => {
-            if (data.revision == pkg.xenial_revision) {
-                version = data.version;
+        let xenialRevisionData = pkg.xenial_revision_data;
+        if (xenialRevisionData) {
+            version = xenialRevisionData.version;
+        }
+        else {
+            let vividRevisionData = pkg.vivid_revision_data;
+            if (vividRevisionData) {
+                version = vividRevisionData.version;
             }
-        });
+        }
     }
 
     return `${config.server.host}/api/v3/apps/${pkg.id}/icon/${version}${ext}`;
@@ -323,25 +318,17 @@ function toJson(pkg, req) {
         let version = '';
 
         if (pkg.revisions) {
-            pkg.revisions.forEach((data) => {
-                if (data.revision == pkg.xenial_revision) {
-                    xenialRevisionData = data;
+            xenialRevisionData = pkg.xenial_revision_data;
+            if (channel == Package.XENIAL) {
+                download_sha512 = xenialRevisionData.download_sha512;
+                version = xenialRevisionData.version;
+            }
 
-                    if (channel == Package.XENIAL) {
-                        download_sha512 = xenialRevisionData.download_sha512;
-                        version = xenialRevisionData.version;
-                    }
-                }
-
-                if (data.revision == pkg.revision) {
-                    vividRevisionData = data;
-
-                    if (channel == Package.VIVID) {
-                        download_sha512 = vividRevisionData.download_sha512;
-                        version = vividRevisionData.version;
-                    }
-                }
-            });
+            vividRevisionData = pkg.vivid_revision_data;
+            if (channel == Package.VIVID) {
+                download_sha512 = vividRevisionData.download_sha512;
+                version = vividRevisionData.version;
+            }
         }
 
         json = {
@@ -378,8 +365,8 @@ function toJson(pkg, req) {
             types: pkg.types ? pkg.types : [],
             updated_date: pkg.published_date ? pkg.updated_date : '',
             version: version ? version : '',
-            revision: pkg.revision ? pkg.revision : 1,
-            xenial_revision: pkg.xenial_revision ? pkg.xenial_revision : 0,
+            revision: pkg.vivid_revision, // TODO depricate this
+            xenial_revision: pkg.xenial_revision, // TODO depricate this
             languages: pkg.languages ? pkg.languages.sort() : [],
         };
 
@@ -389,7 +376,7 @@ function toJson(pkg, req) {
                 download_url: downloadUrl(pkg, Package.VIVID),
                 download_sha512: vividRevisionData.download_sha512,
                 version: vividRevisionData.version,
-                revision: pkg.revision,
+                revision: vividRevisionData.revision,
             });
         }
 
@@ -399,7 +386,7 @@ function toJson(pkg, req) {
                 download_url: downloadUrl(pkg, Package.XENIAL),
                 download_sha512: xenialRevisionData.download_sha512,
                 version: xenialRevisionData.version,
-                revision: pkg.xenial_revision,
+                revision: xenialRevisionData.revision,
             });
         }
 

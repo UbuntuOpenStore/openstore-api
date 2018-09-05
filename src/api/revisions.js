@@ -50,7 +50,7 @@ function revisionsByVersion(req, res) {
                 version: version,
                 revision: revision,
                 latest_version: pkg.version,
-                latest_revision: (channel == Package.VIVID) ? pkg.revision : pkg.xenial_revision,
+                latest_revision: (channel == Package.XENIAL) ? pkg.xenial_revision : pkg.vivid_revision,
             };
         }));
     }).catch((err) => {
