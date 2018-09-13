@@ -331,6 +331,14 @@ function toJson(pkg, req) {
             }
         }
 
+        if (channel == Package.XENIAL && !version && vividRevisionData) {
+            version = vividRevisionData.version;
+        }
+
+        if (channel == Package.VIVID && !version && xenialRevisionData) {
+            version = xenialRevisionData.version;
+        }
+
         json = {
             architecture: pkg.architecture ? pkg.architecture : '',
             architectures: pkg.architectures ? pkg.architectures : [],

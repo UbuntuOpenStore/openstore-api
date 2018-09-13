@@ -229,7 +229,8 @@ router.put(
                 return helpers.error(res, PERMISSION_DENIED, 400);
             }
 
-            if (req.body.published && pkg.revisions.length == 0) {
+            published = (req.body.published == 'true' || req.body.published === true);
+            if (published && pkg.revisions.length == 0) {
                 return helpers.error(res, NO_REVISIONS, 400)
             }
 
