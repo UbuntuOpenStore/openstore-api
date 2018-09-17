@@ -32,6 +32,8 @@ const EXISTING_VERSION = 'A revision already exists with this version';
 const NO_FILE = 'No file upload specified';
 const INVALID_CHANNEL = 'The provided channel is not valid';
 const NO_REVISIONS = 'You cannot publish your package until you upload a revision';
+const NO_APP_NAME = 'No app name specified';
+const NO_APP_TITLE = 'No app title specified';
 
 function fileName(file) {
     // Rename the file so click-review doesn't freak out
@@ -165,8 +167,16 @@ router.post(
     helpers.isNotDisabled,
     helpers.downloadFileMiddleware,
     async (req, res) => {
-        let name = req.body.name;
-        let id = req.body.id.toLowerCase();
+        let name = req.body.name.trim();
+        let id = req.body.id.toLowerCase().trim();
+
+        if (!id) {
+            return helpers.error(res, NO_APP_NAME, 400);
+        }
+
+        if (!name) {
+            return helpers.error(res, NO_APP_TITLE, 400);
+        }
 
         try {
             let existing = await Package.findOne({id: id}).exec();
