@@ -1,7 +1,7 @@
 {
     "highlight": {
-        "id": "com.ubuntu.telegram",
-        "image": "/banners/telegram.svg"
+        "id": "fluffychat.christianpauly",
+        "image": "/banners/fluffychat.svg"
     },
     "categories": [
         {
@@ -10,43 +10,37 @@
             "referral": "",
             "ids": []
         }, {
-            "name": "Todo Apps",
-            "tagline": "Get things done",
-            "referral": "Productivity",
+            "name": "Health and Fitness",
+            "tagline": "Take care of your body. It’s the only place you have to live.",
+            "referral": "Health & Fitness",
             "ids": [
-                "youtodo.christianpauly",
-                "habitica.bhdouglass",
-                "todoist.amolith",
-                "utudu-2.imtec",
-                "talaan.kugiigi",
-                "dountil",
-                "trolly.fulvio"
+                "iquit.aurora",
+                "fatburners.christianpauly",
+                "biketrack.quitejonny",
+                "weight-tracker.avisoftware",
+                "siete.johangm90",
+                "checkup.fulvio",
+                "pulse.mivoligo"
             ]
         }, {
-            "name": "Books, Magazines, & News",
-            "tagline": "The best brain food around",
-            "referral": "Books & Comics",
-            "ids": [
-                "librifox.mjsir911",
-                "sturmreader.emanuelesorce",
-                "thebookwurm.com",
-                "fullcircle.bhdouglass",
-                "kiwix",
-                "inoreader.cibersheep",
-                "rssreader.florisluiten",
-                "doniks.shorter"
-            ]
-        }, {
-            "name": "Board & Card Games",
-            "tagline": "Classic gaming in the palm of your hand",
+            "name": "Text Adventures",
+            "tagline": "Ye find yeself in yon dungeon. Obvious exits are NORTH, SOUTH and DENNIS.",
             "referral": "Games",
             "ids": [
-                "com.ubuntu.developer.1bsyl.cartes",
-                "com.ubuntu.developer.1bsyl.spider",
-                "com.ubuntu.developer.1bsyl.reversi",
-                "com.ubuntu.developer.1bsyl.freecell",
-                "battleships.johandoe1960",
-                "xake.hankamotz"
+                "interstellar.cibersheep",
+                "seedship.cibersheep",
+                "gelek-vanilla.cibersheep",
+                "quixe.cibersheep",
+                "lonewolf.timsueberkrueb",
+                "falsemavis.cibersheep"
+            ]
+        }, {
+            "name": "Technical Demos",
+            "tagline": "Check out the cool upcoming features (may require a development channel).",
+            "referral": "",
+            "ids": [
+                "qqc2-gallery.ubad",
+                "org.kde.kirigami2.gallery"
             ]
         }
     ]
