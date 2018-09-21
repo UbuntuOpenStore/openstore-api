@@ -24,7 +24,7 @@
             ]
         }, {
             "name": "Text Adventures",
-            "tagline": "Ye find yeself in yon dungeon. Obvious exits are NORTH, SOUTH and DENNIS.",
+            "tagline": "Ye find yeself in yon dungeon. Ye see a SCROLL.",
             "referral": "Games",
             "ids": [
                 "interstellar.cibersheep",
@@ -36,7 +36,7 @@
             ]
         }, {
             "name": "Technical Demos",
-            "tagline": "Check out the cool upcoming features (may require a development channel).",
+            "tagline": "Cool upcoming features (may require a dev channel).",
             "referral": "",
             "ids": [
                 "qqc2-gallery.ubad",
