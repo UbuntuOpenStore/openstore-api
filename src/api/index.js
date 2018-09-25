@@ -40,11 +40,7 @@ function setup() {
         if (process.env.NODE_ENV == 'production') {
             // Redirect to the main domain
             let host = config.server.host.replace('https://', '').replace('http://', '');
-            // TODO make the old open.uappexplorer.com a redirect rather than just accepting it
-            let secondaryHost = config.server.secondary_host.replace('https://', '').replace('http://', '');
-
-            if (req.headers.host != host && req.headers.host != secondaryHost) {
-                console.log('redirect');
+            if (req.headers.host != host) {
                 res.redirect(301, config.server.host + req.originalUrl);
             }
             else {
