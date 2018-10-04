@@ -78,3 +78,4 @@ msgstr ""
 # This is text to go on a button that will say "Download from the\nOpenStore" (where \n is a line break)
 msgid "Download from the"
 msgstr ""
+ 
