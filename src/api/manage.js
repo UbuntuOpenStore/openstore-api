@@ -433,8 +433,20 @@ router.post(
             return helpers.success(res, packages.toJson(pkg, req));
         }
         catch (err) {
-            console.log(err);
-            logger.error('Error updating package:', err);
+            let message = err.message ? err.message : err;
+            logger.error('Error updating package:', message);
+
+            if (err.response) {
+                logger.error('Response data');
+                console.log(err.response.data);
+                console.log(err.response.status);
+                console.log(err.response.headers);
+            }
+            else if (err.request) {
+                logger.error('Request data (no response received)');
+                console.log(err.request);
+            }
+
             return helpers.error(res, 'There was an error updating your app, please try again later');
         }
     },
