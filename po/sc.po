@@ -4,99 +4,81 @@ msgstr ""
 "POT-Creation-Date: 2017-06-20 01:45:+0000\n"
 "PO-Revision-Date: 2018-07-05 15:28+0000\n"
 "Last-Translator: Matteo Mandis <mandismatteo@gmail.com>\n"
-"Language-Team: Sardinian <https://translate.ubports.com/projects/openstore"
-"/openstore-api/sc/>\n"
+"Language-Team: Sardinian <https://translate.ubports.com/projects/openstore/"
+"openstore-api/sc/>\n"
 "Language: sc\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Generator: Weblate 2.15\n"
 
-#: api/app/categories.js:12
 msgid "Accessibility"
 msgstr "Atzessibilidade"
 
-#: api/app/categories.js:13
 msgid "Books & Comics"
 msgstr "Libros e fumigheddos"
 
-#: api/app/categories.js:14
 msgid "Business & Finance"
 msgstr "Afàrios e finantzia"
 
-#: api/app/categories.js:15
 msgid "Communication & Social"
 msgstr "Comunicatzione e retes sotziales"
 
-#: api/app/categories.js:16
 msgid "Developer Tools"
 msgstr "Ainas de s'isvilupadore"
 
-#: api/app/categories.js:17
 msgid "Education & Reference"
 msgstr "Educatzione e riferimentos"
 
-#: api/app/categories.js:18
 msgid "Entertainment"
 msgstr "Ispàssiu"
 
-#: api/app/categories.js:19
 msgid "Food & Drink"
 msgstr "Papare e bufare"
 
-#: api/app/categories.js:20
 msgid "Games"
 msgstr "Giogos"
 
-#: api/app/categories.js:21
 msgid "Graphics"
 msgstr "Gràfica"
 
-#: api/app/categories.js:22
 msgid "Health & Fitness"
 msgstr "Salude e benèssere"
 
-#: api/app/categories.js:23
 msgid "Lifestyle"
 msgstr "Istile de vida"
 
-#: api/app/categories.js:24
 msgid "Media & Video"
 msgstr "Multimèdia e vìdeo"
 
-#: api/app/categories.js:25
 msgid "Music & Audio"
 msgstr "Mùsica e àudio"
 
-#: api/app/categories.js:26
 msgid "News & Magazines"
 msgstr "Noas e rivistas"
 
-#: api/app/categories.js:27
 msgid "Personalisation"
 msgstr "Personalizatzione"
 
-#: api/app/categories.js:28
 msgid "Productivity"
 msgstr "Produtividade"
 
-#: api/app/categories.js:29
 msgid "Science & Engineering"
 msgstr "Iscèntzia e ingegneria"
 
-#: api/app/categories.js:30
 msgid "Shopping"
 msgstr "Còmporas"
 
-#: api/app/categories.js:31
 msgid "Sports"
 msgstr "Isport"
 
-#: api/app/categories.js:32
 msgid "Travel & Weather"
 msgstr "Biàgios e tempus"
 
-#: api/app/categories.js:33
 msgid "Utilities"
 msgstr "Utilidades"
+
+# This is text to go on a button that will say "Download from the\nOpenStore" (where \n is a line break)
+msgid "Download from the"
+msgstr ""
