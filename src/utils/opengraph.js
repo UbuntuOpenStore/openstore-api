@@ -19,6 +19,7 @@ let useragents = [
     'slackbot',
     'vkShare',
     'W3C_Validator',
+    'DuckDuckBot',
 ];
 
 function replace(html, og) {
