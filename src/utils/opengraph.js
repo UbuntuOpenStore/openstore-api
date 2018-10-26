@@ -41,8 +41,8 @@ function replace(html, og) {
         <meta property="og:site_name" content="${og.title} - OpenStore" />
     `;
 
-    let ogStart = html.indexOf('<!--og start-->');
-    let ogEnd = html.indexOf('<!--og end-->');
+    let ogStart = html.indexOf('<meta name=opengraphstart />');
+    let ogEnd = html.indexOf('<meta name=opengraphend />');
 
     return html.substring(0, ogStart) + ogHtml + html.substring(ogEnd);
 }
