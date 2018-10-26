@@ -2,30 +2,35 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2017-06-20 01:45:+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Language-Team: none\n"
+"PO-Revision-Date: 2018-10-26 13:45+0000\n"
+"Last-Translator: Louies <louies0623@gmail.com>\n"
+"Language-Team: Chinese (Traditional) <https://translate.ubports.com/projects/"
+"openstore/openstore-api/zh_Hant/>\n"
 "Language: zh_Hant\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 3.0.1\n"
 
+#, fuzzy
 msgid "Accessibility"
-msgstr ""
+msgstr "無障礙"
 
 msgid "Books & Comics"
-msgstr ""
+msgstr "書籍漫畫"
 
 msgid "Business & Finance"
-msgstr ""
+msgstr "商業金融"
 
 msgid "Communication & Social"
-msgstr ""
+msgstr "社交溝通"
 
 msgid "Developer Tools"
-msgstr ""
+msgstr "開發者工具"
 
 msgid "Education & Reference"
-msgstr ""
+msgstr "教育與文獻"
 
 msgid "Entertainment"
 msgstr ""
