@@ -29,6 +29,7 @@ async function uploadFile(filePath, fileName) {
         });
         let fileId = largeFileData.data.fileId;
 
+        /* eslint-disable arrow-body-style */
         await Promise.all(fileChunks.map((data, index) => {
             return b2.getUploadPartUrl({fileId: fileId}).then((urlInfo) => {
                 return b2.uploadPart({

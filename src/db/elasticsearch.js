@@ -47,9 +47,7 @@ class Elasticsearch {
         doc.nsfw = !!doc.nsfw; // Force a boolean
 
         if (doc.keywords) {
-            doc.keywords = doc.keywords.map((keyword) => {
-                return keyword.toLowerCase();
-            });
+            doc.keywords = doc.keywords.map((keyword) => keyword.toLowerCase());
         }
         else {
             doc.keywords = [];
@@ -69,9 +67,7 @@ class Elasticsearch {
                 doc_as_upsert: true,
                 doc: this.convert(item),
             },
-        }).then(() => {
-            return item;
-        });
+        }).then(() => item);
     }
 
     remove(item) {
@@ -80,15 +76,15 @@ class Elasticsearch {
             type: this.type,
             id: item.id,
             retryOnConflict: 3,
-        }).then(() => {
-            return item;
-        }).catch((err) => {
-            if (err.status == 404) {
-                return item;
-            }
+        })
+            .then(() => item)
+            .catch((err) => {
+                if (err.status == 404) {
+                    return item;
+                }
 
-            throw err;
-        });
+                throw err;
+            });
     }
 
     bulk(upserts, removals) {
@@ -110,6 +106,7 @@ class Elasticsearch {
         }, this);
 
         if (removals) {
+            /* eslint-disable arrow-body-style */
             body = body.concat(removals.map((id) => {
                 return {
                     delete: {

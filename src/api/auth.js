@@ -46,9 +46,7 @@ passport.use(new UbuntuStrategy({
 }, (identifier, profile, callback) => {
     User.findOne({ubuntu_id: identifier}).then((user) => {
         if (!user && profile.email) {
-            return User.findOne({email: profile.email}).then((emailUser) => {
-                return emailUser;
-            });
+            return User.findOne({email: profile.email}).then((emailUser) => emailUser);
         }
 
         return user;
@@ -90,16 +88,11 @@ if (config.github.clientID && config.github.clientSecret) {
         scope: ['user:email'],
     }, (accessToken, refreshToken, profile, callback) => {
         User.findOne({github_id: profile.id}).then((user) => {
-            let emails = profile.emails.filter((email) => {
-                return email.verified;
-            }).map((email) => {
-                return email.value;
-            });
+            let emails = profile.emails.filter((email) => email.verified)
+                .map((email) => email.value);
 
             if (!user && emails) {
-                return User.findOne({email: {$in: emails}}).then((emailUser) => {
-                    return emailUser;
-                });
+                return User.findOne({email: {$in: emails}}).then((emailUser) => emailUser);
             }
 
             return user;
@@ -110,9 +103,7 @@ if (config.github.clientID && config.github.clientSecret) {
                 user.language = 'en';
             }
 
-            let emails = profile.emails.filter((email) => {
-                return email.primary;
-            });
+            let emails = profile.emails.filter((email) => email.primary);
 
             user.github_id = profile.id;
             user.email = (emails.length >= 1) ? emails[0].value : '';
@@ -142,14 +133,10 @@ if (config.gitlab.clientID && config.gitlab.clientSecret) {
         callbackURL: `${config.server.host}/auth/gitlab/callback`,
     }, (accessToken, refreshToken, profile, callback) => {
         User.findOne({gitlab_id: profile.id}).then((user) => {
-            let emails = profile.emails.map((email) => {
-                return email.value;
-            });
+            let emails = profile.emails.map((email) => email.value);
 
             if (!user && emails.length > 0) {
-                return User.findOne({email: {$in: emails}}).then((emailUser) => {
-                    return emailUser;
-                });
+                return User.findOne({email: {$in: emails}}).then((emailUser) => emailUser);
             }
 
             return user;

@@ -44,12 +44,9 @@ router.get('/', (req, res) => {
                 helpers.error(res, 'Could not fetch category list at this time');
             }
             else {
-                let categories = data.filter((category) => {
-                    /* eslint-disable no-underscore-dangle */
-                    return !!category._id;
-                }).map((category) => {
-                    return category._id;
-                });
+                /* eslint-disable no-underscore-dangle */
+                let categories = data.filter((category) => !!category._id)
+                    .map((category) => category._id);
 
                 helpers.success(res, categories);
             }
@@ -120,16 +117,16 @@ router.get('/', (req, res) => {
                 helpers.error(res, 'Could not fetch category list at this time');
             }
             else {
-                let data = categories.filter((category) => {
-                    return !!category._id;
-                }).map((category) => {
-                    return {
-                        category: category._id,
-                        translation: categoryTranslations[category._id],
-                        count: category.count,
-                        icon: config.server.host + categoryIcons[category._id],
-                    };
-                });
+                /* eslint-disable arrow-body-style */
+                let data = categories.filter((category) => !!category._id)
+                    .map((category) => {
+                        return {
+                            category: category._id,
+                            translation: categoryTranslations[category._id],
+                            count: category.count,
+                            icon: config.server.host + categoryIcons[category._id],
+                        };
+                    });
 
                 helpers.success(res, data);
             }

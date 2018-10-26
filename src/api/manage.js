@@ -188,13 +188,13 @@ router.post(
                 if (id.startsWith('com.ubuntu.') && !id.startsWith('com.ubuntu.developer.')) {
                     return helpers.error(res, BAD_NAMESPACE, 400);
                 }
-                else if (id.startsWith('com.canonical.')) {
+                if (id.startsWith('com.canonical.')) {
                     return helpers.error(res, BAD_NAMESPACE, 400);
                 }
-                else if (id.includes('ubports')) {
+                if (id.includes('ubports')) {
                     return helpers.error(res, BAD_NAMESPACE, 400);
                 }
-                else if (id.includes('openstore')) {
+                if (id.includes('openstore')) {
                     return helpers.error(res, BAD_NAMESPACE, 400);
                 }
             }
@@ -239,9 +239,9 @@ router.put(
                 return helpers.error(res, PERMISSION_DENIED, 400);
             }
 
-            published = (req.body.published == 'true' || req.body.published === true);
+            let published = (req.body.published == 'true' || req.body.published === true);
             if (published && pkg.revisions.length == 0) {
-                return helpers.error(res, NO_REVISIONS, 400)
+                return helpers.error(res, NO_REVISIONS, 400);
             }
 
             pkg = await packages.updateInfo(pkg, null, req.body, null, null, false);
@@ -326,6 +326,7 @@ router.post(
             if (pkg.id && pkg.revisions) {
                 // Check for existing revisions (for this channel) with the same version string
 
+                /* eslint-disable arrow-body-style */
                 let matches = pkg.revisions.filter((revision) => {
                     return (revision.version == parseData.version && revision.channel == channel);
                 });
@@ -383,17 +384,17 @@ router.post(
             let vividRevisionData = pkg.vivid_revision_data;
 
             for (let i = 0; i < pkg.revisions.length; i++) {
-                let data = pkg.revisions[i];
-                if (data.channel == channel) {
-                    if (data.revision == revision) {
-                        data.download_url = packageUrl;
+                let revisionData = pkg.revisions[i];
+                if (revisionData.channel == channel) {
+                    if (revisionData.revision == revision) {
+                        revisionData.download_url = packageUrl;
                     }
 
-                    if (data.revision == previousRevision) {
+                    if (revisionData.revision == previousRevision) {
                         if (
-                            data.channel == Package.VIVID &&
+                            revisionData.channel == Package.VIVID &&
                             xenialRevisionData &&
-                            xenialRevisionData.download_url == data.download_url
+                            xenialRevisionData.download_url == revisionData.download_url
                         ) {
                             /*
                             Do nothing, this revision has a migrated xenial revision
@@ -401,9 +402,9 @@ router.post(
                             */
                         }
                         else if (
-                            data.channel == Package.XENIAL &&
+                            revisionData.channel == Package.XENIAL &&
                             vividRevisionData &&
-                            vividRevisionData.download_url == data.download_url
+                            vividRevisionData.download_url == revisionData.download_url
                         ) {
                             /*
                             Do nothing, this revision has a migrated vivid revision
@@ -411,14 +412,14 @@ router.post(
                             */
                         }
                         else {
-                            await upload.removeFile(data.download_url);
+                            await upload.removeFile(revisionData.download_url);
                         }
                     }
                 }
 
-                if (bothChannels && data.channel == Package.XENIAL) {
-                    if (data.revision == pkg.xenial_revision) {
-                        data.download_url = packageUrl;
+                if (bothChannels && revisionData.channel == Package.XENIAL) {
+                    if (revisionData.revision == pkg.xenial_revision) {
+                        revisionData.download_url = packageUrl;
                     }
                 }
             }

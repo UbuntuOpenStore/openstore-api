@@ -198,9 +198,7 @@ function updateInfo(pkg, data, body, file, url, updateRevision, channel, version
                     body.keywords = body.keywords.split(',');
                 }
 
-                pkg.keywords = body.keywords.map((keyword) => {
-                    return keyword.trim();
-                });
+                pkg.keywords = body.keywords.map((keyword) => keyword.trim());
             }
             else {
                 pkg.keywords = [];
@@ -305,7 +303,7 @@ function toSlimJson(pkg) {
 }
 
 function toJson(pkg, req) {
-    channel = req.query.channel || Package.VIVID;
+    let channel = req.query.channel || Package.VIVID;
     if (!Package.CHANNELS.includes(channel)) {
         channel = Package.XENIAL;
     }
@@ -314,19 +312,19 @@ function toJson(pkg, req) {
     if (pkg) {
         let vividRevisionData = null;
         let xenialRevisionData = null;
-        let download_sha512 = '';
+        let downloadSha512 = '';
         let version = '';
 
         if (pkg.revisions) {
             xenialRevisionData = pkg.xenial_revision_data;
             if (xenialRevisionData && channel == Package.XENIAL) {
-                download_sha512 = xenialRevisionData.download_sha512;
+                downloadSha512 = xenialRevisionData.download_sha512;
                 version = xenialRevisionData.version;
             }
 
             vividRevisionData = pkg.vivid_revision_data;
             if (vividRevisionData && channel == Package.VIVID) {
-                download_sha512 = vividRevisionData.download_sha512;
+                downloadSha512 = vividRevisionData.download_sha512;
                 version = vividRevisionData.version;
             }
         }
@@ -348,7 +346,7 @@ function toJson(pkg, req) {
             channels: pkg.channels ? pkg.channels : [Package.VIVID],
             description: pkg.description ? pkg.description : '',
             download: downloadUrl(pkg, channel),
-            download_sha512: download_sha512,
+            download_sha512: downloadSha512,
             downloads: [],
             filesize: pkg.filesize ? pkg.filesize : 0,
             framework: pkg.framework ? pkg.framework : '',
@@ -372,7 +370,7 @@ function toJson(pkg, req) {
             tagline: pkg.tagline ? pkg.tagline : '',
             types: pkg.types ? pkg.types : [],
             updated_date: pkg.published_date ? pkg.updated_date : '',
-            version: version ? version : '',
+            version: version || '',
             revision: pkg.vivid_revision, // TODO depricate this
             xenial_revision: pkg.xenial_revision, // TODO depricate this
             languages: pkg.languages ? pkg.languages.sort() : [],

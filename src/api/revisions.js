@@ -35,34 +35,27 @@ function revisionsByVersion(req, res) {
         frameworks = req.body.frameworks;
     }
 
-    let ids = versions.map((version) => {
-        return version.split('@')[0];
-    });
+    let ids = versions.map((version) => version.split('@')[0]);
     Package.find({published: true, id: {$in: ids}}).then((pkgs) => {
-        pkgs = pkgs.filter((pkg) => {
-            return (frameworks.length === 0 || frameworks.includes(pkg.framework));
-        }).map((pkg) => {
-            let version = versions.filter((v) => {
-                return (v.split('@')[0] == pkg.id);
-            })[0];
+        pkgs = pkgs.filter((pkg) => (frameworks.length === 0 || frameworks.includes(pkg.framework)))
+            .map((pkg) => {
+                let version = versions.filter((v) => (v.split('@')[0] == pkg.id))[0];
 
-            let parts = version.split('@');
-            let channel = (parts.length > 2) ? parts[2] : defaultChannel;
-            version = parts[1];
+                let parts = version.split('@');
+                let channel = (parts.length > 2) ? parts[2] : defaultChannel;
+                version = parts[1];
 
-            let revisionData = pkg.revisions.filter((rev) => {
-                return (rev.version == version && rev.channel == channel);
-            })[0];
-            let revision = revisionData ? revisionData.revision : 0;
+                let revisionData = pkg.revisions.filter((rev) => (rev.version == version && rev.channel == channel))[0];
+                let revision = revisionData ? revisionData.revision : 0;
 
-            return {
-                id: pkg.id,
-                version: version,
-                revision: revision,
-                latest_version: pkg.version,
-                latest_revision: (channel == Package.XENIAL) ? pkg.xenial_revision : pkg.vivid_revision,
-            };
-        });
+                return {
+                    id: pkg.id,
+                    version: version,
+                    revision: revision,
+                    latest_version: pkg.version,
+                    latest_revision: (channel == Package.XENIAL) ? pkg.xenial_revision : pkg.vivid_revision,
+                };
+            });
 
         helpers.success(res, pkgs);
     }).catch((err) => {

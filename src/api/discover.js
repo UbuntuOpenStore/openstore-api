@@ -25,16 +25,12 @@ router.get('/', (req, res) => {
     let now = moment();
     if (!discoverDate[channel] || now.diff(discoverDate[channel], 'minutes') > 10 || !discoverCache[channel]) { // Cache miss
         let discover = JSON.parse(JSON.stringify(discoverJSON));
-        let staticCategories = discover.categories.filter((category) => {
-            return (category.ids.length > 0);
-        });
+        let staticCategories = discover.categories.filter((category) => (category.ids.length > 0));
 
         Promise.all([
             Package.findOne({id: discover.highlight.id}),
 
-            Promise.all(staticCategories.map((category) => {
-                return Package.find({id: {$in: category.ids}, channels: channel});
-            })),
+            Promise.all(staticCategories.map((category) => Package.find({id: {$in: category.ids}, channels: channel}))),
 
             Package.find({
                 published: true,
@@ -51,44 +47,33 @@ router.get('/', (req, res) => {
             discover.highlight.app = packages.toJson(highlight, req);
 
             staticCategories.forEach((category, index) => {
-                let apps = staticCategoriesApps[index].map((app) => {
-                    return packages.toJson(app, req);
-                });
+                let apps = staticCategoriesApps[index].map((app) => packages.toJson(app, req));
 
                 category.ids = shuffle(category.ids);
                 category.apps = shuffle(apps);
             });
 
-            let newAndUpdatedCategory = discover.categories.filter((category) => {
-                return (category.name == 'New and Updated Apps');
-            })[0];
+            let newAndUpdatedCategory = discover.categories.filter((category) => (category.name == 'New and Updated Apps'))[0];
 
-            // Get the first 10 unique app ids
-            let ids = newApps.map((app) => {
-                return app.id;
-            }).concat(updatedApps.map((app) => {
-                return app.id;
-            }));
-            ids = ids.filter((item, pos) => {
-                // Only unique ids;
-                return ids.indexOf(item) == pos;
-            });
+            // Get the first 10 unique app ids (unique ids)
+            let ids = newApps.map((app) => app.id)
+                .concat(updatedApps.map((app) => app.id))
+                .filter((item, pos) => ids.indexOf(item) == pos);
+
             newAndUpdatedCategory.ids = ids.slice(0, 10);
 
             let newAndUpdatedApps = newApps.concat(updatedApps);
+            /* eslint-disable  arrow-body-style */
             newAndUpdatedCategory.apps = newAndUpdatedCategory.ids.map((id) => {
                 return newAndUpdatedApps.filter((app) => {
                     return (app.id == id);
                 })[0];
             });
-            newAndUpdatedCategory.apps = newAndUpdatedCategory.apps.map((app) => {
-                return packages.toJson(app, req);
-            });
+            newAndUpdatedCategory.apps = newAndUpdatedCategory.apps.map((app) => packages.toJson(app, req));
 
-            discover.categories = discover.categories.filter((category) => {
-                return (category.apps.length > 0);
-            });
+            discover.categories = discover.categories.filter((category) => (category.apps.length > 0));
 
+            /* eslint-disable  arrow-body-style */
             discover.categories.forEach((category) => {
                 category.ids = category.apps.map((app) => {
                     return app.id;

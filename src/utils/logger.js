@@ -1,5 +1,5 @@
 const winston = require('winston');
-const papertrail = require('winston-papertrail');
+require('winston-papertrail');
 
 const config = require('./config');
 

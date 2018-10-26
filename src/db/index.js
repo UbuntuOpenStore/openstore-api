@@ -75,13 +75,12 @@ packageSchema.virtual('architecture').get(function() {
 
 function getRevision(pkg, channel) {
     let data = null;
-    pkg.revisions.filter((revisionData) => {
-        return (revisionData.channel == channel);
-    }).forEach((revisionData) => {
-        if (!data || data.revision < revisionData.revision) {
-            data = revisionData;
-        }
-    });
+    pkg.revisions.filter((revisionData) => (revisionData.channel == channel))
+        .forEach((revisionData) => {
+            if (!data || data.revision < revisionData.revision) {
+                data = revisionData;
+            }
+        });
 
     return data;
 }
@@ -106,9 +105,7 @@ packageSchema.virtual('xenial_revision_data').get(function() {
 
 packageSchema.virtual('next_revision').get(function() {
     let revision = 0;
-    let revisions = this.revisions.map((data) => {
-        return data.revision;
-    });
+    let revisions = this.revisions.map((data) => data.revision);
 
     if (revisions.length > 0) {
         revision = Math.max(...revisions);

@@ -49,9 +49,7 @@ function replace(html, og) {
 
 function match(req) {
     let useragent = req.headers['user-agent'];
-    let m = useragents.some((ua) => {
-        return useragent.toLowerCase().indexOf(ua.toLowerCase()) !== -1;
-    });
+    let m = useragents.some((ua) => useragent.toLowerCase().indexOf(ua.toLowerCase()) !== -1);
 
     /* eslint-disable no-underscore-dangle */
     return (m || req.query._escaped_fragment_ !== undefined);

@@ -128,13 +128,13 @@ function apps(req, res) {
             query,
             filters.skip,
             filters.limit,
+
+            /* eslint-disable arrow-body-style */
         ).then((results) => {
             // Format the results to be more like the mongo results
             return [
-                results.hits.hits.map((hit) => {
-                    /* eslint-disable no-underscore-dangle */
-                    return hit._source;
-                }),
+                /* eslint-disable no-underscore-dangle */
+                results.hits.hits.map((hit) => hit._source),
                 results.hits.total,
             ];
         });
