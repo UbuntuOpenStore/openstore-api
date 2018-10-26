@@ -15,7 +15,7 @@ router.get('/new.xml', async (req, res) => {
         description: 'The hottest new apps for Ubuntu Touch',
         feed_url: `${config.server.host}/rss/new.xml`,
         site_url: config.server.host,
-        image_url: `${config.server.host}/static/logo.png`,
+        image_url: `${config.server.host}/logo.png`,
         ttl: 240, // 4 hours
     });
 
@@ -54,7 +54,7 @@ router.get('/updates.xml', async (req, res) => {
         description: 'Cool updates for Ubuntu Touch apps',
         feed_url: `${config.server.host}/rss/updates.xml`,
         site_url: config.server.host,
-        image_url: `${config.server.host}/static/logo.png`,
+        image_url: `${config.server.host}/logo.png`,
         ttl: 240, // 4 hours
     });
 
