@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2017-06-20 01:45:+0000\n"
-"PO-Revision-Date: 2018-10-26 13:45+0000\n"
+"PO-Revision-Date: 2018-10-26 15:02+0000\n"
 "Last-Translator: Louies <louies0623@gmail.com>\n"
 "Language-Team: Chinese (Traditional) <https://translate.ubports.com/projects/"
 "openstore/openstore-api/zh_Hant/>\n"
@@ -13,7 +13,6 @@ msgstr ""
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Generator: Weblate 3.0.1\n"
 
-#, fuzzy
 msgid "Accessibility"
 msgstr "無障礙"
 
@@ -24,62 +23,62 @@ msgid "Business & Finance"
 msgstr "商業金融"
 
 msgid "Communication & Social"
-msgstr "社交溝通"
+msgstr "社交通訊"
 
 msgid "Developer Tools"
-msgstr "開發者工具"
+msgstr "開發工具"
 
 msgid "Education & Reference"
-msgstr "教育與文獻"
+msgstr "教育資源"
 
 msgid "Entertainment"
-msgstr ""
+msgstr "休閒娛樂"
 
 msgid "Food & Drink"
-msgstr ""
+msgstr "美食佳飲"
 
 msgid "Games"
-msgstr ""
+msgstr "遊戲"
 
 msgid "Graphics"
-msgstr ""
+msgstr "圖形繪圖"
 
 msgid "Health & Fitness"
-msgstr ""
+msgstr "健康塑身"
 
 msgid "Lifestyle"
-msgstr ""
+msgstr "生活品味"
 
 msgid "Media & Video"
-msgstr ""
+msgstr "影音媒體"
 
 msgid "Music & Audio"
-msgstr ""
+msgstr "音樂音訊"
 
 msgid "News & Magazines"
-msgstr ""
+msgstr "新聞雜誌"
 
 msgid "Personalisation"
-msgstr ""
+msgstr "個人化"
 
 msgid "Productivity"
-msgstr ""
+msgstr "生產應用"
 
 msgid "Science & Engineering"
-msgstr ""
+msgstr "科學工程"
 
 msgid "Shopping"
-msgstr ""
+msgstr "購物"
 
 msgid "Sports"
-msgstr ""
+msgstr "運動"
 
 msgid "Travel & Weather"
-msgstr ""
+msgstr "天氣旅行"
 
 msgid "Utilities"
-msgstr ""
+msgstr "實用程序"
 
 # This is text to go on a button that will say "Download from the\nOpenStore" (where \n is a line break)
 msgid "Download from the"
-msgstr ""
+msgstr "下載從"
