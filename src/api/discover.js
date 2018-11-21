@@ -58,7 +58,7 @@ router.get('/', (req, res) => {
             // Get the first 10 unique app ids (unique ids)
             let ids = newApps.map((app) => app.id)
                 .concat(updatedApps.map((app) => app.id))
-                .filter((item, pos) => ids.indexOf(item) == pos);
+            ids = ids.filter((item, pos) => ids.indexOf(item) == pos);
 
             newAndUpdatedCategory.ids = ids.slice(0, 10);
 
@@ -85,7 +85,7 @@ router.get('/', (req, res) => {
 
             helpers.success(res, discover);
         }).catch((err) => {
-            logger.error(err);
+            console.log(err);
             helpers.error(res, 'Unable to fetch discovery data at this time');
         });
     }
