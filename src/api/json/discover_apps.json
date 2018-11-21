@@ -1,7 +1,7 @@
 {
     "highlight": {
-        "id": "fluffychat.christianpauly",
-        "image": "/banners/fluffychat.svg"
+        "id": "linphone.cibersheep",
+        "image": "/banners/linphone.svg"
     },
     "categories": [
         {
@@ -10,37 +10,43 @@
             "referral": "",
             "ids": []
         }, {
-            "name": "Health and Fitness",
-            "tagline": "Take care of your body. It’s the only place you have to live.",
-            "referral": "Health & Fitness",
-            "ids": [
-                "iquit.aurora",
-                "fatburners.christianpauly",
-                "biketrack.quitejonny",
-                "weight-tracker.avisoftware",
-                "siete.johangm90",
-                "checkup.fulvio",
-                "pulse.mivoligo"
-            ]
-        }, {
-            "name": "Text Adventures",
-            "tagline": "Ye find yeself in yon dungeon. Ye see a SCROLL.",
-            "referral": "Games",
-            "ids": [
-                "interstellar.cibersheep",
-                "seedship.cibersheep",
-                "gelek-vanilla.cibersheep",
-                "quixe.cibersheep",
-                "lonewolf.timsueberkrueb",
-                "falsemavis.cibersheep"
-            ]
-        }, {
-            "name": "Technical Demos",
-            "tagline": "Cool upcoming features (may require a dev channel).",
+            "name": "RSS Feed Readers",
+            "tagline": "RSS is dead, long live RSS!",
             "referral": "",
             "ids": [
-                "qqc2-gallery.ubad",
-                "org.kde.kirigami2.gallery"
+                "rssreader.florisluiten",
+                "it.mardy.ttrss",
+                "inoreader.cibersheep",
+                "doniks.shorter",
+                "feedbin.jos-henson"
+            ]
+        }, {
+            "name": "Awesome Games",
+            "tagline": "It’s dangerous to go alone, take this!",
+            "referral": "Games",
+            "ids": [
+                "neopar.mvm",
+                "switch-reloaded.timsueberkrueb",
+                "volleyball2d.emanuelesorce",
+                "sakawochi.wendigosoft",
+                "tankball.cibersheep",
+                "com.ubuntu.developer.1bsyl.negative-space",
+                "com.ubuntu.developer.1bsyl.demineur",
+                "falldown.rpadovani",
+                "com.ubuntu.developer.rpadovani.100balls"
+            ]
+        }, {
+            "name": "Core Apps",
+            "tagline": "There is an app for that",
+            "referral": "",
+            "ids": [
+                "com.ubuntu.calculator",
+                "com.ubuntu.calendar",
+                "com.ubuntu.camera",
+                "com.ubuntu.clock",
+                "com.ubuntu.gallery",
+                "com.ubuntu.music",
+                "com.ubuntu.reminders"
             ]
         }
     ]
