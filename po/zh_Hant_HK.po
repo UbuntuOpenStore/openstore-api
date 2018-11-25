@@ -2,83 +2,79 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2017-06-20 01:45:+0000\n"
-"PO-Revision-Date: 2018-11-25 00:01+0000\n"
-"Last-Translator: Louies <louies0623@gmail.com>\n"
-"Language-Team: Chinese (Traditional) <https://translate.ubports.com/projects/"
-"openstore/openstore-api/zh_Hant/>\n"
-"Language: zh_Hant\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Language-Team: none\n"
+"Language: zh_Hant_HK\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 3.1.1\n"
 
 msgid "Accessibility"
-msgstr "無障礙"
+msgstr ""
 
 msgid "Books & Comics"
-msgstr "書籍漫畫"
+msgstr ""
 
 msgid "Business & Finance"
-msgstr "商業金融"
+msgstr ""
 
 msgid "Communication & Social"
-msgstr "社交通訊"
+msgstr ""
 
 msgid "Developer Tools"
-msgstr "開發工具"
+msgstr ""
 
 msgid "Education & Reference"
-msgstr "教育資源"
+msgstr ""
 
 msgid "Entertainment"
-msgstr "休閒娛樂"
+msgstr ""
 
 msgid "Food & Drink"
-msgstr "美食佳飲"
+msgstr ""
 
 msgid "Games"
-msgstr "遊戲"
+msgstr ""
 
 msgid "Graphics"
-msgstr "圖形繪圖"
+msgstr ""
 
 msgid "Health & Fitness"
-msgstr "健康塑身"
+msgstr ""
 
 msgid "Lifestyle"
-msgstr "生活品味"
+msgstr ""
 
 msgid "Media & Video"
-msgstr "影音媒體"
+msgstr ""
 
 msgid "Music & Audio"
-msgstr "音樂音訊"
+msgstr ""
 
 msgid "News & Magazines"
-msgstr "新聞雜誌"
+msgstr ""
 
 msgid "Personalisation"
-msgstr "個人化"
+msgstr ""
 
 msgid "Productivity"
-msgstr "生產應用"
+msgstr ""
 
 msgid "Science & Engineering"
-msgstr "科學工程"
+msgstr ""
 
 msgid "Shopping"
-msgstr "購物"
+msgstr ""
 
 msgid "Sports"
-msgstr "運動"
+msgstr ""
 
 msgid "Travel & Weather"
-msgstr "天氣旅行"
+msgstr ""
 
 msgid "Utilities"
-msgstr "實用應用程式"
+msgstr ""
 
 # This is text to go on a button that will say "Download from the\nOpenStore" (where \n is a line break)
 msgid "Download from the"
-msgstr "從/n下載"
+msgstr ""
