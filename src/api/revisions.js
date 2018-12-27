@@ -35,9 +35,18 @@ function revisionsByVersion(req, res) {
         frameworks = req.body.frameworks;
     }
 
+    let architecture = null;
+    if (req.query.architecture) {
+        architecture = req.query.architecture.trim().toLowerCase();
+    }
+    else if (req.body && req.body.architecture) {
+        architecture = req.body.architecture.trim().toLowerCase();
+    }
+
     let ids = versions.map((version) => version.split('@')[0]);
     Package.find({published: true, id: {$in: ids}}).then((pkgs) => {
         pkgs = pkgs.filter((pkg) => (frameworks.length === 0 || frameworks.includes(pkg.framework)))
+            .filter((pkg) => (!architecture || pkg.architectures.includes(architecture)))
             .map((pkg) => {
                 let version = versions.filter((v) => (v.split('@')[0] == pkg.id))[0];
 

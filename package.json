@@ -15,7 +15,7 @@
   "author": "Brian Douglass",
   "license": "GPL-3.0",
   "dependencies": {
-    "backblaze-b2": "git+https://github.com/UbuntuOpenStore/backblaze-b2.git",
+    "backblaze-b2": "git+https://gitlab.com/theopenstore/backblaze-b2.git",
     "bluebird": "^3.5.1",
     "body-parser": "^1.18.3",
     "buffer-chunks": "^0.1.1",
