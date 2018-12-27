@@ -20,6 +20,7 @@ const fs = require('../utils/asyncFs');
 const mupload = multer({dest: '/tmp'});
 const router = express.Router();
 
+// TODO translate these errors
 const APP_NOT_FOUND = 'App not found';
 const NEEDS_MANUAL_REVIEW = 'This app needs to be reviewed manually';
 const MALFORMED_MANIFEST = 'Your package manifest is malformed';
@@ -34,6 +35,7 @@ const INVALID_CHANNEL = 'The provided channel is not valid';
 const NO_REVISIONS = 'You cannot publish your package until you upload a revision';
 const NO_APP_NAME = 'No app name specified';
 const NO_APP_TITLE = 'No app title specified';
+const APP_HAS_REVISIONS = 'Cannot delete an app that already has revisions';
 
 function fileName(file) {
     // Rename the file so click-review doesn't freak out
@@ -266,6 +268,36 @@ router.put(
             console.log(err);
             logger.error('Error updating package:', err);
             return helpers.error(res, 'There was an error updating your app, please try again later');
+        }
+    },
+);
+
+router.delete(
+    '/:id',
+    passport.authenticate('localapikey', {session: false}),
+    helpers.isNotDisabled,
+    async(req, res) => {
+        try {
+            let pkg = await Package.findOne({id: req.params.id}).exec();
+            if (!pkg) {
+                return helpers.error(res, APP_NOT_FOUND, 404);
+            }
+
+            if (!helpers.isAdminUser(req) && req.user._id != pkg.maintainer) {
+                return helpers.error(res, PERMISSION_DENIED, 400);
+            }
+
+            if (pkg.revisions.length > 0) {
+                return helpers.error(res, APP_HAS_REVISIONS, 400);
+            }
+
+            await pkg.remove();
+            return helpers.success(res, {});
+        }
+        catch (err) {
+            console.log(err);
+            logger.error('Error deleting package:', err);
+            return helpers.error(res, 'There was an error deleting your app, please try again later');
         }
     },
 );
