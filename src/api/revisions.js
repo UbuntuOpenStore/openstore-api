@@ -46,7 +46,7 @@ function revisionsByVersion(req, res) {
     let ids = versions.map((version) => version.split('@')[0]);
     Package.find({published: true, id: {$in: ids}}).then((pkgs) => {
         pkgs = pkgs.filter((pkg) => (frameworks.length === 0 || frameworks.includes(pkg.framework)))
-            .filter((pkg) => (!architecture || pkg.architectures.includes(architecture)))
+            .filter((pkg) => (!architecture || pkg.architectures.includes(architecture) || pkg.architectures.includes('all')))
             .map((pkg) => {
                 let version = versions.filter((v) => (v.split('@')[0] == pkg.id))[0];
 
