@@ -337,6 +337,16 @@ function toJson(pkg, req) {
             version = xenialRevisionData.version;
         }
 
+        let languages = pkg.languages ? pkg.languages.sort() : [];
+        languages = languages.map((language) => {
+            if (language.includes('/')) {
+                let split = language.split('/');
+                language = split[split.length - 1];
+            }
+
+            return language;
+        });
+
         json = {
             architecture: pkg.architecture ? pkg.architecture : '',
             architectures: pkg.architectures ? pkg.architectures : [],
@@ -373,7 +383,7 @@ function toJson(pkg, req) {
             version: version || '',
             revision: pkg.vivid_revision, // TODO depricate this
             xenial_revision: pkg.xenial_revision, // TODO depricate this
-            languages: pkg.languages ? pkg.languages.sort() : [],
+            languages: languages,
         };
 
         if (vividRevisionData) {
