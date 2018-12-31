@@ -13,8 +13,6 @@ const fs = require('../utils/asyncFs');
 
 // TODO properly namespace these so we only need one router
 const router = express.Router();
-const downloadRouter = express.Router();
-const iconRouter = express.Router();
 const screenshotRouter = express.Router();
 const statsRouter = express.Router();
 
@@ -331,7 +329,6 @@ async function download(req, res) {
     }
 }
 
-downloadRouter.get('/:id/:click', download); // TODO depricate this
 router.get('/:id/download/:channel', download);
 
 async function icon(req, res) {
@@ -361,7 +358,6 @@ async function icon(req, res) {
     }
 }
 
-iconRouter.get(['/:version/:id', '/:id'], icon); // TODO depricate
 router.get('/:id/icon/:version', icon);
 
 function screenshot(req, res) {
@@ -383,7 +379,5 @@ screenshotRouter.get('/:name', screenshot);
 router.get('/:id/screenshot/:name', screenshot);
 
 exports.main = router;
-exports.download = downloadRouter;
-exports.icon = iconRouter;
 exports.screenshot = screenshotRouter;
 exports.stats = statsRouter;

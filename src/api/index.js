@@ -80,24 +80,14 @@ function setup() {
     app.use(passport.initialize());
     app.use(passport.session());
 
-    // TODO depricate pre-v1 and v1 and v2
-    app.use('/api/apps/discover', discover);
-    app.use('/api/v1/apps/discover', discover);
-    app.use('/api/v1/apps/updates', updates);
     app.use('/api/v2/apps/updates', updates);
-    app.use('/api/v1/apps/revision', revisions);
     app.use('/api/v2/apps/revision', revisions);
-    app.use('/api/v1/manage/apps', manage);
     app.use('/api/v2/manage/apps', manage);
-    app.use('/api/apps', apps.main);
-    app.use('/api/v1/apps', apps.main);
     app.use('/api/v2/apps', apps.main);
-    app.use('/api/download', apps.download);
-    app.use('/api/icon', apps.icon);
-    app.use('/api/screenshot', apps.screenshot);
-    app.use('/api/categories', categories);
-    app.use('/api/v1/categories', categories);
     app.use('/api/v2/categories', categories);
+
+    // TODO remove this
+    app.use('/api/screenshot', apps.screenshot);
 
     app.use('/auth', auth);
     app.use('/api/users', users);
