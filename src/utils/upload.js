@@ -126,7 +126,7 @@ function resize(iconPath) {
 }
 
 async function uploadPackage(pkg, packagePath, iconPath, channel, version) {
-    channel = channel || Package.VIVID;
+    channel = channel || Package.XENIAL;
     version = version || pkg.version;
 
     let packageName = `packages/${channel}/${pkg.id}_${version}_${pkg.architecture}.click`;
