@@ -406,12 +406,6 @@ router.post(
                         await upload.removeFile(revisionData.download_url);
                     }
                 }
-
-                if (bothChannels && revisionData.channel == Package.XENIAL) {
-                    if (revisionData.revision == pkg.xenial_revision) {
-                        revisionData.download_url = packageUrl;
-                    }
-                }
             }
 
             pkg = await pkg.save();
