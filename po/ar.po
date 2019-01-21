@@ -1,0 +1,85 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2017-06-20 01:45:+0000\n"
+"PO-Revision-Date: 2019-01-03 23:40+0000\n"
+"Last-Translator: Charles Stevens <yugioh2017@yandex.com>\n"
+"Language-Team: Arabic <https://translate.ubports.com/projects/openstore/"
+"openstore-api/ar/>\n"
+"Language: ar\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
+"&& n%100<=10 ? 3 : n%100>=11 ? 4 : 5;\n"
+"X-Generator: Weblate 3.1.1\n"
+
+msgid "Accessibility"
+msgstr "موصلية"
+
+msgid "Books & Comics"
+msgstr "كتب وقصص مصورة"
+
+msgid "Business & Finance"
+msgstr "تجارية ومالية"
+
+msgid "Communication & Social"
+msgstr "التواصل الإجتماعي"
+
+msgid "Developer Tools"
+msgstr "ادوات المطورين"
+
+msgid "Education & Reference"
+msgstr "تعليم ومراجع"
+
+msgid "Entertainment"
+msgstr "تسالي"
+
+msgid "Food & Drink"
+msgstr "طعام و شراب"
+
+msgid "Games"
+msgstr "العاب"
+
+msgid "Graphics"
+msgstr "رسوميات"
+
+msgid "Health & Fitness"
+msgstr "الصحة واللياقة"
+
+msgid "Lifestyle"
+msgstr "اسلوب العيش"
+
+msgid "Media & Video"
+msgstr "الوسائط والفيديو"
+
+msgid "Music & Audio"
+msgstr "موسيقى وصوتيات"
+
+msgid "News & Magazines"
+msgstr "اخبار ومجلات"
+
+msgid "Personalisation"
+msgstr "إضفاء الطابع الشخصي"
+
+msgid "Productivity"
+msgstr "إنتاجية"
+
+msgid "Science & Engineering"
+msgstr "العلوم والهندسة"
+
+msgid "Shopping"
+msgstr "التسوق"
+
+msgid "Sports"
+msgstr "الرياضة"
+
+msgid "Travel & Weather"
+msgstr "السفر والطقس"
+
+msgid "Utilities"
+msgstr "خدمات"
+
+# This is text to go on a button that will say "Download from the\nOpenStore" (where \n is a line break)
+msgid "Download from the"
+msgstr "حمّل من"
