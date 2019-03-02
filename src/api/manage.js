@@ -391,6 +391,10 @@ router.post(
                 pkg.icon = iconUrl;
             }
 
+            if (req.body.changelog) {
+                pkg.changelog = packages.sanitize(`${req.body.changelog}\n\n${pkg.changelog}`);
+            }
+
             if (!pkg.channels.includes(channel)) {
                 pkg.channels.push(channel);
             }

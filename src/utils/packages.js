@@ -547,3 +547,4 @@ exports.toSlimJson = toSlimJson;
 exports.toJson = toJson;
 exports.parseFiltersFromRequest = parseFiltersFromRequest;
 exports.iconUrl = iconUrl;
+exports.sanitize = sanitize;
