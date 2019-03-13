@@ -19,129 +19,23 @@ const statsRouter = express.Router();
 const APP_NOT_FOUND = 'App not found';
 const DOWNLOAD_NOT_FOUND_FOR_CHANNEL = 'Download not available for this channel';
 
-function apps(req, res) {
+async function apps(req, res) {
     let filters = packages.parseFiltersFromRequest(req);
-    let promise = null;
-    if (filters.search && filters.search.indexOf('author:') !== 0) {
-        let query = {
-            and: [], // No default published=true filter, only published apps are in elasticsearch
-        };
+    let count = 0;
+    let pkgs = [];
 
-        if (filters.types.length > 0) {
-            query.and.push({
-                in: {
-                    types: filters.types,
-                },
-            });
+    try {
+        if (filters.search && filters.search.indexOf('author:') !== 0) {
+            let results = await PackageSearch.search(filters, filters.sort, filters.skip, filters.limit);
+            /* eslint-disable no-underscore-dangle */
+            pkgs = results.hits.hits.map((hit) => hit._source),
+            count = results.hits.total;
         }
-
-        if (filters.ids.length > 0) {
-            query.and.push({
-                in: {
-                    id: filters.ids,
-                },
-            });
+        else {
+            filters.published = true;
+            pkgs = await PackageRepo.find(filters, filters.sort, filters.limit, filters.skip);
+            count = await PackageRepo.count(filters);
         }
-
-        if (filters.frameworks.length > 0) {
-            query.and.push({
-                in: {
-                    framework: filters.frameworks,
-                },
-            });
-        }
-
-        if (filters.architectures.length > 0) {
-            query.and.push({
-                in: {
-                    architectures: filters.architectures,
-                },
-            });
-        }
-
-        if (filters.category) {
-            query.and.push({
-                term: {
-                    category: filters.category.replace(/&/g, '_').replace(/ /g, '_').toLowerCase(),
-                },
-            });
-        }
-
-        if (filters.author) {
-            query.and.push({
-                term: {
-                    author: filters.author,
-                },
-            });
-        }
-
-        if (filters.channel) {
-            query.and.push({
-                in: {
-                    channels: [filters.channel],
-                },
-            });
-        }
-
-        if (filters.nsfw) {
-            if (Array.isArray(filters.nsfw)) {
-                // This looks a big weird because the filters.nsfw == [null, false]
-                // TODO clean it up
-                query.and.push({
-                    term: {
-                        nsfw: false,
-                    },
-                });
-            }
-            else {
-                query.and.push({
-                    term: {
-                        nsfw: filters.nsfw,
-                    },
-                });
-            }
-        }
-
-        let sort = '';
-        let direction = 'asc';
-        if (filters.sort && filters.sort != 'relevance') {
-            if (filters.sort.charAt(0) == '-') {
-                direction = 'desc';
-                sort = filters.sort.substring(1);
-            }
-            else {
-                sort = filters.sort;
-            }
-        }
-
-        promise = PackageSearch.search(
-            filters.search,
-            {field: sort, direction: direction},
-            query,
-            filters.skip,
-            filters.limit,
-
-            /* eslint-disable arrow-body-style */
-        ).then((results) => {
-            // Format the results to be more like the mongo results
-            return [
-                /* eslint-disable no-underscore-dangle */
-                results.hits.hits.map((hit) => hit._source),
-                results.hits.total,
-            ];
-        });
-    }
-    else {
-        let defaultQuery = {
-            published: true,
-        };
-
-        promise = PackageRepo.queryPackages(filters, defaultQuery);
-    }
-
-    promise.then((results) => {
-        let pkgs = results[0];
-        let count = results[1];
 
         let formatted = [];
         pkgs.forEach((pkg) => {
@@ -166,10 +60,12 @@ function apps(req, res) {
                 previous: links.previous,
             });
         }
-    }).catch((err) => {
+    }
+    catch (err) {
         logger.error('Error fetching packages:', err);
+        console.error(err);
         helpers.error(res, 'Could not fetch app list at this time');
-    });
+    }
 }
 
 router.get('/', apps);

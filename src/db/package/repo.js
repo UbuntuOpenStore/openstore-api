@@ -1,88 +1,102 @@
 const Package = require('./model');
 
 const PackageRepo = {
-    // TODO rename and split up
-    queryPackages(filters, query) {
-        if (filters.types.length > 0) {
+    parseFilters({types, ids, frameworks, architectures, category, author, channel, search, nsfw, maintainer, published}) {
+        let query = {};
+
+        if (types.length > 0) {
             query.types = {
-                $in: filters.types,
+                $in: types,
             };
         }
 
-        if (filters.ids.length > 0) {
+        if (ids.length > 0) {
             query.id = {
-                $in: filters.ids,
+                $in: ids,
             };
         }
 
-        if (filters.frameworks.length > 0) {
+        if (frameworks.length > 0) {
             query.framework = {
-                $in: filters.frameworks,
+                $in: frameworks,
             };
         }
 
-        if (filters.architectures.length > 0) {
+        if (architectures.length > 0) {
             query.architectures = {
-                $in: filters.architectures,
+                $in: architectures,
             };
         }
 
-        if (filters.category) {
-            query.category = filters.category;
+        if (category) {
+            query.category = category;
         }
 
-        if (filters.author) {
-            query.author = filters.author;
+        if (author) {
+            query.author = author;
         }
 
-        if (filters.channel) {
-            query.channels = {
-                $in: [filters.channel],
-            };
+        if (channel) {
+            query.channels = channel;
         }
 
-        if (filters.search) {
-            query.$text = {$search: filters.search};
+        if (search) {
+            query.$text = {$search: search};
         }
 
-        if (filters.nsfw) {
-            if (Array.isArray(filters.nsfw)) {
-                query.nsfw = {$in: filters.nsfw};
+        if (nsfw) {
+            if (Array.isArray(nsfw)) {
+                query.nsfw = {$in: nsfw};
             }
             else {
-                query.nsfw = filters.nsfw;
+                query.nsfw = nsfw;
             }
         }
 
-        return Package.count(query).then((count) => {
-            let findQuery = Package.find(query);
+        if (maintainer) {
+            query.maintainer = maintainer;
+        }
 
-            if (filters.sort == 'relevance') {
-                if (filters.search) {
-                    findQuery.select({score: {$meta: 'textScore'}});
-                    findQuery.sort({score: {$meta: 'textScore'}});
-                }
-                else {
-                    findQuery.sort('name');
-                }
+        if (published) {
+            query.published = published;
+        }
+
+        return query;
+    },
+
+    count(filters) {
+        let query = this.parseFilters(filters);
+
+        return Package.count(query);
+    },
+
+    find(filters, sort, limit, skip) {
+        let query = this.parseFilters(filters);
+
+        let findQuery = Package.find(query);
+
+        if (sort == 'relevance') {
+            if (query.$text) {
+                findQuery.select({score: {$meta: 'textScore'}});
+                findQuery.sort({score: {$meta: 'textScore'}});
             }
             else {
-                findQuery.sort(filters.sort);
+                findQuery.sort('name');
             }
+        }
+        else {
+            findQuery.sort(sort);
+        }
 
-            if (filters.limit) {
-                findQuery.limit(filters.limit);
-            }
+        if (limit) {
+            findQuery.limit(limit);
+        }
 
-            if (filters.skip) {
-                findQuery.skip(filters.skip);
-            }
+        if (skip) {
+            findQuery.skip(skip);
+        }
 
-            return Promise.all([
-                findQuery,
-                count,
-            ]);
-        });
+        return findQuery.exec();
     },
 };
 

@@ -107,20 +107,16 @@ function updateScreenshotFiles(pkg, screenshotFiles) {
     return pkg;
 }
 
-router.get('/', passport.authenticate('localapikey', {session: false}), (req, res) => {
-    let defaultQuery = null;
-    if (helpers.isAdminUser(req)) {
-        defaultQuery = {};
-    }
-    else {
+router.get('/', passport.authenticate('localapikey', {session: false}), async (req, res) => {
+    let filters = packages.parseFiltersFromRequest(req); // TODO refactor this
+    if (!helpers.isAdminUser(req)) {
         /* eslint-disable no-underscore-dangle */
-        defaultQuery = {maintainer: req.user._id};
+        filters.maintainer = req.user._id;
     }
 
-    let filters = packages.parseFiltersFromRequest(req);
-    PackageRepo.queryPackages(filters, defaultQuery).then((results) => {
-        let pkgs = results[0];
-        let count = results[1];
+    try {
+        let pkgs = await PackageRepo.find(filters, filters.sort, filters.limit, filters.skip);
+        let count = await PackageRepo.count(filters);
 
         let formatted = [];
         pkgs.forEach((pkg) => {
@@ -140,11 +136,12 @@ router.get('/', passport.authenticate('localapikey', {session: false}), (req, re
                 previous: links.previous,
             });
         }
-    }).catch((err) => {
+    }
+    catch (err) {
         logger.error('Error fetching packages:', err);
         console.error(err);
         helpers.error(res, 'Could not fetch app list at this time');
-    });
+    }
 });
 
 router.get('/:id', passport.authenticate('localapikey', {session: false}), (req, res) => {

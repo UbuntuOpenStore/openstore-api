@@ -124,7 +124,102 @@ const PackageSearch = {
         return this.client.bulk({body: body});
     },
 
-    search(query, sort, filters, skip, limit) {
+    parseFilters({types, ids, frameworks, architectures, category, author, channel, search, nsfw, maintainer, published}) {
+        let query = {
+            and: [], // No default published=true filter, only published apps are in elasticsearch
+        };
+
+        if (types.length > 0) {
+            query.and.push({
+                in: {
+                    types: types,
+                },
+            });
+        }
+
+        if (ids.length > 0) {
+            query.and.push({
+                in: {
+                    id: ids,
+                },
+            });
+        }
+
+        if (frameworks.length > 0) {
+            query.and.push({
+                in: {
+                    framework: frameworks,
+                },
+            });
+        }
+
+        if (architectures.length > 0) {
+            query.and.push({
+                in: {
+                    architectures: architectures,
+                },
+            });
+        }
+
+        if (category) {
+            query.and.push({
+                term: {
+                    category: category.replace(/&/g, '_').replace(/ /g, '_').toLowerCase(),
+                },
+            });
+        }
+
+        if (author) {
+            query.and.push({
+                term: {
+                    author: author,
+                },
+            });
+        }
+
+        if (channel) {
+            query.and.push({
+                in: {
+                    channels: [channel],
+                },
+            });
+        }
+
+        if (nsfw) {
+            if (Array.isArray(nsfw)) {
+                // This looks a big weird because the filters.nsfw == [null, false]
+                // TODO clean it up
+                query.and.push({
+                    term: {
+                        nsfw: false,
+                    },
+                });
+            }
+            else {
+                query.and.push({
+                    term: {
+                        nsfw: nsfw,
+                    },
+                });
+            }
+        }
+
+        return query;
+    },
+
+    search(filters, sort, skip, limit) {
+        let sortTerm = '';
+        let direction = 'asc';
+        if (sort && sort != 'relevance') {
+            if (sort.charAt(0) == '-') {
+                direction = 'desc';
+                sortTerm = sort.substring(1);
+            }
+            else {
+                sortTerm = sort;
+            }
+        }
+
         let request = {
             index: this.index,
             type: this.type,
@@ -133,7 +228,7 @@ const PackageSearch = {
                 size: limit || 30,
                 query: {
                     multi_match: {
-                        query: query.toLowerCase(),
+                        query: filters.search.toLowerCase(),
                         fields: this.search_fields,
                         slop: 10,
                         max_expansions: 50,
@@ -143,14 +238,15 @@ const PackageSearch = {
             },
         };
 
-        if (filters && filters.and && filters.and.length > 0) {
-            request.body.filter = filters;
+        let query = this.parseFilters(filters);
+        if (query && query.and && query.and.length > 0) {
+            request.body.filter = query;
         }
 
-        if (sort && sort.field) {
+        if (sortTerm) {
             let s = {};
-            s[sort.field] = {
-                order: sort.direction,
+            s[sortTerm] = {
+                order: direction,
                 ignore_unmapped: true,
             };
             request.body.sort = [s];
