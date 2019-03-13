@@ -1,6 +1,6 @@
 const express = require('express');
 
-const Package = require('../db').Package;
+const Package = require('../db/package/model');
 const helpers = require('../utils/helpers');
 const logger = require('../utils/logger');
 

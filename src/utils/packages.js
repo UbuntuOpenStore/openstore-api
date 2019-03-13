@@ -4,7 +4,7 @@ const moment = require('moment');
 const path = require('path');
 
 const db = require('../db');
-const { Package } = require('../db');
+const Package = require('../db/package/model');
 const config = require('./config');
 
 function sanitize(html) {

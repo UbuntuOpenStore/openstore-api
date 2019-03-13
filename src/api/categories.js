@@ -3,7 +3,7 @@ const Gettext = require('node-gettext');
 const po = require('gettext-parser').po;
 const express = require('express');
 
-const Package = require('../db').Package;
+const Package = require('../db/package/model');
 const config = require('../utils/config');
 const logger = require('../utils/logger');
 const helpers = require('../utils/helpers');

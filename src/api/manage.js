@@ -4,9 +4,9 @@ const path = require('path');
 const uuid = require('node-uuid');
 const express = require('express');
 
-const db = require('../db');
-const { Package } = require('../db');
-const Elasticsearch = require('../db/elasticsearch');
+const Package = require('../db/package/model');
+const PackageRepo = require('../db/package/repo');
+const PackageSearch = require('../db/package/search');
 const config = require('../utils/config');
 const packages = require('../utils/packages');
 const logger = require('../utils/logger');
@@ -118,7 +118,7 @@ router.get('/', passport.authenticate('localapikey', {session: false}), (req, re
     }
 
     let filters = packages.parseFiltersFromRequest(req);
-    db.queryPackages(filters, defaultQuery).then((results) => {
+    PackageRepo.queryPackages(filters, defaultQuery).then((results) => {
         let pkgs = results[0];
         let count = results[1];
 
@@ -254,12 +254,11 @@ router.put(
 
             pkg = await pkg.save();
 
-            let es = new Elasticsearch();
             if (pkg.published) {
-                await es.upsert(pkg);
+                await PackageSearch.upsert(pkg);
             }
             else {
-                await es.remove(pkg);
+                await PackageSearch.remove(pkg);
             }
 
             return helpers.success(res, packages.toJson(pkg, req));
@@ -415,8 +414,7 @@ router.post(
             pkg = await pkg.save();
 
             if (pkg.published) {
-                let es = new Elasticsearch();
-                await es.upsert(pkg);
+                await PackageSearch.upsert(pkg);
             }
 
             return helpers.success(res, packages.toJson(pkg, req));

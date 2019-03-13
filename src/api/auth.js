@@ -8,7 +8,7 @@ const express = require('express');
 
 const config = require('../utils/config');
 const logger = require('../utils/logger');
-const User = require('../db').User;
+const User = require('../db/user/model');
 
 const router = express.Router();
 

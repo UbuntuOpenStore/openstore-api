@@ -3,11 +3,10 @@
 'use strict';
 
 const db = require('../db');
-const Elasticsearch = require('../db/elasticsearch');
+const PackageSearch = require('../db/package/search');
 
 db.Package.find({published: true}).then((pkgs) => {
-    let ces = new Elasticsearch();
-    return ces.bulk(pkgs);
+    return PackageSearch.bulk(pkgs);
 }).then(() => {
     console.log('done');
     process.exit(0);

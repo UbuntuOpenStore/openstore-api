@@ -1,41 +1,38 @@
 const elasticsearch = require('elasticsearch');
 
-const config = require('../utils/config');
+const config = require('../../utils/config');
 
 // Modified from https://github.com/bhdouglass/uappexplorer/blob/master/src/db/elasticsearch/elasticsearch.js
-class Elasticsearch {
-    constructor() {
-        this.client = new elasticsearch.Client({host: config.elasticsearch.uri});
+const PackageSearch = {
+    client: new elasticsearch.Client({host: config.elasticsearch.uri}),
+    index: 'openstore_packages',
+    type: 'openstore_package',
 
-        this.index = 'openstore_packages';
-        this.type = 'openstore_package';
+    properties: [
+        'id',
+        'name',
+        'architectures',
+        'author',
+        'category',
+        'channels',
+        'description',
+        'framework',
+        'icon',
+        'keywords',
+        'license',
+        'nsfw',
+        'published_date',
+        'tagline',
+        'types',
+        'updated_date',
+    ],
 
-        this.properties = [
-            'id',
-            'name',
-            'architectures',
-            'author',
-            'category',
-            'channels',
-            'description',
-            'framework',
-            'icon',
-            'keywords',
-            'license',
-            'nsfw',
-            'published_date',
-            'tagline',
-            'types',
-            'updated_date',
-        ];
-
-        this.search_fields = [
-            'search_name^3',
-            'description^2',
-            'keywords^2',
-            'author',
-        ];
-    }
+    search_fields: [
+        'search_name^3',
+        'description^2',
+        'keywords^2',
+        'author',
+    ],
 
     convert(item) {
         let doc = {};
@@ -55,10 +52,10 @@ class Elasticsearch {
 
 
         return doc;
-    }
+    },
 
-    upsert(item) {
-        return this.client.update({
+    async upsert(item) {
+        await this.client.update({
             index: this.index,
             type: this.type,
             id: item.id,
@@ -67,25 +64,30 @@ class Elasticsearch {
                 doc_as_upsert: true,
                 doc: this.convert(item),
             },
-        }).then(() => item);
-    }
+        });
 
-    remove(item) {
-        return this.client.delete({
-            index: this.index,
-            type: this.type,
-            id: item.id,
-            retryOnConflict: 3,
-        })
-            .then(() => item)
-            .catch((err) => {
-                if (err.status == 404) {
-                    return item;
-                }
+        return item;
+    },
 
-                throw err;
+    async remove(item) {
+        try {
+            await this.client.delete({
+                index: this.index,
+                type: this.type,
+                id: item.id,
+                retryOnConflict: 3,
             });
-    }
+        }
+        catch (err) {
+            if (err.status == 404) {
+                return item;
+            }
+
+            throw err;
+        }
+
+        return item;
+    },
 
     bulk(upserts, removals) {
         let body = [];
@@ -103,7 +105,7 @@ class Elasticsearch {
                 doc_as_upsert: true,
                 doc: this.convert(item),
             });
-        }, this);
+        });
 
         if (removals) {
             /* eslint-disable arrow-body-style */
@@ -120,7 +122,7 @@ class Elasticsearch {
         }
 
         return this.client.bulk({body: body});
-    }
+    },
 
     search(query, sort, filters, skip, limit) {
         let request = {
@@ -155,11 +157,11 @@ class Elasticsearch {
         }
 
         return this.client.search(request);
-    }
+    },
 
     removeIndex() {
         return this.client.indices.delete({index: this.index});
-    }
+    },
 
     createIndex() {
         return this.client.indices.create({
@@ -225,7 +227,7 @@ class Elasticsearch {
                 },
             },
         });
-    }
-}
+    },
+};
 
-module.exports = Elasticsearch;
+module.exports = PackageSearch;

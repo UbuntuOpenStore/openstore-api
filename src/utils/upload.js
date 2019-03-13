@@ -6,7 +6,7 @@ const crypto = require('crypto');
 
 const config = require('../utils/config');
 const fs = require('../utils/asyncFs');
-const { Package } = require('../db');
+const Package = require('../db/package/model');
 
 const SIZE_LIMIT = 5242880; // 5MB
 

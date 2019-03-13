@@ -1,7 +1,7 @@
 const RSS = require('rss');
 const express = require('express');
 
-const Package = require('../db').Package;
+const Package = require('../db/package/model');
 const logger = require('../utils/logger');
 const config = require('../utils/config');
 const packages = require('../utils/packages');

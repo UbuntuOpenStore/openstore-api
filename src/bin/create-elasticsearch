@@ -2,10 +2,9 @@
 
 'use strict';
 
-const Elasticsearch = require('../db/elasticsearch');
+const PackageSearch = require('../db/package/search');
 
-let ces = new Elasticsearch();
-ces.createIndex().then(() => {
+PackageSearch.createIndex().then(() => {
     console.log('done');
     process.exit(0);
 }).catch((err) => {

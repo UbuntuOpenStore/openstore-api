@@ -1,7 +1,7 @@
 const express = require('express');
 const passport = require('passport');
 
-const User = require('../db').User;
+const User = require('../db/user/model');
 const helpers = require('../utils/helpers');
 
 const router = express.Router();

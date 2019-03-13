@@ -2,9 +2,9 @@ const path = require('path');
 const mime = require('mime');
 const express = require('express');
 
-const db = require('../db');
-const Package = require('../db').Package;
-const Elasticsearch = require('../db/elasticsearch');
+const Package = require('../db/package/model');
+const PackageRepo = require('../db/package/repo');
+const PackageSearch = require('../db/package/search');
 const config = require('../utils/config');
 const packages = require('../utils/packages');
 const logger = require('../utils/logger');
@@ -20,14 +20,9 @@ const APP_NOT_FOUND = 'App not found';
 const DOWNLOAD_NOT_FOUND_FOR_CHANNEL = 'Download not available for this channel';
 
 function apps(req, res) {
-    let useElasticsearch = true;
-    if (req.apiVersion == 1) {
-        useElasticsearch = false;
-    }
-
     let filters = packages.parseFiltersFromRequest(req);
     let promise = null;
-    if (useElasticsearch && filters.search && filters.search.indexOf('author:') !== 0) {
+    if (filters.search && filters.search.indexOf('author:') !== 0) {
         let query = {
             and: [], // No default published=true filter, only published apps are in elasticsearch
         };
@@ -119,8 +114,7 @@ function apps(req, res) {
             }
         }
 
-        let es = new Elasticsearch();
-        promise = es.search(
+        promise = PackageSearch.search(
             filters.search,
             {field: sort, direction: direction},
             query,
@@ -142,7 +136,7 @@ function apps(req, res) {
             published: true,
         };
 
-        promise = db.queryPackages(filters, defaultQuery);
+        promise = PackageRepo.queryPackages(filters, defaultQuery);
     }
 
     promise.then((results) => {
