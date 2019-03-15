@@ -25,61 +25,6 @@ function error(res, message, code) {
     });
 }
 
-function isAdmin(req, res, next) {
-    if (req.isAuthenticated() && req.user && req.user.role == 'admin') {
-        next();
-    }
-    else {
-        error(res, 'Forbidden', 403);
-    }
-}
-
-function isAdminOrTrusted(req, res, next) {
-    if (req.isAuthenticated() && req.user && (req.user.role == 'admin' || req.user.role == 'trusted')) {
-        next();
-    }
-    else {
-        error(res, 'Forbidden', 403);
-    }
-}
-
-function isAdminUser(req) {
-    let ok = false;
-    if (req.isAuthenticated()) {
-        if (req.user.role == 'admin') {
-            ok = true;
-        }
-    }
-
-    return ok;
-}
-
-function isAdminOrTrustedUser(req) {
-    let ok = false;
-    if (req.isAuthenticated()) {
-        if (req.user.role == 'admin' || req.user.role == 'trusted') {
-            ok = true;
-        }
-    }
-
-    return ok;
-}
-
-function isAdminOrTrustedOwner(req, pkg) {
-    let ok = false;
-    if (req.isAuthenticated()) {
-        if (req.user.role == 'admin') {
-            ok = true;
-        }
-        /* eslint-disable no-underscore-dangle */
-        else if (req.user.role == 'trusted' && pkg && pkg.maintainer == req.user._id) {
-            ok = true;
-        }
-    }
-
-    return ok;
-}
-
 function download(url, filename) {
     return new Promise((resolve, reject) => {
         let r = request(url);
@@ -103,6 +48,7 @@ function download(url, filename) {
     });
 }
 
+// TODO move to the middleware file
 function downloadFileMiddleware(req, res, next) {
     if (!req.file && req.body && req.body.downloadUrl) {
         let filename = path.basename(req.body.downloadUrl);
@@ -174,11 +120,6 @@ function getDataArray(req, name) {
 
 exports.success = success;
 exports.error = error;
-exports.isAdmin = isAdmin;
-exports.isAdminOrTrusted = isAdminOrTrusted;
-exports.isAdminOrTrustedOwner = isAdminOrTrustedOwner;
-exports.isAdminUser = isAdminUser;
-exports.isAdminOrTrustedUser = isAdminOrTrustedUser;
 exports.download = download;
 exports.downloadFileMiddleware = downloadFileMiddleware;
 exports.checkDownload = checkDownload;

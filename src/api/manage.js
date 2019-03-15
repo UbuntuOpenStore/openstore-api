@@ -51,7 +51,7 @@ async function review(req, file, filePath) {
 
     await fs.renameAsync(file.path, filePath);
 
-    if (!helpers.isAdminOrTrustedUser(req)) {
+    if (!req.isAdminUser || !req.isTrustedUser) {
         // Admin & trusted users can upload apps without manual review
         let needsManualReview = await reviewPackage(filePath);
         if (needsManualReview) {

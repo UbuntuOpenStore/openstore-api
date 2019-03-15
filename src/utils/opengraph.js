@@ -55,5 +55,7 @@ function match(req) {
     return (m || req.query._escaped_fragment_ !== undefined);
 }
 
+// TODO make a middleware
+
 exports.replace = replace;
 exports.match = match;
