@@ -3,9 +3,9 @@ const express = require('express');
 
 const Package = require('../db/package/model');
 const PackageRepo = require('../db/package/repo');
+const {iconUrl} = require('../db/package/serializer');
 const logger = require('../utils/logger');
 const config = require('../utils/config');
-const packages = require('../utils/packages');
 const helpers = require('../utils/helpers');
 
 const router = express.Router();
@@ -38,7 +38,7 @@ async function generateFeed(res, updates) {
             feed.item({
                 title: pkg.name,
                 url: url,
-                description: `<a href="${url}"><img src="${packages.iconUrl(pkg)}" /></a>${changelog}${description}`,
+                description: `<a href="${url}"><img src="${iconUrl(pkg)}" /></a>${changelog}${description}`,
                 author: pkg.author,
                 date: pkg.updated_date,
                 custom_elements: [{tagline: pkg.tagline ? pkg.tagline : ''}],

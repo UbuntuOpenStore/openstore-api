@@ -4,10 +4,10 @@ const express = require('express');
 
 const Package = require('../db/package/model');
 const PackageRepo = require('../db/package/repo');
+const {serialize} = require('../db/package/serializer');
 const config = require('../utils/config');
 const discoverJSON = require('./json/discover_apps.json');
 const helpers = require('../utils/helpers');
-const packages = require('../utils/packages');
 const logger = require('../utils/logger');
 
 const router = express.Router();
@@ -49,10 +49,10 @@ router.get('/', async (req, res) => {
                 }, '-updated_date', 8),
             ]);
 
-            discover.highlight.app = packages.toJson(highlight, req);
+            discover.highlight.app = serialize(highlight);
 
             discoverCategories.forEach((category, index) => {
-                let apps = discoverCategoriesApps[index].map((app) => packages.toJson(app, req));
+                let apps = discoverCategoriesApps[index].map(serialize);
 
                 category.ids = shuffle(category.ids);
                 category.apps = shuffle(apps);
@@ -72,7 +72,7 @@ router.get('/', async (req, res) => {
             newAndUpdatedCategory.apps = newAndUpdatedCategory.ids.map((id) => {
                 return newAndUpdatedApps.find((app) => (app.id == id));
             });
-            newAndUpdatedCategory.apps = newAndUpdatedCategory.apps.map((app) => packages.toJson(app, req));
+            newAndUpdatedCategory.apps = newAndUpdatedCategory.apps.map(serialize);
 
             discover.categories = discover.categories.filter((category) => (category.apps.length > 0));
 

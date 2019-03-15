@@ -5,6 +5,7 @@ const express = require('express');
 const Package = require('../db/package/model');
 const PackageRepo = require('../db/package/repo');
 const PackageSearch = require('../db/package/search');
+const {serialize} = require('../db/package/serializer');
 const config = require('../utils/config');
 const packages = require('../utils/packages');
 const logger = require('../utils/logger');
@@ -38,16 +39,7 @@ async function apps(req, res) {
             count = await PackageRepo.count(filters);
         }
 
-        let formatted = [];
-        pkgs.forEach((pkg) => {
-            if (req.apiVersion == 3) {
-                formatted.push(packages.toSlimJson(pkg, req));
-            }
-            else {
-                formatted.push(packages.toJson(pkg, req));
-            }
-        });
-
+        let formatted = serialize(pkgs, true);
         let {next, previous} = apiLinks(req.originalUrl, formatted.length, req.query.limit, req.query.skip);
         return helpers.success(res, {count, next, previous, packages: formatted});
     }
@@ -70,7 +62,7 @@ router.get('/:id', async (req, res) => {
         let pkg = await PackageRepo.findOne(req.params.id, req.query);
 
         if (pkg) {
-            helpers.success(res, packages.toJson(pkg, req));
+            helpers.success(res, serialize(pkg));
         }
         else {
             helpers.error(res, APP_NOT_FOUND, 404);

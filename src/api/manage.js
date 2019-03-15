@@ -6,6 +6,7 @@ const express = require('express');
 const Package = require('../db/package/model');
 const PackageRepo = require('../db/package/repo');
 const PackageSearch = require('../db/package/search');
+const {serialize} = require('../db/package/serializer');
 const config = require('../utils/config');
 const packages = require('../utils/packages');
 const logger = require('../utils/logger');
@@ -121,7 +122,7 @@ router.get('/', authenticate, userRole, async (req, res) => {
         let pkgs = await PackageRepo.find(filters, filters.sort, filters.limit, filters.skip);
         let count = await PackageRepo.count(filters);
 
-        let formatted = pkgs.map((pkg) => packages.toJson(pkg, req));
+        let formatted = pkgs.map((pkg) => serialize(pkg));
         let {next, previous} = apiLinks(req.originalUrl, formatted.length, req.query.limit, req.query.skip);
         return helpers.success(res, {count, next, previous, packages: formatted});
     }
@@ -141,7 +142,7 @@ router.get('/:id', authenticate, userRole, async (req, res) => {
     try {
         let pkg = await PackageRepo.findOne(req.params.id, filters);
         if (pkg) {
-            return helpers.success(res, packages.toJson(pkg, req));
+            return helpers.success(res, serialize(pkg));
         }
         else {
             return helpers.error(res, APP_NOT_FOUND, 404);
@@ -198,7 +199,7 @@ router.post(
             pkg.maintainer_name = req.user.name ? req.user.name : req.user.username;
             pkg = await pkg.save();
 
-            return helpers.success(res, packages.toJson(pkg, req));
+            return helpers.success(res, serialize(pkg));
         }
         catch (err) {
             logger.error('Error parsing new package:', err);
@@ -251,7 +252,7 @@ router.put(
                 await PackageSearch.remove(pkg);
             }
 
-            return helpers.success(res, packages.toJson(pkg, req));
+            return helpers.success(res, serialize(pkg));
         }
         catch (err) {
             console.error(err);
@@ -392,7 +393,7 @@ router.post(
                 await PackageSearch.upsert(pkg);
             }
 
-            return helpers.success(res, packages.toJson(pkg, req));
+            return helpers.success(res, serialize(pkg));
         }
         catch (err) {
             let message = err.message ? err.message : err;
