@@ -1,257 +1,10 @@
 const fs = require('fs');
-const sanitizeHtml = require('sanitize-html');
 const moment = require('moment');
 const path = require('path');
 
 const Package = require('../db/package/model');
 const User = require('../db/user/model');
 const config = require('./config');
-
-function sanitize(html) {
-    return sanitizeHtml(html, {
-        allowedTags: [],
-        allowedAttributes: [],
-    }).replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/\r/g, '');
-}
-
-// TODO clean up arguments
-// TODO simplify and clean up
-function updateInfo(pkg, data, body, file, url, updateRevision, channel, version, downloadSha512) {
-    updateRevision = (updateRevision === undefined) ? false : updateRevision;
-    channel = channel || Package.XENIAL;
-
-    let maintainer = body ? body.maintainer : pkg.maintainer;
-    return User.findOne({_id: maintainer}).then((user) => {
-        if (user) {
-            pkg.maintainer_name = user.name ? user.name : user.username;
-        }
-
-        if (data) {
-            let manifest = {
-                architecture: data.architecture,
-                changelog: data.changelog,
-                description: data.description,
-                framework: data.framework,
-                hooks: {},
-                maintainer: data.maintainer,
-                name: data.name,
-                title: data.title,
-                version: data.version,
-            };
-
-            data.apps.forEach((app) => {
-                let hook = {};
-
-                if (Object.keys(app.apparmor).length > 0) {
-                    hook.apparmor = app.apparmor;
-                }
-
-                if (Object.keys(app.desktop).length > 0) {
-                    hook.desktop = app.desktop;
-                }
-
-                if (Object.keys(app.contentHub).length > 0) {
-                    hook['content-hub'] = app.contentHub;
-                }
-
-                if (Object.keys(app.urlDispatcher).length > 0) {
-                    hook.urls = app.urlDispatcher;
-                }
-
-                if (Object.keys(app.accountService).length > 0) {
-                    hook['account-application'] = app.accountService;
-                }
-
-                if (Object.keys(app.accountApplication).length > 0) {
-                    hook['account-service'] = app.accountApplication;
-                }
-
-                if (Object.keys(app.pushHelper).length > 0) {
-                    hook['push-helper'] = app.pushHelper;
-                }
-
-                if (Object.keys(app.webappProperties).length > 0) {
-                    hook['webapp-properties'] = app.webappProperties;
-                }
-
-                if (Object.keys(app.scopeIni).length > 0) {
-                    hook.scope = {};
-
-                    Object.keys(app.scopeIni).forEach((key) => {
-                        // Remove any ini properties with a `.` as mongo will reject them
-                        hook.scope[key.replace('.', '__')] = app.scopeIni[key];
-                    });
-                }
-
-                // Mongo will reject this if there are any `.`s
-                manifest.hooks[app.name.replace('.', '__')] = hook;
-            });
-
-            pkg.architecture = data.architecture;
-            pkg.architectures = data.architecture;
-            pkg.author = data.maintainer;
-            pkg.framework = data.framework;
-            pkg.id = data.name;
-            pkg.manifest = manifest;
-            pkg.types = data.types;
-            pkg.version = data.version;
-            pkg.languages = data.languages;
-
-            // Don't overwrite the these if they already exists
-            pkg.name = pkg.name ? pkg.name : data.title;
-            pkg.description = pkg.description ? pkg.description : data.description;
-            pkg.tagline = pkg.tagline ? pkg.tagline : data.description;
-        }
-
-        if (file && file.size) {
-            pkg.filesize = file.size;
-        }
-
-        if (body) {
-            if (body.name) {
-                pkg.name = body.name;
-            }
-
-            if (body.published !== undefined) {
-                pkg.published = (body.published == 'true' || body.published === true);
-            }
-
-            if (body.category || body.category === '') {
-                pkg.category = body.category;
-            }
-
-            if (body.changelog || body.changelog === '') {
-                pkg.changelog = body.changelog;
-            }
-
-            if (body.description || body.description === '') {
-                pkg.description = body.description;
-            }
-
-            if (body.license || body.license === '') {
-                pkg.license = body.license;
-            }
-
-            if (body.source || body.source === '') {
-                if (body.source.indexOf('https://') === 0 || body.source.indexOf('http://') === 0) {
-                    pkg.source = body.source;
-                }
-                else {
-                    pkg.source = '';
-                }
-            }
-
-            if ((body.support_url || body.support_url === '')) {
-                if (body.support_url.indexOf('https://') === 0 || body.support_url.indexOf('http://') === 0) {
-                    pkg.support_url = body.support_url;
-                }
-                else {
-                    pkg.support_url = '';
-                }
-            }
-
-            if (body.donate_url || body.donate_url === '') {
-                if (body.donate_url.indexOf('https://') === 0 || body.donate_url.indexOf('http://') === 0) {
-                    pkg.donate_url = body.donate_url;
-                }
-                else {
-                    pkg.donate_url = '';
-                }
-            }
-
-            if (body.video_url || body.video_url === '') {
-                // TODO support regular youtube urls and transform them into embedded urls
-                if (body.video_url.indexOf('https://www.youtube.com/embed/') === 0) {
-                    pkg.video_url = body.video_url;
-                }
-                else {
-                    pkg.video_url = '';
-                }
-            }
-
-            if (body.tagline || body.tagline === '') {
-                pkg.tagline = body.tagline;
-            }
-
-            let screenshots = [];
-            if (body.screenshots) {
-                if (Array.isArray(body.screenshots)) {
-                    screenshots = body.screenshots;
-                }
-                else {
-                    screenshots = JSON.parse(body.screenshots);
-                }
-            }
-
-            // Unlink the screenshot file if it gets removed
-            pkg.screenshots.forEach((screenshot) => {
-                let prefix = `${config.server.host}/api/screenshot/`;
-                if (screenshots.indexOf(screenshot) == -1 && screenshot.startsWith(prefix)) {
-                    let filename = screenshot.replace(prefix, '');
-                    fs.unlink(`${config.image_dir}/${filename}`);
-                }
-            });
-            pkg.screenshots = screenshots;
-
-            if (body.keywords) {
-                if (!Array.isArray(body.keywords)) {
-                    body.keywords = body.keywords.split(',');
-                }
-
-                pkg.keywords = body.keywords.map((keyword) => keyword.trim());
-            }
-            else {
-                pkg.keywords = [];
-            }
-
-            if (body.nsfw !== undefined) {
-                pkg.nsfw = body.nsfw;
-            }
-
-            pkg.description = pkg.description ? pkg.description : '';
-            pkg.changelog = pkg.changelog ? pkg.changelog : '';
-            pkg.tagline = pkg.tagline ? pkg.tagline : '';
-
-            pkg.description = sanitize(pkg.description);
-            pkg.changelog = sanitize(pkg.changelog);
-            pkg.tagline = sanitize(pkg.tagline);
-
-            if (body.maintainer !== undefined) {
-                pkg.maintainer = body.maintainer;
-            }
-        }
-        else {
-            pkg.description = pkg.description ? pkg.description : '';
-            pkg.changelog = pkg.changelog ? pkg.changelog : '';
-            pkg.tagline = pkg.tagline ? pkg.tagline : '';
-
-            pkg.description = sanitize(pkg.description);
-            pkg.changelog = sanitize(pkg.changelog);
-            pkg.tagline = sanitize(pkg.tagline);
-        }
-
-        if (updateRevision) {
-            pkg.revisions.push({
-                revision: pkg.next_revision,
-                version: version,
-                downloads: 0,
-                channel: channel,
-                download_url: url,
-                download_sha512: downloadSha512,
-            });
-
-            // Only update if we have a new version uploaded
-            pkg.updated_date = moment().toISOString();
-        }
-
-        if (!pkg.published_date && pkg.published) {
-            pkg.published_date = moment().toISOString();
-            pkg.updated_date = moment().toISOString();
-        }
-
-        return pkg;
-    });
-}
 
 function iconUrl(pkg) {
     let ext = pkg.icon ? path.extname(pkg.icon) : '.png';
@@ -270,6 +23,7 @@ function downloadUrl(pkg, channel) {
     return `${config.server.host}/api/v3/apps/${pkg.id}/download/${channel}`;
 }
 
+// TODO move to serializer and cleanup
 function toSlimJson(pkg) {
     let json = {};
     if (pkg) {
@@ -304,16 +58,14 @@ function toJson(pkg, req) {
 
     let json = {};
     if (pkg) {
-        let xenialRevisionData = null;
         let downloadSha512 = '';
         let version = '';
 
         if (pkg.revisions) {
-            let {revisionData: xrd} = pkg.getLatestRevision(Package.XENIAL);
-            xenialRevisionData = xrd;
-            if (xenialRevisionData && channel == Package.XENIAL) {
-                downloadSha512 = xenialRevisionData.download_sha512;
-                version = xenialRevisionData.version;
+            let {revisionData} = pkg.getLatestRevision(Package.XENIAL);
+            if (revisionData && channel == Package.XENIAL) {
+                downloadSha512 = revisionData.download_sha512;
+                version = revisionData.version;
             }
         }
 
@@ -363,23 +115,26 @@ function toJson(pkg, req) {
             version: version || '',
             revision: -1, // TODO depricate this
             languages: languages,
+            revisions: pkg.revisions ? pkg.revisions : [],
+            totalDownloads: 0,
         };
 
-        if (xenialRevisionData) {
-            json.downloads.push({
-                channel: Package.XENIAL,
-                download_url: downloadUrl(pkg, Package.XENIAL),
-                download_sha512: xenialRevisionData.download_sha512,
-                version: xenialRevisionData.version,
-                revision: xenialRevisionData.revision,
-            });
-        }
+        if (pkg.revisions) {
+            json.downloads = Package.CHANNELS.map((channel) => {
+                let {revisionData} = pkg.getLatestRevision(Package.XENIAL);
+                if (revisionData) {
+                    return {
+                        channel: channel,
+                        download_url: downloadUrl(pkg, channel),
+                        download_sha512: revisionData.download_sha512,
+                        version: revisionData.version,
+                        revision: revisionData.revision,
+                    };
+                }
 
-        /* eslint-disable no-underscore-dangle */
-        if (req.isAuthenticated() && req.user && (req.user._id == pkg.maintainer || req.user.role == 'admin') && pkg.revisions) {
-            json.revisions = pkg.revisions;
+                return null;
+            }).filter((revision) => !!revision);
 
-            json.totalDownloads = 0;
             pkg.revisions.forEach((revision) => {
                 json.totalDownloads += revision.downloads;
             });
@@ -389,6 +144,7 @@ function toJson(pkg, req) {
     return json;
 }
 
+// TODO move and clean up
 function parseFiltersFromRequest(req) {
     let types = [];
     if (req.query.types && Array.isArray(req.query.types)) {
@@ -511,9 +267,7 @@ function parseFiltersFromRequest(req) {
     };
 }
 
-exports.updateInfo = updateInfo;
 exports.toSlimJson = toSlimJson;
 exports.toJson = toJson;
 exports.parseFiltersFromRequest = parseFiltersFromRequest;
 exports.iconUrl = iconUrl;
-exports.sanitize = sanitize;

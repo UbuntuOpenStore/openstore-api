@@ -1,6 +1,7 @@
 const request = require('request');
 const path = require('path');
 const mime = require('mime');
+const sanitizeHtml = require('sanitize-html');
 
 const fs = require('../utils/asyncFs');
 const logger = require('../utils/logger');
@@ -86,9 +87,17 @@ function getDataArray(req, name) {
     return [];
 }
 
+function sanitize(html) {
+    return sanitizeHtml(html, {
+        allowedTags: [],
+        allowedAttributes: [],
+    }).replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/\r/g, '');
+}
+
 exports.success = success;
 exports.error = error;
 exports.download = download;
 exports.checkDownload = checkDownload;
 exports.getData = getData;
 exports.getDataArray = getDataArray;
+exports.sanitize = sanitize;

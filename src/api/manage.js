@@ -236,7 +236,7 @@ router.put(
                 return helpers.error(res, NO_REVISIONS, 400);
             }
 
-            pkg = await packages.updateInfo(pkg, null, req.body, null, null, false);
+            await pkg.updateFromBody(req.body);
 
             if (req.files && req.files.screenshot_files && req.files.screenshot_files.length > 0) {
                 pkg = updateScreenshotFiles(pkg, req.files.screenshot_files);
@@ -317,8 +317,8 @@ router.post(
                 return helpers.error(res, APP_NOT_FOUND, 404);
             }
 
-            let {revisionData} = pkg.getLatestRevision(Package.XENIAL);
-            let previousRevision = revisionData ? revisionData.revision : -1;
+            let {revisionData: previousRevisionData} = pkg.getLatestRevision(Package.XENIAL);
+            let previousRevision = previousRevisionData ? previousRevisionData.revision : -1;
 
             if (!req.isAdminUser && req.user._id != pkg.maintainer) {
                 return helpers.error(res, PERMISSION_DENIED, 400);
@@ -354,44 +354,36 @@ router.post(
             // Only update the data from the parsed click if it's for XENIAL or if it's the first one
             let data = (channel == Package.XENIAL || pkg.revisions.length === 0) ? parseData : null;
             let downloadSha512 = await checksum(filePath);
-            pkg = await packages.updateInfo(pkg, data, null, req.files.file[0], null, true, channel, parseData.version, downloadSha512);
+
+            if (data) {
+                pkg.updateFromClick(data, req.files.file[0]);
+            }
 
             let updateIcon = (channel == Package.XENIAL || !pkg.icon);
-            let icon = updateIcon ? parseData.icon : null;
-
             let [packageUrl, iconUrl] = await upload.uploadPackage(
                 pkg,
                 filePath,
-                icon,
+                updateIcon ? parseData.icon : null,
                 channel,
                 parseData.version,
             );
 
-            let {revisionData: latestRevisionData} = pkg.getLatestRevision(Package.XENIAL);
+            pkg.newRevision(parseData.version, channel, packageUrl, downloadSha512);
 
             if (updateIcon) {
                 pkg.icon = iconUrl;
             }
 
             if (req.body.changelog) {
-                pkg.changelog = packages.sanitize(`${req.body.changelog.trim()}\n\n${pkg.changelog}`);
+                pkg.changelog = helpers.sanitize(`${req.body.changelog.trim()}\n\n${pkg.changelog}`);
             }
 
             if (!pkg.channels.includes(channel)) {
                 pkg.channels.push(channel);
             }
 
-            for (let i = 0; i < pkg.revisions.length; i++) {
-                let revisionData = pkg.revisions[i];
-                if (revisionData.channel == channel) {
-                    if (revisionData.revision == latestRevisionData.revision) {
-                        revisionData.download_url = packageUrl;
-                    }
-
-                    if (revisionData.revision == previousRevision) {
-                        await upload.removeFile(revisionData.download_url);
-                    }
-                }
+            if (previousRevisionData) {
+                await upload.removeFile(previousRevisionData.download_url);
             }
 
             pkg = await pkg.save();
