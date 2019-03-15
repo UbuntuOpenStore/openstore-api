@@ -7,7 +7,6 @@ const PackageRepo = require('../db/package/repo');
 const PackageSearch = require('../db/package/search');
 const {serialize} = require('../db/package/serializer');
 const config = require('../utils/config');
-const packages = require('../utils/packages');
 const logger = require('../utils/logger');
 const helpers = require('../utils/helpers');
 const apiLinks = require('../utils/apiLinks');
@@ -22,7 +21,7 @@ const APP_NOT_FOUND = 'App not found';
 const DOWNLOAD_NOT_FOUND_FOR_CHANNEL = 'Download not available for this channel';
 
 async function apps(req, res) {
-    let filters = packages.parseFiltersFromRequest(req);
+    let filters = PackageRepo.parseRequestFilters(req);
     let count = 0;
     let pkgs = [];
 

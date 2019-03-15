@@ -8,7 +8,6 @@ const PackageRepo = require('../db/package/repo');
 const PackageSearch = require('../db/package/search');
 const {serialize} = require('../db/package/serializer');
 const config = require('../utils/config');
-const packages = require('../utils/packages');
 const logger = require('../utils/logger');
 const helpers = require('../utils/helpers');
 const apiLinks = require('../utils/apiLinks');
@@ -112,7 +111,7 @@ function updateScreenshotFiles(pkg, screenshotFiles) {
 // TODO unittest all these routes
 
 router.get('/', authenticate, userRole, async (req, res) => {
-    let filters = packages.parseFiltersFromRequest(req); // TODO refactor this
+    let filters = PackageRepo.parseRequestFilters(req); // TODO refactor this
     if (!req.isAdminUser) {
         /* eslint-disable no-underscore-dangle */
         filters.maintainer = req.user._id;

@@ -52,7 +52,7 @@ const packageSchema = mongoose.Schema({
             revision: Number,
             version: String, // Unique among revisions
             downloads: Number,
-            channel: String, // vivid, xenial
+            channel: String,
             download_url: String,
             download_sha512: String,
         }

@@ -67,13 +67,13 @@ async function checkDownload(url, filename, headers, res) {
 
 function getData(req, name) {
     if (req.query && req.query[name]) {
-        return req.query[name].trim().toLowerCase();
+        return req.query[name].trim();
     }
     else if (req.body && req.body[name]) {
-        return req.body[name].trim().toLowerCase();
+        return req.body[name].trim();
     }
 
-    return null;
+    return '';
 }
 
 function getDataArray(req, name) {

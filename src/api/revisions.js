@@ -11,9 +11,9 @@ async function revisionsByVersion(req, res) {
     let versions = helpers.getDataArray(req, 'apps');
     let ids = versions.map((version) => version.split('@')[0]);
 
-    let defaultChannel = helpers.getData(req, 'channel');
+    let defaultChannel = helpers.getData(req, 'channel').toLowerCase();
     let frameworks = helpers.getDataArray(req, 'frameworks');
-    let architecture = helpers.getData(req, 'architecture');
+    let architecture = helpers.getData(req, 'architecture').toLowerCase();
 
     if (!Package.CHANNELS.includes(defaultChannel)) {
         defaultChannel = Package.XENIAL;
