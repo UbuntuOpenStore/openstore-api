@@ -4,25 +4,25 @@ const PackageRepo = {
     parseFilters({types, ids, frameworks, architectures, category, author, channel, search, nsfw, maintainer, published}) {
         let query = {};
 
-        if (types.length > 0) {
+        if (types && types.length > 0) {
             query.types = {
                 $in: types,
             };
         }
 
-        if (ids.length > 0) {
+        if (ids && ids.length > 0) {
             query.id = {
                 $in: ids,
             };
         }
 
-        if (frameworks.length > 0) {
+        if (frameworks && frameworks.length > 0) {
             query.framework = {
                 $in: frameworks,
             };
         }
 
-        if (architectures.length > 0) {
+        if (architectures && architectures.length > 0) {
             query.architectures = {
                 $in: architectures,
             };

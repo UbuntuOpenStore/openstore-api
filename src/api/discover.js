@@ -3,6 +3,7 @@ const moment = require('moment');
 const express = require('express');
 
 const Package = require('../db/package/model');
+const PackageRepo = require('../db/package/repo');
 const config = require('../utils/config');
 const discoverJSON = require('./json/discover_apps.json');
 const helpers = require('../utils/helpers');
@@ -15,9 +16,11 @@ discoverJSON.highlight.image = config.server.host + discoverJSON.highlight.image
 let discoverCache = {};
 let discoverDate = {};
 
+const NEW_AND_UPDATED = 'New and Updated Apps';
+
 // TODO return slim version of the pkg json
-router.get('/', (req, res) => {
-    let channel = req.query.channel ? req.query.channel.toLowerCase() : Package.VIVID;
+router.get('/', async (req, res) => {
+    let channel = req.query.channel ? req.query.channel.toLowerCase() : Package.XENIAL;
     if (!Package.CHANNELS.includes(channel)) {
         channel = Package.XENIAL;
     }
@@ -25,49 +28,49 @@ router.get('/', (req, res) => {
     let now = moment();
     if (!discoverDate[channel] || now.diff(discoverDate[channel], 'minutes') > 10 || !discoverCache[channel]) { // Cache miss
         let discover = JSON.parse(JSON.stringify(discoverJSON));
-        let staticCategories = discover.categories.filter((category) => (category.ids.length > 0));
+        let discoverCategories = discover.categories.filter((category) => (category.ids.length > 0));
 
-        Promise.all([
-            Package.findOne({id: discover.highlight.id}),
+        try {
+            let [highlight, discoverCategoriesApps, newApps, updatedApps] = await Promise.all([
+                PackageRepo.findOne(discover.highlight.id, {}),
 
-            Promise.all(staticCategories.map((category) => Package.find({id: {$in: category.ids}, channels: channel}))),
+                Promise.all(discoverCategories.map((category) => PackageRepo.find({ids: category.ids, channel: channel, published: true}))),
 
-            Package.find({
-                published: true,
-                channels: channel,
-                nsfw: {$in: [null, false]},
-            }).limit(8).sort('-published_date'),
+                PackageRepo.find({
+                    published: true,
+                    channel: channel,
+                    nsfw: [null, false],
+                }, '-published_date', 8),
 
-            Package.find({
-                published: true,
-                channels: channel,
-                nsfw: {$in: [null, false]},
-            }).limit(8).sort('-updated_date'),
-        ]).then(([highlight, staticCategoriesApps, newApps, updatedApps]) => {
+                PackageRepo.find({
+                    published: true,
+                    channel: channel,
+                    nsfw: [null, false],
+                }, '-updated_date', 8),
+            ]);
+
             discover.highlight.app = packages.toJson(highlight, req);
 
-            staticCategories.forEach((category, index) => {
-                let apps = staticCategoriesApps[index].map((app) => packages.toJson(app, req));
+            discoverCategories.forEach((category, index) => {
+                let apps = discoverCategoriesApps[index].map((app) => packages.toJson(app, req));
 
                 category.ids = shuffle(category.ids);
                 category.apps = shuffle(apps);
             });
 
-            let newAndUpdatedCategory = discover.categories.filter((category) => (category.name == 'New and Updated Apps'))[0];
+            let newAndUpdatedCategory = discover.categories.find((category) => (category.name == NEW_AND_UPDATED));
 
             // Get the first 10 unique app ids (unique ids)
             let ids = newApps.map((app) => app.id)
                 .concat(updatedApps.map((app) => app.id))
-            ids = ids.filter((item, pos) => ids.indexOf(item) == pos);
 
-            newAndUpdatedCategory.ids = ids.slice(0, 10);
+            newAndUpdatedCategory.ids = ids.filter((item, pos) => ids.indexOf(item) == pos)
+                .slice(0, 10);
 
             let newAndUpdatedApps = newApps.concat(updatedApps);
             /* eslint-disable  arrow-body-style */
             newAndUpdatedCategory.apps = newAndUpdatedCategory.ids.map((id) => {
-                return newAndUpdatedApps.filter((app) => {
-                    return (app.id == id);
-                })[0];
+                return newAndUpdatedApps.find((app) => (app.id == id));
             });
             newAndUpdatedCategory.apps = newAndUpdatedCategory.apps.map((app) => packages.toJson(app, req));
 
@@ -75,19 +78,18 @@ router.get('/', (req, res) => {
 
             /* eslint-disable  arrow-body-style */
             discover.categories.forEach((category) => {
-                category.ids = category.apps.map((app) => {
-                    return app.id;
-                });
+                category.ids = category.apps.map((app) => app.id);
             });
 
             discoverCache[channel] = discover;
             discoverDate[channel] = now;
 
             helpers.success(res, discover);
-        }).catch((err) => {
+        }
+        catch (err) {
             console.log(err);
             helpers.error(res, 'Unable to fetch discovery data at this time');
-        });
+        }
     }
     else { // Cache hit
         helpers.success(res, discoverCache[channel]);
