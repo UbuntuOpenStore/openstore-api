@@ -48,38 +48,6 @@ function download(url, filename) {
     });
 }
 
-// TODO move to the middleware file
-function downloadFileMiddleware(req, res, next) {
-    if (!req.file && req.body && req.body.downloadUrl) {
-        let filename = path.basename(req.body.downloadUrl);
-
-        // Strip extra hashes & params
-        if (filename.indexOf('?') >= 0) {
-            filename = filename.substring(0, filename.indexOf('?'));
-        }
-
-        if (filename.indexOf('#') >= 0) {
-            filename = filename.substring(0, filename.indexOf('#'));
-        }
-
-        download(req.body.downloadUrl, `${config.data_dir}/${filename}`).then((tmpfile) => {
-            req.files = {
-                file: [{
-                    originalname: filename,
-                    path: tmpfile,
-                    size: fs.statSync(tmpfile).size,
-                }],
-            };
-            next();
-        }).catch(() => {
-            error(res, 'Failed to download remote file', 400);
-        });
-    }
-    else {
-        next();
-    }
-}
-
 async function checkDownload(url, filename, headers, res) {
     if (!fs.existsSync(filename)) {
         filename = await download(url, filename);
@@ -121,7 +89,6 @@ function getDataArray(req, name) {
 exports.success = success;
 exports.error = error;
 exports.download = download;
-exports.downloadFileMiddleware = downloadFileMiddleware;
 exports.checkDownload = checkDownload;
 exports.getData = getData;
 exports.getDataArray = getDataArray;

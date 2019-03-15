@@ -19,9 +19,9 @@ const rss = require('./rss');
 const db = require('../db');
 const Package = require('../db/package/model');
 const PackageRepo = require('../db/package/repo');
-const opengraph = require('../utils/opengraph');
 const logger = require('../utils/logger');
 const helpers = require('../utils/helpers');
+const {opengraph} = require('../middleware');
 const fs = require('../utils/asyncFs');
 
 const APP_NOT_FOUND = 'App not found';
@@ -115,42 +115,6 @@ function setup() {
         res.redirect(302, `${config.server.host}/about`);
     });
 
-    app.get('/app/:name', async (req, res) => {
-        /*
-        For populating opengraph data, etc for bots that don't
-        execute javascript (like twitter cards)
-        */
-
-        if (opengraph.match(req)) {
-            try {
-                let pkg = await PackageRepo.findOne(req.params.name);
-
-                if (!pkg) {
-                    res.status(404);
-                    return res.send();
-                }
-
-                let data = await fs.readFileAsync(path.join(config.server.static_root, 'index.html'), {encoding: 'utf8'});
-
-                res.header('Content-Type', 'text/html');
-                res.status(200);
-                res.send(opengraph.replace(data, {
-                    title: pkg.name,
-                    url: `${config.server.host}/app/${pkg.id}`,
-                    image: pkg.icon,
-                    description: pkg.tagline ? pkg.tagline : '',
-                }));
-            }
-            catch (err) {
-                res.status(500);
-                res.send();
-            }
-        }
-        else {
-            res.sendFile('index.html', {root: config.server.static_root});
-        }
-    });
-
     app.all([
         '/',
         '/submit',
@@ -163,7 +127,7 @@ function setup() {
         '/stats',
         '/about',
         '/feeds',
-    ], (req, res) => {
+    ], opengraph, (req, res) => {
         // For html5mode on frontend
         res.sendFile('index.html', {root: config.server.static_root});
     });

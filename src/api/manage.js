@@ -15,7 +15,7 @@ const upload = require('../utils/upload');
 const clickParse = require('../utils/click-parser-async');
 const checksum = require('../utils/checksum');
 const reviewPackage = require('../utils/review-package');
-const {authenticate, userRole} = require('../utils/middleware');
+const {authenticate, userRole, downloadFile} = require('../utils/middleware');
 const fs = require('../utils/asyncFs');
 
 const mupload = multer({dest: '/tmp'});
@@ -157,7 +157,7 @@ router.post(
     '/',
     authenticate,
     userRole,
-    helpers.downloadFileMiddleware,
+    downloadFile,
     async (req, res) => {
         let name = req.body.name.trim();
         let id = req.body.id.toLowerCase().trim();
@@ -300,7 +300,7 @@ router.post(
     authenticate,
     postUpload,
     userRole,
-    helpers.downloadFileMiddleware,
+    downloadFile,
     async (req, res) => {
         if (!req.files || !req.files.file || !req.files.file.length == 1) {
             return helpers.error(res, NO_FILE, 400);
