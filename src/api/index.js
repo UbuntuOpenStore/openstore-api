@@ -12,13 +12,13 @@ const apps = require('./apps');
 const manage = require('./manage');
 const categories = require('./categories');
 const discover = require('./discover');
-const updates = require('./updates');
 const revisions = require('./revisions');
 const auth = require('./auth');
 const users = require('./users');
 const rss = require('./rss');
 const db = require('../db');
 const Package = require('../db/package/model');
+const PackageRepo = require('../db/package/repo');
 const opengraph = require('../utils/opengraph');
 const logger = require('../utils/logger');
 const helpers = require('../utils/helpers');
@@ -41,11 +41,7 @@ function setup() {
         if (process.env.NODE_ENV == 'production') {
             // Redirect to the main domain
             let host = config.server.host.replace('https://', '').replace('http://', '');
-            // TODO make the old open.uappexplorer.com a redirect rather than just accepting it
-            let secondaryHost = config.server.secondary_host.replace('https://', '').replace('http://', '');
-
-            if (req.headers.host != host && req.headers.host != secondaryHost) {
-                console.log('redirect');
+            if (req.headers.host != host) {
                 res.redirect(301, config.server.host + req.originalUrl);
             }
             else {
@@ -58,11 +54,8 @@ function setup() {
     });
 
     app.use((req, res, next) => {
-        req.apiVersion = 1;
-        if (req.originalUrl.startsWith('/api/v2')) {
-            req.apiVersion = 2;
-        }
-        else if (req.originalUrl.startsWith('/api/v3')) {
+        req.apiVersion = 2;
+        if (req.originalUrl.startsWith('/api/v3')) {
             req.apiVersion = 3;
         }
 
@@ -80,12 +73,6 @@ function setup() {
     }));
     app.use(passport.initialize());
     app.use(passport.session());
-
-    app.use('/api/v2/apps/updates', updates);
-    app.use('/api/v2/apps/revision', revisions);
-    app.use('/api/v2/manage/apps', manage);
-    app.use('/api/v2/apps', apps.main);
-    app.use('/api/v2/categories', categories);
 
     // TODO remove this
     app.use('/api/screenshot', apps.screenshot);
@@ -136,10 +123,11 @@ function setup() {
 
         if (opengraph.match(req)) {
             try {
-                let pkg = await Package.findOne({id: req.params.name}).exec();
+                let pkg = await PackageRepo.findOne({id: req.params.name}, {});
 
                 if (!pkg) {
-                    throw APP_NOT_FOUND;
+                    res.status(404);
+                    return res.send();
                 }
 
                 let data = await fs.readFileAsync(path.join(config.server.static_root, 'index.html'), {encoding: 'utf8'});
@@ -154,14 +142,8 @@ function setup() {
                 }));
             }
             catch (err) {
-                if (err == APP_NOT_FOUND) {
-                    res.status(404);
-                    res.send();
-                }
-                else {
-                    res.status(500);
-                    res.send();
-                }
+                res.status(500);
+                res.send();
             }
         }
         else {
