@@ -3,8 +3,8 @@ const sanitizeHtml = require('sanitize-html');
 const moment = require('moment');
 const path = require('path');
 
-const db = require('../db');
 const Package = require('../db/package/model');
+const User = require('../db/user/model');
 const config = require('./config');
 
 function sanitize(html) {
@@ -21,7 +21,7 @@ function updateInfo(pkg, data, body, file, url, updateRevision, channel, version
     channel = channel || Package.XENIAL;
 
     let maintainer = body ? body.maintainer : pkg.maintainer;
-    return db.User.findOne({_id: maintainer}).then((user) => {
+    return User.findOne({_id: maintainer}).then((user) => {
         if (user) {
             pkg.maintainer_name = user.name ? user.name : user.username;
         }
@@ -257,12 +257,12 @@ function iconUrl(pkg) {
     let ext = pkg.icon ? path.extname(pkg.icon) : '.png';
     let version = '';
     if (pkg.revisions) {
-        let xenialRevisionData = pkg.xenial_revision_data;
+        let {revisionData: xenialRevisionData} = pkg.getLatestRevision(Package.XENIAL);
         if (xenialRevisionData) {
             version = xenialRevisionData.version;
         }
         else {
-            let vividRevisionData = pkg.vivid_revision_data;
+            let {revisionData: vividRevisionData} = pkg.getLatestRevision(Package.VIVID);
             if (vividRevisionData) {
                 version = vividRevisionData.version;
             }
@@ -316,13 +316,15 @@ function toJson(pkg, req) {
         let version = '';
 
         if (pkg.revisions) {
-            xenialRevisionData = pkg.xenial_revision_data;
+            let {revisionData: xrd} = pkg.getLatestRevision(Package.XENIAL);
+            xenialRevisionData = xrd;
             if (xenialRevisionData && channel == Package.XENIAL) {
                 downloadSha512 = xenialRevisionData.download_sha512;
                 version = xenialRevisionData.version;
             }
 
-            vividRevisionData = pkg.vivid_revision_data;
+            let {revisionData: vrd} = pkg.getLatestRevision(Package.VIVID);
+            vividRevisionData = vrd;
             if (vividRevisionData && channel == Package.VIVID) {
                 downloadSha512 = vividRevisionData.download_sha512;
                 version = vividRevisionData.version;
@@ -381,8 +383,8 @@ function toJson(pkg, req) {
             types: pkg.types ? pkg.types : [],
             updated_date: pkg.published_date ? pkg.updated_date : '',
             version: version || '',
-            revision: pkg.vivid_revision, // TODO depricate this
-            xenial_revision: pkg.xenial_revision, // TODO depricate this
+            revision: vividRevisionData ? vividRevisionData.revision : 0, // TODO depricate this
+            xenial_revision: xenialRevisionData ? xenialRevisionData.revision : 0, // TODO depricate this
             languages: languages,
         };
 

@@ -324,7 +324,8 @@ router.post(
                 return helpers.error(res, APP_NOT_FOUND, 404);
             }
 
-            let previousRevision = pkg.xenial_revision;
+            let {revisionData} = pkg.getLatestRevision(Package.XENIAL);
+            let previousRevision = revisionData ? revisionData.revision : -1;
 
             if (!helpers.isAdminUser(req) && req.user._id != pkg.maintainer) {
                 return helpers.error(res, PERMISSION_DENIED, 400);
@@ -377,7 +378,8 @@ router.post(
                 parseData.version,
             );
 
-            let revision = pkg.xenial_revision;
+            let {revisionData: latestRevisionData} = pkg.getLatestRevision(Package.XENIAL);
+
             if (updateIcon) {
                 pkg.icon = iconUrl;
             }
@@ -393,7 +395,7 @@ router.post(
             for (let i = 0; i < pkg.revisions.length; i++) {
                 let revisionData = pkg.revisions[i];
                 if (revisionData.channel == channel) {
-                    if (revisionData.revision == revision) {
+                    if (revisionData.revision == latestRevisionData.revision) {
                         revisionData.download_url = packageUrl;
                     }
 

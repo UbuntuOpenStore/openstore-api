@@ -2,8 +2,9 @@
 
 'use strict';
 
-const db = require('../db');
-db.User.findOne({}).then((user) => {
+const User = require('../db/user/model');
+
+User.findOne({}).then((user) => {
     user.role = 'admin';
     return user.save();
 }).then((user) => {

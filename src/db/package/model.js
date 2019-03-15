@@ -73,24 +73,6 @@ function getRevision(pkg, channel) {
     return data;
 }
 
-packageSchema.virtual('vivid_revision').get(function() {
-    let data = getRevision(this, 'vivid');
-    return data ? data.revision : -1;
-});
-
-packageSchema.virtual('vivid_revision_data').get(function() {
-    return getRevision(this, 'vivid');
-});
-
-packageSchema.virtual('xenial_revision').get(function() {
-    let data = getRevision(this, 'xenial');
-    return data ? data.revision : -1;
-});
-
-packageSchema.virtual('xenial_revision_data').get(function() {
-    return getRevision(this, 'xenial');
-});
-
 packageSchema.virtual('next_revision').get(function() {
     let revision = 0;
     let revisions = this.revisions.map((data) => data.revision);

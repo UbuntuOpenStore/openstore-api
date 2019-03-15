@@ -33,7 +33,8 @@ function updates(req, res) {
                     value[pkg.id] = pkg.version;
                 }
                 else {
-                    value[pkg.id] = (channel == Package.XENIAL) ? pkg.xenial_revision : pkg.vivid_revision;
+                    let {revisionData} = pkg.getLatestRevision(channel);
+                    value[pkg.id] = revisionData.revision;
                 }
 
                 return value;

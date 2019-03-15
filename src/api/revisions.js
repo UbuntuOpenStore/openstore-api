@@ -57,12 +57,14 @@ function revisionsByVersion(req, res) {
                 let revisionData = pkg.revisions.filter((rev) => (rev.version == version && rev.channel == channel))[0];
                 let revision = revisionData ? revisionData.revision : 0;
 
+                let {revisionData: latestRevisionData} = pkg.getLatestRevision(channel);
+
                 return {
                     id: pkg.id,
                     version: version,
                     revision: revision,
                     latest_version: pkg.version,
-                    latest_revision: (channel == Package.XENIAL) ? pkg.xenial_revision : pkg.vivid_revision,
+                    latest_revision: latestRevisionData.revision,
                 };
             });
 
