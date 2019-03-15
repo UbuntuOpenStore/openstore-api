@@ -1,8 +1,8 @@
-const fs = require('fs');
 const request = require('request');
 const path = require('path');
-const URL = require('url').URL;
+const mime = require('mime');
 
+const fs = require('../utils/asyncFs');
 const logger = require('../utils/logger');
 const config = require('../utils/config');
 
@@ -143,29 +143,20 @@ function downloadFileMiddleware(req, res, next) {
     }
 }
 
-function nextPreviousLinks(req, count) {
-    let next = null;
-    let previous = null;
-    let limit = req.query.limit ? parseInt(req.query.limit, 10) : 0;
-    let skip = req.query.skip ? parseInt(req.query.skip, 10) : 0;
-
-    let url = new URL(config.server.host + req.originalUrl);
-    if (count == limit) {
-        let nextSkip = skip + limit;
-        url.searchParams.set('skip', nextSkip);
-        next = url.toString();
+async function checkDownload(url, filename, headers, res) {
+    if (!fs.existsSync(filename)) {
+        filename = await download(url, filename);
     }
 
-    if (skip > 0) {
-        let previousSkip = (skip - limit > 0) ? (skip - limit) : 0;
-        url.searchParams.set('skip', previousSkip);
-        previous = url.toString();
+    let stat = await fs.statAsync(filename);
+    res.setHeader('Content-Length', stat.size);
+    res.setHeader('Content-type', mime.lookup(filename));
+
+    for (let header of Object.keys(headers)) {
+        res.setHeader(header, headers[header])
     }
 
-    return {
-        next: next,
-        previous: previous,
-    };
+    fs.createReadStream(filename).pipe(res);
 }
 
 exports.success = success;
@@ -178,4 +169,4 @@ exports.isAdminUser = isAdminUser;
 exports.isAdminOrTrustedUser = isAdminOrTrustedUser;
 exports.download = download;
 exports.downloadFileMiddleware = downloadFileMiddleware;
-exports.nextPreviousLinks = nextPreviousLinks;
+exports.checkDownload = checkDownload;

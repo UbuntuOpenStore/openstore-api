@@ -11,6 +11,7 @@ const config = require('../utils/config');
 const packages = require('../utils/packages');
 const logger = require('../utils/logger');
 const helpers = require('../utils/helpers');
+const apiLinks = require('../utils/apiLinks');
 const upload = require('../utils/upload');
 const clickParse = require('../utils/click-parser-async');
 const checksum = require('../utils/checksum');
@@ -127,14 +128,8 @@ router.get('/', passport.authenticate('localapikey', {session: false}), async (r
             helpers.success(res, formatted);
         }
         else {
-            let links = helpers.nextPreviousLinks(req, formatted.length);
-
-            helpers.success(res, {
-                count: count,
-                packages: formatted,
-                next: links.next,
-                previous: links.previous,
-            });
+            let {next, previous} = apiLinks(req.originalUrl, formatted.length, req.query.limit, req.query.skip);
+            helpers.success(res, {count, next, previous, packages: formatted});
         }
     }
     catch (err) {

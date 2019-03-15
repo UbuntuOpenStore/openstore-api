@@ -98,6 +98,86 @@ const PackageRepo = {
 
         return findQuery.exec();
     },
+
+    findOne(id, {frameworks, architecture}) {
+        let query = {
+            published: true,
+            id: id,
+        };
+
+        if (frameworks) {
+            query.framework = {$in: frameworks.split(',')};
+        }
+
+        if (architecture) {
+            let architectures = [architecture];
+            if (req.query.architecture != 'all') {
+                architectures.push('all');
+            }
+
+            query.$or = [
+                {architecture: {$in: architectures}},
+                {architectures: {$in: architectures}},
+            ];
+        }
+
+        return Package.findOne(query);
+    },
+
+    incrementDownload(id, revisionIndex) {
+        let inc = {};
+        inc[`revisions.${revisionIndex}.downloads`] = 1;
+
+        return Package.update({_id: id}, {$inc: inc});
+    },
+
+    async stats() {
+        let [categoryStats, typeStats] = await Promise.all([
+            Package.aggregate([
+                {
+                    $match: {published: true},
+                }, {
+                    $group: {
+                        _id: '$category',
+                        count: {$sum: 1},
+                    },
+                }, {
+                    $sort: {_id: 1},
+                },
+            ]),
+            Package.aggregate([
+                {
+                    $match: {published: true},
+                }, {
+                    $group: {
+                        _id: '$types',
+                        count: {$sum: 1},
+                    },
+                }, {
+                    $sort: {_id: 1},
+                },
+            ]),
+        ]);
+
+        let categories = {};
+        categoryStats.forEach((category) => {
+            categories[category._id] = category.count;
+        });
+
+        let types = {};
+        typeStats.forEach((type) => {
+            type._id.forEach((t) => {
+                if (types[t]) {
+                    types[t] += type.count;
+                }
+                else {
+                    types[t] = type.count;
+                }
+            });
+        });
+
+        return {categories, types};
+    },
 };
 
 

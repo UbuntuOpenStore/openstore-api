@@ -120,6 +120,20 @@ packageSchema.index(
     },
 );
 
+packageSchema.methods.getLatestRevision = function(channel) {
+    let revisionData = null;
+    let revisionIndex = -1;
+    this.revisions.filter((data) => (data.channel == channel))
+        .forEach((data, index) => {
+            if (!revisionData || revisionData.revision < data.revision) {
+                revisionData = data;
+                revisionIndex = index;
+            }
+        });
+
+    return { revisionData, revisionIndex };
+};
+
 const Package = mongoose.model('Package', packageSchema);
 
 Package.XENIAL = 'xenial';
