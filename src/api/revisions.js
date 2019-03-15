@@ -1,50 +1,26 @@
 const express = require('express');
 
 const Package = require('../db/package/model');
+const PackageRepo = require('../db/package/repo');
 const helpers = require('../utils/helpers');
 const logger = require('../utils/logger');
 
 const router = express.Router();
 
-function revisionsByVersion(req, res) {
-    let versions = [];
-    if (req.query.apps) {
-        versions = req.query.apps.split(',');
-    }
-    else if (req.body && req.body.apps) {
-        versions = req.body.apps;
-    }
+async function revisionsByVersion(req, res) {
+    let versions = helpers.getDataArray(req, 'apps');
+    let ids = versions.map((version) => version.split('@')[0]);
 
-    let defaultChannel = Package.VIVID;
-    if (req.query.channel) {
-        defaultChannel = req.query.channel.toLowerCase();
-    }
-    else if (req.body && req.body.channel) {
-        defaultChannel = req.body.channel.toLowerCase();
-    }
+    let defaultChannel = helpers.getData(req, 'channel');
+    let frameworks = helpers.getDataArray(req, 'frameworks');
+    let architecture = helpers.getData(req, 'architecture');
 
     if (!Package.CHANNELS.includes(defaultChannel)) {
         defaultChannel = Package.XENIAL;
     }
 
-    let frameworks = [];
-    if (req.query.frameworks) {
-        frameworks = req.query.frameworks.split(',');
-    }
-    else if (req.body && req.body.frameworks) {
-        frameworks = req.body.frameworks;
-    }
-
-    let architecture = null;
-    if (req.query.architecture) {
-        architecture = req.query.architecture.trim().toLowerCase();
-    }
-    else if (req.body && req.body.architecture) {
-        architecture = req.body.architecture.trim().toLowerCase();
-    }
-
-    let ids = versions.map((version) => version.split('@')[0]);
-    Package.find({published: true, id: {$in: ids}}).then((pkgs) => {
+    try {
+        let pkgs = await PackageRepo.find({published: true, ids: ids});
         pkgs = pkgs.filter((pkg) => (frameworks.length === 0 || frameworks.includes(pkg.framework)))
             .filter((pkg) => (!architecture || pkg.architectures.includes(architecture) || pkg.architectures.includes('all')))
             .map((pkg) => {
@@ -69,10 +45,12 @@ function revisionsByVersion(req, res) {
             });
 
         helpers.success(res, pkgs);
-    }).catch((err) => {
+    }
+    catch (err) {
         logger.error('Error finding packages for revision:', err);
+        console.error(err);
         helpers.error(res, 'Could not fetch app revisions at this time');
-    });
+    }
 }
 
 router.get('/', revisionsByVersion);

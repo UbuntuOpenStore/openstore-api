@@ -159,6 +159,28 @@ async function checkDownload(url, filename, headers, res) {
     fs.createReadStream(filename).pipe(res);
 }
 
+function getData(req, name) {
+    if (req.query && req.query[name]) {
+        return req.query[name].trim().toLowerCase();
+    }
+    else if (req.body && req.body[name]) {
+        return req.body[name].trim().toLowerCase();
+    }
+
+    return null;
+}
+
+function getDataArray(req, name) {
+    if (req.query && req.query[name]) {
+        return req.query[name].split(',');
+    }
+    else if (req.body && req.body[name]) {
+        return req.body[name];
+    }
+
+    return [];
+}
+
 exports.success = success;
 exports.error = error;
 exports.isNotDisabled = isNotDisabled;
@@ -170,3 +192,5 @@ exports.isAdminOrTrustedUser = isAdminOrTrustedUser;
 exports.download = download;
 exports.downloadFileMiddleware = downloadFileMiddleware;
 exports.checkDownload = checkDownload;
+exports.getData = getData;
+exports.getDataArray = getDataArray;
