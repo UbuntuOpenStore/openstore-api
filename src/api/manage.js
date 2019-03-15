@@ -1,4 +1,3 @@
-const passport = require('passport');
 const multer = require('multer');
 const path = require('path');
 const uuid = require('node-uuid');
@@ -16,6 +15,7 @@ const upload = require('../utils/upload');
 const clickParse = require('../utils/click-parser-async');
 const checksum = require('../utils/checksum');
 const reviewPackage = require('../utils/review-package');
+const {authenticate, userRole} = require('../utils/middleware');
 const fs = require('../utils/asyncFs');
 
 const mupload = multer({dest: '/tmp'});
@@ -108,9 +108,11 @@ function updateScreenshotFiles(pkg, screenshotFiles) {
     return pkg;
 }
 
-router.get('/', passport.authenticate('localapikey', {session: false}), async (req, res) => {
+// TODO unittest all these routes
+
+router.get('/', authenticate, userRole, async (req, res) => {
     let filters = packages.parseFiltersFromRequest(req); // TODO refactor this
-    if (!helpers.isAdminUser(req)) {
+    if (!req.isAdminUser) {
         /* eslint-disable no-underscore-dangle */
         filters.maintainer = req.user._id;
     }
@@ -119,46 +121,42 @@ router.get('/', passport.authenticate('localapikey', {session: false}), async (r
         let pkgs = await PackageRepo.find(filters, filters.sort, filters.limit, filters.skip);
         let count = await PackageRepo.count(filters);
 
-        let formatted = [];
-        pkgs.forEach((pkg) => {
-            formatted.push(packages.toJson(pkg, req));
-        });
-
-        if (req.originalUrl.substring(0, 19) == '/api/v1/manage/apps') {
-            helpers.success(res, formatted);
-        }
-        else {
-            let {next, previous} = apiLinks(req.originalUrl, formatted.length, req.query.limit, req.query.skip);
-            helpers.success(res, {count, next, previous, packages: formatted});
-        }
+        let formatted = pkgs.map((pkg) => packages.toJson(pkg, req));
+        let {next, previous} = apiLinks(req.originalUrl, formatted.length, req.query.limit, req.query.skip);
+        return helpers.success(res, {count, next, previous, packages: formatted});
     }
     catch (err) {
         logger.error('Error fetching packages:', err);
         console.error(err);
-        helpers.error(res, 'Could not fetch app list at this time');
+        return helpers.error(res, 'Could not fetch app list at this time');
     }
 });
 
-router.get('/:id', passport.authenticate('localapikey', {session: false}), (req, res) => {
-    let query = null;
-    if (helpers.isAdminUser(req)) {
-        query = Package.findOne({id: req.params.id});
-    }
-    else {
-        query = Package.findOne({id: req.params.id, maintainer: req.user._id});
+router.get('/:id', authenticate, userRole, async (req, res) => {
+    let filters = {};
+    if (!req.isAdminUser) {
+        filters.maintainer = req.user._id;
     }
 
-    query.then((pkg) => {
-        helpers.success(res, packages.toJson(pkg, req));
-    }).catch(() => {
-        helpers.error(res, APP_NOT_FOUND, 404);
-    });
+    try {
+        let pkg = await PackageRepo.findOne(req.params.id, filters);
+        if (pkg) {
+            return helpers.success(res, packages.toJson(pkg, req));
+        }
+        else {
+            return helpers.error(res, APP_NOT_FOUND, 404);
+        }
+    }
+    catch (err) {
+        console.error(err);
+        return helpers.error(res, APP_NOT_FOUND, 404);
+    }
 });
 
 router.post(
     '/',
-    passport.authenticate('localapikey', {session: false}),
-    helpers.isNotDisabled,
+    authenticate,
+    userRole,
     helpers.downloadFileMiddleware,
     async (req, res) => {
         let name = req.body.name.trim();
@@ -173,12 +171,12 @@ router.post(
         }
 
         try {
-            let existing = await Package.findOne({id: id}).exec();
+            let existing = await PackageRepo.findOne(id);
             if (existing) {
                 return helpers.error(res, DUPLICATE_PACKAGE, 400);
             }
 
-            if (!helpers.isAdminOrTrustedUser(req)) {
+            if (!req.isAdminUser || !req.isTrustedUser) {
                 if (id.startsWith('com.ubuntu.') && !id.startsWith('com.ubuntu.developer.')) {
                     return helpers.error(res, BAD_NAMESPACE, 400);
                 }
@@ -215,21 +213,21 @@ let putUpload = mupload.fields([
 
 router.put(
     '/:id',
-    passport.authenticate('localapikey', {session: false}),
+    authenticate,
     putUpload,
-    helpers.isNotDisabled,
-    async(req, res) => {
+    userRole,
+    async (req, res) => {
         try {
             if (req.body && (!req.body.maintainer || req.body.maintainer == 'null')) {
                 req.body.maintainer = req.user._id;
             }
 
-            let pkg = await Package.findOne({id: req.params.id}).exec();
+            let pkg = await PackageRepo.findOne(req.params.id);
             if (!pkg) {
                 return helpers.error(res, APP_NOT_FOUND, 404);
             }
 
-            if (!helpers.isAdminUser(req) && req.user._id != pkg.maintainer) {
+            if (!req.isAdminUser && req.user._id != pkg.maintainer) {
                 return helpers.error(res, PERMISSION_DENIED, 400);
             }
 
@@ -256,7 +254,7 @@ router.put(
             return helpers.success(res, packages.toJson(pkg, req));
         }
         catch (err) {
-            console.log(err);
+            console.error(err);
             logger.error('Error updating package:', err);
             return helpers.error(res, 'There was an error updating your app, please try again later');
         }
@@ -265,16 +263,16 @@ router.put(
 
 router.delete(
     '/:id',
-    passport.authenticate('localapikey', {session: false}),
-    helpers.isNotDisabled,
-    async(req, res) => {
+    authenticate,
+    userRole,
+    async (req, res) => {
         try {
-            let pkg = await Package.findOne({id: req.params.id}).exec();
+            let pkg = await PackageRepo.findOne(req.params.id);
             if (!pkg) {
                 return helpers.error(res, APP_NOT_FOUND, 404);
             }
 
-            if (!helpers.isAdminUser(req) && req.user._id != pkg.maintainer) {
+            if (!req.isAdminUser && req.user._id != pkg.maintainer) {
                 return helpers.error(res, PERMISSION_DENIED, 400);
             }
 
@@ -286,7 +284,7 @@ router.delete(
             return helpers.success(res, {});
         }
         catch (err) {
-            console.log(err);
+            console.error(err);
             logger.error('Error deleting package:', err);
             return helpers.error(res, 'There was an error deleting your app, please try again later');
         }
@@ -299,11 +297,11 @@ let postUpload = mupload.fields([
 
 router.post(
     '/:id/revision',
-    passport.authenticate('localapikey', {session: false}),
+    authenticate,
     postUpload,
-    helpers.isNotDisabled,
+    userRole,
     helpers.downloadFileMiddleware,
-    async(req, res) => {
+    async (req, res) => {
         if (!req.files || !req.files.file || !req.files.file.length == 1) {
             return helpers.error(res, NO_FILE, 400);
         }
@@ -313,13 +311,8 @@ router.post(
             return helpers.error(res, INVALID_CHANNEL, 400);
         }
 
-        // TODO remove this when vivid gets removed from Package.CHANNELS
-        if (channel != Package.XENIAL) {
-            return helpers.error(res, INVALID_CHANNEL, 400);
-        }
-
         try {
-            let pkg = await Package.findOne({id: req.params.id}).exec();
+            let pkg = await PackageRepo.findOne(req.params.id);
             if (!pkg) {
                 return helpers.error(res, APP_NOT_FOUND, 404);
             }
@@ -327,14 +320,12 @@ router.post(
             let {revisionData} = pkg.getLatestRevision(Package.XENIAL);
             let previousRevision = revisionData ? revisionData.revision : -1;
 
-            if (!helpers.isAdminUser(req) && req.user._id != pkg.maintainer) {
+            if (!req.isAdminUser && req.user._id != pkg.maintainer) {
                 return helpers.error(res, PERMISSION_DENIED, 400);
             }
 
-            let success;
-            let error;
             let filePath = fileName(req.files.file[0]);
-            [success, error] = await review(req, req.files.file[0], filePath);
+            let [success, error] = await review(req, req.files.file[0], filePath);
             if (!success) {
                 return helpers.error(res, error, 400);
             }
@@ -352,10 +343,10 @@ router.post(
                 // Check for existing revisions (for this channel) with the same version string
 
                 /* eslint-disable arrow-body-style */
-                let matches = pkg.revisions.filter((revision) => {
+                let matches = pkg.revisions.find((revision) => {
                     return (revision.version == parseData.version && revision.channel == channel);
                 });
-                if (matches.length > 0) {
+                if (!!matches) {
                     return helpers.error(res, EXISTING_VERSION, 400);
                 }
             }
@@ -368,9 +359,7 @@ router.post(
             let updateIcon = (channel == Package.XENIAL || !pkg.icon);
             let icon = updateIcon ? parseData.icon : null;
 
-            let packageUrl;
-            let iconUrl;
-            [packageUrl, iconUrl] = await upload.uploadPackage(
+            let [packageUrl, iconUrl] = await upload.uploadPackage(
                 pkg,
                 filePath,
                 icon,
@@ -385,7 +374,7 @@ router.post(
             }
 
             if (req.body.changelog) {
-                pkg.changelog = packages.sanitize(`${req.body.changelog}\n\n${pkg.changelog}`);
+                pkg.changelog = packages.sanitize(`${req.body.changelog.trim()}\n\n${pkg.changelog}`);
             }
 
             if (!pkg.channels.includes(channel)) {

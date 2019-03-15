@@ -123,7 +123,7 @@ function setup() {
 
         if (opengraph.match(req)) {
             try {
-                let pkg = await PackageRepo.findOne({id: req.params.name}, {});
+                let pkg = await PackageRepo.findOne(req.params.name);
 
                 if (!pkg) {
                     res.status(404);

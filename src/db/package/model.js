@@ -118,11 +118,10 @@ packageSchema.methods.getLatestRevision = function(channel) {
 
 const Package = mongoose.model('Package', packageSchema);
 
+// TODO make a default channel
 Package.XENIAL = 'xenial';
-Package.VIVID = 'vivid';
 Package.CHANNELS = [
     Package.XENIAL,
-    Package.VIVID,
 ];
 
 module.exports = Package;

@@ -99,7 +99,7 @@ const PackageRepo = {
         return findQuery.exec();
     },
 
-    findOne(id, {frameworks, architecture}) {
+    findOne(id, {frameworks, architecture, maintainer} = {}) {
         let query = {
             published: true,
             id: id,
@@ -119,6 +119,10 @@ const PackageRepo = {
                 {architecture: {$in: architectures}},
                 {architectures: {$in: architectures}},
             ];
+        }
+
+        if (maintainer) {
+            query.maintainer = maintainer;
         }
 
         return Package.findOne(query);

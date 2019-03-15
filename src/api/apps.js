@@ -84,7 +84,7 @@ router.get('/:id', async (req, res) => {
 
 router.get('/:id/download/:channel', async (req, res) => {
     try {
-        let pkg = await PackageRepo.findOne(req.params.id, {});
+        let pkg = await PackageRepo.findOne(req.params.id);
         if (!pkg) {
             return helpers.error(res, APP_NOT_FOUND, 404);
         }
@@ -118,7 +118,7 @@ async function icon(req, res) {
     let id = req.params.id.replace('.png', '').replace('.svg', '').replace('.jpg', '').replace('.jpeg', '');
 
     try {
-        let pkg = await PackageRepo.findOne(req.params.id, {});
+        let pkg = await PackageRepo.findOne(req.params.id);
         if (!pkg || !pkg.icon) {
             throw APP_NOT_FOUND;
         }
