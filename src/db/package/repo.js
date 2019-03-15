@@ -133,18 +133,7 @@ const PackageRepo = {
 
     async stats() {
         let [categoryStats, typeStats] = await Promise.all([
-            Package.aggregate([
-                {
-                    $match: {published: true},
-                }, {
-                    $group: {
-                        _id: '$category',
-                        count: {$sum: 1},
-                    },
-                }, {
-                    $sort: {_id: 1},
-                },
-            ]),
+            this.categoryStats(),
             Package.aggregate([
                 {
                     $match: {published: true},
@@ -177,6 +166,26 @@ const PackageRepo = {
         });
 
         return {categories, types};
+    },
+
+    categoryStats(channel) {
+        let match = {published: true};
+        if (channel) {
+            match.channels = channel;
+        }
+
+        return Package.aggregate([
+            {
+                $match: match,
+            }, {
+                $group: {
+                    _id: '$category',
+                    count: { $sum: 1 },
+                },
+            }, {
+                $sort: {_id: 1},
+            },
+        ]);
     },
 };
 
