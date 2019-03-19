@@ -4,7 +4,7 @@ const moment = require('moment');
 const {sanitize} = require('../../utils/helpers');
 const config = require('../../utils/config');
 const fs = require('../../utils/asyncFs');
-const User = require('../user/model');
+const UserRepo = require('../user/repo');
 
 const packageSchema = mongoose.Schema({
     id: {type: String, index: true},
@@ -309,7 +309,7 @@ packageSchema.methods.updateFromBody = async function(body) {
         this.maintainer = body.maintainer;
     }
 
-    let user = await User.findOne({_id: this.maintainer})
+    let user = await UserRepo.findOne(this.maintainer)
     if (user) {
         this.maintainer_name = user.name ? user.name : user.username;
     }

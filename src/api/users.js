@@ -1,6 +1,6 @@
 const express = require('express');
 
-const User = require('../db/user/model');
+const UserRepo = require('../db/user/model');
 const { serialize } = require('../db/user/serializer');
 const helpers = require('../utils/helpers');
 const {authenticate, adminOnly} = require('../utils/middleware');
@@ -10,7 +10,7 @@ const USER_NOT_FOUND = 'User not found';
 
 router.get('/', authenticate, adminOnly, async (req, res) => {
     try {
-        let users = await User.find({});
+        let users = await UserRepo.find();
         return helpers.success(res, serialize(users));
     }
     catch (err) {
@@ -20,7 +20,7 @@ router.get('/', authenticate, adminOnly, async (req, res) => {
 
 router.get('/:id', authenticate, adminOnly, async (req, res) => {
     try {
-        let user = await User.findOne({_id: req.params.id});
+        let user = await UserRepo.findOne(req.params.id);
         if (!user) {
             return helpers.error(res, USER_NOT_FOUND, 404);
         }
@@ -34,7 +34,7 @@ router.get('/:id', authenticate, adminOnly, async (req, res) => {
 
 router.put('/:id', authenticate, adminOnly, async (req, res) => {
     try {
-        let user = await User.findOne({_id: req.params.id});
+        let user = await UserRepo.findOne(req.params.id);
         if (!user) {
             return helpers.error(res, USER_NOT_FOUND, 404);
         }
