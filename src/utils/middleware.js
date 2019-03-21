@@ -3,7 +3,7 @@ const path = require('path');
 
 const helpers = require('./helpers');
 const config = require('./config');
-const fs = require('./asyncFs');
+const fs = require('./async-fs');
 
 // list borrowed from https://github.com/prerender/prerender-node
 let useragents = [

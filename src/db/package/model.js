@@ -3,7 +3,7 @@ const moment = require('moment');
 
 const {sanitize} = require('../../utils/helpers');
 const config = require('../../utils/config');
-const fs = require('../../utils/asyncFs');
+const fs = require('../../utils/async-fs');
 const UserRepo = require('../user/repo');
 
 const packageSchema = mongoose.Schema({

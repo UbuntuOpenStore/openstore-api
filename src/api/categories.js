@@ -1,4 +1,5 @@
 const fs = require('fs');
+const path = require('path');
 const Gettext = require('node-gettext');
 const po = require('gettext-parser').po;
 const express = require('express');
@@ -14,10 +15,11 @@ const router = express.Router();
 const gt = new Gettext();
 
 let langs = [];
-fs.readdirSync('../po').forEach((poFile) => {
+let poDir = path.join(__dirname, '../../po');
+fs.readdirSync(poDir).forEach((poFile) => {
     if (poFile.endsWith('.po')) {
         let lang = poFile.replace('.po', '');
-        let fileName = `../po/${poFile}`;
+        let fileName = path.join(poDir, poFile);
         let content = fs.readFileSync(fileName, 'utf-8');
         let parsed = po.parse(content);
 

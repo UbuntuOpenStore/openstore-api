@@ -3,7 +3,7 @@ const path = require('path');
 const mime = require('mime');
 const sanitizeHtml = require('sanitize-html');
 
-const fs = require('../utils/asyncFs');
+const fs = require('../utils/async-fs');
 const logger = require('../utils/logger');
 const config = require('../utils/config');
 

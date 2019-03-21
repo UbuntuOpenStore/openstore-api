@@ -10,13 +10,13 @@ const {serialize} = require('../db/package/serializer');
 const config = require('../utils/config');
 const logger = require('../utils/logger');
 const helpers = require('../utils/helpers');
-const apiLinks = require('../utils/apiLinks');
+const apiLinks = require('../utils/api-links');
 const upload = require('../utils/upload');
 const clickParse = require('../utils/click-parser-async');
 const checksum = require('../utils/checksum');
 const reviewPackage = require('../utils/review-package');
 const {authenticate, userRole, downloadFile} = require('../utils/middleware');
-const fs = require('../utils/asyncFs');
+const fs = require('../utils/async-fs');
 
 const mupload = multer({dest: '/tmp'});
 const router = express.Router();

@@ -22,7 +22,7 @@ const PackageRepo = require('../db/package/repo');
 const logger = require('../utils/logger');
 const helpers = require('../utils/helpers');
 const {opengraph} = require('../utils/middleware');
-const fs = require('../utils/asyncFs');
+const fs = require('../utils/async-fs');
 
 const APP_NOT_FOUND = 'App not found';
 
@@ -132,7 +132,7 @@ function setup() {
         res.sendFile('index.html', {root: config.server.static_root});
     });
 
-    app.listen(config.server.port, config.server.ip);
+    app.server = app.listen(config.server.port, config.server.ip);
     logger.debug(`listening on ${config.server.ip}:${config.server.port}`);
 
     return app;

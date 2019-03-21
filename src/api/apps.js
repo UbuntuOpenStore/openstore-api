@@ -9,8 +9,8 @@ const {serialize} = require('../db/package/serializer');
 const config = require('../utils/config');
 const logger = require('../utils/logger');
 const helpers = require('../utils/helpers');
-const apiLinks = require('../utils/apiLinks');
-const fs = require('../utils/asyncFs');
+const apiLinks = require('../utils/api-links');
+const fs = require('../utils/async-fs');
 
 // TODO properly namespace these so we only need one router
 const router = express.Router();

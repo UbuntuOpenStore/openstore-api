@@ -5,7 +5,7 @@ const chunks = require('buffer-chunks');
 const crypto = require('crypto');
 
 const config = require('../utils/config');
-const fs = require('../utils/asyncFs');
+const fs = require('../utils/async-fs');
 const Package = require('../db/package/model');
 
 const SIZE_LIMIT = 5242880; // 5MB
