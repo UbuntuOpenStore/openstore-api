@@ -3,11 +3,10 @@ require('winston-papertrail');
 
 const config = require('./config');
 
-// TODO set this to log level when running tests
 const logger = winston.createLogger({
     transports: [
         new winston.transports.Console({
-            level: 'debug',
+            level: (process.env.NODE_ENV == 'testing') ? 'info' : 'debug',
             format: winston.format.simple(),
         }),
     ],

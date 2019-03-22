@@ -2,6 +2,7 @@ const {factory} = require('factory-girl');
 
 const {expect} = require('./helper');
 const PackageRepo = require('../src/db/package/repo')
+const PackageSearch = require('../src/db/package/search');
 
 describe('Manage GET', function() {
   before(function() {
@@ -314,5 +315,124 @@ describe('Manage POST', function() {
       expect(package.maintainer).to.equal(this.user._id.toString());
       expect(package.maintainer_name).to.equal(this.user.username);
     });
+  });
+});
+
+describe('Manage POST', function() {
+  before(function() {
+    this.route = '/api/v3/manage/';
+  });
+
+  beforeEach(async function() {
+    this.removeStub = this.sandbox.stub(PackageSearch, 'remove');
+    this.upsertStub = this.sandbox.stub(PackageSearch, 'upsert');
+
+    [this.package, this.package2] = await Promise.all([
+      factory.create('package', {maintainer: this.user._id, name: 'User app'}),
+      factory.create('package'),
+    ]);
+  });
+
+  it('blocks access when not logged in', async function() {
+    await this.put(`${this.route}/${this.package.id}`, false).expect(401);
+  });
+
+  context('admin user', function() {
+    it('allows changing the maintainer', async function() {
+      let user2 = await factory.create('user')
+
+      let res = await this.put(`${this.route}/${this.package.id}`)
+        .send({maintainer: user2._id})
+        .expect(200);
+
+      expect(res.body.success).to.be.true;
+      expect(res.body.data.maintainer).to.equal(user2._id.toString())
+      expect(this.removeStub).to.have.been.calledOnce;
+
+      let package = await PackageRepo.findOne(this.package.id);
+      expect(package.maintainer).to.equal(user2._id.toString());
+    });
+
+    it('can update any package', async function() {
+      let res = await this.put(`${this.route}/${this.package2.id}`)
+        .send({name: 'Foo Bar'})
+        .expect(200);
+
+      expect(res.body.success).to.be.true;
+      expect(res.body.data.name).to.equal('Foo Bar')
+      expect(this.removeStub).to.have.been.calledOnce;
+
+      let package = await PackageRepo.findOne(this.package2.id);
+      expect(package.name).to.equal('Foo Bar');
+    });
+  });
+
+  context('community user', function() {
+    beforeEach(async function() {
+      this.user.role = 'community';
+      await this.user.save();
+    });
+
+    it('fails with a bad id', async function() {
+      await this.put(`${this.route}/foo`).expect(404);
+    });
+
+    it('does not allow modifying another users package', async function() {
+      await this.put(`${this.route}/${this.package2.id}`).expect(403);
+    });
+
+    it('does not allow publishing without revisions', async function() {
+      let res = await this.put(`${this.route}/${this.package.id}`)
+        .send({published: true})
+        .expect(400);
+
+      expect(res.body.success).to.be.false;
+      expect(res.body.message).to.equal('You cannot publish your package until you upload a revision');
+    });
+
+    it('does not allow changing the maintainer', async function() {
+      let res = await this.put(`${this.route}/${this.package.id}`)
+        .send({maintainer: 'foo'})
+        .expect(200);
+
+      expect(res.body.success).to.be.true;
+      expect(res.body.data.maintainer).to.equal(this.user._id.toString())
+      expect(this.removeStub).to.have.been.calledOnce;
+    });
+
+    it('updates successfully', async function() {
+      let res = await this.put(`${this.route}/${this.package.id}`)
+        .send({name: 'Foo Bar'})
+        .expect(200);
+
+      expect(res.body.success).to.be.true;
+      expect(res.body.data.name).to.equal('Foo Bar')
+      expect(this.removeStub).to.have.been.calledOnce;
+
+      let package = await PackageRepo.findOne(this.package.id);
+      expect(package.name).to.equal('Foo Bar');
+    });
+
+    it('publishes the package', async function() {
+      this.package.revisions.push({});
+      await this.package.save();
+
+      let res = await this.put(`${this.route}/${this.package.id}`)
+        .send({published: true})
+        .expect(200);
+
+      expect(res.body.success).to.be.true;
+      expect(this.upsertStub).to.have.been.calledOnce;
+
+      let package = await PackageRepo.findOne(this.package.id);
+      expect(package.published).to.be.true;
+    });
+
+    // TODO implement these
+    it('adds screenshots');
+    it('removes screenshots');
+    it('reorders screenshots');
+
+    // TODO test pkg.updateFromBody()
   });
 });

@@ -16,7 +16,7 @@ function success(res, data, message) {
 }
 
 function error(res, message, code) {
-    logger.error(`server: ${message}`);
+    logger.debug(`server: ${message}`);
 
     res.status(code || 500);
     res.send({

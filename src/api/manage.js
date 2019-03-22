@@ -225,13 +225,17 @@ router.put(
                 req.body.maintainer = req.user._id;
             }
 
+            if (!req.isAdminUser && req.body && req.body.maintainer) {
+                delete req.body.maintainer;
+            }
+
             let pkg = await PackageRepo.findOne(req.params.id);
             if (!pkg) {
                 return helpers.error(res, APP_NOT_FOUND, 404);
             }
 
             if (!req.isAdminUser && req.user._id != pkg.maintainer) {
-                return helpers.error(res, PERMISSION_DENIED, 400);
+                return helpers.error(res, PERMISSION_DENIED, 403);
             }
 
             let published = (req.body.published == 'true' || req.body.published === true);
