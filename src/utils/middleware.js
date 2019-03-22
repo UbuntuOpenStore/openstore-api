@@ -65,7 +65,7 @@ function ogMatch(req) {
 async function opengraph(req, res, next) {
     if (req.originalUrl.startsWith('/app/') && req.params.name && ogMatch(req)) {
         try {
-            let pkg = await PackageRepo.findOne(req.params.name);
+            let pkg = await PackageRepo.findOne(req.params.name, {published: true});
 
             if (!pkg) {
                 res.status(404);

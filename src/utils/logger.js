@@ -3,6 +3,7 @@ require('winston-papertrail');
 
 const config = require('./config');
 
+// TODO set this to log level when running tests
 const logger = winston.createLogger({
     transports: [
         new winston.transports.Console({
@@ -26,14 +27,16 @@ else {
 
 process.on('uncaughtException', (err) => {
     logger.error('uncaughtException', err);
+    console.error(err);
 
     if (err && err.stack) {
         logger.error(err.stack);
     }
 });
 
-process.on('unhandledRejection', (reason) => {
-    logger.error('unhandledRejection', reason);
+process.on('unhandledRejection', (err) => {
+    logger.error('unhandledRejection', err);
+    console.error(err);
 });
 
 module.exports = logger;

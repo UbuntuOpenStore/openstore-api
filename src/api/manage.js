@@ -35,6 +35,7 @@ const NO_FILE = 'No file upload specified';
 const INVALID_CHANNEL = 'The provided channel is not valid';
 const NO_REVISIONS = 'You cannot publish your package until you upload a revision';
 const NO_APP_NAME = 'No app name specified';
+const NO_SPACES_NAME = 'You cannot have spaces in your app name';
 const NO_APP_TITLE = 'No app title specified';
 const APP_HAS_REVISIONS = 'Cannot delete an app that already has revisions';
 
@@ -157,15 +158,19 @@ router.post(
     userRole,
     downloadFile,
     async (req, res) => {
-        let name = req.body.name.trim();
-        let id = req.body.id.toLowerCase().trim();
-
-        if (!id) {
+        if (!req.body.id || !req.body.id.trim()) {
             return helpers.error(res, NO_APP_NAME, 400);
         }
 
-        if (!name) {
+        if (!req.body.name || !req.body.name.trim()) {
             return helpers.error(res, NO_APP_TITLE, 400);
+        }
+
+        let name = req.body.name.trim();
+        let id = req.body.id.toLowerCase().trim();
+
+        if (id.includes(' ')) {
+            return helpers.error(res, NO_SPACES_NAME, 400);
         }
 
         try {
@@ -174,7 +179,7 @@ router.post(
                 return helpers.error(res, DUPLICATE_PACKAGE, 400);
             }
 
-            if (!req.isAdminUser || !req.isTrustedUser) {
+            if (!req.isAdminUser && !req.isTrustedUser) {
                 if (id.startsWith('com.ubuntu.') && !id.startsWith('com.ubuntu.developer.')) {
                     return helpers.error(res, BAD_NAMESPACE, 400);
                 }

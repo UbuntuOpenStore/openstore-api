@@ -32,7 +32,7 @@ router.get('/', async (req, res) => {
 
         try {
             let [highlight, discoverCategoriesApps, newApps, updatedApps] = await Promise.all([
-                PackageRepo.findOne(discover.highlight.id),
+                PackageRepo.findOne(discover.highlight.id, {published: true}),
 
                 Promise.all(discoverCategories.map((category) => PackageRepo.find({ids: category.ids, channel: channel, published: true}))),
 

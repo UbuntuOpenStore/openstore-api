@@ -167,11 +167,14 @@ const PackageRepo = {
         return findQuery.exec();
     },
 
-    findOne(id, {frameworks, architecture, maintainer} = {}) {
+    findOne(id, {published, frameworks, architecture, maintainer} = {}) {
         let query = {
-            published: true,
             id: id,
         };
+
+        if (published) {
+            query.published = published;
+        }
 
         if (frameworks) {
             query.framework = {$in: frameworks.split(',')};
