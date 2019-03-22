@@ -108,10 +108,8 @@ function updateScreenshotFiles(pkg, screenshotFiles) {
     return pkg;
 }
 
-// TODO unittest all these routes
-
 router.get('/', authenticate, userRole, async (req, res) => {
-    let filters = PackageRepo.parseRequestFilters(req); // TODO refactor this
+    let filters = PackageRepo.parseRequestFilters(req);
     if (!req.isAdminUser) {
         /* eslint-disable no-underscore-dangle */
         filters.maintainer = req.user._id;
