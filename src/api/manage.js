@@ -280,7 +280,7 @@ router.delete(
             }
 
             if (!req.isAdminUser && req.user._id != pkg.maintainer) {
-                return helpers.error(res, PERMISSION_DENIED, 400);
+                return helpers.error(res, PERMISSION_DENIED, 403);
             }
 
             if (pkg.revisions.length > 0) {

@@ -23,32 +23,20 @@ before(async function() {
     this.sandbox = sinon;
     this.app = api.setup();
 
-    this.get = (route, withApiKey=true) => {
-        if (withApiKey) {
-            route = route.includes('?') ? `${route}&apikey=${this.user.apikey}`: `${route}?apikey=${this.user.apikey}`;
-        }
+    let generateRequest = (method) => {
+        return (route, withApiKey=true) => {
+            if (withApiKey) {
+                route = route.includes('?') ? `${route}&apikey=${this.user.apikey}`: `${route}?apikey=${this.user.apikey}`;
+            }
 
-        return request(this.app)
-            .get(route);
+            return request(this.app)[method](route);
+        };
     };
 
-    this.post = (route, withApiKey=true) => {
-        if (withApiKey) {
-            route = route.includes('?') ? `${route}&apikey=${this.user.apikey}`: `${route}?apikey=${this.user.apikey}`;
-        }
-
-        return request(this.app)
-            .post(route);
-    };
-
-    this.put = (route, withApiKey=true) => {
-        if (withApiKey) {
-            route = route.includes('?') ? `${route}&apikey=${this.user.apikey}`: `${route}?apikey=${this.user.apikey}`;
-        }
-
-        return request(this.app)
-            .put(route);
-    };
+    this.get = generateRequest('get');
+    this.post = generateRequest('post');
+    this.put = generateRequest('put');
+    this.delete = generateRequest('delete');
 });
 
 beforeEach(async function() {
