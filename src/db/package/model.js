@@ -319,7 +319,7 @@ packageSchema.methods.updateFromBody = async function(body) {
         this.maintainer = body.maintainer;
     }
 
-    let user = await UserRepo.findOne(this.maintainer)
+    let user = await UserRepo.findOne(this.maintainer);
     if (user) {
         this.maintainer_name = user.name ? user.name : user.username;
     }

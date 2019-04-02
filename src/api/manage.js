@@ -142,9 +142,8 @@ router.get('/:id', authenticate, userRole, async (req, res) => {
         if (pkg) {
             return helpers.success(res, serialize(pkg));
         }
-        else {
-            return helpers.error(res, APP_NOT_FOUND, 404);
-        }
+
+        return helpers.error(res, APP_NOT_FOUND, 404);
     }
     catch (err) {
         console.error(err);
@@ -325,7 +324,6 @@ router.post(
             }
 
             let {revisionData: previousRevisionData} = pkg.getLatestRevision(Package.XENIAL);
-            let previousRevision = previousRevisionData ? previousRevisionData.revision : -1;
 
             if (!req.isAdminUser && req.user._id != pkg.maintainer) {
                 return helpers.error(res, PERMISSION_DENIED, 403);
@@ -353,7 +351,8 @@ router.post(
                 let matches = pkg.revisions.find((revision) => {
                     return (revision.version == parseData.version && revision.channel == channel);
                 });
-                if (!!matches) {
+
+                if (matches) {
                     return helpers.error(res, EXISTING_VERSION, 400);
                 }
             }

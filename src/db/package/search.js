@@ -124,7 +124,7 @@ const PackageSearch = {
         return this.client.bulk({body: body});
     },
 
-    parseFilters({types, ids, frameworks, architectures, category, author, channel, search, nsfw, maintainer, published}) {
+    parseFilters({types, ids, frameworks, architectures, category, author, channel, nsfw}) {
         let query = {
             and: [], // No default published=true filter, only published apps are in elasticsearch
         };

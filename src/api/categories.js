@@ -80,6 +80,7 @@ router.get('/', async (req, res) => {
         let categories = await PackageRepo.categoryStats(channel);
 
         /* eslint-disable arrow-body-style */
+        /* eslint-disable no-underscore-dangle */
         let data = categories.filter((category) => !!category._id)
             .map((category) => {
                 return {

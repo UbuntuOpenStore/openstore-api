@@ -5,7 +5,6 @@ const methodOverride = require('method-override');
 const session = require('cookie-session');
 const express = require('express');
 const cluster = require('cluster');
-const path = require('path');
 
 const config = require('../utils/config');
 const apps = require('./apps');
@@ -16,15 +15,10 @@ const revisions = require('./revisions');
 const auth = require('./auth');
 const users = require('./users');
 const rss = require('./rss');
-const db = require('../db');
-const Package = require('../db/package/model');
-const PackageRepo = require('../db/package/repo');
 const logger = require('../utils/logger');
 const helpers = require('../utils/helpers');
 const {opengraph} = require('../utils/middleware');
-const fs = require('../utils/async-fs');
-
-const APP_NOT_FOUND = 'App not found';
+require('../db'); // Make sure the database connection gets setup
 
 function setup() {
     const app = express();

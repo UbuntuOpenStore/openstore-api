@@ -1,7 +1,6 @@
 const RSS = require('rss');
 const express = require('express');
 
-const Package = require('../db/package/model');
 const PackageRepo = require('../db/package/repo');
 const {iconUrl} = require('../db/package/serializer');
 const logger = require('../utils/logger');
@@ -51,7 +50,7 @@ async function generateFeed(res, updates) {
     }
 
     res.header('Content-Type', 'text/xml');
-    res.send(feed.xml({indent: true}));
+    return res.send(feed.xml({indent: true}));
 }
 
 router.get('/new.xml', (req, res) => {

@@ -182,7 +182,7 @@ const PackageRepo = {
 
         if (architecture) {
             let architectures = [architecture];
-            if (req.query.architecture != 'all') {
+            if (architecture != 'all') {
                 architectures.push('all');
             }
 
@@ -225,11 +225,13 @@ const PackageRepo = {
 
         let categories = {};
         categoryStats.forEach((category) => {
+            /* eslint-disable no-underscore-dangle */
             categories[category._id] = category.count;
         });
 
         let types = {};
         typeStats.forEach((type) => {
+            /* eslint-disable no-underscore-dangle */
             type._id.forEach((t) => {
                 if (types[t]) {
                     types[t] += type.count;
@@ -264,5 +266,4 @@ const PackageRepo = {
     },
 };
 
-
-module.exports = PackageRepo
+module.exports = PackageRepo;

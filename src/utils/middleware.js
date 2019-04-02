@@ -4,6 +4,7 @@ const path = require('path');
 const helpers = require('./helpers');
 const config = require('./config');
 const fs = require('./async-fs');
+const PackageRepo = require('../db/package/repo');
 
 // list borrowed from https://github.com/prerender/prerender-node
 let useragents = [
@@ -102,7 +103,7 @@ function userRole(req, res, next) {
         next();
     }
     else {
-        error(res, 'Your account has been disabled at this time', 403);
+        helpers.error(res, 'Your account has been disabled at this time', 403);
     }
 }
 
@@ -111,7 +112,7 @@ function adminOnly(req, res, next) {
         next();
     }
     else {
-        error(res, 'Forbidden', 403);
+        helpers.error(res, 'Forbidden', 403);
     }
 }
 
@@ -128,7 +129,7 @@ function downloadFile(req, res, next) {
             filename = filename.substring(0, filename.indexOf('#'));
         }
 
-        download(req.body.downloadUrl, `${config.data_dir}/${filename}`).then((tmpfile) => {
+        helpers.download(req.body.downloadUrl, `${config.data_dir}/${filename}`).then((tmpfile) => {
             req.files = {
                 file: [{
                     originalname: filename,
@@ -138,7 +139,7 @@ function downloadFile(req, res, next) {
             };
             next();
         }).catch(() => {
-            error(res, 'Failed to download remote file', 400);
+            helpers.error(res, 'Failed to download remote file', 400);
         });
     }
     else {
@@ -146,7 +147,7 @@ function downloadFile(req, res, next) {
     }
 }
 
-exports.authenticate = passport.authenticate('localapikey', {session: false})
+exports.authenticate = passport.authenticate('localapikey', {session: false});
 exports.userRole = userRole;
 exports.adminOnly = adminOnly;
 exports.downloadFile = downloadFile;

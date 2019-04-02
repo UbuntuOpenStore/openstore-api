@@ -101,14 +101,14 @@ function toJson(pkg) {
 
     if (pkg.revisions) {
         json.downloads = Package.CHANNELS.map((channel) => {
-            let {revisionData} = pkg.getLatestRevision(channel);
-            if (revisionData) {
+            let {revisionData: downloadRevisionData} = pkg.getLatestRevision(channel);
+            if (downloadRevisionData) {
                 return {
                     channel: channel,
                     download_url: downloadUrl(pkg, channel),
-                    download_sha512: revisionData.download_sha512,
-                    version: revisionData.version,
-                    revision: revisionData.revision,
+                    download_sha512: downloadRevisionData.download_sha512,
+                    version: downloadRevisionData.version,
+                    revision: downloadRevisionData.revision,
                 };
             }
 
@@ -131,14 +131,13 @@ function serialize(pkgs, slim) {
 
         return pkgs.map(toJson);
     }
-    else {
-        if (slim) {
-            return toSlimJson(pkgs);
-        }
 
-        return toJson(pkgs);
+    if (slim) {
+        return toSlimJson(pkgs);
     }
+
+    return toJson(pkgs);
 }
 
-exports.iconUrl = iconUrl
-exports.serialize = serialize
+exports.iconUrl = iconUrl;
+exports.serialize = serialize;

@@ -1,5 +1,4 @@
 const User = require('./model');
-const {getData, getDataArray} = require('../../utils/helpers');
 
 const UserRepo = {
     find() {
@@ -12,4 +11,4 @@ const UserRepo = {
 };
 
 
-module.exports = UserRepo
+module.exports = UserRepo;

@@ -1,11 +1,9 @@
 const request = require('request');
-const path = require('path');
 const mime = require('mime');
 const sanitizeHtml = require('sanitize-html');
 
 const fs = require('../utils/async-fs');
 const logger = require('../utils/logger');
-const config = require('../utils/config');
 
 function success(res, data, message) {
     res.send({
@@ -58,9 +56,9 @@ async function checkDownload(url, filename, headers, res) {
     res.setHeader('Content-Length', stat.size);
     res.setHeader('Content-type', mime.lookup(filename));
 
-    for (let header of Object.keys(headers)) {
-        res.setHeader(header, headers[header])
-    }
+    Object.keys(headers).forEach((header) => {
+        res.setHeader(header, headers[header]);
+    });
 
     fs.createReadStream(filename).pipe(res);
 }
@@ -69,7 +67,8 @@ function getData(req, name) {
     if (req.query && req.query[name]) {
         return req.query[name].trim();
     }
-    else if (req.body && req.body[name]) {
+
+    if (req.body && req.body[name]) {
         return req.body[name].trim();
     }
 
@@ -80,7 +79,8 @@ function getDataArray(req, name) {
     if (req.query && req.query[name]) {
         return req.query[name].split(',');
     }
-    else if (req.body && req.body[name]) {
+
+    if (req.body && req.body[name]) {
         return req.body[name];
     }
 

@@ -29,7 +29,7 @@ async function apps(req, res) {
         if (filters.search && filters.search.indexOf('author:') !== 0) {
             let results = await PackageSearch.search(filters, filters.sort, filters.skip, filters.limit);
             /* eslint-disable no-underscore-dangle */
-            pkgs = results.hits.hits.map((hit) => hit._source),
+            pkgs = results.hits.hits.map((hit) => hit._source);
             count = results.hits.total;
         }
         else {
@@ -52,9 +52,7 @@ async function apps(req, res) {
 router.get('/', apps);
 router.post('/', apps);
 
-statsRouter.get('/', async (req, res) => {
-    return helpers.success(res, await PackageRepo.stats());
-});
+statsRouter.get('/', async (req, res) => helpers.success(res, await PackageRepo.stats()));
 
 router.get('/:id', async (req, res) => {
     try {
@@ -62,11 +60,10 @@ router.get('/:id', async (req, res) => {
         let pkg = await PackageRepo.findOne(req.params.id, req.query);
 
         if (pkg) {
-            helpers.success(res, serialize(pkg));
+            return helpers.success(res, serialize(pkg));
         }
-        else {
-            helpers.error(res, APP_NOT_FOUND, 404);
-        }
+
+        return helpers.error(res, APP_NOT_FOUND, 404);
     }
     catch (err) {
         logger.error('Error fetching packages:', err);
@@ -97,7 +94,7 @@ router.get('/:id/download/:channel', async (req, res) => {
         let filename = `${config.data_dir}/${pkg.id}-${channel}-${revisionData.version}${ext}`;
         let headers = {'Content-Disposition': `attachment; filename=${pkg.id}_${revisionData.version}_${pkg.architecture}.click`};
         await helpers.checkDownload(downloadUrl, filename, headers, res);
-        await PackageRepo.incrementDownload(pkg._id, revisionIndex);
+        return await PackageRepo.incrementDownload(pkg._id, revisionIndex);
     }
     catch (err) {
         logger.error('Error downloading package:', err);
@@ -110,7 +107,7 @@ async function icon(req, res) {
     let id = req.params.id.replace('.png', '').replace('.svg', '').replace('.jpg', '').replace('.jpeg', '');
 
     try {
-        let pkg = await PackageRepo.findOne(req.params.id, {published: true});
+        let pkg = await PackageRepo.findOne(id, {published: true});
         if (!pkg || !pkg.icon) {
             throw APP_NOT_FOUND;
         }

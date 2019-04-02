@@ -13,9 +13,8 @@ function serialize(users) {
     if (Array.isArray(users)) {
         return users.map(toJson);
     }
-    else {
-        return toJson(users);
-    }
+
+    return toJson(users);
 }
 
-exports.serialize = serialize
+exports.serialize = serialize;

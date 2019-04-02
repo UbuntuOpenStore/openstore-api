@@ -8,7 +8,6 @@ const {serialize} = require('../db/package/serializer');
 const config = require('../utils/config');
 const discoverJSON = require('./json/discover_apps.json');
 const helpers = require('../utils/helpers');
-const logger = require('../utils/logger');
 
 const router = express.Router();
 
@@ -62,7 +61,7 @@ router.get('/', async (req, res) => {
 
             // Get the first 10 unique app ids (unique ids)
             let ids = newApps.map((app) => app.id)
-                .concat(updatedApps.map((app) => app.id))
+                .concat(updatedApps.map((app) => app.id));
 
             newAndUpdatedCategory.ids = ids.filter((item, pos) => ids.indexOf(item) == pos)
                 .slice(0, 10);
