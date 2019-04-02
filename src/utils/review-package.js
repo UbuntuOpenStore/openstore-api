@@ -4,10 +4,10 @@ const config = require('./config');
 const logger = require('./logger');
 
 // TODO return the actual problem
-function parseReview(review) {
+function parseReview(reviewData) {
     let manualReview = false;
 
-    Object.values(review).forEach((rev) => {
+    Object.values(reviewData).forEach((rev) => {
         Object.values(rev).forEach((level) => {
             Object.values(level).forEach((label) => {
                 if (label.manual_review) {
@@ -44,8 +44,8 @@ function review(file) {
 
                 let error = true;
                 try {
-                    let review = JSON.parse(stdout);
-                    error = parseReview(review);
+                    let reviewData = JSON.parse(stdout);
+                    error = parseReview(reviewData);
                     if (!error) {
                         /*
                         If we don't find a manual review flag, but this still
@@ -62,9 +62,9 @@ function review(file) {
                 resolve(error);
             }
             else {
-                let review = JSON.parse(stdout);
+                let reviewData = JSON.parse(stdout);
 
-                resolve(parseReview(review));
+                resolve(parseReview(reviewData));
             }
         });
     });

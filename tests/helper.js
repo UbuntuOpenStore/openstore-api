@@ -1,17 +1,18 @@
 const chai = require('chai');
 const FactoryGirl = require('factory-girl');
-const adapter = new FactoryGirl.MongooseAdapter();
 const mongoose = require('mongoose');
 const request = require('supertest');
 const sinon = require('sinon');
+const sinonChai = require('sinon-chai');
 
 require('./factories/package');
 require('./factories/user');
 const api = require('../src/api');
 
+const adapter = new FactoryGirl.MongooseAdapter();
 FactoryGirl.factory.setAdapter(adapter);
 
-chai.use(require('sinon-chai'));
+chai.use(sinonChai);
 chai.config.includeStack = true;
 
 before(async function() {
@@ -23,10 +24,11 @@ before(async function() {
     this.sandbox = sinon;
     this.app = api.setup();
 
+    /* eslint-disable arrow-body-style */
     let generateRequest = (method) => {
-        return (route, withApiKey=true) => {
+        return (route, withApiKey = true) => {
             if (withApiKey) {
-                route = route.includes('?') ? `${route}&apikey=${this.user.apikey}`: `${route}?apikey=${this.user.apikey}`;
+                route = route.includes('?') ? `${route}&apikey=${this.user.apikey}` : `${route}?apikey=${this.user.apikey}`;
             }
 
             return request(this.app)[method](route);
@@ -41,18 +43,18 @@ before(async function() {
 
 beforeEach(async function() {
     // Clean out the database
-    collections = await mongoose.connection.db.listCollections().toArray()
+    let collections = await mongoose.connection.db.listCollections().toArray();
 
     await Promise.all(collections.map(({name}) => {
         if (name == 'system.profile') {
-            return;
+            return null;
         }
 
-        collection = mongoose.connection.db.collection(name)
-        collection.deleteMany({})
+        let collection = mongoose.connection.db.collection(name);
+        return collection.deleteMany({});
     }));
 
-    this.user = await FactoryGirl.factory.create('user', {role: 'admin'})
+    this.user = await FactoryGirl.factory.create('user', {role: 'admin'});
 });
 
 after(function() {

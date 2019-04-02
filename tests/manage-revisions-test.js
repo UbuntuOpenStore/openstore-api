@@ -1,6 +1,5 @@
 const path = require('path');
 const {factory} = require('factory-girl');
-const childProcess = require('child_process');
 
 const {expect} = require('./helper');
 const Package = require('../src/db/package/model');
@@ -9,13 +8,14 @@ const upload = require('../src/utils/upload');
 const reviewPackage = require('../src/utils/review-package');
 const clickParser = require('../src/utils/click-parser-async');
 
-describe('Manage Revision POST', function() {
+describe('Manage Revision POST', () => {
     beforeEach(async function() {
         [this.package, this.package2] = await Promise.all([
+            /* eslint-disable no-underscore-dangle */
             factory.create('package', {
                 maintainer: this.user._id,
                 name: 'OpenStore Test',
-                id: 'openstore-test.openstore-team'
+                id: 'openstore-test.openstore-team',
             }),
             factory.create('package'),
         ]);
@@ -33,7 +33,7 @@ describe('Manage Revision POST', function() {
         await this.post(this.route, false).expect(401);
     });
 
-    context('admin user', function() {
+    context('admin user', () => {
         it('allows access to other packages', async function() {
             let parseStub = this.sandbox.stub(clickParser, 'parse').resolves({
                 name: this.package2.id,
@@ -47,7 +47,7 @@ describe('Manage Revision POST', function() {
                 .field('channel', Package.XENIAL)
                 .expect(200);
 
-            expect(res.body.success).to.be.true
+            expect(res.body.success).to.be.true;
             expect(parseStub).to.have.been.calledOnce;
         });
 
@@ -65,13 +65,13 @@ describe('Manage Revision POST', function() {
                 .field('channel', Package.XENIAL)
                 .expect(200);
 
-            expect(res.body.success).to.be.true
+            expect(res.body.success).to.be.true;
             expect(reviewSpy).to.have.not.been.calledOnce;
             expect(parseStub).to.have.been.calledOnce;
         });
     });
 
-    context('trusted user', function() {
+    context('trusted user', () => {
         beforeEach(async function() {
             this.user.role = 'trusted';
             await this.user.save();
@@ -91,13 +91,13 @@ describe('Manage Revision POST', function() {
                 .field('channel', Package.XENIAL)
                 .expect(200);
 
-            expect(res.body.success).to.be.true
+            expect(res.body.success).to.be.true;
             expect(reviewSpy).to.have.not.been.calledOnce;
             expect(parseStub).to.have.been.calledOnce;
         });
     });
 
-    context('community user', function() {
+    context('community user', () => {
         beforeEach(async function() {
             this.user.role = 'community';
             await this.user.save();
@@ -143,8 +143,8 @@ describe('Manage Revision POST', function() {
                 .field('channel', Package.XENIAL)
                 .expect(400);
 
-            expect(res.body.success).to.be.false
-            expect(res.body.message).to.equal("This app needs to be reviewed manually (Error:  'unconfined' not allowed)")
+            expect(res.body.success).to.be.false;
+            expect(res.body.message).to.equal("This app needs to be reviewed manually (Error:  'unconfined' not allowed)");
         });
 
         it('fails if not a click', async function() {
@@ -153,8 +153,8 @@ describe('Manage Revision POST', function() {
                 .field('channel', Package.XENIAL)
                 .expect(400);
 
-            expect(res.body.success).to.be.false
-            expect(res.body.message).to.equal('The file must be a click package')
+            expect(res.body.success).to.be.false;
+            expect(res.body.message).to.equal('The file must be a click package');
         });
 
         it('fails with a different package id from file', async function() {
@@ -170,7 +170,7 @@ describe('Manage Revision POST', function() {
                 .field('channel', Package.XENIAL)
                 .expect(400);
 
-            expect(res.body.success).to.be.false
+            expect(res.body.success).to.be.false;
             expect(res.body.message).to.equal('The uploaded package does not match the name of the package you are editing');
             expect(reviewStub).to.have.been.calledOnce;
             expect(parseStub).to.have.been.calledOnce;
@@ -185,7 +185,7 @@ describe('Manage Revision POST', function() {
                 .field('channel', Package.XENIAL)
                 .expect(400);
 
-            expect(res.body.success).to.be.false
+            expect(res.body.success).to.be.false;
             expect(res.body.message).to.equal('Your package manifest is malformed');
             expect(reviewStub).to.have.been.calledOnce;
             expect(parseStub).to.have.been.calledOnce;
@@ -208,7 +208,7 @@ describe('Manage Revision POST', function() {
                 .field('channel', Package.XENIAL)
                 .expect(400);
 
-            expect(res.body.success).to.be.false
+            expect(res.body.success).to.be.false;
             expect(res.body.message).to.equal('A revision already exists with this version');
             expect(reviewStub).to.have.been.calledOnce;
             expect(parseStub).to.have.been.calledOnce;
@@ -232,12 +232,12 @@ describe('Manage Revision POST', function() {
                 .field('changelog', '<script></script> changelog update')
                 .expect(200);
 
-            expect(res.body.success).to.be.true
+            expect(res.body.success).to.be.true;
             expect(reviewStub).to.have.been.calledOnce;
             expect(parseStub).to.have.been.calledOnce;
 
-            let package = await PackageRepo.findOne(this.package.id);
-            expect(package.changelog).to.equal('changelog update\n\nold changelog');
+            let pkg = await PackageRepo.findOne(this.package.id);
+            expect(pkg.changelog).to.equal('changelog update\n\nold changelog');
         });
 
         it('successfully reviews/updates/saves a package and icon and updates elasticsearch', async function() {
@@ -261,20 +261,20 @@ describe('Manage Revision POST', function() {
             expect(data.channels).to.deep.equal([Package.XENIAL]);
             expect(data.filesize).to.be.ok;
             expect(data.framework).to.equal('ubuntu-sdk-16.04');
-            expect(data.icon).to.equal('http://local.open-store.io/api/v3/apps/openstore-test.openstore-team/icon/1.0.0')
+            expect(data.icon).to.equal('http://local.open-store.io/api/v3/apps/openstore-test.openstore-team/icon/1.0.0');
             expect(data.permissions).to.deep.equal(['networking']);
             expect(data.published).to.be.false;
             expect(data.manifest).to.be.ok;
             expect(data.tagline).to.equal('OpenStore test app');
             expect(data.version).to.equal('1.0.0');
             expect(data.types).to.deep.equal(['app']);
-            expect(data.revisions).to.have.lengthOf(1)
-            expect(data.revisions[0].revision).to.equal(1)
-            expect(data.revisions[0].version).to.equal('1.0.0')
-            expect(data.revisions[0].channel).to.equal(Package.XENIAL)
+            expect(data.revisions).to.have.lengthOf(1);
+            expect(data.revisions[0].revision).to.equal(1);
+            expect(data.revisions[0].version).to.equal('1.0.0');
+            expect(data.revisions[0].channel).to.equal(Package.XENIAL);
 
-            expect(this.uploadPackageStub).to.have.been.calledOnce
-            expect(reviewSpy).to.have.been.calledOnce
+            expect(this.uploadPackageStub).to.have.been.calledOnce;
+            expect(reviewSpy).to.have.been.calledOnce;
         });
 
         // TODO test pkg.updateFromClick

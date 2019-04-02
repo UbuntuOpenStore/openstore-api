@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "cd src && supervisor -V -w api,db,utils,index.js index.js",
-    "lint": "node_modules/.bin/eslint ./src/",
+    "lint": "node_modules/.bin/eslint ./src/ ./tests/",
     "test": "NODE_ENV=testing mocha tests --reporter dot"
   },
   "repository": {

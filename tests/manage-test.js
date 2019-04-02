@@ -4,13 +4,14 @@ const {expect} = require('./helper');
 const PackageRepo = require('../src/db/package/repo');
 const PackageSearch = require('../src/db/package/search');
 
-describe('Manage GET', function() {
+describe('Manage GET', () => {
     before(function() {
         this.route = '/api/v3/manage/';
     });
 
     beforeEach(async function() {
         [this.package] = await Promise.all([
+            /* eslint-disable no-underscore-dangle */
             factory.create('package', {maintainer: this.user._id, name: 'User app'}),
             factory.create('package'),
         ]);
@@ -20,7 +21,7 @@ describe('Manage GET', function() {
         await this.get(this.route, false).expect(401);
     });
 
-    context('admin user', function() {
+    context('admin user', () => {
         it('shows all apps for an admin user', async function() {
             let res = await this.get(this.route).expect(200);
 
@@ -59,7 +60,7 @@ describe('Manage GET', function() {
         });
     });
 
-    context('community user', async function() {
+    context('community user', () => {
         beforeEach(async function() {
             this.user.role = 'community';
             await this.user.save();
@@ -77,7 +78,7 @@ describe('Manage GET', function() {
     });
 });
 
-describe('Manage GET id', function() {
+describe('Manage GET id', () => {
     before(function() {
         this.route = '/api/v3/manage/';
     });
@@ -93,7 +94,7 @@ describe('Manage GET id', function() {
         await this.get(`${this.route}/${this.package.id}`, false).expect(401);
     });
 
-    context('admin user', function() {
+    context('admin user', () => {
         it('sees any app', async function() {
             let res = await this.get(`${this.route}/${this.package.id}`).expect(200);
 
@@ -107,7 +108,7 @@ describe('Manage GET id', function() {
         });
     });
 
-    context('community user', async function() {
+    context('community user', () => {
         beforeEach(async function() {
             this.user.role = 'community';
             await this.user.save();
@@ -127,7 +128,7 @@ describe('Manage GET id', function() {
     });
 });
 
-describe('Manage POST', function() {
+describe('Manage POST', () => {
     before(function() {
         this.route = '/api/v3/manage/';
     });
@@ -140,7 +141,7 @@ describe('Manage POST', function() {
         await this.post(this.route, false).expect(401);
     });
 
-    context('admin user', function() {
+    context('admin user', () => {
         it('succeeds with a com.ubuntu id', async function() {
             let res = await this.post(this.route)
                 .send({id: 'com.ubuntu.app', name: 'App Dev'})
@@ -174,7 +175,7 @@ describe('Manage POST', function() {
         });
     });
 
-    context('truested user', function() {
+    context('truested user', () => {
         beforeEach(async function() {
             this.user.role = 'trusted';
             await this.user.save();
@@ -213,7 +214,7 @@ describe('Manage POST', function() {
         });
     });
 
-    context('community user', function() {
+    context('community user', () => {
         beforeEach(async function() {
             this.user.role = 'community';
             await this.user.save();
@@ -307,18 +308,18 @@ describe('Manage POST', function() {
             expect(res.body.data.id).to.equal('app.dev');
             expect(res.body.data.name).to.equal('App Dev');
 
-            let package = await PackageRepo.findOne('app.dev');
-            expect(package).to.exist;
-            expect(package.id).to.equal('app.dev');
-            expect(package.name).to.equal('App Dev');
-            expect(package.published).to.not.be.ok;
-            expect(package.maintainer).to.equal(this.user._id.toString());
-            expect(package.maintainer_name).to.equal(this.user.username);
+            let pkg = await PackageRepo.findOne('app.dev');
+            expect(pkg).to.exist;
+            expect(pkg.id).to.equal('app.dev');
+            expect(pkg.name).to.equal('App Dev');
+            expect(pkg.published).to.not.be.ok;
+            expect(pkg.maintainer).to.equal(this.user._id.toString());
+            expect(pkg.maintainer_name).to.equal(this.user.username);
         });
     });
 });
 
-describe('Manage POST', function() {
+describe('Manage POST', () => {
     before(function() {
         this.route = '/api/v3/manage/';
     });
@@ -337,20 +338,20 @@ describe('Manage POST', function() {
         await this.put(`${this.route}/${this.package.id}`, false).expect(401);
     });
 
-    context('admin user', function() {
+    context('admin user', () => {
         it('allows changing the maintainer', async function() {
-            let user2 = await factory.create('user')
+            let user2 = await factory.create('user');
 
             let res = await this.put(`${this.route}/${this.package.id}`)
                 .send({maintainer: user2._id})
                 .expect(200);
 
             expect(res.body.success).to.be.true;
-            expect(res.body.data.maintainer).to.equal(user2._id.toString())
+            expect(res.body.data.maintainer).to.equal(user2._id.toString());
             expect(this.removeStub).to.have.been.calledOnce;
 
-            let package = await PackageRepo.findOne(this.package.id);
-            expect(package.maintainer).to.equal(user2._id.toString());
+            let pkg = await PackageRepo.findOne(this.package.id);
+            expect(pkg.maintainer).to.equal(user2._id.toString());
         });
 
         it('can update any package', async function() {
@@ -359,15 +360,15 @@ describe('Manage POST', function() {
                 .expect(200);
 
             expect(res.body.success).to.be.true;
-            expect(res.body.data.name).to.equal('Foo Bar')
+            expect(res.body.data.name).to.equal('Foo Bar');
             expect(this.removeStub).to.have.been.calledOnce;
 
-            let package = await PackageRepo.findOne(this.package2.id);
-            expect(package.name).to.equal('Foo Bar');
+            let pkg = await PackageRepo.findOne(this.package2.id);
+            expect(pkg.name).to.equal('Foo Bar');
         });
     });
 
-    context('community user', function() {
+    context('community user', () => {
         beforeEach(async function() {
             this.user.role = 'community';
             await this.user.save();
@@ -396,7 +397,7 @@ describe('Manage POST', function() {
                 .expect(200);
 
             expect(res.body.success).to.be.true;
-            expect(res.body.data.maintainer).to.equal(this.user._id.toString())
+            expect(res.body.data.maintainer).to.equal(this.user._id.toString());
             expect(this.removeStub).to.have.been.calledOnce;
         });
 
@@ -406,11 +407,11 @@ describe('Manage POST', function() {
                 .expect(200);
 
             expect(res.body.success).to.be.true;
-            expect(res.body.data.name).to.equal('Foo Bar')
+            expect(res.body.data.name).to.equal('Foo Bar');
             expect(this.removeStub).to.have.been.calledOnce;
 
-            let package = await PackageRepo.findOne(this.package.id);
-            expect(package.name).to.equal('Foo Bar');
+            let pkg = await PackageRepo.findOne(this.package.id);
+            expect(pkg.name).to.equal('Foo Bar');
         });
 
         it('publishes the package', async function() {
@@ -424,8 +425,8 @@ describe('Manage POST', function() {
             expect(res.body.success).to.be.true;
             expect(this.upsertStub).to.have.been.calledOnce;
 
-            let package = await PackageRepo.findOne(this.package.id);
-            expect(package.published).to.be.true;
+            let pkg = await PackageRepo.findOne(this.package.id);
+            expect(pkg.published).to.be.true;
         });
 
         // TODO implement these
@@ -437,7 +438,7 @@ describe('Manage POST', function() {
     });
 });
 
-describe('Manage DELETE', function() {
+describe('Manage DELETE', () => {
     before(function() {
         this.route = '/api/v3/manage/';
     });
@@ -449,16 +450,16 @@ describe('Manage DELETE', function() {
         ]);
     });
 
-    context('adminuser', function() {
+    context('admin user', () => {
         it('can delete any package', async function() {
             await this.delete(`${this.route}/${this.package.id}`).expect(200);
 
-            let package = await PackageRepo.findOne(this.package.id);
-            expect(package).to.be.null;
+            let pkg = await PackageRepo.findOne(this.package.id);
+            expect(pkg).to.be.null;
         });
     });
 
-    context('community user', function() {
+    context('community user', () => {
         beforeEach(async function() {
             this.user.role = 'community';
             await this.user.save();
@@ -482,8 +483,8 @@ describe('Manage DELETE', function() {
         it('deletes a package', async function() {
             await this.delete(`${this.route}/${this.package.id}`).expect(200);
 
-            let package = await PackageRepo.findOne(this.package.id);
-            expect(package).to.be.null;
+            let pkg = await PackageRepo.findOne(this.package.id);
+            expect(pkg).to.be.null;
         });
     });
 });

@@ -8,7 +8,8 @@ module.exports = {
   ],
   'env': {
     'browser': false,
-    'node': true
+    'node': true,
+    'mocha': true
   },
   'rules': {
     // allow debugger during development
@@ -16,5 +17,13 @@ module.exports = {
     'no-console': process.env.NODE_ENV === 'production' ? 1 : 0,
 
     'max-len': ['error', {code: 140}],
-  }
+  },
+  overrides: [
+    {
+      files: "*-test.js",
+      rules: {
+        'no-unused-expressions': 'off'
+      }
+    }
+  ]
 }
