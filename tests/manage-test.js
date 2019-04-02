@@ -1,7 +1,7 @@
 const {factory} = require('factory-girl');
 
 const {expect} = require('./helper');
-const PackageRepo = require('../src/db/package/repo')
+const PackageRepo = require('../src/db/package/repo');
 const PackageSearch = require('../src/db/package/search');
 
 describe('Manage GET', function() {

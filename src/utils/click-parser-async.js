@@ -13,4 +13,4 @@ function parsePackage(file, getIcon) {
     });
 }
 
-module.exports = parsePackage;
+exports.parse = parsePackage;

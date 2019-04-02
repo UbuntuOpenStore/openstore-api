@@ -91,7 +91,10 @@ function sanitize(html) {
     return sanitizeHtml(html, {
         allowedTags: [],
         allowedAttributes: [],
-    }).replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/\r/g, '');
+    }).replace(/&amp;/g, '&')
+        .replace(/&quot;/g, '"')
+        .replace(/\r/g, '')
+        .trim();
 }
 
 exports.success = success;

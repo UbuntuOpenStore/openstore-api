@@ -123,11 +123,20 @@ packageSchema.methods.updateFromClick = function(data, file) {
         version: data.version,
     };
 
+    let permissions = [];
     data.apps.forEach((app) => {
         let hook = {};
 
         if (Object.keys(app.apparmor).length > 0) {
             hook.apparmor = app.apparmor;
+
+            if (app.apparmor.policy_groups) {
+                permissions = permissions.concat(app.apparmor.policy_groups);
+            }
+
+            if (app.apparmor.template == 'unconfined') {
+                permissions.push('unconfined');
+            }
         }
 
         if (Object.keys(app.desktop).length > 0) {
@@ -171,6 +180,7 @@ packageSchema.methods.updateFromClick = function(data, file) {
         manifest.hooks[app.name.replace('.', '__')] = hook;
     });
 
+    this.permissions = permissions;
     this.architecture = data.architecture;
     this.architectures = data.architecture;
     this.author = data.maintainer;

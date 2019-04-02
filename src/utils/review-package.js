@@ -1,4 +1,4 @@
-const exec = require('child_process').exec;
+const childProcess = require('child_process');
 
 const config = require('./config');
 const logger = require('./logger');
@@ -26,10 +26,10 @@ function parseReview(review) {
     return manualReview;
 }
 
-function reviewPackage(file) {
+function review(file) {
     return new Promise((resolve) => {
         let command = `${config.clickreview.command} --json ${file}`;
-        exec(command, {
+        childProcess.exec(command, {
             env: {
                 PYTHONPATH: config.clickreview.pythonpath,
             },
@@ -70,4 +70,4 @@ function reviewPackage(file) {
     });
 }
 
-module.exports = reviewPackage;
+exports.review = review;

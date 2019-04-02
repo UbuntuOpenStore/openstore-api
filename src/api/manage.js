@@ -12,7 +12,7 @@ const logger = require('../utils/logger');
 const helpers = require('../utils/helpers');
 const apiLinks = require('../utils/api-links');
 const upload = require('../utils/upload');
-const clickParse = require('../utils/click-parser-async');
+const clickParser = require('../utils/click-parser-async');
 const checksum = require('../utils/checksum');
 const reviewPackage = require('../utils/review-package');
 const {authenticate, userRole, downloadFile} = require('../utils/middleware');
@@ -46,15 +46,15 @@ function fileName(file) {
 
 async function review(req, file, filePath) {
     if (!file.originalname.endsWith('.click')) {
-        fs.unlink(file.path);
+        await fs.unlinkAsync(file.path);
         return [false, BAD_FILE];
     }
 
     await fs.renameAsync(file.path, filePath);
 
-    if (!req.isAdminUser || !req.isTrustedUser) {
+    if (!req.isAdminUser && !req.isTrustedUser) {
         // Admin & trusted users can upload apps without manual review
-        let needsManualReview = await reviewPackage(filePath);
+        let needsManualReview = await reviewPackage.review(filePath);
         if (needsManualReview) {
             // TODO improve this feedback
             let error = NEEDS_MANUAL_REVIEW;
@@ -65,7 +65,7 @@ async function review(req, file, filePath) {
                 error = `${NEEDS_MANUAL_REVIEW} (Error: ${needsManualReview})`;
             }
 
-            fs.unlink(filePath);
+            await fs.unlinkAsync(filePath);
             return [false, error];
         }
     }
@@ -81,7 +81,7 @@ function updateScreenshotFiles(pkg, screenshotFiles) {
 
     if (screenshotFiles.length > screenshotLimit) {
         for (let i = screenshotLimit; i < screenshotFiles.length; i++) {
-            fs.unlink(screenshotFiles[i].path);
+            fs.unlinkAsync(screenshotFiles[i].path);
         }
     }
 
@@ -91,7 +91,7 @@ function updateScreenshotFiles(pkg, screenshotFiles) {
         let ext = path.extname(file.originalname);
         if (['.png', '.jpg', '.jpeg'].indexOf(ext) == -1) {
             // Reject anything not an image we support
-            fs.unlink(file.path);
+            fs.unlinkAsync(file.path);
         }
         else {
             let id = uuid.v4();
@@ -261,8 +261,8 @@ router.put(
             return helpers.success(res, serialize(pkg));
         }
         catch (err) {
-            console.error(err);
             logger.error('Error updating package:', err);
+            console.error(err);
             return helpers.error(res, 'There was an error updating your app, please try again later');
         }
     },
@@ -291,8 +291,8 @@ router.delete(
             return helpers.success(res, {});
         }
         catch (err) {
-            console.error(err);
             logger.error('Error deleting package:', err);
+            console.error(err);
             return helpers.error(res, 'There was an error deleting your app, please try again later');
         }
     },
@@ -328,7 +328,7 @@ router.post(
             let previousRevision = previousRevisionData ? previousRevisionData.revision : -1;
 
             if (!req.isAdminUser && req.user._id != pkg.maintainer) {
-                return helpers.error(res, PERMISSION_DENIED, 400);
+                return helpers.error(res, PERMISSION_DENIED, 403);
             }
 
             let filePath = fileName(req.files.file[0]);
@@ -337,7 +337,7 @@ router.post(
                 return helpers.error(res, error, 400);
             }
 
-            let parseData = await clickParse(filePath, true);
+            let parseData = await clickParser.parse(filePath, true);
             if (!parseData.name || !parseData.version || !parseData.architecture) {
                 return helpers.error(res, MALFORMED_MANIFEST, 400);
             }
@@ -404,6 +404,7 @@ router.post(
         catch (err) {
             let message = err.message ? err.message : err;
             logger.error(`Error updating package: ${message}`);
+            console.error(err);
 
             if (err.response) {
                 logger.info('Response data');
