@@ -145,7 +145,7 @@ describe('Manage Revision POST', () => {
 
             expect(res.body.success).to.be.false;
             expect(res.body.message).to.equal("This app needs to be reviewed manually (Error: 'unconfined' not allowed)");
-            expect(reviewStub).to.have.been.calledOnce
+            expect(reviewStub).to.have.been.calledOnce;
         });
 
         it('fails if not a click', async function() {
