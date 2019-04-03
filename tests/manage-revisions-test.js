@@ -7,6 +7,7 @@ const PackageRepo = require('../src/db/package/repo');
 const upload = require('../src/utils/upload');
 const reviewPackage = require('../src/utils/review-package');
 const clickParser = require('../src/utils/click-parser-async');
+const PackageSearch = require('../src/db/package/search');
 
 describe('Manage Revision POST', () => {
     beforeEach(async function() {
@@ -243,11 +244,19 @@ describe('Manage Revision POST', () => {
         it('successfully reviews/updates/saves a package and icon and updates elasticsearch', async function() {
             this.timeout(5000);
 
-            // TODO check if updates icon
-            // TODO check if updates elasticsearch
-            // TODO check if removes old files
+            this.package.published = true;
+            this.package.revisions.push({
+                revision: 1,
+                channel: Package.XENIAL,
+                version: '0.0.1',
+                download_url: 'http://example.com/file',
+            });
+
+            await this.package.save();
 
             let reviewSpy = this.sandbox.spy(reviewPackage, 'review');
+            let upsertStub = this.sandbox.stub(PackageSearch, 'upsert');
+            let removeFileStub = this.sandbox.stub(upload, 'removeFile');
 
             let res = await this.post(this.route)
                 .attach('file', this.goodClick)
@@ -263,18 +272,20 @@ describe('Manage Revision POST', () => {
             expect(data.framework).to.equal('ubuntu-sdk-16.04');
             expect(data.icon).to.equal('http://local.open-store.io/api/v3/apps/openstore-test.openstore-team/icon/1.0.0');
             expect(data.permissions).to.deep.equal(['networking']);
-            expect(data.published).to.be.false;
+            expect(data.published).to.be.true;
             expect(data.manifest).to.be.ok;
             expect(data.tagline).to.equal('OpenStore test app');
             expect(data.version).to.equal('1.0.0');
             expect(data.types).to.deep.equal(['app']);
-            expect(data.revisions).to.have.lengthOf(1);
-            expect(data.revisions[0].revision).to.equal(1);
-            expect(data.revisions[0].version).to.equal('1.0.0');
-            expect(data.revisions[0].channel).to.equal(Package.XENIAL);
+            expect(data.revisions).to.have.lengthOf(2);
+            expect(data.revisions[1].revision).to.equal(2);
+            expect(data.revisions[1].version).to.equal('1.0.0');
+            expect(data.revisions[1].channel).to.equal(Package.XENIAL);
 
             expect(this.uploadPackageStub).to.have.been.calledOnce;
             expect(reviewSpy).to.have.been.calledOnce;
+            expect(upsertStub).to.have.been.calledOnce;
+            expect(removeFileStub).to.have.been.calledOnceWith('http://example.com/file');
         });
 
         // TODO test pkg.updateFromClick
