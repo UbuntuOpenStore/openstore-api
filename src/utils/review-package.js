@@ -13,7 +13,7 @@ function parseReview(reviewData) {
                 if (label.manual_review) {
                     if (label.text.indexOf('OK') == -1) {
                         manualReview = label.text;
-                        manualReview = manualReview.replace('(NEEDS REVIEW)', '');
+                        manualReview = manualReview.replace('(NEEDS REVIEW)', '').trim();
                     }
                     else {
                         manualReview = true;

@@ -24,7 +24,6 @@ describe('Manage Revision POST', () => {
         this.route = `/api/v3/manage/${this.package.id}/revision`;
         this.goodClick = path.join(__dirname, 'fixtures/good.click');
         this.emptyClick = path.join(__dirname, 'fixtures/empty.click');
-        this.manualReviewClick = path.join(__dirname, 'fixtures/manual-review.click');
         this.notAClick = path.join(__dirname, 'fixtures/notaclick.txt');
 
         this.uploadPackageStub = this.sandbox.stub(upload, 'uploadPackage').resolves(['packageUrl', 'iconUrl']);
@@ -137,15 +136,16 @@ describe('Manage Revision POST', () => {
         });
 
         it('fails review', async function() {
-            this.timeout(5000);
+            let reviewStub = this.sandbox.stub(reviewPackage, 'review').resolves("'unconfined' not allowed");
 
             let res = await this.post(this.route)
-                .attach('file', this.manualReviewClick)
+                .attach('file', this.emptyClick)
                 .field('channel', Package.XENIAL)
                 .expect(400);
 
             expect(res.body.success).to.be.false;
-            expect(res.body.message).to.equal("This app needs to be reviewed manually (Error:  'unconfined' not allowed)");
+            expect(res.body.message).to.equal("This app needs to be reviewed manually (Error: 'unconfined' not allowed)");
+            expect(reviewStub).to.have.been.calledOnce
         });
 
         it('fails if not a click', async function() {
@@ -254,7 +254,7 @@ describe('Manage Revision POST', () => {
 
             await this.package.save();
 
-            let reviewSpy = this.sandbox.spy(reviewPackage, 'review');
+            let reviewStub = this.sandbox.stub(reviewPackage, 'review').resolves(false);
             let upsertStub = this.sandbox.stub(PackageSearch, 'upsert');
             let removeFileStub = this.sandbox.stub(upload, 'removeFile');
 
@@ -283,7 +283,7 @@ describe('Manage Revision POST', () => {
             expect(data.revisions[1].channel).to.equal(Package.XENIAL);
 
             expect(this.uploadPackageStub).to.have.been.calledOnce;
-            expect(reviewSpy).to.have.been.calledOnce;
+            expect(reviewStub).to.have.been.calledOnce;
             expect(upsertStub).to.have.been.calledOnce;
             expect(removeFileStub).to.have.been.calledOnceWith('http://example.com/file');
         });
