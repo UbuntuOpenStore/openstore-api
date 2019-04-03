@@ -1,3 +1,6 @@
+services:
+  - mongo:latest
+
 test:
   image: node:8.11
   script:
