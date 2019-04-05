@@ -6,8 +6,8 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "cd src && supervisor -V -w api,db,utils,index.js index.js",
-    "lint": "node_modules/.bin/eslint ./src/ ./tests/",
-    "test": "NODE_ENV=testing node_modules/.bin/nyc node_modules/.bin/mocha tests --reporter dot"
+    "lint": "eslint ./src/ ./tests/",
+    "test": "NODE_ENV=testing nyc mocha tests --reporter dot"
   },
   "repository": {
     "type": "git",
