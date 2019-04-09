@@ -6,9 +6,13 @@ const Package = require('./model');
 function iconUrl(pkg) {
     let ext = pkg.icon ? path.extname(pkg.icon) : '.png';
     let version = '0.0.0';
-    let {revisionData} = pkg.getLatestRevision(Package.XENIAL);
-    if (revisionData) {
-        version = revisionData.version;
+
+    // TODO get the version when the data is coming from elasticsearch
+    if (pkg.getLatestRevision) {
+        let {revisionData} = pkg.getLatestRevision(Package.XENIAL);
+        if (revisionData) {
+            version = revisionData.version;
+        }
     }
 
     return `${config.server.host}/api/v3/apps/${pkg.id}/icon/${version}${ext}`;
