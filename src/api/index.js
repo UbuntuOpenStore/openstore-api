@@ -113,6 +113,7 @@ function setup() {
         '/',
         '/submit',
         '/apps',
+        '/app/:name',
         '/users',
         '/manage',
         '/manage/:name',
