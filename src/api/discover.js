@@ -51,7 +51,7 @@ router.get('/', async (req, res) => {
             discover.highlight.app = serialize(highlight);
 
             discoverCategories.forEach((category, index) => {
-                let apps = discoverCategoriesApps[index].map(serialize);
+                let apps = discoverCategoriesApps[index].map((app) => serialize(app));
 
                 category.ids = shuffle(category.ids);
                 category.apps = shuffle(apps);
@@ -71,7 +71,7 @@ router.get('/', async (req, res) => {
             newAndUpdatedCategory.apps = newAndUpdatedCategory.ids.map((id) => {
                 return newAndUpdatedApps.find((app) => (app.id == id));
             });
-            newAndUpdatedCategory.apps = newAndUpdatedCategory.apps.map(serialize);
+            newAndUpdatedCategory.apps = newAndUpdatedCategory.apps.map((app) => serialize(app));
 
             discover.categories = discover.categories.filter((category) => (category.apps.length > 0));
 
