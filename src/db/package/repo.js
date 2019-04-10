@@ -203,8 +203,6 @@ const PackageRepo = {
         let inc = {};
         inc[`revisions.${revisionIndex}.downloads`] = 1;
 
-        console.log('incrementDownload', inc);
-
         return Package.update({_id: id}, {$inc: inc});
     },
 

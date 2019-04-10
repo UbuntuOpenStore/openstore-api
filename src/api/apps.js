@@ -93,8 +93,8 @@ router.get('/:id/download/:channel', async (req, res) => {
         let ext = path.extname(downloadUrl);
         let filename = `${config.data_dir}/${pkg.id}-${channel}-${revisionData.version}${ext}`;
         let headers = {'Content-Disposition': `attachment; filename=${pkg.id}_${revisionData.version}_${pkg.architecture}.click`};
-        await PackageRepo.incrementDownload(pkg._id, revisionIndex);
-        return await helpers.checkDownload(downloadUrl, filename, headers, res);
+        await helpers.checkDownload(downloadUrl, filename, headers, res);
+        return await PackageRepo.incrementDownload(pkg._id, revisionIndex);
     }
     catch (err) {
         logger.error('Error downloading package:', err);
