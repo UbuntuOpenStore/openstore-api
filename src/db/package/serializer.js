@@ -41,7 +41,7 @@ function toSlimJson(pkg) {
             published_date: pkg.published_date || '',
             tagline: pkg.tagline || '',
             types: pkg.types || [],
-            updated_date: pkg.published_date || '',
+            updated_date: pkg.updated_date || '',
         };
     }
 

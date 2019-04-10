@@ -48,6 +48,7 @@ const packageSchema = mongoose.Schema({
     // Revisions
     revisions: [
         // TODO make this a sub document
+        // TODO add the date
         /*
         {
             revision: Number,
