@@ -91,7 +91,7 @@ function toJson(pkg) {
         video_url: pkg.video_url || '',
         tagline: pkg.tagline || '',
         types: pkg.types || [],
-        updated_date: pkg.published_date || '',
+        updated_date: pkg.updated_date || '',
         version: revisionData ? revisionData.version : '',
         languages: languages,
         revisions: pkg.revisions || [],
