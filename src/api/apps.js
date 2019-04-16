@@ -43,8 +43,8 @@ async function apps(req, res) {
         return helpers.success(res, {count, next, previous, packages: formatted});
     }
     catch (err) {
-        logger.error('Error fetching packages:', err);
-        console.error(err);
+        logger.error('Error fetching packages');
+        helpers.captureException(err, req.originalUrl);
         return helpers.error(res, 'Could not fetch app list at this time');
     }
 }
@@ -66,7 +66,8 @@ router.get('/:id', async (req, res) => {
         return helpers.error(res, APP_NOT_FOUND, 404);
     }
     catch (err) {
-        logger.error('Error fetching packages:', err);
+        logger.error('Error fetching packages');
+        helpers.captureException(err, req.originalUrl);
         return helpers.error(res, 'Could not fetch app list at this time');
     }
 });
@@ -97,8 +98,8 @@ router.get('/:id/download/:channel', async (req, res) => {
         return await PackageRepo.incrementDownload(pkg._id, revisionIndex);
     }
     catch (err) {
-        logger.error('Error downloading package:', err);
-        console.error(err);
+        logger.error('Error downloading package');
+        helpers.captureException(err, req.originalUrl);
         return helpers.error(res, 'Could not download package at this time');
     }
 });

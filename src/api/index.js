@@ -5,6 +5,7 @@ const methodOverride = require('method-override');
 const session = require('cookie-session');
 const express = require('express');
 const cluster = require('cluster');
+const Sentry = require('@sentry/node');
 
 const config = require('../utils/config');
 const apps = require('./apps');
@@ -21,6 +22,15 @@ const {opengraph} = require('../utils/middleware');
 require('../db'); // Make sure the database connection gets setup
 
 function setup() {
+    logger.info(`OpenStore api version ${config.version}`);
+
+    if (config.sentry) {
+        Sentry.init({
+            release: `openstore-api@${config.version}`,
+            dsn: config.sentry,
+        });
+    }
+
     const app = express();
     app.disable('x-powered-by');
 
@@ -67,6 +77,7 @@ function setup() {
     }));
     app.use(passport.initialize());
     app.use(passport.session());
+    app.use(Sentry.Handlers.errorHandler());
 
     // TODO remove this
     app.use('/api/screenshot', apps.screenshot);

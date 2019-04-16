@@ -94,7 +94,8 @@ router.get('/', async (req, res) => {
         helpers.success(res, data);
     }
     catch (err) {
-        logger.error('Error fetching categories:', err);
+        logger.error('Error fetching categories');
+        helpers.captureException(err, req.originalUrl);
         helpers.error(res, 'Could not fetch category list at this time');
     }
 });

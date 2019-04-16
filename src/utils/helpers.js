@@ -1,6 +1,7 @@
 const request = require('request');
 const mime = require('mime');
 const sanitizeHtml = require('sanitize-html');
+const Sentry = require('@sentry/node');
 
 const fs = require('../utils/async-fs');
 const logger = require('../utils/logger');
@@ -97,6 +98,18 @@ function sanitize(html) {
         .trim();
 }
 
+function captureException(err, route) {
+    if (process.env.NODE_ENV != 'testing') {
+        // TODO clean this up
+        console.error(err);
+    }
+
+    Sentry.withScope((scope) => {
+        scope.setTag('route', route);
+        Sentry.captureException(err);
+    });
+}
+
 exports.success = success;
 exports.error = error;
 exports.download = download;
@@ -104,3 +117,4 @@ exports.checkDownload = checkDownload;
 exports.getData = getData;
 exports.getDataArray = getDataArray;
 exports.sanitize = sanitize;
+exports.captureException = captureException;

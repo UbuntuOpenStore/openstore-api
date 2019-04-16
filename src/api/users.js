@@ -14,6 +14,7 @@ router.get('/', authenticate, adminOnly, async (req, res) => {
         return helpers.success(res, serialize(users));
     }
     catch (err) {
+        helpers.captureException(err, req.originalUrl);
         return helpers.error(res, err);
     }
 });
@@ -28,6 +29,7 @@ router.get('/:id', authenticate, adminOnly, async (req, res) => {
         return helpers.success(res, serialize(user));
     }
     catch (err) {
+        helpers.captureException(err, req.originalUrl);
         return helpers.error(res, err);
     }
 });

@@ -51,6 +51,8 @@ let config = {
         clientID: configFile.GITLAB_CLIENT_ID || process.env.GITLAB_CLIENT_ID || '',
         clientSecret: configFile.GITLAB_CLIENT_SECRET || process.env.GITLAB_CLIENT_SECRET || '',
     },
+    sentry: configFile.SENTRY_URL || process.env.SENTRY_URL || '',
+    version: configFile.VERSION || process.env.VERSION || 'dev',
 };
 
 // Mongo uri from docker

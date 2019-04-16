@@ -16,6 +16,7 @@
   "author": "Brian Douglass",
   "license": "GPL-3.0",
   "dependencies": {
+    "@sentry/node": "^5.0.7",
     "backblaze-b2": "git+https://gitlab.com/theopenstore/backblaze-b2.git",
     "bluebird": "^3.5.1",
     "body-parser": "^1.18.3",

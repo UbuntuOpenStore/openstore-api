@@ -48,7 +48,7 @@ async function revisionsByVersion(req, res) {
     }
     catch (err) {
         logger.error('Error finding packages for revision:', err);
-        console.error(err);
+        helpers.captureException(err, req.originalUrl);
         helpers.error(res, 'Could not fetch app revisions at this time');
     }
 }

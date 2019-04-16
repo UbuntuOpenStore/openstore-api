@@ -75,6 +75,15 @@ describe('Manage GET', () => {
             expect(res.body.data.packages[0].id).to.equal(this.package.id);
             expect(res.body.data.packages[0].maintainer).to.equal(this.user._id.toString());
         });
+
+        it('fails gracefully', async function() {
+            let findStub = this.sandbox.stub(PackageRepo, 'find').rejects();
+
+            let res = await this.get(this.route).expect(500);
+
+            expect(res.body.success).to.be.false;
+            expect(findStub).to.have.been.calledOnce;
+        });
     });
 });
 
@@ -124,6 +133,15 @@ describe('Manage GET id', () => {
 
         it('can not see other apps', async function() {
             await this.get(`${this.route}/${this.package2.id}`).expect(404);
+        });
+
+        it('fails gracefully', async function() {
+            let findStub = this.sandbox.stub(PackageRepo, 'findOne').rejects();
+
+            let res = await this.get(`${this.route}/${this.package.id}`).expect(404);
+
+            expect(res.body.success).to.be.false;
+            expect(findStub).to.have.been.calledOnce;
         });
     });
 });
@@ -316,10 +334,21 @@ describe('Manage POST', () => {
             expect(pkg.maintainer).to.equal(this.user._id.toString());
             expect(pkg.maintainer_name).to.equal(this.user.username);
         });
+
+        it('fails gracefully', async function() {
+            let findStub = this.sandbox.stub(PackageRepo, 'findOne').rejects();
+
+            let res = await this.post(this.route)
+                .send({id: 'app.dev', name: 'App Dev'})
+                .expect(500);
+
+            expect(res.body.success).to.be.false;
+            expect(findStub).to.have.been.calledOnce;
+        });
     });
 });
 
-describe('Manage POST', () => {
+describe('Manage PUT', () => {
     before(function() {
         this.route = '/api/v3/manage/';
     });
@@ -429,6 +458,15 @@ describe('Manage POST', () => {
             expect(pkg.published).to.be.true;
         });
 
+        it('fails gracefully', async function() {
+            let findStub = this.sandbox.stub(PackageRepo, 'findOne').rejects();
+
+            let res = await this.put(`${this.route}/${this.package.id}`).expect(500);
+
+            expect(res.body.success).to.be.false;
+            expect(findStub).to.have.been.calledOnce;
+        });
+
         // TODO implement these
         it('adds screenshots');
         it('removes screenshots');
@@ -485,6 +523,15 @@ describe('Manage DELETE', () => {
 
             let pkg = await PackageRepo.findOne(this.package.id);
             expect(pkg).to.be.null;
+        });
+
+        it('fails gracefully', async function() {
+            let findStub = this.sandbox.stub(PackageRepo, 'findOne').rejects();
+
+            let res = await this.delete(`${this.route}/${this.package.id}`).expect(500);
+
+            expect(res.body.success).to.be.false;
+            expect(findStub).to.have.been.calledOnce;
         });
     });
 });

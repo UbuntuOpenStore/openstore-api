@@ -9,7 +9,7 @@ const helpers = require('../utils/helpers');
 
 const router = express.Router();
 
-async function generateFeed(res, updates) {
+async function generateFeed(req, res, updates) {
     let feed = new RSS({
         title: updates ? 'Updated Apps in the OpenStore' : 'New Apps in the OpenStore',
         description: updates ? 'Cool updates for Ubuntu Touch apps' : 'The hottest new apps for Ubuntu Touch',
@@ -46,6 +46,7 @@ async function generateFeed(res, updates) {
     }
     catch (err) {
         logger.error('RSS feed error', err);
+        helpers.captureException(err, req.originalUrl);
         return helpers.error(res, 'There was an error generating the RSS feed');
     }
 
@@ -54,11 +55,11 @@ async function generateFeed(res, updates) {
 }
 
 router.get('/new.xml', (req, res) => {
-    generateFeed(res, false);
+    generateFeed(req, res, false);
 });
 
 router.get('/updates.xml', async (req, res) => {
-    generateFeed(res, true);
+    generateFeed(req, res, true);
 });
 
 module.exports = router;

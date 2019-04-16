@@ -8,6 +8,7 @@ const {serialize} = require('../db/package/serializer');
 const config = require('../utils/config');
 const discoverJSON = require('./json/discover_apps.json');
 const helpers = require('../utils/helpers');
+const logger = require('../utils/logger');
 
 const router = express.Router();
 
@@ -86,7 +87,8 @@ router.get('/', async (req, res) => {
             helpers.success(res, discover);
         }
         catch (err) {
-            console.log(err);
+            logger.error('Error processing discovery');
+            helpers.captureException(err, req.originalUrl);
             helpers.error(res, 'Unable to fetch discovery data at this time');
         }
     }

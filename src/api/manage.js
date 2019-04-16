@@ -125,8 +125,8 @@ router.get('/', authenticate, userRole, async (req, res) => {
         return helpers.success(res, {count, next, previous, packages: formatted});
     }
     catch (err) {
-        logger.error('Error fetching packages:', err);
-        console.error(err);
+        logger.error('Error fetching packages');
+        helpers.captureException(err, req.originalUrl);
         return helpers.error(res, 'Could not fetch app list at this time');
     }
 });
@@ -146,7 +146,7 @@ router.get('/:id', authenticate, userRole, async (req, res) => {
         return helpers.error(res, APP_NOT_FOUND, 404);
     }
     catch (err) {
-        console.error(err);
+        helpers.captureException(err, req.originalUrl);
         return helpers.error(res, APP_NOT_FOUND, 404);
     }
 });
@@ -203,7 +203,8 @@ router.post(
             return helpers.success(res, serialize(pkg));
         }
         catch (err) {
-            logger.error('Error parsing new package:', err);
+            logger.error('Error parsing new package');
+            helpers.captureException(err, req.originalUrl);
             return helpers.error(res, 'There was an error creating your app, please try again later');
         }
     },
@@ -260,8 +261,8 @@ router.put(
             return helpers.success(res, serialize(pkg));
         }
         catch (err) {
-            logger.error('Error updating package:', err);
-            console.error(err);
+            logger.error('Error updating package');
+            helpers.captureException(err, req.originalUrl);
             return helpers.error(res, 'There was an error updating your app, please try again later');
         }
     },
@@ -290,8 +291,8 @@ router.delete(
             return helpers.success(res, {});
         }
         catch (err) {
-            logger.error('Error deleting package:', err);
-            console.error(err);
+            logger.error('Error deleting package');
+            helpers.captureException(err, req.originalUrl);
             return helpers.error(res, 'There was an error deleting your app, please try again later');
         }
     },
@@ -403,7 +404,7 @@ router.post(
         catch (err) {
             let message = err.message ? err.message : err;
             logger.error(`Error updating package: ${message}`);
-            console.error(err);
+            helpers.captureException(err, req.originalUrl);
 
             if (err.response) {
                 logger.info('Response data');

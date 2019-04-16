@@ -288,6 +288,18 @@ describe('Manage Revision POST', () => {
             expect(removeFileStub).to.have.been.calledOnceWith('http://example.com/file');
         });
 
+        it('fails gracefully', async function() {
+            let findStub = this.sandbox.stub(PackageRepo, 'findOne').rejects();
+
+            let res = await this.post(this.route)
+                .attach('file', this.emptyClick)
+                .field('channel', Package.XENIAL)
+                .expect(500);
+
+            expect(res.body.success).to.be.false;
+            expect(findStub).to.have.been.calledOnce;
+        });
+
         // TODO test pkg.updateFromClick
     });
 });
