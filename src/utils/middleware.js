@@ -57,10 +57,13 @@ function ogReplace(html, og) {
 
 function ogMatch(req) {
     let useragent = req.headers['user-agent'];
-    let m = useragents.some((ua) => useragent.toLowerCase().indexOf(ua.toLowerCase()) !== -1);
+    let match = false;
+    if (useragent) {
+        match = useragents.some((ua) => useragent.toLowerCase().indexOf(ua.toLowerCase()) !== -1);
+    }
 
     /* eslint-disable no-underscore-dangle */
-    return (m || req.query._escaped_fragment_ !== undefined);
+    return (match || req.query._escaped_fragment_ !== undefined);
 }
 
 async function opengraph(req, res, next) {
@@ -85,6 +88,7 @@ async function opengraph(req, res, next) {
             }));
         }
         catch (err) {
+            helpers.captureException(err, req.originalUrl)
             res.status(500);
             return res.send();
         }
