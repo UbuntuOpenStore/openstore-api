@@ -88,7 +88,7 @@ async function opengraph(req, res, next) {
             }));
         }
         catch (err) {
-            helpers.captureException(err, req.originalUrl)
+            helpers.captureException(err, req.originalUrl);
             res.status(500);
             return res.send();
         }
