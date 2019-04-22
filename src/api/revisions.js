@@ -26,6 +26,10 @@ async function revisionsByVersion(req, res) {
             .map((pkg) => {
                 let version = versions.filter((v) => (v.split('@')[0] == pkg.id))[0];
 
+                if (!version) {
+                    return null;
+                }
+
                 let parts = version.split('@');
                 let channel = (parts.length > 2) ? parts[2] : defaultChannel;
                 version = parts[1];
@@ -42,7 +46,8 @@ async function revisionsByVersion(req, res) {
                     latest_version: pkg.version,
                     latest_revision: latestRevisionData ? latestRevisionData.revision : null,
                 };
-            });
+            })
+            .filter(Boolean);
 
         helpers.success(res, pkgs);
     }
