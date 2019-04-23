@@ -3,7 +3,7 @@ function toJson(user) {
         /* eslint-disable no-underscore-dangle */
         _id: user._id,
         email: user.email,
-        name: user.name,
+        name: user.name ? user.name : user.username,
         role: user.role ? user.role : 'community',
         username: user.username,
     };
