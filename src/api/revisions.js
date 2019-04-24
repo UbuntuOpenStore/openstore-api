@@ -2,6 +2,7 @@ const express = require('express');
 
 const Package = require('../db/package/model');
 const PackageRepo = require('../db/package/repo');
+const {downloadUrl} = require('../db/package/serializer');
 const helpers = require('../utils/helpers');
 const logger = require('../utils/logger');
 
@@ -45,6 +46,7 @@ async function revisionsByVersion(req, res) {
                     revision: revision,
                     latest_version: pkg.version,
                     latest_revision: latestRevisionData ? latestRevisionData.revision : null,
+                    download_url: latestRevisionData ? downloadUrl(pkg, channel) : null,
                 };
             })
             .filter(Boolean);

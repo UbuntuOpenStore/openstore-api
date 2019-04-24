@@ -144,4 +144,5 @@ function serialize(pkgs, slim) {
 }
 
 exports.iconUrl = iconUrl;
+exports.downloadUrl = downloadUrl;
 exports.serialize = serialize;
