@@ -19,6 +19,7 @@ const statsRouter = express.Router();
 
 const APP_NOT_FOUND = 'App not found';
 const DOWNLOAD_NOT_FOUND_FOR_CHANNEL = 'Download not available for this channel';
+const INVALID_CHANNEL = 'The provided channel is not valid';
 
 async function apps(req, res) {
     let filters = PackageRepo.parseRequestFilters(req);
@@ -80,6 +81,10 @@ router.get('/:id/download/:channel', async (req, res) => {
         }
 
         let channel = req.params.channel ? req.params.channel.toLowerCase() : Package.XENIAL;
+        if (!Package.CHANNELS.includes(channel)) {
+            return helpers.error(res, INVALID_CHANNEL);
+        }
+
         let {revisionData, revisionIndex} = pkg.getLatestRevision(channel);
 
         let downloadUrl = '';
