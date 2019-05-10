@@ -74,6 +74,7 @@ async function review(req, file, filePath) {
 }
 
 function updateScreenshotFiles(pkg, screenshotFiles) {
+    // Clear out the uploaded files that are over the limit
     let screenshotLimit = 5 - pkg.screenshots.length;
     if (screenshotFiles.length < screenshotLimit) {
         screenshotLimit = screenshotFiles.length;

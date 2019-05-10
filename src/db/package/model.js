@@ -288,7 +288,7 @@ packageSchema.methods.updateFromBody = async function(body) {
         let prefix = `${config.server.host}/api/screenshot/`;
         if (screenshots.indexOf(screenshot) == -1 && screenshot.startsWith(prefix)) {
             let filename = screenshot.replace(prefix, '');
-            fs.unlink(`${config.image_dir}/${filename}`);
+            fs.unlinkAsync(`${config.image_dir}/${filename}`);
         }
     });
     this.screenshots = screenshots;
