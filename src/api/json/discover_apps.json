@@ -1,7 +1,7 @@
 {
     "highlight": {
-        "id": "dekko2.dekkoproject",
-        "image": "/banners/dekko.svg"
+        "id": "me.lduboeuf.stellarium",
+        "image": "/banners/stellarium.svg"
     },
     "categories": [
         {
@@ -10,43 +10,39 @@
             "referral": "",
             "ids": []
         }, {
-            "name": "RSS Feed Readers",
-            "tagline": "RSS is dead, long live RSS!",
-            "referral": "",
+            "name": "Chat Connection",
+            "tagline": "Don't forget to text mom!",
+            "referral": "Communication & Social",
             "ids": [
-                "rssreader.florisluiten",
-                "it.mardy.ttrss",
-                "inoreader.cibersheep",
-                "doniks.shorter",
-                "feedbin.jos-henson"
+                "im.kaidan.kaidan",
+                "teleports.ubports",
+                "linphone.cibersheep",
+                "fluffychat.christianpauly"
             ]
         }, {
             "name": "Awesome Games",
-            "tagline": "It’s dangerous to go alone, take this!",
+            "tagline": "Didn’t we have some fun though?",
             "referral": "Games",
             "ids": [
-                "neopar.mvm",
-                "switch-reloaded.timsueberkrueb",
-                "volleyball2d.emanuelesorce",
-                "sakawochi.wendigosoft",
-                "tankball.cibersheep",
-                "com.ubuntu.developer.1bsyl.negative-space",
-                "com.ubuntu.developer.1bsyl.demineur",
-                "falldown.rpadovani",
-                "com.ubuntu.developer.rpadovani.100balls"
+                "wumpus.cibersheep",
+                "gearboy.bhdouglass",
+                "100balls.jonnius",
+                "falldown.jonnius",
+                "pathwindfork.mateo-salta",
+                "ttris.lduboeuf",
+                "sm.lduboeuf"
             ]
         }, {
-            "name": "Core Apps",
-            "tagline": "There is an app for that",
-            "referral": "",
+            "name": "Toolbox",
+            "tagline": "Tweaks, hacks, and utilities",
+            "referral": "Utilities",
             "ids": [
-                "com.ubuntu.calculator",
-                "com.ubuntu.calendar",
-                "com.ubuntu.camera",
-                "com.ubuntu.clock",
-                "com.ubuntu.gallery",
-                "com.ubuntu.music",
-                "com.ubuntu.reminders"
+                "me.fredl.ghostcloud",
+                "me.fredl.qmlcreator",
+                "me.fredl.isodrive",
+                "wifitransfer.costa",
+                "uvolman.mateosalta",
+                "ut-tweak-tool.sverzegnassi"
             ]
         }
     ]
