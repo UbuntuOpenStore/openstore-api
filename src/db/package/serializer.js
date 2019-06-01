@@ -96,6 +96,7 @@ function toJson(pkg) {
         languages: languages,
         revisions: pkg.revisions || [],
         totalDownloads: 0,
+        latestDownloads: revisionData ? revisionData.downloads : '',
 
         // TODO depricate these
         revision: -1,
