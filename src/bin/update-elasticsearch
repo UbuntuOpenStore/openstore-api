@@ -2,10 +2,10 @@
 
 'use strict';
 
-const db = require('../db');
+const Package = require('../db/package/model');
 const PackageSearch = require('../db/package/search');
 
-db.Package.find({published: true}).then((pkgs) => {
+Package.find({published: true}).then((pkgs) => {
     return PackageSearch.bulk(pkgs);
 }).then(() => {
     console.log('done');
