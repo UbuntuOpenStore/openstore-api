@@ -53,6 +53,7 @@ let config = {
     },
     sentry: configFile.SENTRY_URL || process.env.SENTRY_URL || '',
     version: configFile.VERSION || process.env.VERSION || 'dev',
+    telegram: configFile.TELEGRAM || process.env.TELEGRAM || '',
 };
 
 // Mongo uri from docker
