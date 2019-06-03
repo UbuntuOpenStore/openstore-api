@@ -14,13 +14,22 @@ const logger = winston.createLogger({
     ],
 });
 
-if (config.papertrail.port) {
-    let winstonPapertrail = new winston.transports.Papertrail({
-        host: config.papertrail.host,
-        port: config.papertrail.port,
-    });
+if (config.papertrail.port && config.papertrail.host) {
+    try {
+        let winstonPapertrail = new winston.transports.Papertrail({
+            host: config.papertrail.host,
+            port: config.papertrail.port,
+        });
 
-    logger.add(winstonPapertrail);
+        logger.add(winstonPapertrail);
+    }
+    catch (err) {
+        console.error(err);
+        Sentry.withScope((scope) => {
+            scope.setTag('type', 'logger');
+            Sentry.captureException(err);
+        });
+    }
 }
 
 process.on('uncaughtException', (err) => {
