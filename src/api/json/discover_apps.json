@@ -25,13 +25,13 @@
             "tagline": "Didn’t we have some fun though?",
             "referral": "Games",
             "ids": [
+                "amazons.arc676",
+                "me.lduboeuf.gol",
+                "me.lduboeuf.aircraftwar",
                 "wumpus.cibersheep",
                 "gearboy.bhdouglass",
-                "100balls.jonnius",
-                "falldown.jonnius",
                 "pathwindfork.mateo-salta",
-                "ttris.lduboeuf",
-                "sm.lduboeuf"
+                "ttris.lduboeuf"
             ]
         }, {
             "name": "Toolbox",
