@@ -207,7 +207,7 @@ const PackageRepo = {
     },
 
     async stats() {
-        let [categoryStats, typeStats] = await Promise.all([
+        let [categoryStats, typeStats, frameworkStats] = await Promise.all([
             this.categoryStats(),
             Package.aggregate([
                 {
@@ -215,6 +215,18 @@ const PackageRepo = {
                 }, {
                     $group: {
                         _id: '$types',
+                        count: {$sum: 1},
+                    },
+                }, {
+                    $sort: {_id: 1},
+                },
+            ]),
+            Package.aggregate([
+                {
+                    $match: {published: true, channels: Package.XENIAL},
+                }, {
+                    $group: {
+                        _id: '$framework',
                         count: {$sum: 1},
                     },
                 }, {
@@ -242,7 +254,13 @@ const PackageRepo = {
             });
         });
 
-        return {categories, types};
+        let frameworks = {};
+        frameworkStats.forEach((framework) => {
+            /* eslint-disable no-underscore-dangle */
+            frameworks[framework._id] = framework.count;
+        });
+
+        return {categories, types, frameworks};
     },
 
     categoryStats(channel) {
