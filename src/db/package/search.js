@@ -25,6 +25,7 @@ const PackageSearch = {
         'tagline',
         'types',
         'updated_date',
+        'version',
     ],
 
     search_fields: [
@@ -49,7 +50,6 @@ const PackageSearch = {
         else {
             doc.keywords = [];
         }
-
 
         return doc;
     },
@@ -315,6 +315,10 @@ const PackageSearch = {
                                 index: 'not_analyzed',
                             },
                             icon: {
+                                type: 'string',
+                                index: 'not_analyzed',
+                            },
+                            version: {
                                 type: 'string',
                                 index: 'not_analyzed',
                             },

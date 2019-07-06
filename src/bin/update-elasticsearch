@@ -2,6 +2,7 @@
 
 'use strict';
 
+require('../db'); // Make sure the database connection gets setup
 const Package = require('../db/package/model');
 const PackageSearch = require('../db/package/search');
 

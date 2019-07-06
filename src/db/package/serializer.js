@@ -3,16 +3,21 @@ const path = require('path');
 const config = require('../../utils/config');
 const Package = require('./model');
 
+const DEFAULT_VERSION = '0.0.0'
+
 function iconUrl(pkg) {
     let ext = pkg.icon ? path.extname(pkg.icon) : '.png';
-    let version = '0.0.0';
+    let version = DEFAULT_VERSION;
 
-    // TODO get the version when the data is coming from elasticsearch
     if (pkg.getLatestRevision) {
         let {revisionData} = pkg.getLatestRevision(Package.XENIAL);
         if (revisionData) {
             version = revisionData.version;
         }
+    }
+
+    if (version == DEFAULT_VERSION && pkg.version) {
+        version = pkg.version;
     }
 
     return `${config.server.host}/api/v3/apps/${pkg.id}/icon/${version}${ext}`;
