@@ -76,7 +76,9 @@ function getData(req, name) {
     return '';
 }
 
-function getDataArray(req, name) {
+function getDataArray(req, name, defaultData) {
+    defaultData = defaultData || [];
+
     if (req.query && req.query[name]) {
         return req.query[name].split(',');
     }
@@ -85,7 +87,7 @@ function getDataArray(req, name) {
         return req.body[name];
     }
 
-    return [];
+    return defaultData;
 }
 
 function sanitize(html) {

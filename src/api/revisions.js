@@ -6,6 +6,9 @@ const {downloadUrl} = require('../db/package/serializer');
 const helpers = require('../utils/helpers');
 const logger = require('../utils/logger');
 
+// TODO remove this when system settings properly sends frameworks
+const defaultFrameworks = require('./json/default_frameworks.json');
+
 const router = express.Router();
 
 async function revisionsByVersion(req, res) {
@@ -13,7 +16,7 @@ async function revisionsByVersion(req, res) {
     let ids = versions.map((version) => version.split('@')[0]);
 
     let defaultChannel = helpers.getData(req, 'channel').toLowerCase();
-    let frameworks = helpers.getDataArray(req, 'frameworks');
+    let frameworks = helpers.getDataArray(req, 'frameworks', defaultFrameworks);
     let architecture = helpers.getData(req, 'architecture').toLowerCase();
 
     if (!Package.CHANNELS.includes(defaultChannel)) {
