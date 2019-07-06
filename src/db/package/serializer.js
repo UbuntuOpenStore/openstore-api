@@ -3,7 +3,7 @@ const path = require('path');
 const config = require('../../utils/config');
 const Package = require('./model');
 
-const DEFAULT_VERSION = '0.0.0'
+const DEFAULT_VERSION = '0.0.0';
 
 function iconUrl(pkg) {
     let ext = pkg.icon ? path.extname(pkg.icon) : '.png';
