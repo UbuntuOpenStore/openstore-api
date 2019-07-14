@@ -1,9 +1,20 @@
 services:
   - mongo:latest
 
-test:
-  image: node:8.11
+deploy:
+  image: node:10
+  before_script:
+    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan ssh.open-store.io
   script:
+    - VERSION=$(date +"%Y-%m-%d_%H-%M-%S")
+    - echo $VERSION
     - npm install
     - npm run lint
     - npm run test
+    - rsync -av --delete --exclude ".*" . root@ssh.open-store.io:/srv/openstore-api/$VERSION
+    - ssh root@ssh.open-store.io "/srv/openstore-api/$VERSION/deploy/post-deploy.sh $VERSION"
