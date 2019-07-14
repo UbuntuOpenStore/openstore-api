@@ -2,7 +2,7 @@ services:
   - mongo:latest
 
 deploy:
-  image: node:10
+  image: node:8
   before_script:
     - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
     - eval $(ssh-agent -s)
