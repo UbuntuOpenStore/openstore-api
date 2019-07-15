@@ -10,7 +10,7 @@ npm install
 
 echo -e "#!/bin/bash\nexport VERSION=$VERSION" > /srv/openstore/version.sh
 
-rm /srv/openstore-api/current
+rm -f /srv/openstore-api/current
 ln -s /srv/openstore-api/$VERSION /srv/openstore-api/current
 
 systemctl restart openstore-api
