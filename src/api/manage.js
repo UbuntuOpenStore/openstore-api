@@ -383,7 +383,8 @@ router.post(
             }
 
             if (req.body.changelog) {
-                pkg.changelog = helpers.sanitize(`${req.body.changelog.trim()}\n\n${pkg.changelog}`);
+                let changelog = pkg.changelog ? `${req.body.changelog.trim()}\n\n${pkg.changelog}` : req.body.changelog.trim();
+                pkg.changelog = helpers.sanitize(changelog);
             }
 
             if (!pkg.channels.includes(channel)) {
