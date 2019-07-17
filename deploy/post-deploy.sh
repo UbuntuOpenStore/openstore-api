@@ -15,6 +15,7 @@ ln -s /srv/openstore-api/$VERSION /srv/openstore-api/current
 
 systemctl restart openstore-api
 
+cd /srv/openstore-api/
 echo "Going to remove old versions"
 ls -1t | grep -v current | tail -n +10
 ls -1t | grep -v current | tail -n +10 | xargs -d '\n' -r rm -r --

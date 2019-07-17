@@ -20,11 +20,11 @@ let config = {
         static_root: process.env.STATIC_ROOT || path.join(__dirname, '../../www/'),
     },
     mongo: {
-        uri: process.env.MONGODB_URI || 'mongodb://localhost:27017',
+        uri: process.env.MONGODB_URI || 'mongodb://mongo:27017',
         database: process.env.MONGODB_DB || 'openstore',
     },
     elasticsearch: {
-        uri: process.env.ELASTICSEARCH_URI || 'http://localhost:9200/',
+        uri: process.env.ELASTICSEARCH_URI || 'http://elasticsearch:9200/',
     },
     backblaze: {
         accountId: configFile.BACKBLAZE_ACCOUNT_ID || process.env.BACKBLAZE_ACCOUNT_ID || '',
@@ -55,15 +55,5 @@ let config = {
     version: configFile.VERSION || process.env.VERSION || 'dev',
     telegram: configFile.TELEGRAM || process.env.TELEGRAM || '',
 };
-
-// Mongo uri from docker
-if (process.env.MONGO_PORT) {
-    config.mongo.uri = process.env.MONGO_PORT.replace('tcp', 'mongodb');
-}
-
-// Elasticsearch uri from docker
-if (process.env.ELASTICSEARCH_PORT) {
-    config.elasticsearch.uri = process.env.ELASTICSEARCH_PORT.replace('tcp', 'http');
-}
 
 module.exports = config;
