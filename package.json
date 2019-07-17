@@ -44,7 +44,6 @@
     "rss": "^1.2.2",
     "sanitize-html": "^1.18.4",
     "shuffle-array": "^1.0.1",
-    "squashfs-nodejs": "^1.0.5",
     "winston": "^3.0.0",
     "winston-papertrail": "^1.0.5"
   },
