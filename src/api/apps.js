@@ -113,7 +113,8 @@ async function icon(req, res) {
     let id = req.params.id.replace('.png', '').replace('.svg', '').replace('.jpg', '').replace('.jpeg', '');
 
     try {
-        let pkg = await PackageRepo.findOne(id, {published: true});
+        // Not filtering out unpublished packages here so we can show the icon when managing apps
+        let pkg = await PackageRepo.findOne(id);
         if (!pkg || !pkg.icon) {
             throw APP_NOT_FOUND;
         }
