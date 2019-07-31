@@ -62,4 +62,8 @@ router.get('/updates.xml', async (req, res) => {
     generateFeed(req, res, true);
 });
 
+router.get('/', (req, res) => {
+    res.redirect(301, '/feeds');
+});
+
 module.exports = router;
