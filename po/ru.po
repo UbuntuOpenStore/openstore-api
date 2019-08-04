@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2017-06-20 01:45:+0000\n"
 "PO-Revision-Date: 2019-08-04 07:20+0000\n"
-"Last-Translator: vokaliz <vokaliz@protonmail.com>\n"
+"Last-Translator: Moshe Lazar <wersewikkov@gmail.com>\n"
 "Language-Team: Russian <https://translate.ubports.com/projects/openstore/"
 "openstore-api/ru/>\n"
 "Language: ru\n"
@@ -15,7 +15,7 @@ msgstr ""
 "X-Generator: Weblate 3.6.1\n"
 
 msgid "Accessibility"
-msgstr ""
+msgstr "Специальные возможности"
 
 msgid "Books & Comics"
 msgstr "Книги и комиксы"
@@ -78,7 +78,7 @@ msgid "Travel & Weather"
 msgstr "Путешествия и погода"
 
 msgid "Utilities"
-msgstr ""
+msgstr "Вспомогательные средства"
 
 # This is text to go on a button that will say "Download from the\nOpenStore" (where \n is a line break)
 msgid "Download from the"
