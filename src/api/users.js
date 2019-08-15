@@ -1,6 +1,6 @@
 const express = require('express');
 
-const UserRepo = require('../db/user/model');
+const UserRepo = require('../db/user/repo');
 const { serialize } = require('../db/user/serializer');
 const helpers = require('../utils/helpers');
 const {authenticate, adminOnly} = require('../utils/middleware');
