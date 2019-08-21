@@ -1,6 +1,19 @@
 services:
   - mongo:latest
 
+stages:
+  - test
+  - deploy
+
+test:
+  stage: test
+  image: theopenstore/ci
+  before_script:
+    - npm install
+  script:
+    - npm run lint
+    - npm run test
+
 deploy:
   only:
     - master
@@ -13,7 +26,5 @@ deploy:
     - VERSION=$(date +"%Y-%m-%d_%H-%M-%S")
     - echo $VERSION
     - npm install
-    - npm run lint
-    - npm run test
     - rsync -av --delete --exclude node_modules --exclude ".*" . root@ssh.open-store.io:/srv/openstore-api/$VERSION
     - ssh root@ssh.open-store.io "/srv/openstore-api/$VERSION/deploy/post-deploy.sh $VERSION"
