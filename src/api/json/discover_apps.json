@@ -10,40 +10,43 @@
             "referral": "",
             "ids": []
         }, {
-            "name": "Chat Connection",
-            "tagline": "Don't forget to text mom!",
-            "referral": "Communication & Social",
+            "name": "Revived Apps",
+            "tagline": "Stick a fork in it",
+            "referral": "",
             "ids": [
-                "im.kaidan.kaidan",
-                "teleports.ubports",
-                "linphone.cibersheep",
-                "fluffychat.christianpauly",
-                "umatriks.larreamikel"
+                "pathwind.emanuelesorce",
+                "wakeit.mateo-salta",
+                "gearboy.bhdouglass",
+                "solitaire-games.mateo-salta",
+                "openstore.tagger",
+                "uvolman.mateosalta",
+                "uports-netwalk.mateo-salta"
             ]
         }, {
             "name": "Awesome Games",
-            "tagline": "Didn’t we have some fun though?",
+            "tagline": "Cause I always play to win!",
             "referral": "Games",
             "ids": [
-                "amazons.arc676",
-                "me.lduboeuf.gol",
-                "me.lduboeuf.aircraftwar",
-                "wumpus.cibersheep",
-                "gearboy.bhdouglass",
-                "pathwindfork.mateo-salta",
-                "ttris.lduboeuf"
+                "sm.lduboeuf",
+                "farkle.arc676",
+                "tuxdungeon.jjvannielen",
+                "neopar.mvm",
+                "sakawochi.wendigosoft",
+                "gelek-vanilla.cibersheep",
+                "monsterwars.t-mon",
+                "com.ubuntu.developer.1bsyl.demineur"
             ]
         }, {
-            "name": "Toolbox",
-            "tagline": "Tweaks, hacks, and utilities",
-            "referral": "Utilities",
+            "name": "Essential Apps",
+            "tagline": "Check these out first",
+            "referral": "",
             "ids": [
-                "me.fredl.ghostcloud",
-                "me.fredl.qmlcreator",
-                "me.fredl.isodrive",
-                "wifitransfer.costa",
-                "uvolman.mateosalta",
-                "ut-tweak-tool.sverzegnassi"
+                "authenticator-ng.dobey",
+                "teleports.ubports",
+                "com.ubuntu.docviewer",
+                "fluffychat.christianpauly",
+                "navigator.costales",
+                "dekko2.dekkoproject"
             ]
         }
     ]
