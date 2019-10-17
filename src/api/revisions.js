@@ -17,23 +17,31 @@ async function revisionsByVersion(req, res) {
 
     let defaultChannel = helpers.getData(req, 'channel').toLowerCase();
     let frameworks = helpers.getDataArray(req, 'frameworks', defaultFrameworks);
-    let architecture = helpers.getData(req, 'architecture').toLowerCase();
+    let architecture = helpers.getData(req, 'architecture', Package.ARMHF).toLowerCase();
 
     if (!Package.CHANNELS.includes(defaultChannel)) {
         defaultChannel = Package.XENIAL;
     }
 
+    if (!Package.ARCHITECTURES.includes(architecture)) {
+        architecture = Package.ARMHF;
+    }
+
     try {
         let pkgs = await PackageRepo.find({published: true, ids: ids});
         pkgs = pkgs.filter((pkg) => (frameworks.length === 0 || frameworks.includes(pkg.framework)))
-            .filter((pkg) => (!architecture || pkg.architectures.includes(architecture) || pkg.architectures.includes(Package.ALL)))
+            .filter((pkg) => (pkg.architectures.includes(architecture) || pkg.architectures.includes(Package.ALL)))
             .map((pkg) => {
                 let version = versions.filter((v) => (v.split('@')[0] == pkg.id))[0];
                 let parts = version.split('@');
                 let channel = (parts.length > 2) ? parts[2] : defaultChannel;
                 version = parts[1];
 
-                let revisionData = pkg.revisions.filter((rev) => (rev.version == version && rev.channel == channel))[0];
+                let revisionData = pkg.revisions.filter((rev) => (
+                    rev.version == version &&
+                    rev.channel == channel &&
+                    (rev.architecture == architecture || rev.architecture == Package.ALL)
+                ))[0];
                 let revision = revisionData ? revisionData.revision : 0;
 
                 // TODO account for frameworks and return the latest for the specified framework

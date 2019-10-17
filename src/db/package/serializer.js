@@ -112,6 +112,7 @@ function toJson(pkg) {
     };
 
     if (pkg.revisions) {
+        /* eslint-disable-next-line arrow-body-style */
         json.downloads = Package.CHANNELS.reduce((downloads, channel) => {
             return [...downloads, ...Package.ARCHITECTURES.map((arch) => {
                 let {revisionData: downloadRevisionData} = pkg.getLatestRevision(channel, arch, false);

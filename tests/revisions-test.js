@@ -42,7 +42,7 @@ describe('Revisions GET', () => {
                     framework: 'ubuntu-sdk-16.04',
                     download_url: 'url',
                 },
-            ]
+            ],
         });
     });
 
@@ -62,7 +62,7 @@ describe('Revisions GET', () => {
     });
 
     it('returns latest update for an app that is "all" when requesting a different arch', async function () {
-        let { body } = await this.get(this.makeUrl({arch: Package.ARMHF})).expect(200);
+        let { body } = await this.get(this.makeUrl({architecture: Package.ARMHF})).expect(200);
 
         expect(body.success).to.be.true;
         expect(body.data).to.have.lengthOf(1);
@@ -114,12 +114,42 @@ describe('Revisions GET', () => {
         this.package.revisions.forEach((revision) => {
             revision.architecture = Package.ARM64;
         });
+        this.package.architectures = [Package.ARM64];
         await this.package.save();
 
-        let { body } = await this.get(this.makeUrl({arch: Package.ARMHF})).expect(200);
+        let { body } = await this.get(this.makeUrl({architecture: Package.ARMHF})).expect(200);
 
         expect(body.success).to.be.true;
         expect(body.data).to.have.lengthOf(0);
+    });
+
+    it('returns the correct arch', async function () {
+        this.package.revisions.forEach((revision) => {
+            revision.architecture = Package.ARM64;
+        });
+        this.package.revisions.push({
+            revision: 4,
+            version: '2.0.0',
+            channel: Package.XENIAL,
+            architecture: Package.ARMHF,
+            framework: 'ubuntu-sdk-16.04',
+            download_url: 'url',
+        });
+        this.package.architectures = [Package.ARM64, Package.ARMHF];
+        await this.package.save();
+
+        let { body } = await this.get(this.makeUrl({version: '2.0.0', architecture: Package.ARMHF})).expect(200);
+
+        expect(body.success).to.be.true;
+        expect(body.data).to.have.lengthOf(1);
+
+        let data = body.data[0];
+        expect(data.id).to.equal(this.package.id);
+        expect(data.version).to.equal('2.0.0');
+        expect(data.revision).to.equal(4);
+        expect(data.latest_version).to.equal('2.0.0');
+        expect(data.latest_revision).to.equal(4);
+        expect(data.download_url).to.exist;
     });
 
     it('defaults to XENIAL for the channel', async function () {
@@ -160,5 +190,18 @@ describe('Revisions GET', () => {
         expect(data.latest_version).to.equal('2.0.0');
         expect(data.latest_revision).to.equal(3);
         expect(data.download_url).to.exist;
+    });
+
+    it('defaults to using armhf', async function () {
+        this.package.revisions.forEach((revision) => {
+            revision.architecture = Package.ARM64;
+        });
+        this.package.architectures = [Package.ARM64];
+        await this.package.save();
+
+        let { body } = await this.get(this.makeUrl({ architecture: 'foo' })).expect(200);
+
+        expect(body.success).to.be.true;
+        expect(body.data).to.have.lengthOf(0);
     });
 });
