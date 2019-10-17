@@ -6,6 +6,19 @@ const config = require('../../utils/config');
 const fs = require('../../utils/async-fs');
 const UserRepo = require('../user/repo');
 
+const revisionSchema = mongoose.Schema({
+    revision: Number,
+    version: String, // Unique among revisions with this arch
+    downloads: Number,
+    channel: String,
+    download_url: String,
+    download_sha512: String,
+    architecture: String,
+    framework: String,
+    filesize: Number,
+    created_date: String,
+});
+
 const packageSchema = mongoose.Schema({
     id: {type: String, index: true},
 
@@ -29,15 +42,15 @@ const packageSchema = mongoose.Schema({
     video_url: String,
     maintainer: String,
     maintainer_name: String,
-    framework: String,
+    framework: String, // TODO deprecate
 
     // Metadata
     author: String,
-    version: String, // TODO depricate
-    filesize: Number,
-    manifest: {},
+    version: String, // TODO deprecate
+    filesize: Number, // TODO deprecate
+    manifest: {}, // TODO deprecate
     types: [String],
-    languages: [],
+    languages: [String],
     architectures: [String],
 
     // Publication metadata
@@ -46,21 +59,8 @@ const packageSchema = mongoose.Schema({
     updated_date: String,
 
     // Revisions
-    revisions: [
-        // TODO make this a sub document
-        // TODO add the date
-        /*
-        {
-            revision: Number,
-            version: String, // Unique among revisions
-            downloads: Number,
-            channel: String,
-            download_url: String,
-            download_sha512: String,
-        }
-        */
-    ], // Revisions and stats
-    channels: [],
+    revisions: [revisionSchema],
+    channels: [String],
 
     icon: String,
 }, {usePushEach: true});
@@ -98,11 +98,19 @@ packageSchema.index(
     },
 );
 
-packageSchema.methods.getLatestRevision = function(channel) {
+packageSchema.methods.getLatestRevision = function(channel, architecture, detectAll = true) {
+    if (this.architectures.includes('all') && detectAll) {
+        architecture = 'all';
+    }
+
     let revisionData = null;
     let revisionIndex = -1;
     this.revisions.forEach((data, index) => {
-        if ((!revisionData || revisionData.revision < data.revision) && data.channel == channel) {
+        if (
+            (!revisionData || revisionData.revision < data.revision) &&
+            data.channel == channel &&
+            data.architecture == architecture
+        ) {
             revisionData = data;
             revisionIndex = index;
         }
@@ -326,7 +334,7 @@ packageSchema.methods.updateFromBody = async function(body) {
     }
 };
 
-packageSchema.methods.newRevision = function(version, channel, url, downloadSha512) {
+packageSchema.methods.newRevision = function(version, channel, architecture, url, downloadSha512) {
     this.revisions.push({
         revision: this.next_revision,
         version: version,
@@ -334,6 +342,8 @@ packageSchema.methods.newRevision = function(version, channel, url, downloadSha5
         channel: channel,
         download_url: url,
         download_sha512: downloadSha512,
+        architecture: architecture,
+        // TODO date, framework, filesize?
     });
 
     this.updated_date = moment().toISOString();
@@ -345,6 +355,17 @@ const Package = mongoose.model('Package', packageSchema);
 Package.XENIAL = 'xenial';
 Package.CHANNELS = [
     Package.XENIAL,
+];
+
+Package.ALL = 'all';
+Package.ARMHF = 'armhf';
+Package.ARM64 = 'arm64';
+Package.AMD64 = 'amd64';
+Package.ARCHITECTURES = [
+    Package.ALL,
+    Package.ARMHF,
+    Package.ARM64,
+    Package.AMD64,
 ];
 
 module.exports = Package;

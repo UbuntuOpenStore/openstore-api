@@ -325,8 +325,6 @@ router.post(
                 return helpers.error(res, APP_NOT_FOUND, 404);
             }
 
-            let {revisionData: previousRevisionData} = pkg.getLatestRevision(Package.XENIAL);
-
             if (!req.isAdminUser && req.user._id != pkg.maintainer) {
                 return helpers.error(res, PERMISSION_DENIED, 403);
             }
@@ -389,10 +387,6 @@ router.post(
 
             if (!pkg.channels.includes(channel)) {
                 pkg.channels.push(channel);
-            }
-
-            if (previousRevisionData) {
-                await upload.removeFile(previousRevisionData.download_url);
             }
 
             pkg = await pkg.save();

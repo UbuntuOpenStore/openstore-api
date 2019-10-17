@@ -23,8 +23,8 @@ function iconUrl(pkg) {
     return `${config.server.host}/api/v3/apps/${pkg.id}/icon/${version}${ext}`;
 }
 
-function downloadUrl(pkg, channel) {
-    return `${config.server.host}/api/v3/apps/${pkg.id}/download/${channel}`;
+function downloadUrl(pkg, channel, arch) {
+    return `${config.server.host}/api/v3/apps/${pkg.id}/download/${channel}/${arch}`;
 }
 
 function toSlimJson(pkg) {
@@ -65,7 +65,7 @@ function toJson(pkg) {
         return language;
     });
 
-    let {revisionData} = pkg.getLatestRevision(Package.XENIAL);
+    let {revisionData} = pkg.getLatestRevision(Package.XENIAL, Package.ARMHF); // TODO remove this
     let json = {
         architecture: pkg.architecture || '',
         architectures: pkg.architectures || [],
@@ -97,33 +97,38 @@ function toJson(pkg) {
         tagline: pkg.tagline || '',
         types: pkg.types || [],
         updated_date: pkg.updated_date || '',
-        version: revisionData ? revisionData.version : '',
         languages: languages,
         revisions: pkg.revisions || [],
         totalDownloads: 0,
-        latestDownloads: revisionData ? revisionData.downloads : '',
+        latestDownloads: 0,
 
-        // TODO depricate these
+        // TODO get these from the latest release
+        version: revisionData ? revisionData.version : '',
+
+        // TODO deprecate these
         revision: -1,
-        download: downloadUrl(pkg, Package.XENIAL),
-        download_sha512: revisionData ? revisionData.download_sha512 : '',
+        download: null,
+        download_sha512: '',
     };
 
     if (pkg.revisions) {
-        json.downloads = Package.CHANNELS.map((channel) => {
-            let {revisionData: downloadRevisionData} = pkg.getLatestRevision(channel);
-            if (downloadRevisionData) {
-                return {
-                    channel: channel,
-                    download_url: downloadUrl(pkg, channel),
-                    download_sha512: downloadRevisionData.download_sha512,
-                    version: downloadRevisionData.version,
-                    revision: downloadRevisionData.revision,
-                };
-            }
+        json.downloads = Package.CHANNELS.reduce((downloads, channel) => {
+            return [...downloads, ...Package.ARCHITECTURES.map((arch) => {
+                let {revisionData: downloadRevisionData} = pkg.getLatestRevision(channel, arch, false);
+                if (downloadRevisionData) {
+                    return {
+                        ...downloadRevisionData.toObject(),
+                        download_url: downloadUrl(pkg, channel, arch),
+                    };
+                }
 
-            return null;
-        }).filter((revision) => !!revision);
+                return null;
+            })];
+        }, []).filter((revision) => (!!revision || (revision && !revision.download_url)));
+
+        json.downloads.forEach((download) => {
+            json.latestDownloads += download.downloads;
+        });
 
         pkg.revisions.forEach((revision) => {
             json.totalDownloads += revision.downloads;

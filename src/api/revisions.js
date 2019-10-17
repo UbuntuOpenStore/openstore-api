@@ -26,14 +26,9 @@ async function revisionsByVersion(req, res) {
     try {
         let pkgs = await PackageRepo.find({published: true, ids: ids});
         pkgs = pkgs.filter((pkg) => (frameworks.length === 0 || frameworks.includes(pkg.framework)))
-            .filter((pkg) => (!architecture || pkg.architectures.includes(architecture) || pkg.architectures.includes('all')))
+            .filter((pkg) => (!architecture || pkg.architectures.includes(architecture) || pkg.architectures.includes(Package.ALL)))
             .map((pkg) => {
                 let version = versions.filter((v) => (v.split('@')[0] == pkg.id))[0];
-
-                if (!version) {
-                    return null;
-                }
-
                 let parts = version.split('@');
                 let channel = (parts.length > 2) ? parts[2] : defaultChannel;
                 version = parts[1];
@@ -41,15 +36,21 @@ async function revisionsByVersion(req, res) {
                 let revisionData = pkg.revisions.filter((rev) => (rev.version == version && rev.channel == channel))[0];
                 let revision = revisionData ? revisionData.revision : 0;
 
-                let {revisionData: latestRevisionData} = pkg.getLatestRevision(channel);
+                // TODO account for frameworks and return the latest for the specified framework
+                // TODO don't filter by framework above
+                let {revisionData: latestRevisionData} = pkg.getLatestRevision(channel, architecture);
+
+                if (!latestRevisionData || !latestRevisionData.download_url) {
+                    return null;
+                }
 
                 return {
                     id: pkg.id,
                     version: version,
                     revision: revision,
-                    latest_version: pkg.version,
-                    latest_revision: latestRevisionData ? latestRevisionData.revision : null,
-                    download_url: latestRevisionData ? downloadUrl(pkg, channel) : null,
+                    latest_version: latestRevisionData.version,
+                    latest_revision: latestRevisionData.revision,
+                    download_url: downloadUrl(pkg, channel, architecture),
                 };
             })
             .filter(Boolean);

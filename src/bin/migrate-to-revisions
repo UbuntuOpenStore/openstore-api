@@ -1,0 +1,56 @@
+#!/usr/bin/env node
+
+// TODO move new stuff into the revision
+// TODO set download url to null for everything but the latest release
+
+require('../db'); // Make sure the database connection gets setup
+const Package = require('../db/package/model');
+
+Package.find({}).then((pkgs) => {
+    return Promise.all(pkgs.map((pkg) => {
+        let latestRevisionData = null;
+        let latestVividRevisionData = null;
+        pkg.revisions.forEach((data) => {
+            if (
+                (!latestRevisionData || latestRevisionData.revision < data.revision) &&
+                data.channel == Package.XENIAL
+            ) {
+                latestRevisionData = data;
+            }
+
+            if (
+                (!latestVividRevisionData || latestVividRevisionData.revision < data.revision) &&
+                data.channel == 'vivid'
+            ) {
+                latestVividRevisionData = data;
+            }
+        });
+
+        let latestRevision = null;
+        if (latestRevisionData) {
+            latestRevision = latestRevisionData.revision;
+            latestRevisionData.architecture = pkg.architecture;
+            latestRevisionData.framework = pkg.framework;
+            latestRevisionData.filesize = pkg.filesize;
+        }
+
+        let latestVividRevision = null;
+        if (latestVividRevisionData) {
+            latestVividRevision = latestVividRevisionData.revision;
+        }
+
+        pkg.revisions.forEach((revision) => {
+            if (revision.revision != latestRevision && revision.revision != latestVividRevision) {
+                revision.download_url = null;
+            }
+        });
+
+        return pkg.save();
+    }));
+}).then(() => {
+    console.log('done');
+    process.exit(0);
+}).catch((err) => {
+    console.log(err);
+    process.exit(1);
+});

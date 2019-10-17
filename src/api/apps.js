@@ -20,6 +20,7 @@ const statsRouter = express.Router();
 const APP_NOT_FOUND = 'App not found';
 const DOWNLOAD_NOT_FOUND_FOR_CHANNEL = 'Download not available for this channel';
 const INVALID_CHANNEL = 'The provided channel is not valid';
+const INVALID_ARCH = 'The provided architecture is not valid';
 
 async function apps(req, res) {
     let filters = PackageRepo.parseRequestFilters(req);
@@ -73,9 +74,9 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-router.get('/:id/download/:channel', async (req, res) => {
+router.get('/:id/download/:channel/:arch', async (req, res) => {
     try {
-        let pkg = await PackageRepo.findOne(req.params.id, {published: true});
+        let pkg = await PackageRepo.findOne(req.params.id, { published: true });
         if (!pkg) {
             return helpers.error(res, APP_NOT_FOUND, 404);
         }
@@ -85,7 +86,12 @@ router.get('/:id/download/:channel', async (req, res) => {
             return helpers.error(res, INVALID_CHANNEL);
         }
 
-        let {revisionData, revisionIndex} = pkg.getLatestRevision(channel);
+        let arch = req.params.arch ? req.params.arch.toLowerCase() : Package.ARMHF;
+        if (!Package.ARCHITECTURES.includes(arch)) {
+            return helpers.error(res, INVALID_ARCH);
+        }
+
+        let { revisionData, revisionIndex } = pkg.getLatestRevision(channel, arch);
 
         let downloadUrl = '';
         if (revisionData) {
@@ -98,7 +104,7 @@ router.get('/:id/download/:channel', async (req, res) => {
 
         let ext = path.extname(downloadUrl);
         let filename = `${config.data_dir}/${pkg.id}-${channel}-${revisionData.version}${ext}`;
-        let headers = {'Content-Disposition': `attachment; filename=${pkg.id}_${revisionData.version}_${pkg.architecture}.click`};
+        let headers = { 'Content-Disposition': `attachment; filename=${pkg.id}_${revisionData.version}_${pkg.architecture}.click` };
         await helpers.checkDownload(downloadUrl, filename, headers, res);
         return await PackageRepo.incrementDownload(pkg._id, revisionIndex);
     }
