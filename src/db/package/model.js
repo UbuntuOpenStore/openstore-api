@@ -47,7 +47,6 @@ const packageSchema = mongoose.Schema({
     // Metadata
     author: String,
     version: String, // TODO deprecate
-    filesize: Number, // TODO deprecate
     manifest: {}, // TODO deprecate
     types: [String],
     languages: [String],
@@ -119,7 +118,7 @@ packageSchema.methods.getLatestRevision = function(channel, architecture, detect
     return { revisionData, revisionIndex };
 };
 
-packageSchema.methods.updateFromClick = function(data, file) {
+packageSchema.methods.updateFromClick = function(data) {
     let manifest = {
         architecture: data.architecture,
         changelog: data.changelog,
@@ -191,23 +190,18 @@ packageSchema.methods.updateFromClick = function(data, file) {
 
     this.permissions = permissions;
     this.architecture = data.architecture;
-    this.architectures = data.architecture;
     this.author = data.maintainer;
-    this.framework = data.framework;
     this.id = data.name;
     this.manifest = manifest;
     this.types = data.types;
     this.version = data.version;
     this.languages = data.languages;
+    this.framework = data.framework;
 
     // Don't overwrite the these if they already exists
     this.name = this.name ? this.name : data.title;
     this.description = this.description ? this.description : sanitize(data.description);
     this.tagline = this.tagline ? this.tagline : sanitize(data.description);
-
-    if (file && file.size) {
-        this.filesize = file.size;
-    }
 };
 
 packageSchema.methods.updateFromBody = async function(body) {
@@ -334,7 +328,7 @@ packageSchema.methods.updateFromBody = async function(body) {
     }
 };
 
-packageSchema.methods.newRevision = function(version, channel, architecture, url, downloadSha512) {
+packageSchema.methods.newRevision = function(version, channel, architecture, framework, url, downloadSha512, filesize) {
     this.revisions.push({
         revision: this.next_revision,
         version: version,
@@ -343,7 +337,9 @@ packageSchema.methods.newRevision = function(version, channel, architecture, url
         download_url: url,
         download_sha512: downloadSha512,
         architecture: architecture,
-        // TODO date, framework, filesize?
+        framework: framework,
+        filesize: filesize,
+        created_date: moment().toISOString(),
     });
 
     this.updated_date = moment().toISOString();

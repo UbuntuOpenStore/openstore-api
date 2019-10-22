@@ -42,6 +42,7 @@ Package.find({}).then((pkgs) => {
         pkg.revisions.forEach((revision) => {
             if (revision.revision != latestRevision && revision.revision != latestVividRevision) {
                 revision.download_url = null;
+                revision.architecture = pkg.architecture;
             }
         });
 

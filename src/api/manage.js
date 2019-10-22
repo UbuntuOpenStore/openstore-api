@@ -30,7 +30,7 @@ const PERMISSION_DENIED = 'You do not have permission to update this app';
 const BAD_FILE = 'The file must be a click package';
 const WRONG_PACKAGE = 'The uploaded package does not match the name of the package you are editing';
 const BAD_NAMESPACE = 'You package name is for a domain that you do not have access to';
-const EXISTING_VERSION = 'A revision already exists with this version';
+const EXISTING_VERSION = 'A revision already exists with this version and architecture';
 const NO_FILE = 'No file upload specified';
 const INVALID_CHANNEL = 'The provided channel is not valid';
 const NO_REVISIONS = 'You cannot publish your package until you upload a revision';
@@ -38,6 +38,9 @@ const NO_APP_NAME = 'No app name specified';
 const NO_SPACES_NAME = 'You cannot have spaces in your app name';
 const NO_APP_TITLE = 'No app title specified';
 const APP_HAS_REVISIONS = 'Cannot delete an app that already has revisions';
+const NO_ALL = 'You cannot upload a click with the architecture "all" for the same version as an architecture specific click';
+const NO_NON_ALL = 'You cannot upload and architecture specific click for the same version as a click with the architecture "all"';
+const MISMATCHED_FRAMEWORK = 'Framework does not match existing click of a different architecture';
 
 function fileName(file) {
     // Rename the file so click-review doesn't freak out
@@ -314,6 +317,8 @@ router.post(
             return helpers.error(res, NO_FILE, 400);
         }
 
+        let file = req.files.file[0];
+
         let channel = req.body.channel ? req.body.channel.toLowerCase() : '';
         if (!Package.CHANNELS.includes(channel)) {
             return helpers.error(res, INVALID_CHANNEL, 400);
@@ -329,14 +334,15 @@ router.post(
                 return helpers.error(res, PERMISSION_DENIED, 403);
             }
 
-            let filePath = fileName(req.files.file[0]);
-            let [success, error] = await review(req, req.files.file[0], filePath);
+            let filePath = fileName(file);
+            let [success, error] = await review(req, file, filePath);
             if (!success) {
                 return helpers.error(res, error, 400);
             }
 
             let parseData = await clickParser.parse(filePath, true);
-            if (!parseData.name || !parseData.version || !parseData.architecture) {
+            let {version, architecture} = parseData;
+            if (!parseData.name || !version || !architecture) {
                 return helpers.error(res, MALFORMED_MANIFEST, 400);
             }
 
@@ -349,11 +355,32 @@ router.post(
 
                 /* eslint-disable arrow-body-style */
                 let matches = pkg.revisions.find((revision) => {
-                    return (revision.version == parseData.version && revision.channel == channel);
+                    return (
+                        revision.version == version &&
+                        revision.channel == channel &&
+                        revision.architecture == architecture
+                    );
                 });
 
                 if (matches) {
                     return helpers.error(res, EXISTING_VERSION, 400);
+                }
+
+                let currentRevisions = pkg.revisions.filter((rev) => rev.version === version);
+                if (currentRevisions.length > 0) {
+                    let currentArches = currentRevisions.map((rev) => rev.architecture);
+                    if (architecture == Package.ALL && !currentArches.includes(Package.ALL)) {
+                        return helpers.error(res, NO_ALL, 400);
+                    }
+                    if (architecture != Package.ALL && currentArches.includes(Package.ALL)) {
+                        return helpers.error(res, NO_NON_ALL, 400);
+                    }
+
+                    if (parseData.framework != currentRevisions[0].framework) {
+                        return helpers.error(res, MISMATCHED_FRAMEWORK, 400);
+                    }
+
+                    // TODO check if permissions are the same with the current list of permissions
                 }
             }
 
@@ -362,7 +389,7 @@ router.post(
             let downloadSha512 = await checksum(filePath);
 
             if (data) {
-                pkg.updateFromClick(data, req.files.file[0]);
+                pkg.updateFromClick(data);
             }
 
             let updateIcon = (channel == Package.XENIAL || !pkg.icon);
@@ -371,10 +398,18 @@ router.post(
                 filePath,
                 updateIcon ? parseData.icon : null,
                 channel,
-                parseData.version,
+                version,
             );
 
-            pkg.newRevision(parseData.version, channel, packageUrl, downloadSha512);
+            pkg.newRevision(
+                version,
+                channel,
+                architecture,
+                parseData.framework,
+                packageUrl,
+                downloadSha512,
+                file.size,
+            );
 
             if (updateIcon) {
                 pkg.icon = iconUrl;
@@ -387,6 +422,10 @@ router.post(
 
             if (!pkg.channels.includes(channel)) {
                 pkg.channels.push(channel);
+            }
+
+            if (!pkg.architectures.includes(architecture)) {
+                pkg.architectures.push(architecture);
             }
 
             pkg = await pkg.save();

@@ -192,15 +192,16 @@ describe('Manage Revision POST', () => {
             expect(parseStub).to.have.been.calledOnce;
         });
 
-        it('fails with an existing version', async function() {
-            this.package.revisions.push({channel: Package.XENIAL, version: '1.0.0'});
+        it('fails with an existing version of the same arch', async function() {
+            this.package.newRevision('1.0.0', Package.XENIAL, Package.ARMHF, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
             await this.package.save();
 
             let reviewStub = this.sandbox.stub(reviewPackage, 'review').resolves(false);
             let parseStub = this.sandbox.stub(clickParser, 'parse').resolves({
                 name: this.package.id,
                 version: '1.0.0',
-                architecture: 'armhf',
+                architecture: Package.ARMHF,
+                framework: 'ubuntu-sdk-16.04',
                 apps: [],
             });
 
@@ -210,7 +211,113 @@ describe('Manage Revision POST', () => {
                 .expect(400);
 
             expect(res.body.success).to.be.false;
-            expect(res.body.message).to.equal('A revision already exists with this version');
+            expect(res.body.message).to.equal('A revision already exists with this version and architecture');
+            expect(reviewStub).to.have.been.calledOnce;
+            expect(parseStub).to.have.been.calledOnce;
+        });
+
+        it('does not fail with an existing version of a different arch', async function () {
+            this.package.newRevision('1.0.0', Package.XENIAL, Package.ARM64, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
+            await this.package.save();
+
+            let reviewStub = this.sandbox.stub(reviewPackage, 'review').resolves(false);
+            let parseStub = this.sandbox.stub(clickParser, 'parse').resolves({
+                name: this.package.id,
+                version: '1.0.0',
+                architecture: Package.ARMHF,
+                framework: 'ubuntu-sdk-16.04',
+                apps: [],
+            });
+
+            let res = await this.post(this.route)
+                .attach('file', this.emptyClick)
+                .field('channel', Package.XENIAL)
+                .expect(200);
+
+            let data = res.body.data;
+            expect(res.body.success).to.be.true;
+            expect(data.revisions).to.be.lengthOf(2);
+            expect(data.revisions[1].revision).to.equal(2);
+            expect(data.revisions[1].version).to.equal('1.0.0');
+            expect(data.revisions[1].channel).to.equal(Package.XENIAL);
+            expect(data.revisions[1].architecture).to.equal(Package.ARMHF);
+            expect(data.revisions[1].framework).to.equal('ubuntu-sdk-16.04');
+            expect(reviewStub).to.have.been.calledOnce;
+            expect(parseStub).to.have.been.calledOnce;
+        });
+
+        it('fails when uploading all with existing armhf', async function () {
+            this.package.newRevision('1.0.0', Package.XENIAL, Package.ARMHF, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
+            await this.package.save();
+
+            let reviewStub = this.sandbox.stub(reviewPackage, 'review').resolves(false);
+            let parseStub = this.sandbox.stub(clickParser, 'parse').resolves({
+                name: this.package.id,
+                version: '1.0.0',
+                architecture: Package.ALL,
+                framework: 'ubuntu-sdk-16.04',
+                apps: [],
+            });
+
+            let res = await this.post(this.route)
+                .attach('file', this.emptyClick)
+                .field('channel', Package.XENIAL)
+                .expect(400);
+
+            expect(res.body.success).to.be.false;
+            expect(res.body.message).to.equal(
+                'You cannot upload a click with the architecture "all" for the same version as an architecture specific click',
+            );
+            expect(reviewStub).to.have.been.calledOnce;
+            expect(parseStub).to.have.been.calledOnce;
+        });
+
+        it('fails when uploading armhf with existing all', async function () {
+            this.package.newRevision('1.0.0', Package.XENIAL, Package.ALL, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
+            await this.package.save();
+
+            let reviewStub = this.sandbox.stub(reviewPackage, 'review').resolves(false);
+            let parseStub = this.sandbox.stub(clickParser, 'parse').resolves({
+                name: this.package.id,
+                version: '1.0.0',
+                architecture: Package.ARMHF,
+                framework: 'ubuntu-sdk-16.04',
+                apps: [],
+            });
+
+            let res = await this.post(this.route)
+                .attach('file', this.emptyClick)
+                .field('channel', Package.XENIAL)
+                .expect(400);
+
+            expect(res.body.success).to.be.false;
+            expect(res.body.message).to.equal(
+                'You cannot upload and architecture specific click for the same version as a click with the architecture "all"',
+            );
+            expect(reviewStub).to.have.been.calledOnce;
+            expect(parseStub).to.have.been.calledOnce;
+        });
+
+        it('fails when the same version but different arch and framework', async function () {
+            this.package.newRevision('1.0.0', Package.XENIAL, Package.ARM64, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
+            await this.package.save();
+
+            let reviewStub = this.sandbox.stub(reviewPackage, 'review').resolves(false);
+            let parseStub = this.sandbox.stub(clickParser, 'parse').resolves({
+                name: this.package.id,
+                version: '1.0.0',
+                architecture: Package.ARMHF,
+                framework: 'ubuntu-sdk-15.04',
+                apps: [],
+            });
+
+            let res = await this.post(this.route)
+                .attach('file', this.emptyClick)
+                .field('channel', Package.XENIAL)
+                .expect(400);
+
+            expect(res.body.success).to.be.false;
+            expect(res.body.message).to.equal('Framework does not match existing click of a different architecture');
             expect(reviewStub).to.have.been.calledOnce;
             expect(parseStub).to.have.been.calledOnce;
         });
@@ -245,18 +352,11 @@ describe('Manage Revision POST', () => {
             this.timeout(5000);
 
             this.package.published = true;
-            this.package.revisions.push({
-                revision: 1,
-                channel: Package.XENIAL,
-                version: '0.0.1',
-                download_url: 'http://example.com/file',
-            });
-
+            this.package.newRevision('0.0.1', Package.XENIAL, Package.ARMHF, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
             await this.package.save();
 
             let reviewStub = this.sandbox.stub(reviewPackage, 'review').resolves(false);
             let upsertStub = this.sandbox.stub(PackageSearch, 'upsert');
-            let removeFileStub = this.sandbox.stub(upload, 'removeFile');
 
             let res = await this.post(this.route)
                 .attach('file', this.goodClick)
@@ -268,7 +368,6 @@ describe('Manage Revision POST', () => {
             expect(data.architectures).to.deep.equal(['all']);
             expect(data.author).to.equal('OpenStore Team');
             expect(data.channels).to.deep.equal([Package.XENIAL]);
-            expect(data.filesize).to.be.ok;
             expect(data.framework).to.equal('ubuntu-sdk-16.04');
             expect(data.icon).to.equal('http://local.open-store.io/api/v3/apps/openstore-test.openstore-team/icon/1.0.0');
             expect(data.permissions).to.deep.equal(['networking']);
@@ -281,11 +380,12 @@ describe('Manage Revision POST', () => {
             expect(data.revisions[1].revision).to.equal(2);
             expect(data.revisions[1].version).to.equal('1.0.0');
             expect(data.revisions[1].channel).to.equal(Package.XENIAL);
+            expect(data.revisions[1].architecture).to.equal(Package.ALL);
+            expect(data.revisions[1].framework).to.equal('ubuntu-sdk-16.04');
 
             expect(this.uploadPackageStub).to.have.been.calledOnce;
             expect(reviewStub).to.have.been.calledOnce;
             expect(upsertStub).to.have.been.calledOnce;
-            expect(removeFileStub).to.have.been.calledOnceWith('http://example.com/file');
         });
 
         it('fails gracefully', async function() {

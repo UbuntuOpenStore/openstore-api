@@ -66,45 +66,6 @@ async function uploadFile(filePath, fileName) {
     return `${config.backblaze.baseUrl}${config.backblaze.bucketName}/${uploadInfo.data.fileName}`;
 }
 
-async function removeFile(url) {
-    let base = `${config.backblaze.baseUrl}${config.backblaze.bucketName}/`;
-    if (url && url.indexOf(base) === 0) {
-        let fileName = url.replace(base, '');
-
-        await b2.authorize();
-
-        try {
-            let versions = await b2.listFileVersions({
-                bucketId: config.backblaze.bucketId,
-                startFileName: fileName,
-                maxFileCount: 1,
-            });
-
-            if (versions.data.files.length >= 1) {
-                let fileId = versions.data.files[0].fileId;
-
-                await b2.deleteFileVersion({
-                    fileId: fileId,
-                    fileName: fileName,
-                });
-            }
-        }
-        catch (e) {
-            if (
-                e.response &&
-                e.response.data &&
-                e.response.data.code &&
-                e.response.data.code == 'file_not_present'
-            ) {
-                // Nothin to do, the file we wanted to delete is already gone
-            }
-            else {
-                throw e;
-            }
-        }
-    }
-}
-
 function resize(iconPath) {
     return new Promise((resolve, reject) => {
         jimp.read(iconPath, (readErr, image) => {
@@ -147,4 +108,3 @@ async function uploadPackage(pkg, packagePath, iconPath, channel, version) {
 
 
 exports.uploadPackage = uploadPackage;
-exports.removeFile = removeFile;

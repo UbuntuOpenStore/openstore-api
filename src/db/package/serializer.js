@@ -53,7 +53,7 @@ function toSlimJson(pkg) {
     return json;
 }
 
-function toJson(pkg) {
+function toJson(pkg, architecture = Package.ARMHF) {
     // Clean up languages that got screwed up by click-parser
     let languages = pkg.languages ? pkg.languages.sort() : [];
     languages = languages.map((language) => {
@@ -65,7 +65,7 @@ function toJson(pkg) {
         return language;
     });
 
-    let {revisionData} = pkg.getLatestRevision(Package.XENIAL, Package.ARMHF); // TODO remove this
+    let { revisionData } = pkg.getLatestRevision(Package.XENIAL, architecture);
     let json = {
         architecture: pkg.architecture || '',
         architectures: pkg.architectures || [],
@@ -75,7 +75,6 @@ function toJson(pkg) {
         channels: pkg.channels || [Package.XENIAL],
         description: pkg.description || '',
         downloads: [],
-        filesize: pkg.filesize || 0,
         framework: pkg.framework || '',
         icon: iconUrl(pkg),
         id: pkg.id || '',
@@ -101,14 +100,13 @@ function toJson(pkg) {
         revisions: pkg.revisions || [],
         totalDownloads: 0,
         latestDownloads: 0,
-
-        // TODO get these from the latest release
         version: revisionData ? revisionData.version : '',
 
         // TODO deprecate these
         revision: -1,
         download: null,
         download_sha512: '',
+        filesize: revisionData ? revisionData.filesize : 0, // Have the app get this from the download data
     };
 
     if (pkg.revisions) {
@@ -139,20 +137,20 @@ function toJson(pkg) {
     return json;
 }
 
-function serialize(pkgs, slim) {
+function serialize(pkgs, slim, architecture) {
     if (Array.isArray(pkgs)) {
         if (slim) {
             return pkgs.map(toSlimJson);
         }
 
-        return pkgs.map(toJson);
+        return pkgs.map((pkg) => toJson(pkg, architecture));
     }
 
     if (slim) {
         return toSlimJson(pkgs);
     }
 
-    return toJson(pkgs);
+    return toJson(pkgs, architecture);
 }
 
 exports.iconUrl = iconUrl;
