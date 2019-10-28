@@ -2,79 +2,83 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2017-06-20 01:45:+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Language-Team: none\n"
+"PO-Revision-Date: 2019-10-29 23:36+0000\n"
+"Last-Translator: enolp <enolp@softastur.org>\n"
+"Language-Team: Asturian <https://translate.ubports.com/projects/openstore/"
+"openstore-api/ast/>\n"
 "Language: ast\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 3.8\n"
 
 msgid "Accessibility"
-msgstr ""
+msgstr "Accesibilidá"
 
 msgid "Books & Comics"
-msgstr ""
+msgstr "Llibros y cómics"
 
 msgid "Business & Finance"
-msgstr ""
+msgstr "Negocios y finances"
 
 msgid "Communication & Social"
-msgstr ""
+msgstr "Comunicación y socialización"
 
 msgid "Developer Tools"
-msgstr ""
+msgstr "Ferramientes pa desendolcadores"
 
 msgid "Education & Reference"
-msgstr ""
+msgstr "Educación y referencies"
 
 msgid "Entertainment"
-msgstr ""
+msgstr "Entretenimientu"
 
 msgid "Food & Drink"
-msgstr ""
+msgstr "Comida y bébora"
 
 msgid "Games"
-msgstr ""
+msgstr "Xuegos"
 
 msgid "Graphics"
-msgstr ""
+msgstr "Gráficos"
 
 msgid "Health & Fitness"
-msgstr ""
+msgstr "Salú y exerciciu"
 
 msgid "Lifestyle"
-msgstr ""
+msgstr "Estilu de vida"
 
 msgid "Media & Video"
-msgstr ""
+msgstr "Multimedia y videu"
 
 msgid "Music & Audio"
-msgstr ""
+msgstr "Música y audiu"
 
 msgid "News & Magazines"
-msgstr ""
+msgstr "Noticies y magacinos"
 
 msgid "Personalisation"
-msgstr ""
+msgstr "Personalización"
 
 msgid "Productivity"
-msgstr ""
+msgstr "Productividá"
 
 msgid "Science & Engineering"
-msgstr ""
+msgstr "Ciencia ya inxeniería"
 
 msgid "Shopping"
-msgstr ""
+msgstr "Merques"
 
 msgid "Sports"
-msgstr ""
+msgstr "Deportes"
 
 msgid "Travel & Weather"
-msgstr ""
+msgstr "Viaxes y clima"
 
 msgid "Utilities"
-msgstr ""
+msgstr "Utilidaes"
 
 # This is text to go on a button that will say "Download from the\nOpenStore" (where \n is a line break)
 msgid "Download from the"
-msgstr ""
+msgstr "Baxar d'"
