@@ -2,79 +2,83 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2017-06-20 01:45:+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Language-Team: none\n"
+"PO-Revision-Date: 2019-11-14 20:36+0000\n"
+"Last-Translator: Ari Börde Kröyer <ari.kroyer@online.no>\n"
+"Language-Team: Norwegian Bokmål <https://translate.ubports.com/projects/"
+"openstore/openstore-api/nb_NO/>\n"
 "Language: nb_NO\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 3.8\n"
 
 msgid "Accessibility"
-msgstr ""
+msgstr "Tilgjengelighet"
 
 msgid "Books & Comics"
-msgstr ""
+msgstr "Bøker & tegneserier"
 
 msgid "Business & Finance"
-msgstr ""
+msgstr "Næring & finans"
 
 msgid "Communication & Social"
-msgstr ""
+msgstr "Kommunikasjon & sosiale medier"
 
 msgid "Developer Tools"
-msgstr ""
+msgstr "Utviklerverktøy"
 
 msgid "Education & Reference"
-msgstr ""
+msgstr "Utdanning & informasjon"
 
 msgid "Entertainment"
-msgstr ""
+msgstr "Underholdning"
 
 msgid "Food & Drink"
-msgstr ""
+msgstr "Mat & drikke"
 
 msgid "Games"
-msgstr ""
+msgstr "Spill"
 
 msgid "Graphics"
-msgstr ""
+msgstr "Grafikk"
 
 msgid "Health & Fitness"
-msgstr ""
+msgstr "Helse & velvære"
 
 msgid "Lifestyle"
-msgstr ""
+msgstr "Livsstil"
 
 msgid "Media & Video"
-msgstr ""
+msgstr "Media & video"
 
 msgid "Music & Audio"
-msgstr ""
+msgstr "Musikk & lyd"
 
 msgid "News & Magazines"
-msgstr ""
+msgstr "Nyheter & tidsskrifter"
 
 msgid "Personalisation"
-msgstr ""
+msgstr "Temaer & tilpasninger"
 
 msgid "Productivity"
-msgstr ""
+msgstr "Produktivitet"
 
 msgid "Science & Engineering"
-msgstr ""
+msgstr "Vitenskap & ingeniørvitenskap"
 
 msgid "Shopping"
-msgstr ""
+msgstr "Kjøp & salg"
 
 msgid "Sports"
-msgstr ""
+msgstr "Sport"
 
 msgid "Travel & Weather"
-msgstr ""
+msgstr "Reise & vær"
 
 msgid "Utilities"
-msgstr ""
+msgstr "Verktøy"
 
 # This is text to go on a button that will say "Download from the\nOpenStore" (where \n is a line break)
 msgid "Download from the"
-msgstr ""
+msgstr "Last ned fra"
