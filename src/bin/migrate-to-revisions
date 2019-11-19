@@ -1,8 +1,5 @@
 #!/usr/bin/env node
 
-// TODO move new stuff into the revision
-// TODO set download url to null for everything but the latest release
-
 require('../db'); // Make sure the database connection gets setup
 const Package = require('../db/package/model');
 

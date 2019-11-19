@@ -6,6 +6,7 @@ const express = require('express');
 const Package = require('../db/package/model');
 const PackageRepo = require('../db/package/repo');
 const PackageSearch = require('../db/package/search');
+const LockRepo = require('../db/lock/repo');
 const {serialize} = require('../db/package/serializer');
 const config = require('../utils/config');
 const logger = require('../utils/logger');
@@ -324,29 +325,37 @@ router.post(
             return helpers.error(res, INVALID_CHANNEL, 400);
         }
 
+        let lock = null;
         try {
+            lock = await LockRepo.acquire(`revision-${req.params.id}`);
+
             let pkg = await PackageRepo.findOne(req.params.id);
             if (!pkg) {
+                await LockRepo.release(lock, req);
                 return helpers.error(res, APP_NOT_FOUND, 404);
             }
 
             if (!req.isAdminUser && req.user._id != pkg.maintainer) {
+                await LockRepo.release(lock, req);
                 return helpers.error(res, PERMISSION_DENIED, 403);
             }
 
             let filePath = fileName(file);
             let [success, error] = await review(req, file, filePath);
             if (!success) {
+                await LockRepo.release(lock, req);
                 return helpers.error(res, error, 400);
             }
 
             let parseData = await clickParser.parse(filePath, true);
             let {version, architecture} = parseData;
             if (!parseData.name || !version || !architecture) {
+                await LockRepo.release(lock, req);
                 return helpers.error(res, MALFORMED_MANIFEST, 400);
             }
 
             if (pkg.id && parseData.name != pkg.id) {
+                await LockRepo.release(lock, req);
                 return helpers.error(res, WRONG_PACKAGE, 400);
             }
 
@@ -363,6 +372,7 @@ router.post(
                 });
 
                 if (matches) {
+                    await LockRepo.release(lock, req);
                     return helpers.error(res, EXISTING_VERSION, 400);
                 }
 
@@ -370,13 +380,16 @@ router.post(
                 if (currentRevisions.length > 0) {
                     let currentArches = currentRevisions.map((rev) => rev.architecture);
                     if (architecture == Package.ALL && !currentArches.includes(Package.ALL)) {
+                        await LockRepo.release(lock, req);
                         return helpers.error(res, NO_ALL, 400);
                     }
                     if (architecture != Package.ALL && currentArches.includes(Package.ALL)) {
+                        await LockRepo.release(lock, req);
                         return helpers.error(res, NO_NON_ALL, 400);
                     }
 
                     if (parseData.framework != currentRevisions[0].framework) {
+                        await LockRepo.release(lock, req);
                         return helpers.error(res, MISMATCHED_FRAMEWORK, 400);
                     }
 
@@ -399,6 +412,7 @@ router.post(
                 updateIcon ? parseData.icon : null,
                 channel,
                 version,
+                architecture,
             );
 
             pkg.newRevision(
@@ -434,9 +448,14 @@ router.post(
                 await PackageSearch.upsert(pkg);
             }
 
+            await LockRepo.release(lock, req);
             return helpers.success(res, serialize(pkg));
         }
         catch (err) {
+            if (lock) {
+                await LockRepo.release(lock, req);
+            }
+
             let message = err.message ? err.message : err;
             logger.error(`Error updating package: ${message}`);
             helpers.captureException(err, req.originalUrl);

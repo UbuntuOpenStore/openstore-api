@@ -135,7 +135,7 @@ const PackageRepo = {
     count(filters) {
         let query = this.parseFilters(filters);
 
-        return Package.count(query);
+        return Package.countDocuments(query);
     },
 
     find(filters, sort, limit, skip) {
@@ -203,7 +203,7 @@ const PackageRepo = {
         let inc = {};
         inc[`revisions.${revisionIndex}.downloads`] = 1;
 
-        return Package.update({_id: id}, {$inc: inc});
+        return Package.updateOne({_id: id}, {$inc: inc});
     },
 
     async stats() {

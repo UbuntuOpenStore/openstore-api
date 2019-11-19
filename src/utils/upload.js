@@ -86,11 +86,11 @@ function resize(iconPath) {
     });
 }
 
-async function uploadPackage(pkg, packagePath, iconPath, channel, version) {
+async function uploadPackage(pkg, packagePath, iconPath, channel, version, architecture) {
     channel = channel || Package.XENIAL;
     version = version || pkg.version;
 
-    let packageName = `packages/${channel}/${pkg.id}_${version}_${pkg.architecture}.click`;
+    let packageName = `packages/${channel}/${pkg.id}_${version}_${architecture}.click`;
     let packageUrl = await uploadFile(packagePath, packageName);
 
     let iconUrl = '';
