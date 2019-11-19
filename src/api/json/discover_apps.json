@@ -10,14 +10,15 @@
             "referral": "",
             "ids": []
         }, {
-            "name": "Ported Apps",
-            "tagline": "Cross platform apps",
+            "name": "Cross Platform Apps",
+            "tagline": "Find these apps anywhere",
             "referral": "",
             "ids": [
                 "pure-maps.jonnius",
                 "harbour-messwerk.mymike00",
                 "me.fredl.ghostcloud",
-                "me.fredl.qshodan"
+                "me.fredl.qshodan",
+                "io.guh.nymeaapp"
             ]
         }, {
             "name": "Awesome Games",
