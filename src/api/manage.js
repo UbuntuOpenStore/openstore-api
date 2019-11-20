@@ -59,7 +59,7 @@ async function review(req, file, filePath) {
             // TODO improve this feedback
             let error = NEEDS_MANUAL_REVIEW;
             if (needsManualReview === true) {
-                error = `${NEEDS_MANUAL_REVIEW}, please check you app using the click-review command`;
+                error = `${NEEDS_MANUAL_REVIEW}, please check your app using the click-review command`;
             }
             else {
                 error = `${NEEDS_MANUAL_REVIEW} (Error: ${needsManualReview})`;
