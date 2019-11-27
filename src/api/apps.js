@@ -103,7 +103,7 @@ router.get('/:id/download/:channel/:arch', async (req, res) => {
         }
 
         let ext = path.extname(downloadUrl);
-        let filename = `${config.data_dir}/${pkg.id}-${channel}-${revisionData.version}${ext}`;
+        let filename = `${config.data_dir}/${pkg.id}-${channel}-${arch}-${revisionData.version}${ext}`;
         let headers = { 'Content-Disposition': `attachment; filename=${pkg.id}_${revisionData.version}_${arch}.click` };
         await helpers.checkDownload(downloadUrl, filename, headers, res);
         return await PackageRepo.incrementDownload(pkg._id, revisionIndex);
