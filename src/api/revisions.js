@@ -29,8 +29,7 @@ async function revisionsByVersion(req, res) {
 
     try {
         let pkgs = await PackageRepo.find({published: true, ids: ids});
-        pkgs = pkgs.filter((pkg) => (frameworks.length === 0 || frameworks.includes(pkg.framework)))
-            .filter((pkg) => (pkg.architectures.includes(architecture) || pkg.architectures.includes(Package.ALL)))
+        pkgs = pkgs.filter((pkg) => (pkg.architectures.includes(architecture) || pkg.architectures.includes(Package.ALL)))
             .map((pkg) => {
                 let version = versions.filter((v) => (v.split('@')[0] == pkg.id))[0];
                 let parts = version.split('@');
@@ -44,9 +43,7 @@ async function revisionsByVersion(req, res) {
                 ))[0];
                 let revision = revisionData ? revisionData.revision : 0;
 
-                // TODO account for frameworks and return the latest for the specified framework
-                // TODO don't filter by framework above
-                let {revisionData: latestRevisionData} = pkg.getLatestRevision(channel, architecture);
+                let {revisionData: latestRevisionData} = pkg.getLatestRevision(channel, architecture, true, frameworks);
 
                 if (!latestRevisionData || !latestRevisionData.download_url) {
                     return null;

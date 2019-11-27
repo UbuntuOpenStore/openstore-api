@@ -204,4 +204,29 @@ describe('Revisions GET', () => {
         expect(body.success).to.be.true;
         expect(body.data).to.have.lengthOf(0);
     });
+
+    it('returns the most recent for the given frameworks', async function() {
+        this.package.revisions[0].framework = 'ubuntu-sdk-15.04';
+        this.package.revisions[1].framework = 'ubuntu-sdk-15.04';
+        await this.package.save();
+
+        let { body } = await this.get(`${this.makeUrl()}&frameworks=ubuntu-sdk-15.04`).expect(200);
+
+        expect(body.success).to.be.true;
+        expect(body.data).to.have.lengthOf(1);
+        expect(body.data[0].latest_revision).to.equal(2);
+
+        let { body: body2 } = await this.get(`${this.makeUrl()}&frameworks=ubuntu-sdk-15.04,ubuntu-sdk-16.04`).expect(200);
+
+        expect(body2.success).to.be.true;
+        expect(body2.data).to.have.lengthOf(1);
+        expect(body2.data[0].latest_revision).to.equal(3);
+    });
+
+    it('returns nothing when the updates are different than the given framework', async function() {
+        let { body } = await this.get(`${this.makeUrl()}&frameworks=ubuntu-sdk-15.04`).expect(200);
+
+        expect(body.success).to.be.true;
+        expect(body.data).to.have.lengthOf(0);
+    });
 });

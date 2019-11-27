@@ -106,5 +106,4 @@ async function uploadPackage(pkg, packagePath, iconPath, channel, version, archi
     return [packageUrl, iconUrl];
 }
 
-
 exports.uploadPackage = uploadPackage;

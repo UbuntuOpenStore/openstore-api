@@ -97,7 +97,7 @@ packageSchema.index(
     },
 );
 
-packageSchema.methods.getLatestRevision = function(channel, architecture, detectAll = true) {
+packageSchema.methods.getLatestRevision = function(channel, architecture, detectAll = true, frameworks = null) {
     if (this.architectures.includes('all') && detectAll) {
         architecture = 'all';
     }
@@ -108,7 +108,8 @@ packageSchema.methods.getLatestRevision = function(channel, architecture, detect
         if (
             (!revisionData || revisionData.revision < data.revision) &&
             data.channel == channel &&
-            data.architecture == architecture
+            data.architecture == architecture &&
+            (!frameworks || frameworks.includes(data.framework))
         ) {
             revisionData = data;
             revisionIndex = index;
