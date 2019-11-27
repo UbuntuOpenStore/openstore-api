@@ -205,6 +205,9 @@ describe('Revisions GET', () => {
         expect(body.data).to.have.lengthOf(0);
     });
 
+    /*
+    // TODO revive these when the support returns
+
     it('returns the most recent for the given frameworks', async function() {
         this.package.revisions[0].framework = 'ubuntu-sdk-15.04';
         this.package.revisions[1].framework = 'ubuntu-sdk-15.04';
@@ -229,4 +232,5 @@ describe('Revisions GET', () => {
         expect(body.success).to.be.true;
         expect(body.data).to.have.lengthOf(0);
     });
+    */
 });
