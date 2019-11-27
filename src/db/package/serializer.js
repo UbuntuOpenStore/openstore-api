@@ -111,7 +111,7 @@ function toJson(pkg, architecture = Package.ARMHF) {
 
     if (pkg.revisions) {
         /* eslint-disable-next-line arrow-body-style */
-        json.downloads = Package.CHANNELS.reduce((downloads, channel) => {
+        let jsonDownloads = Package.CHANNELS.reduce((downloads, channel) => {
             return [...downloads, ...Package.ARCHITECTURES.map((arch) => {
                 let {revisionData: downloadRevisionData} = pkg.getLatestRevision(channel, arch, false);
                 if (downloadRevisionData) {
@@ -125,6 +125,19 @@ function toJson(pkg, architecture = Package.ARMHF) {
             })];
         }, []).filter((revision) => (!!revision || (revision && !revision.download_url)));
 
+        // Make sure the current architecture is last to not break old versions of the app
+        jsonDownloads.sort((a, b) => {
+            if (a.architecture == architecture) {
+                return 1;
+            }
+            if (b.architecture == architecture) {
+                return -1;
+            }
+
+            return 0;
+        });
+
+        json.downloads = jsonDownloads;
         json.downloads.forEach((download) => {
             json.latestDownloads += download.downloads;
         });

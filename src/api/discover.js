@@ -20,9 +20,14 @@ const NEW_AND_UPDATED = 'New and Updated Apps';
 
 // TODO return slim version of the pkg json
 router.get('/', async (req, res) => {
-    let channel = req.query.channel ? req.query.channel.toLowerCase() : Package.XENIAL;
+    let channel = helpers.getData(req, 'channel', Package.XENIAL).toLowerCase();
     if (!Package.CHANNELS.includes(channel)) {
         channel = Package.XENIAL;
+    }
+
+    let architecture = helpers.getData(req, 'architecture', Package.ARMHF).toLowerCase();
+    if (!Package.ARCHITECTURES.includes(architecture)) {
+        architecture = Package.ARMHF;
     }
 
     let now = moment();
@@ -34,25 +39,32 @@ router.get('/', async (req, res) => {
             let [highlight, discoverCategoriesApps, newApps, updatedApps] = await Promise.all([
                 PackageRepo.findOne(discover.highlight.id, {published: true}),
 
-                Promise.all(discoverCategories.map((category) => PackageRepo.find({ids: category.ids, channel: channel, published: true}))),
+                Promise.all(discoverCategories.map((category) => PackageRepo.find({
+                    ids: category.ids,
+                    channel: channel,
+                    architectures: architecture,
+                    published: true,
+                }))),
 
                 PackageRepo.find({
                     published: true,
                     channel: channel,
+                    architectures: architecture,
                     nsfw: [null, false],
                 }, '-published_date', 8),
 
                 PackageRepo.find({
                     published: true,
                     channel: channel,
+                    architectures: architecture,
                     nsfw: [null, false],
                 }, '-updated_date', 8),
             ]);
 
-            discover.highlight.app = serialize(highlight);
+            discover.highlight.app = serialize(highlight, false, architecture);
 
             discoverCategories.forEach((category, index) => {
-                let apps = discoverCategoriesApps[index].map((app) => serialize(app));
+                let apps = discoverCategoriesApps[index].map((app) => serialize(app, false, architecture));
 
                 category.ids = shuffle(category.ids);
                 category.apps = shuffle(apps);
@@ -72,7 +84,7 @@ router.get('/', async (req, res) => {
             newAndUpdatedCategory.apps = newAndUpdatedCategory.ids.map((id) => {
                 return newAndUpdatedApps.find((app) => (app.id == id));
             });
-            newAndUpdatedCategory.apps = newAndUpdatedCategory.apps.map((app) => serialize(app));
+            newAndUpdatedCategory.apps = newAndUpdatedCategory.apps.map((app) => serialize(app, false, architecture));
 
             discover.categories = discover.categories.filter((category) => (category.apps.length > 0));
 
