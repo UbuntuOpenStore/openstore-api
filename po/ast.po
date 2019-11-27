@@ -2,83 +2,83 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2017-06-20 01:45:+0000\n"
-"PO-Revision-Date: 2019-11-03 19:36+0000\n"
-"Last-Translator: Ege Öz <ege.oz@tutanota.com>\n"
-"Language-Team: Turkish <https://translate.ubports.com/projects/openstore/"
-"openstore-api/tr/>\n"
-"Language: tr\n"
+"PO-Revision-Date: 2019-10-29 23:36+0000\n"
+"Last-Translator: enolp <enolp@softastur.org>\n"
+"Language-Team: Asturian <https://translate.ubports.com/projects/openstore/"
+"openstore-api/ast/>\n"
+"Language: ast\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Generator: Weblate 3.8\n"
 
 msgid "Accessibility"
-msgstr "Erişilebilirlik"
+msgstr "Accesibilidá"
 
 msgid "Books & Comics"
-msgstr "Kitaplar & Çizgi Roman"
+msgstr "Llibros y cómics"
 
 msgid "Business & Finance"
-msgstr "İş Dünyası & Finans"
+msgstr "Negocios y finances"
 
 msgid "Communication & Social"
-msgstr "İletişim & Sosyal Ağlar"
+msgstr "Comunicación y socialización"
 
 msgid "Developer Tools"
-msgstr "Geliştirici Araçları"
+msgstr "Ferramientes pa desendolcadores"
 
 msgid "Education & Reference"
-msgstr "Eğitim & Referans"
+msgstr "Educación y referencies"
 
 msgid "Entertainment"
-msgstr "Eğlence"
+msgstr "Entretenimientu"
 
 msgid "Food & Drink"
-msgstr "Yiyecek & İçecek"
+msgstr "Comida y bébora"
 
 msgid "Games"
-msgstr "Oyunlar"
+msgstr "Xuegos"
 
 msgid "Graphics"
-msgstr "Grafik"
+msgstr "Gráficos"
 
 msgid "Health & Fitness"
-msgstr "Sağlık & Fitness"
+msgstr "Salú y exerciciu"
 
 msgid "Lifestyle"
-msgstr "Yaşam"
+msgstr "Estilu de vida"
 
 msgid "Media & Video"
-msgstr "Medya & Video"
+msgstr "Multimedia y videu"
 
 msgid "Music & Audio"
-msgstr "Müzik & Ses"
+msgstr "Música y audiu"
 
 msgid "News & Magazines"
-msgstr "Haberler & Dergiler"
+msgstr "Noticies y magacinos"
 
 msgid "Personalisation"
-msgstr "Kişiselleştirme"
+msgstr "Personalización"
 
 msgid "Productivity"
-msgstr "Üretkenlik"
+msgstr "Productividá"
 
 msgid "Science & Engineering"
-msgstr "Bilim & Mühendislik"
+msgstr "Ciencia ya inxeniería"
 
 msgid "Shopping"
-msgstr "Alışveriş"
+msgstr "Merques"
 
 msgid "Sports"
-msgstr "Sporlar"
+msgstr "Deportes"
 
 msgid "Travel & Weather"
-msgstr "Seyahat & Hava Durumu"
+msgstr "Viaxes y clima"
 
 msgid "Utilities"
-msgstr "Araçlar"
+msgstr "Utilidaes"
 
 # This is text to go on a button that will say "Download from the\nOpenStore" (where \n is a line break)
 msgid "Download from the"
-msgstr "İndir:"
+msgstr "Baxar d'"

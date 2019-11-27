@@ -1,7 +1,7 @@
 {
     "highlight": {
-        "id": "uadblock.mariogrip",
-        "image": "/banners/uadblock.svg"
+        "id": "im.kaidan.kaidan",
+        "image": "/banners/kaidan.svg"
     },
     "categories": [
         {
@@ -10,17 +10,15 @@
             "referral": "",
             "ids": []
         }, {
-            "name": "Revived Apps",
-            "tagline": "Stick a fork in it",
+            "name": "Cross Platform Apps",
+            "tagline": "Find these apps anywhere",
             "referral": "",
             "ids": [
-                "pathwind.emanuelesorce",
-                "wakeit.mateo-salta",
-                "gearboy.bhdouglass",
-                "solitaire-games.mateo-salta",
-                "openstore.tagger",
-                "uvolman.mateosalta",
-                "uports-netwalk.mateo-salta"
+                "pure-maps.jonnius",
+                "harbour-messwerk.mymike00",
+                "me.fredl.ghostcloud",
+                "me.fredl.qshodan",
+                "io.guh.nymeaapp"
             ]
         }, {
             "name": "Awesome Games",
@@ -41,12 +39,13 @@
             "tagline": "Check these out first",
             "referral": "",
             "ids": [
-                "authenticator-ng.dobey",
+                "tfamanager.cibersheep",
                 "teleports.ubports",
                 "com.ubuntu.docviewer",
                 "fluffychat.christianpauly",
                 "navigator.costales",
-                "dekko2.dekkoproject"
+                "dekko2.dekkoproject",
+                "com.ubuntu.docviewer"
             ]
         }
     ]
