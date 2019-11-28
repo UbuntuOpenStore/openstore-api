@@ -62,7 +62,7 @@ router.get('/:id', async (req, res) => {
         let pkg = await PackageRepo.findOne(req.params.id, req.query);
 
         if (pkg) {
-            return helpers.success(res, serialize(pkg, req.query.architecture));
+            return helpers.success(res, serialize(pkg, false, req.query.architecture));
         }
 
         return helpers.error(res, APP_NOT_FOUND, 404);
