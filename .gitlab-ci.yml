@@ -40,8 +40,9 @@ deploy:
     - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
     - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
   script:
+    - ENV=-staging
     - VERSION=$(date +"%Y-%m-%d_%H-%M-%S")
     - echo $VERSION
     - npm install
-    - rsync -av --delete --exclude node_modules --exclude ".*" . root@ssh.open-store.io:/srv/openstore-api-staging/$VERSION
-    - ssh root@ssh.open-store.io "/srv/openstore-api-staging/$VERSION/deploy/post-deploy.sh $VERSION"
+    - rsync -av --delete --exclude node_modules --exclude ".*" . root@ssh.open-store.io:/srv/openstore-api$ENV/$VERSION
+    - ssh root@ssh.open-store.io "/srv/openstore-api$ENV/$VERSION/deploy/post-deploy.sh $VERSION $ENV"
