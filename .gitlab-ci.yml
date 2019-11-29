@@ -29,3 +29,19 @@ deploy:
     - npm install
     - rsync -av --delete --exclude node_modules --exclude ".*" . root@ssh.open-store.io:/srv/openstore-api/$VERSION
     - ssh root@ssh.open-store.io "/srv/openstore-api/$VERSION/deploy/post-deploy.sh $VERSION"
+
+deploy:
+  stage: deploy
+  only:
+    - staging
+  image: theopenstore/ci
+  before_script:
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+    - echo "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+  script:
+    - VERSION=$(date +"%Y-%m-%d_%H-%M-%S")
+    - echo $VERSION
+    - npm install
+    - rsync -av --delete --exclude node_modules --exclude ".*" . root@ssh.open-store.io:/srv/openstore-api-staging/$VERSION
+    - ssh root@ssh.open-store.io "/srv/openstore-api-staging/$VERSION/deploy/post-deploy.sh $VERSION"
