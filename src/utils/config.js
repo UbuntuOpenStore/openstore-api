@@ -25,6 +25,7 @@ let config = {
     },
     elasticsearch: {
         uri: process.env.ELASTICSEARCH_URI || 'http://elasticsearch:9200/',
+        index: process.env.ELASTICSEARCH_INDEX || 'openstore_packages',
     },
     backblaze: {
         accountId: configFile.BACKBLAZE_ACCOUNT_ID || process.env.BACKBLAZE_ACCOUNT_ID || '',

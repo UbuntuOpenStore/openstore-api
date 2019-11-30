@@ -2,21 +2,22 @@
 
 VERSION=$1
 ENV=${2:-""}
+BASE=/srv/openstore-api$ENV
 
 set -x
 set -e
 
-cd /srv/openstore-api$ENV/$VERSION
+cd $BASE/$VERSION
 npm install
 
 echo -e "#!/bin/bash\nexport VERSION=$VERSION$ENV" > /srv/openstore$ENV/version.sh
 
-rm -f /srv/openstore-api$ENV/current
-ln -s /srv/openstore-api$ENV/$VERSION /srv/openstore-api$ENV/current
+rm -f $BASE/current
+ln -s $BASE/$VERSION $BASE/current
 
 systemctl restart openstore-api$ENV
 
-cd /srv/openstore-api$ENV/
+cd $BASE/
 echo "Going to remove old versions"
 ls -1t | grep -v current | tail -n +10
 ls -1t | grep -v current | tail -n +10 | xargs -d '\n' -r rm -r --
