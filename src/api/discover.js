@@ -61,7 +61,7 @@ router.get('/', async (req, res) => {
                 }, '-updated_date', 8),
             ]);
 
-            discover.highlight.app = serialize(highlight, false, architecture);
+            discover.highlight.app = highlight ? serialize(highlight, false, architecture) : null;
 
             discoverCategories.forEach((category, index) => {
                 let apps = discoverCategoriesApps[index].map((app) => serialize(app, false, architecture));
