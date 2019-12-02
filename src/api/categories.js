@@ -77,21 +77,33 @@ router.get('/', async (req, res) => {
     };
 
     try {
-        let categories = await PackageRepo.categoryStats(channel);
+        let categories = [];
+        if (req.query.all) {
+            categories = await PackageRepo.categoryStats(channel);
 
-        /* eslint-disable arrow-body-style */
-        /* eslint-disable no-underscore-dangle */
-        let data = categories.filter((category) => !!category._id)
-            .map((category) => {
+            /* eslint-disable arrow-body-style */
+            /* eslint-disable no-underscore-dangle */
+            categories = categories.filter((category) => !!category._id)
+                .map((category) => {
+                    return {
+                        category: category._id,
+                        translation: categoryTranslations[category._id],
+                        count: category.count,
+                        icon: config.server.host + categoryIcons[category._id],
+                    };
+                });
+        }
+        else {
+            categories = Object.keys(categoryTranslations).map((category) => {
                 return {
-                    category: category._id,
-                    translation: categoryTranslations[category._id],
-                    count: category.count,
-                    icon: config.server.host + categoryIcons[category._id],
+                    category: category,
+                    translation: categoryTranslations[category],
+                    icon: config.server.host + categoryIcons[category],
                 };
             });
+        }
 
-        helpers.success(res, data);
+        helpers.success(res, categories);
     }
     catch (err) {
         logger.error('Error fetching categories');
