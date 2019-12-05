@@ -30,8 +30,10 @@ router.get('/', async (req, res) => {
         architecture = Package.ARMHF;
     }
 
+    const cacheKey = `${channel}-${architecture}`;
+
     let now = moment();
-    if (!discoverDate[channel] || now.diff(discoverDate[channel], 'minutes') > 10 || !discoverCache[channel]) { // Cache miss
+    if (!discoverDate[cacheKey] || now.diff(discoverDate[cacheKey], 'minutes') > 10 || !discoverCache[cacheKey]) { // Cache miss
         let discover = JSON.parse(JSON.stringify(discoverJSON));
         let discoverCategories = discover.categories.filter((category) => (category.ids.length > 0));
 
@@ -42,21 +44,21 @@ router.get('/', async (req, res) => {
                 Promise.all(discoverCategories.map((category) => PackageRepo.find({
                     ids: category.ids,
                     channel: channel,
-                    architectures: architecture,
+                    architectures: [architecture, Package.ALL],
                     published: true,
                 }))),
 
                 PackageRepo.find({
                     published: true,
                     channel: channel,
-                    architectures: architecture,
+                    architectures: [architecture, Package.ALL],
                     nsfw: [null, false],
                 }, '-published_date', 8),
 
                 PackageRepo.find({
                     published: true,
                     channel: channel,
-                    architectures: architecture,
+                    architectures: [architecture, Package.ALL],
                     nsfw: [null, false],
                 }, '-updated_date', 8),
             ]);
@@ -93,8 +95,8 @@ router.get('/', async (req, res) => {
                 category.ids = category.apps.map((app) => app.id);
             });
 
-            discoverCache[channel] = discover;
-            discoverDate[channel] = now;
+            discoverCache[cacheKey] = discover;
+            discoverDate[cacheKey] = now;
 
             helpers.success(res, discover);
         }
@@ -105,7 +107,7 @@ router.get('/', async (req, res) => {
         }
     }
     else { // Cache hit
-        helpers.success(res, discoverCache[channel]);
+        helpers.success(res, discoverCache[cacheKey]);
     }
 });
 
