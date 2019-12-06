@@ -4,7 +4,6 @@ services:
 stages:
   - test
   - deploy
-  - deploy_staging
 
 test:
   stage: test
@@ -31,8 +30,8 @@ deploy:
     - rsync -av --delete --exclude node_modules --exclude ".*" . root@ssh.open-store.io:/srv/openstore-api/$VERSION
     - ssh root@ssh.open-store.io "/srv/openstore-api/$VERSION/deploy/post-deploy.sh $VERSION"
 
-deploy:
-  stage: deploy_staging
+deploy_staging:
+  stage: deploy
   only:
     - staging
   image: theopenstore/ci
