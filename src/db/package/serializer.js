@@ -66,6 +66,11 @@ function toJson(pkg, architecture = Package.ARMHF) {
     });
 
     let { revisionData } = pkg.getLatestRevision(Package.XENIAL, architecture);
+    let filesize = revisionData ? revisionData.filesize : pkg.filesize;
+    if (!filesize) {
+        filesize = 0;
+    }
+
     let json = {
         architecture: pkg.architecture || '',
         architectures: pkg.architectures || [],
@@ -106,7 +111,7 @@ function toJson(pkg, architecture = Package.ARMHF) {
         revision: -1,
         download: null,
         download_sha512: '',
-        filesize: revisionData ? revisionData.filesize : 0, // Have the app get this from the download data
+        filesize, // Have the app get this from the download data
     };
 
     if (pkg.revisions) {
