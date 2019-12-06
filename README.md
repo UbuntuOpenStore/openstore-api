@@ -1,6 +1,6 @@
-# OpenStore Web
+# OpenStore Api
 
-Web viewer and api for the [OpenStore](https://open-store.io/).
+Api for the [OpenStore](https://open-store.io/).
 
 ## Reporting Bugs
 
@@ -45,7 +45,7 @@ create a config.json file in `api/utils/` like this:
 
 ## License
 
-Copyright (C) 2017 [Brian Douglass](http://bhdouglass.com/)
+Copyright (C) 2019 [Brian Douglass](http://bhdouglass.com/)
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License version 3, as published
 by the Free Software Foundation.
