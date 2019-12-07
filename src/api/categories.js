@@ -78,7 +78,7 @@ router.get('/', async (req, res) => {
 
     try {
         let categories = [];
-        if (req.query.all) {
+        if (!req.query.all) {
             categories = await PackageRepo.categoryStats(channel);
 
             /* eslint-disable arrow-body-style */
