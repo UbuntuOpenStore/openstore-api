@@ -78,7 +78,16 @@ router.get('/', async (req, res) => {
 
     try {
         let categories = [];
-        if (!req.query.all) {
+        if (req.query.all) {
+            categories = Object.keys(categoryTranslations).map((category) => {
+                return {
+                    category: category,
+                    translation: categoryTranslations[category],
+                    icon: config.server.host + categoryIcons[category],
+                };
+            });
+        }
+        else {
             categories = await PackageRepo.categoryStats(channel);
 
             /* eslint-disable arrow-body-style */
@@ -92,15 +101,6 @@ router.get('/', async (req, res) => {
                         icon: config.server.host + categoryIcons[category._id],
                     };
                 });
-        }
-        else {
-            categories = Object.keys(categoryTranslations).map((category) => {
-                return {
-                    category: category,
-                    translation: categoryTranslations[category],
-                    icon: config.server.host + categoryIcons[category],
-                };
-            });
         }
 
         helpers.success(res, categories);
