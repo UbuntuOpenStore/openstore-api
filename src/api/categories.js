@@ -79,6 +79,7 @@ router.get('/', async (req, res) => {
     try {
         let categories = [];
         if (req.query.all) {
+            /* eslint-disable-next-line arrow-body-style */
             categories = Object.keys(categoryTranslations).map((category) => {
                 return {
                     category: category,
