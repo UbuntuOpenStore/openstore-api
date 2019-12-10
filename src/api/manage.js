@@ -422,7 +422,7 @@ router.post(
                 parseData.framework,
                 packageUrl,
                 downloadSha512,
-                file.size,
+                parseData.installedSize,
             );
 
             if (updateIcon) {
