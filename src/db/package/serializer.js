@@ -71,6 +71,14 @@ function toJson(pkg, architecture = Package.ARMHF) {
         filesize = 0;
     }
 
+    let revisions = pkg.revisions || [];
+    revisions = revisions.map((revision) => {
+        let r = revision.toObject()
+        // eslint-disable-next-line no-underscore-dangle
+        delete r._id;
+        return r;
+    });
+
     let json = {
         architecture: pkg.architecture || '',
         architectures: pkg.architectures || [],
@@ -101,8 +109,8 @@ function toJson(pkg, architecture = Package.ARMHF) {
         tagline: pkg.tagline || '',
         types: pkg.types || [],
         updated_date: pkg.updated_date || '',
-        languages: languages,
-        revisions: pkg.revisions || [],
+        languages,
+        revisions,
         totalDownloads: 0,
         latestDownloads: 0,
         version: revisionData ? revisionData.version : '',
@@ -120,10 +128,14 @@ function toJson(pkg, architecture = Package.ARMHF) {
             return [...downloads, ...Package.ARCHITECTURES.map((arch) => {
                 let {revisionData: downloadRevisionData} = pkg.getLatestRevision(channel, arch, false);
                 if (downloadRevisionData) {
-                    return {
+                    let download = {
                         ...downloadRevisionData.toObject(),
                         download_url: downloadUrl(pkg, channel, arch),
                     };
+
+                    // eslint-disable-next-line no-underscore-dangle
+                    delete download._id;
+                    return download;
                 }
 
                 return null;
