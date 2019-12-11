@@ -73,7 +73,7 @@ function toJson(pkg, architecture = Package.ARMHF) {
 
     let revisions = pkg.revisions || [];
     revisions = revisions.map((revision) => {
-        let r = revision.toObject()
+        let r = revision.toObject();
         // eslint-disable-next-line no-underscore-dangle
         delete r._id;
         return r;
