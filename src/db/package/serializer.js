@@ -156,7 +156,9 @@ function toJson(pkg, architecture = Package.ARMHF, apiVersion) {
 
         console.log(architecture, apiVersion);
         if (apiVersion == 3) {
-            json.downloads = jsonDownloads.filter((download) => (download.architecture == architecture || download.architecture == Package.ALL));
+            json.downloads = jsonDownloads.filter((download) => (
+                download.architecture == architecture || download.architecture == Package.ALL
+            ));
         }
         else {
             json.downloads = jsonDownloads;
