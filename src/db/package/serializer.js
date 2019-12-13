@@ -5,6 +5,10 @@ const Package = require('./model');
 
 const DEFAULT_VERSION = '0.0.0';
 
+function toBytes(filesize) {
+    return filesize * 1024;
+}
+
 function iconUrl(pkg) {
     let ext = pkg.icon ? path.extname(pkg.icon) : '.png';
     let version = DEFAULT_VERSION;
@@ -119,7 +123,7 @@ function toJson(pkg, architecture = Package.ARMHF, apiVersion) {
         revision: -1,
         download: null,
         download_sha512: '',
-        filesize, // Have the app get this from the download data
+        filesize: toBytes(filesize), // Have the app get this from the download data
     };
 
     if (pkg.revisions) {
@@ -131,6 +135,7 @@ function toJson(pkg, architecture = Package.ARMHF, apiVersion) {
                     let download = {
                         ...downloadRevisionData.toObject(),
                         download_url: downloadUrl(pkg, channel, arch),
+                        filesize: toBytes(downloadRevisionData.filesize),
                     };
 
                     // eslint-disable-next-line no-underscore-dangle
@@ -154,7 +159,6 @@ function toJson(pkg, architecture = Package.ARMHF, apiVersion) {
             return 0;
         });
 
-        console.log(architecture, apiVersion);
         if (apiVersion == 3) {
             json.downloads = jsonDownloads.filter((download) => (
                 download.architecture == architecture || download.architecture == Package.ALL
