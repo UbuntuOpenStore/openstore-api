@@ -53,7 +53,7 @@ function toSlimJson(pkg) {
     return json;
 }
 
-function toJson(pkg, architecture = Package.ARMHF) {
+function toJson(pkg, architecture = Package.ARMHF, apiVersion) {
     // Clean up languages that got screwed up by click-parser
     let languages = pkg.languages ? pkg.languages.sort() : [];
     languages = languages.map((language) => {
@@ -154,7 +154,14 @@ function toJson(pkg, architecture = Package.ARMHF) {
             return 0;
         });
 
-        json.downloads = jsonDownloads;
+        console.log(architecture, apiVersion);
+        if (apiVersion == 3) {
+            json.downloads = jsonDownloads.filter((download) => download.architecture == architecture);
+        }
+        else {
+            json.downloads = jsonDownloads;
+        }
+
         json.downloads.forEach((download) => {
             json.latestDownloads += download.downloads;
         });
@@ -167,20 +174,20 @@ function toJson(pkg, architecture = Package.ARMHF) {
     return json;
 }
 
-function serialize(pkgs, slim, architecture) {
+function serialize(pkgs, slim, architecture, apiVersion) {
     if (Array.isArray(pkgs)) {
         if (slim) {
             return pkgs.map(toSlimJson);
         }
 
-        return pkgs.map((pkg) => toJson(pkg, architecture));
+        return pkgs.map((pkg) => toJson(pkg, architecture, apiVersion));
     }
 
     if (slim) {
         return toSlimJson(pkgs);
     }
 
-    return toJson(pkgs, architecture);
+    return toJson(pkgs, architecture, apiVersion);
 }
 
 exports.iconUrl = iconUrl;

@@ -62,6 +62,9 @@ function setup() {
         if (req.originalUrl.startsWith('/api/v3')) {
             req.apiVersion = 3;
         }
+        else if (req.originalUrl.startsWith('/api/v4')) {
+            req.apiVersion = 4;
+        }
 
         next();
     });
@@ -92,6 +95,10 @@ function setup() {
     app.use('/api/v3/discover', discover);
     app.use('/api/v3/revisions', revisions);
     app.use('/api/v3/categories', categories);
+
+    app.use('/api/v4/apps', apps.main);
+    app.use('/api/v4/discover', discover);
+    app.use('/api/v4/revisions', revisions);
 
     app.use(express.static(config.server.static_root));
 

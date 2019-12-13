@@ -40,7 +40,7 @@ async function apps(req, res) {
             count = await PackageRepo.count(filters);
         }
 
-        let formatted = serialize(pkgs, true, req.query.architecture);
+        let formatted = serialize(pkgs, true, req.query.architecture, req.apiVersion);
         let {next, previous} = apiLinks(req.originalUrl, formatted.length, req.query.limit, req.query.skip);
         return helpers.success(res, {count, next, previous, packages: formatted});
     }
@@ -62,7 +62,7 @@ router.get('/:id', async (req, res) => {
         let pkg = await PackageRepo.findOne(req.params.id, req.query);
 
         if (pkg) {
-            return helpers.success(res, serialize(pkg, false, req.query.architecture));
+            return helpers.success(res, serialize(pkg, false, req.query.architecture, req.apiVersion));
         }
 
         return helpers.error(res, APP_NOT_FOUND, 404);
