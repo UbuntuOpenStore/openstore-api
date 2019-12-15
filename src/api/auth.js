@@ -58,16 +58,18 @@ passport.use(new UbuntuStrategy({
             user.language = 'en';
         }
 
-        let fullname = Array.isArray(profile.fullname) ? profile.fullname[0] : profile.fullname;
-        let nickname = Array.isArray(profile.nickname) ? profile.nickname[0] : profile.nickname;
-        let email = Array.isArray(profile.email) ? profile.email[0] : profile.email;
-        let language = Array.isArray(profile.language) ? profile.language[0] : profile.language;
+        function uboneParameter(value) {
+            if (Array.isArray(value)) {
+                return value.length >= 1 ? value[0] : null;
+            }
+            return value;
+        }
 
         user.ubuntu_id = identifier;
-        user.name = profile.fullname ? fullname : user.name;
-        user.username = profile.nickname ? nickname : user.username;
-        user.email = profile.email ? email : user.email;
-        user.language = profile.language ? language : user.language;
+        user.name = uboneParameter(profile.fullname) || user.name;
+        user.username = uboneParameter(profile.nickname) || user.username;
+        user.email = uboneParameter(profile.email) || user.email;
+        user.language = uboneParameter(profile.language) || user.language;
 
         user.save(callback);
     }).catch((err) => {
