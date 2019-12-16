@@ -46,7 +46,7 @@ passport.use(new UbuntuStrategy({
 }, (identifier, profile, callback) => {
     User.findOne({ubuntu_id: identifier}).then((user) => {
         if (!user && profile.email) {
-            return User.findOne({email: profile.email}).then((emailUser) => emailUser);
+            return User.findOne({email: Array.isArray(profile.email) ? profile.email[0] : profile.email}).then((emailUser) => emailUser);
         }
 
         return user;
@@ -58,11 +58,18 @@ passport.use(new UbuntuStrategy({
             user.language = 'en';
         }
 
+        function uboneParameter(value) {
+            if (Array.isArray(value)) {
+                return value.length >= 1 ? value[0] : null;
+            }
+            return value;
+        }
+
         user.ubuntu_id = identifier;
-        user.name = profile.fullname ? profile.fullname : user.name;
-        user.username = profile.nickname ? profile.nickname : user.username;
-        user.email = profile.email ? profile.email : user.email;
-        user.language = profile.language ? profile.language : user.language;
+        user.name = uboneParameter(profile.fullname) || user.name;
+        user.username = uboneParameter(profile.nickname) || user.username;
+        user.email = uboneParameter(profile.email) || user.email;
+        user.language = uboneParameter(profile.language) || user.language;
 
         user.save(callback);
     }).catch((err) => {
