@@ -1,0 +1,20 @@
+#!/usr/bin/env node
+
+require('../db'); // Make sure the database connection gets setup
+const Package = require('../db/package/model');
+
+Package.find({}).then((pkgs) => {
+    return Promise.all(pkgs.map((pkg) => {
+        pkg.revisions.forEach((revision) => {
+            revision.filesize = 0;
+        });
+
+        return pkg.save();
+    }));
+}).then(() => {
+    console.log('done');
+    process.exit(0);
+}).catch((err) => {
+    console.log(err);
+    process.exit(1);
+});
