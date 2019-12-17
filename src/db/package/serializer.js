@@ -129,7 +129,7 @@ function toJson(pkg, architecture = Package.ARMHF, apiVersion) {
     if (pkg.revisions) {
         /* eslint-disable-next-line arrow-body-style */
         let jsonDownloads = Package.CHANNELS.reduce((downloads, channel) => {
-            return [...downloads, ...Package.ARCHITECTURES.map((arch) => {
+            return [...downloads, ...pkg.architectures.map((arch) => {
                 let {revisionData: downloadRevisionData} = pkg.getLatestRevision(channel, arch, false);
                 if (downloadRevisionData) {
                     let download = {

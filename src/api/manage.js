@@ -438,7 +438,13 @@ router.post(
                 pkg.channels.push(channel);
             }
 
-            if (!pkg.architectures.includes(architecture)) {
+            if (pkg.architectures.includes(Package.ALL) && architecture != Package.ALL) {
+                pkg.architectures = [architecture];
+            }
+            else if (!pkg.architectures.includes(Package.ALL) && architecture == Package.ALL) {
+                pkg.architectures = [Package.ALL];
+            }
+            else if (!pkg.architectures.includes(architecture)) {
                 pkg.architectures.push(architecture);
             }
 

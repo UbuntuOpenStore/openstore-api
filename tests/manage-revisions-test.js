@@ -248,6 +248,7 @@ describe('Manage Revision POST', () => {
 
         it('does not fail with an existing version of a different arch', async function () {
             this.package.newRevision('1.0.0', Package.XENIAL, Package.ARM64, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
+            this.package.architectures = [Package.ARM64];
             await this.package.save();
 
             let reviewStub = this.sandbox.stub(reviewPackage, 'review').resolves(false);
@@ -272,6 +273,9 @@ describe('Manage Revision POST', () => {
             expect(data.revisions[1].channel).to.equal(Package.XENIAL);
             expect(data.revisions[1].architecture).to.equal(Package.ARMHF);
             expect(data.revisions[1].framework).to.equal('ubuntu-sdk-16.04');
+            expect(data.architectures).to.be.lengthOf(2);
+            expect(data.architectures).to.contain(Package.ARMHF);
+            expect(data.architectures).to.contain(Package.ARM64);
             expect(reviewStub).to.have.been.calledOnce;
             expect(parseStub).to.have.been.calledOnce;
             expect(this.lockAcquireSpy).to.have.been.calledOnce;
@@ -440,6 +444,70 @@ describe('Manage Revision POST', () => {
 
             expect(res.body.success).to.be.false;
             expect(findStub).to.have.been.calledOnce;
+            expect(this.lockAcquireSpy).to.have.been.calledOnce;
+            expect(this.lockReleaseSpy).to.have.been.calledOnce;
+        });
+
+        it('sets the arch to "all" only when switching to a new version (from "arm64")', async function () {
+            this.package.newRevision('1.0.0', Package.XENIAL, Package.ARM64, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
+            this.package.architectures = [Package.ARM64];
+            await this.package.save();
+
+            let reviewStub = this.sandbox.stub(reviewPackage, 'review').resolves(false);
+            let parseStub = this.sandbox.stub(clickParser, 'parse').resolves({
+                name: this.package.id,
+                version: '2.0.0',
+                architecture: Package.ALL,
+                framework: 'ubuntu-sdk-16.04',
+                apps: [],
+            });
+
+            let res = await this.post(this.route)
+                .attach('file', this.emptyClick)
+                .field('channel', Package.XENIAL)
+                .expect(200);
+
+            let data = res.body.data;
+            expect(res.body.success).to.be.true;
+            expect(data.revisions).to.be.lengthOf(2);
+            expect(data.architectures).to.be.lengthOf(1);
+            expect(data.architectures[0]).to.equal(Package.ALL);
+            expect(data.downloads).to.be.lengthOf(1);
+            expect(data.downloads[0].architecture).to.equal(Package.ALL);
+            expect(reviewStub).to.have.been.calledOnce;
+            expect(parseStub).to.have.been.calledOnce;
+            expect(this.lockAcquireSpy).to.have.been.calledOnce;
+            expect(this.lockReleaseSpy).to.have.been.calledOnce;
+        });
+
+        it('sets the arch to "armhf" only when switching to a new version (from "all")', async function () {
+            this.package.newRevision('1.0.0', Package.XENIAL, Package.ALL, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
+            this.package.architectures = [Package.ALL];
+            await this.package.save();
+
+            let reviewStub = this.sandbox.stub(reviewPackage, 'review').resolves(false);
+            let parseStub = this.sandbox.stub(clickParser, 'parse').resolves({
+                name: this.package.id,
+                version: '2.0.0',
+                architecture: Package.ARMHF,
+                framework: 'ubuntu-sdk-16.04',
+                apps: [],
+            });
+
+            let res = await this.post(this.route)
+                .attach('file', this.emptyClick)
+                .field('channel', Package.XENIAL)
+                .expect(200);
+
+            let data = res.body.data;
+            expect(res.body.success).to.be.true;
+            expect(data.revisions).to.be.lengthOf(2);
+            expect(data.architectures).to.be.lengthOf(1);
+            expect(data.architectures[0]).to.equal(Package.ARMHF);
+            expect(data.downloads).to.be.lengthOf(1);
+            expect(data.downloads[0].architecture).to.equal(Package.ARMHF);
+            expect(reviewStub).to.have.been.calledOnce;
+            expect(parseStub).to.have.been.calledOnce;
             expect(this.lockAcquireSpy).to.have.been.calledOnce;
             expect(this.lockReleaseSpy).to.have.been.calledOnce;
         });
