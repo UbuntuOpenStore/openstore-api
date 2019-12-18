@@ -1,13 +1,13 @@
 function toJson(review) {
     // Comment is optional
     let comment = null;
-    if(review.comment) {
+    if (review.comment) {
         comment = {
             body: review.comment.body,
-            date: review.comment.date.getTime()
-        }
+            date: review.comment.date.getTime(),
+        };
     }
-    
+
     return {
         author: review.user.name,
         body: review.body,
@@ -15,7 +15,7 @@ function toJson(review) {
         rating: review.rating,
         date: review.date.getTime(),
         redacted: review.redacted,
-        comment: comment
+        comment: comment,
     };
 }
 

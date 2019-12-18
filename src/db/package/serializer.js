@@ -33,14 +33,14 @@ function downloadUrl(pkg, channel, arch) {
 }
 
 function getRatings(pkg) {
-    ratings = {}
-    if(Array.isArray(pkg.rating_counts)) {
-        for(let r of pkg.rating_counts) {
+    let ratings = {};
+    if (Array.isArray(pkg.rating_counts)) {
+        for (let r of pkg.rating_counts) {
             ratings[r.name] = r.count;
         }
     }
-    for(let r of RATINGS) {
-        if(!(r in ratings)) {
+    for (let r of RATINGS) {
+        if (!(r in ratings)) {
             ratings[r] = 0;
         }
     }
@@ -67,7 +67,7 @@ function toSlimJson(pkg) {
             tagline: pkg.tagline || '',
             types: pkg.types || [],
             updated_date: pkg.updated_date || '',
-            ratings: getRatings(pkg)
+            ratings: getRatings(pkg),
         };
     }
 

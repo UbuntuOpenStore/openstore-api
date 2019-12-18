@@ -1,5 +1,5 @@
-const RATINGS = require('../../api/reviews').ratings;
 const mongoose = require('mongoose');
+const RATINGS = require('../../api/reviews').ratings;
 
 const reviewSchema = mongoose.Schema({
     pkg: {type: mongoose.Schema.Types.ObjectId, ref: 'Package'},
@@ -9,7 +9,7 @@ const reviewSchema = mongoose.Schema({
     body: String,
     date: Date,
     redacted: Boolean,
-    comment: {type: mongoose.Schema.Types.ObjectId, ref: 'Comment'}
+    comment: {type: mongoose.Schema.Types.ObjectId, ref: 'Comment'},
 });
 
 const Review = mongoose.model('Review', reviewSchema);
