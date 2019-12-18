@@ -15,7 +15,7 @@ function iconUrl(pkg) {
     let version = DEFAULT_VERSION;
 
     if (pkg.getLatestRevision) {
-        let {revisionData} = pkg.getLatestRevision(Package.XENIAL);
+        let { revisionData } = pkg.getLatestRevision(Package.XENIAL);
         if (revisionData) {
             version = revisionData.version;
         }
@@ -32,6 +32,7 @@ function downloadUrl(pkg, channel, arch) {
     return `${config.server.host}/api/v3/apps/${pkg.id}/download/${channel}/${arch}`;
 }
 
+/* eslint-disable no-restricted-syntax */
 function getRatings(pkg) {
     let ratings = {};
     if (Array.isArray(pkg.rating_counts)) {
@@ -148,7 +149,7 @@ function toJson(pkg, architecture = Package.ARMHF, apiVersion) {
         /* eslint-disable-next-line arrow-body-style */
         let jsonDownloads = Package.CHANNELS.reduce((downloads, channel) => {
             return [...downloads, ...pkg.architectures.map((arch) => {
-                let {revisionData: downloadRevisionData} = pkg.getLatestRevision(channel, arch, false);
+                let { revisionData: downloadRevisionData } = pkg.getLatestRevision(channel, arch, false);
                 if (downloadRevisionData) {
                     let download = {
                         ...downloadRevisionData.toObject(),

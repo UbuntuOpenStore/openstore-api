@@ -6,8 +6,8 @@ const PackageRepo = require('../db/package/repo');
 const Review = require('../db/review/model');
 const RatingCount = require('../db/rating_count/model');
 const Package = require('../db/package/model');
-const {authenticate, userRole} = require('../utils/middleware');
-const {serialize} = require('../db/review/serializer');
+const { authenticate, userRole } = require('../utils/middleware');
+const { serialize } = require('../db/review/serializer');
 
 const REVIEW_MAX_LEN = 512;
 const RATINGS = ['THUMBS_UP', 'THUMBS_DOWN', 'HAPPY', 'NEUTRAL', 'BUGGY'];
@@ -23,10 +23,11 @@ const REVIEW_REDACTED = 'Redacted review cannot be edited';
 const ALREADY_REVIEWED = 'This app was already reviewed by you';
 
 
-const router = express.Router({mergeParams: true});
+const router = express.Router({ mergeParams: true });
 
+/* eslint-disable no-underscore-dangle */
 async function recalculateRatings(pkgId) {
-    let pkg = await Package.findOne({_id: pkgId}).populate('rating_counts');
+    let pkg = await Package.findOne({ _id: pkgId }).populate('rating_counts');
     if (!pkg) {
         console.log('Failed to recalculate ratings: could not find package');
         return;
@@ -34,8 +35,10 @@ async function recalculateRatings(pkgId) {
     if (!pkg.rating_counts) {
         pkg.rating_counts = [];
     }
-    let reviews = await Review.find({pkg: pkgId});
+    let reviews = await Review.find({ pkg: pkgId });
 
+    /* eslint-disable no-restricted-syntax */
+    /* eslint-disable no-await-in-loop */
     for (let ratingName of RATINGS) {
         let count = 0;
         for (let rev of reviews) {
@@ -86,12 +89,12 @@ async function getReviews(req, res, next) {
             }
         }
 
-        let query = {pkg: pkg._id, body: {$ne: ''}};
+        let query = { pkg: pkg._id, body: { $ne: '' } };
         let reviewsTotalCount = await Review.countDocuments(query); // Total number of written reviews in database
 
         // Add given filter criteria
         if ('from' in req.query && !Number.isNaN(parseInt(req.query.from, 10))) {
-            query.date = {$lt: new Date(parseInt(req.query.from, 10))};
+            query.date = { $lt: new Date(parseInt(req.query.from, 10)) };
         }
 
         let data = {
@@ -100,7 +103,7 @@ async function getReviews(req, res, next) {
         };
 
         // Get reviews and craft the response object
-        let reviews = await Review.find(query, null, {limit: limit, sort: {date: -1}}).populate('user', 'name').populate('comment');
+        let reviews = await Review.find(query, null, { limit: limit, sort: { date: -1 } }).populate('user', 'name').populate('comment');
         data.reviews = serialize(reviews);
 
         return helpers.success(res, data);
@@ -119,7 +122,7 @@ async function getOwnReview(req, res) {
             return helpers.error(res, APP_NOT_FOUND, 400);
         }
 
-        let ownReview = await Review.findOne({pkg: pkg._id, user: req.user._id}).populate('comment');
+        let ownReview = await Review.findOne({ pkg: pkg._id, user: req.user._id }).populate('comment');
         let data = {
             count: 0,
             reviews: [],
@@ -171,7 +174,7 @@ async function postReview(req, res) {
         let ownReview;
         if (req.method == 'PUT') {
             // If the request method is PUT, the user is editing his existing review
-            ownReview = await Review.findOne({pkg: pkg._id, user: req.user._id});
+            ownReview = await Review.findOne({ pkg: pkg._id, user: req.user._id });
             if (!ownReview) {
                 return helpers.error(res, NO_REVIEW_TO_EDIT, 400);
             }
@@ -181,7 +184,7 @@ async function postReview(req, res) {
         }
         else {
             // User is creating a new review
-            if (await Review.countDocuments({user: req.user._id, pkg: pkg._id}) != 0) {
+            if (await Review.countDocuments({ user: req.user._id, pkg: pkg._id }) != 0) {
                 return helpers.error(res, ALREADY_REVIEWED, 400);
             }
             ownReview = Review();
@@ -198,7 +201,7 @@ async function postReview(req, res) {
 
         await recalculateRatings(pkg._id);
 
-        return helpers.success(res, {review_id: ownReview._id});
+        return helpers.success(res, { review_id: ownReview._id });
     }
     catch (err) {
         logger.error('Error posting a review');
