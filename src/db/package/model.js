@@ -62,6 +62,9 @@ const packageSchema = mongoose.Schema({
     channels: [String],
 
     icon: String,
+
+    // Number of ratings in each category
+    rating_counts: [{type: mongoose.Schema.Types.ObjectId, ref: 'RatingCount'}],
 }, {usePushEach: true});
 
 packageSchema.virtual('architecture').get(function() {

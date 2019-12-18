@@ -2,6 +2,7 @@ const path = require('path');
 
 const config = require('../../utils/config');
 const Package = require('./model');
+const RATINGS = require('../../api/reviews').ratings;
 
 const DEFAULT_VERSION = '0.0.0';
 
@@ -31,6 +32,21 @@ function downloadUrl(pkg, channel, arch) {
     return `${config.server.host}/api/v3/apps/${pkg.id}/download/${channel}/${arch}`;
 }
 
+function getRatings(pkg) {
+    ratings = {}
+    if(Array.isArray(pkg.rating_counts)) {
+        for(let r of pkg.rating_counts) {
+            ratings[r.name] = r.count;
+        }
+    }
+    for(let r of RATINGS) {
+        if(!(r in ratings)) {
+            ratings[r] = 0;
+        }
+    }
+    return ratings;
+}
+
 function toSlimJson(pkg) {
     let json = {};
     if (pkg) {
@@ -51,6 +67,7 @@ function toSlimJson(pkg) {
             tagline: pkg.tagline || '',
             types: pkg.types || [],
             updated_date: pkg.updated_date || '',
+            ratings: getRatings(pkg)
         };
     }
 
@@ -118,6 +135,7 @@ function toJson(pkg, architecture = Package.ARMHF, apiVersion) {
         totalDownloads: 0,
         latestDownloads: 0,
         version: revisionData ? revisionData.version : '',
+        ratings: getRatings(pkg),
 
         // TODO deprecate these
         revision: -1,
