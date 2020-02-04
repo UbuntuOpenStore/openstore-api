@@ -83,6 +83,7 @@ router.get('/', async (req, res) => {
                 return app;
             }));
 
+            /* eslint-disable  arrow-body-style */
             newAndUpdatedApps = newAndUpdatedApps.filter((app, pos) => {
                 return newAndUpdatedApps.findIndex((a) => a.id == app.id) == pos;
             });
