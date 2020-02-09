@@ -6,9 +6,20 @@
     "categories": [
         {
             "name": "New and Updated Apps",
-            "tagline": "",
+            "tagline": "Exciting new apps & updates",
             "referral": "",
             "ids": []
+        }, {
+            "name": "Health & Wellness",
+            "tagline": "An apple a day...",
+            "referral": "Health & Fitness",
+            "ids": [
+                "pulse.mivoligo",
+                "activitytracker.cwayne18",
+                "iquit.aurora",
+                "fatburners.christianpauly",
+                "weight-tracker.avisoftware"
+            ]
         }, {
             "name": "Cross Platform Apps",
             "tagline": "Find these apps anywhere",
@@ -19,20 +30,6 @@
                 "me.fredl.ghostcloud",
                 "me.fredl.qshodan",
                 "io.guh.nymeaapp"
-            ]
-        }, {
-            "name": "Awesome Games",
-            "tagline": "Cause I always play to win!",
-            "referral": "Games",
-            "ids": [
-                "sm.lduboeuf",
-                "farkle.arc676",
-                "tuxdungeon.jjvannielen",
-                "neopar.mvm",
-                "sakawochi.wendigosoft",
-                "gelek-vanilla.cibersheep",
-                "monsterwars.t-mon",
-                "com.ubuntu.developer.1bsyl.demineur"
             ]
         }, {
             "name": "Essential Apps",
