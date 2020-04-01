@@ -9,7 +9,8 @@
     "lint": "eslint ./src/ ./tests/",
     "test": "NODE_ENV=testing MONGODB_URI=mongodb://127.0.0.1:27017 MONGODB_DB=openstore-test mocha tests --reporter dot",
     "coverage": "NODE_ENV=testing MONGODB_URI=mongodb://127.0.0.1:27017 MONGODB_DB=openstore-test nyc mocha tests --reporter dot",
-    "test:ci": "NODE_ENV=testing nyc mocha tests --reporter dot"
+    "test:ci": "NODE_ENV=testing nyc mocha tests --reporter dot",
+    "update-pot-file": "src/bin/update-pot-file"
   },
   "repository": {
     "type": "git",
