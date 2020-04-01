@@ -9,6 +9,7 @@ const config = require('../utils/config');
 const discoverJSON = require('./json/discover_apps.json');
 const helpers = require('../utils/helpers');
 const logger = require('../utils/logger');
+const translations = require('../utils/translations');
 
 const router = express.Router();
 
@@ -112,7 +113,19 @@ router.get('/', async (req, res) => {
             discoverCache[cacheKey] = discover;
             discoverDate[cacheKey] = now;
 
-            helpers.success(res, discover);
+            let lang = req.query.lang ? req.query.lang : null;
+            translations.setLang(lang);
+
+            let cloneDiscover = JSON.parse(JSON.stringify(discover));
+            cloneDiscover.categories = cloneDiscover.categories.map((category) => {
+                return {
+                    ...category,
+                    name: translations.gettext(category.name),
+                    tagline: category.tagline ? translations.gettext(category.tagline) : '',
+                };
+            });
+
+            helpers.success(res, cloneDiscover);
         }
         catch (err) {
             logger.error('Error processing discovery');
