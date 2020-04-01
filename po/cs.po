@@ -82,3 +82,36 @@ msgstr "Pomůcky"
 # This is text to go on a button that will say "Download from the\nOpenStore" (where \n is a line break)
 msgid "Download from the"
 msgstr "Ke stažení z"
+
+# Discovery section category name
+msgid "New and Updated Apps"
+msgstr ""
+
+# Discovery section category tagline for "New and Updated Apps"
+msgid "Exciting new apps & updates"
+msgstr ""
+
+#, fuzzy
+#| msgid "Health & Fitness"
+msgid "Health & Wellness"
+msgstr "Zdraví a fitness"
+
+# Discovery section category tagline for "Health & Wellness"
+msgid "An apple a day..."
+msgstr ""
+
+# Discovery section category name
+msgid "Cross Platform Apps"
+msgstr ""
+
+# Discovery section category tagline for "Cross Platform Apps"
+msgid "Find these apps anywhere"
+msgstr ""
+
+# Discovery section category name
+msgid "Essential Apps"
+msgstr ""
+
+# Discovery section category tagline for "Essential Apps"
+msgid "Check these out first"
+msgstr ""

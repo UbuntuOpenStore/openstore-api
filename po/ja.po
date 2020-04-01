@@ -8,7 +8,7 @@ msgstr ""
 "openstore-api/ja/>\n"
 "Language: ja\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Generator: Weblate 3.8\n"
@@ -81,4 +81,37 @@ msgstr ""
 
 # This is text to go on a button that will say "Download from the\nOpenStore" (where \n is a line break)
 msgid "Download from the"
+msgstr ""
+
+# Discovery section category name
+msgid "New and Updated Apps"
+msgstr ""
+
+# Discovery section category tagline for "New and Updated Apps"
+msgid "Exciting new apps & updates"
+msgstr ""
+
+#, fuzzy
+#| msgid "Health & Fitness"
+msgid "Health & Wellness"
+msgstr "ヘルス＆フィットネス"
+
+# Discovery section category tagline for "Health & Wellness"
+msgid "An apple a day..."
+msgstr ""
+
+# Discovery section category name
+msgid "Cross Platform Apps"
+msgstr ""
+
+# Discovery section category tagline for "Cross Platform Apps"
+msgid "Find these apps anywhere"
+msgstr ""
+
+# Discovery section category name
+msgid "Essential Apps"
+msgstr ""
+
+# Discovery section category tagline for "Essential Apps"
+msgid "Check these out first"
 msgstr ""
