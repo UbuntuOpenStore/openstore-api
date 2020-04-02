@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2017-06-20 01:45:+0000\n"
-"PO-Revision-Date: 2018-11-19 01:31+0000\n"
-"Last-Translator: xingyichao <993226501@qq.com>\n"
+"PO-Revision-Date: 2020-04-03 21:22+0000\n"
+"Last-Translator: Muge Niu <mugeniu12138@gmail.com>\n"
 "Language-Team: Chinese (Simplified) <https://translate.ubports.com/projects/"
 "openstore/openstore-api/zh_Hans/>\n"
 "Language: zh_Hans\n"
@@ -11,7 +11,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 3.1.1\n"
+"X-Generator: Weblate 3.8\n"
 
 msgid "Accessibility"
 msgstr "无障碍"
@@ -85,11 +85,11 @@ msgstr "从下载"
 
 # Discovery section category name
 msgid "New and Updated Apps"
-msgstr ""
+msgstr "最新软件"
 
 # Discovery section category tagline for "New and Updated Apps"
 msgid "Exciting new apps & updates"
-msgstr ""
+msgstr "最令人激动的软件更新"
 
 #, fuzzy
 #| msgid "Health & Fitness"
@@ -98,20 +98,20 @@ msgstr "健康 & 健身"
 
 # Discovery section category tagline for "Health & Wellness"
 msgid "An apple a day..."
-msgstr ""
+msgstr "一天一个苹果..."
 
 # Discovery section category name
 msgid "Cross Platform Apps"
-msgstr ""
+msgstr "跨平台软件"
 
 # Discovery section category tagline for "Cross Platform Apps"
 msgid "Find these apps anywhere"
-msgstr ""
+msgstr "随时随地找到这些软件"
 
 # Discovery section category name
 msgid "Essential Apps"
-msgstr ""
+msgstr "基本软件"
 
 # Discovery section category tagline for "Essential Apps"
 msgid "Check these out first"
-msgstr ""
+msgstr "先来看看这些"
