@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: openstore-web\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2017-06-20 01:45:+0000\n"
-"PO-Revision-Date: 2019-02-17 00:00+0000\n"
+"PO-Revision-Date: 2020-04-05 18:23+0000\n"
 "Last-Translator: Joan CiberSheep <cibersheep@gmail.com>\n"
 "Language-Team: Catalan <https://translate.ubports.com/projects/openstore/"
 "openstore-api/ca/>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 3.1.1\n"
+"X-Generator: Weblate 3.8\n"
 "X-Launchpad-Export-Date: 2017-06-21 14:52+0000\n"
 
 msgid "Accessibility"
@@ -92,33 +92,31 @@ msgstr "Descarregueu-la des de l'"
 
 # Discovery section category name
 msgid "New and Updated Apps"
-msgstr ""
+msgstr "Apps noves i actualitzacions"
 
 # Discovery section category tagline for "New and Updated Apps"
 msgid "Exciting new apps & updates"
-msgstr ""
+msgstr "Excitants noves aplicacions i actualitzacions"
 
-#, fuzzy
-#| msgid "Health & Fitness"
 msgid "Health & Wellness"
 msgstr "Salut i benestar"
 
 # Discovery section category tagline for "Health & Wellness"
 msgid "An apple a day..."
-msgstr ""
+msgstr "Una poma diària..."
 
 # Discovery section category name
 msgid "Cross Platform Apps"
-msgstr ""
+msgstr "Aplicacions multiplataforma"
 
 # Discovery section category tagline for "Cross Platform Apps"
 msgid "Find these apps anywhere"
-msgstr ""
+msgstr "Les trobareu a tot arreu"
 
 # Discovery section category name
 msgid "Essential Apps"
-msgstr ""
+msgstr "Aplicacions essencials"
 
 # Discovery section category tagline for "Essential Apps"
 msgid "Check these out first"
-msgstr ""
+msgstr "Feu una ullada per aquí primer"
