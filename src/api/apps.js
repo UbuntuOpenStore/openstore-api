@@ -37,6 +37,11 @@ async function apps(req, res) {
             if (req.query.full) {
                 const ids = pkgs.map((pkg) => pkg.id);
                 pkgs = await PackageRepo.find({ ids });
+
+                // Maintain ordering from the elastic search results
+                pkgs.sort((a, b) => {
+                    return ids.indexOf(a.id) - ids.indexOf(b.id);
+                });
             }
         }
         else {
