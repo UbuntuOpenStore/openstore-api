@@ -20,7 +20,6 @@ router.get('/', async (req, res) => {
         channel = Package.XENIAL;
     }
 
-
     try {
         let categories = [];
         if (req.query.all) {

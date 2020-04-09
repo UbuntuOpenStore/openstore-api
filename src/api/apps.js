@@ -33,6 +33,11 @@ async function apps(req, res) {
             /* eslint-disable no-underscore-dangle */
             pkgs = results.hits.hits.map((hit) => hit._source);
             count = results.hits.total;
+
+            if (req.query.full) {
+                const ids = pkgs.map((pkg) => pkg.id);
+                pkgs = await PackageRepo.find({ ids });
+            }
         }
         else {
             filters.published = true;
@@ -40,7 +45,7 @@ async function apps(req, res) {
             count = await PackageRepo.count(filters);
         }
 
-        let formatted = serialize(pkgs, true, req.query.architecture, req.apiVersion);
+        let formatted = serialize(pkgs, !req.query.full, req.query.architecture, req.apiVersion);
         let {next, previous} = apiLinks(req.originalUrl, formatted.length, req.query.limit, req.query.skip);
         return helpers.success(res, {count, next, previous, packages: formatted});
     }
