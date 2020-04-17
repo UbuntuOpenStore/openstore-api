@@ -28,13 +28,6 @@ let config = {
         uri: process.env.ELASTICSEARCH_URI || 'http://elasticsearch:9200/',
         index: process.env.ELASTICSEARCH_INDEX || 'openstore_packages',
     },
-    backblaze: {
-        accountId: configFile.BACKBLAZE_ACCOUNT_ID || process.env.BACKBLAZE_ACCOUNT_ID || '',
-        applicationKey: configFile.BACKBLAZE_APP_KEY || process.env.BACKBLAZE_APP_KEY || '',
-        bucketId: configFile.BACKBLAZE_BUCKET_ID || process.env.BACKBLAZE_BUCKET_ID || '',
-        bucketName: configFile.BACKBLAZE_BUCKET_NAME || process.env.BACKBLAZE_BUCKET_NAME || '',
-        baseUrl: process.env.BACKBLAZE_BASE_URL || 'https://files.open-store.io/file/',
-    },
     papertrail: {
         host: process.env.PAPERTRAIL_HOST,
         port: process.env.PAPERTRAIL_PORT,

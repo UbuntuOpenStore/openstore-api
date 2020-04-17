@@ -13,11 +13,9 @@ To get setup with development, checkout the
 
 ## Configuration
 
-By default there are no credentials stored for the GitHub login or Backblaze B2 upload.
-Backblaze B2 is used to store clicks, it must be enabled for proper functionality.
-Once you've created your Backblaze account, create a B2 bucket.
-In order to use either GitHub login or GitLab or Backblaze B2 upload you need to
-create a config.json file in `api/utils/` like this:
+By default there are no credentials stored for the GitHub login or GitLab login.
+In order to use either GitHub or GitLab login you need to create a config.json
+file in `api/utils/` like this:
 
 ```
 {
@@ -25,14 +23,9 @@ create a config.json file in `api/utils/` like this:
     "GITHUB_CLIENT_SECRET": "INSERT_SECRET",
     "GITLAB_CLIENT_ID": "INSERT_ID",
     "GITLAB_CLIENT_SECRET": "INSERT_SECRET",
-    "BACKBLAZE_ACCOUNT_ID": "INSERT_ID",
-    "BACKBLAZE_APP_KEY": "INSERT_KEY",
-    "BACKBLAZE_BUCKET_ID": "INSERT_ID",
-    "BACKBLAZE_BUCKET_NAME": "openstore-local",
 }
 ```
 
-* [Sign up for a Backblaze account](https://www.backblaze.com/b2/sign-up.html)
 * [Create a GitHub OAuth App](https://developer.github.com/apps/building-integrations/setting-up-and-registering-oauth-apps/)
 
 ## Contributors
@@ -45,7 +38,7 @@ create a config.json file in `api/utils/` like this:
 
 ## License
 
-Copyright (C) 2019 [Brian Douglass](http://bhdouglass.com/)
+Copyright (C) 2020 [Brian Douglass](http://bhdouglass.com/)
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License version 3, as published
 by the Free Software Foundation.
