@@ -11,6 +11,7 @@ if (fs.existsSync(configFilePath)) {
 let config = {
     data_dir: process.env.DATA_DIR || '/tmp',
     image_dir: process.env.IMAGE_DIR || '/tmp',
+    icon_dir: process.env.ICON_DIR || '/tmp',
     server: {
         ip: process.env.NODEJS_IP || '0.0.0.0',
         port: process.env.PORT || process.env.NODEJS_PORT || 8080,
@@ -26,13 +27,6 @@ let config = {
     elasticsearch: {
         uri: process.env.ELASTICSEARCH_URI || 'http://elasticsearch:9200/',
         index: process.env.ELASTICSEARCH_INDEX || 'openstore_packages',
-    },
-    backblaze: {
-        accountId: configFile.BACKBLAZE_ACCOUNT_ID || process.env.BACKBLAZE_ACCOUNT_ID || '',
-        applicationKey: configFile.BACKBLAZE_APP_KEY || process.env.BACKBLAZE_APP_KEY || '',
-        bucketId: configFile.BACKBLAZE_BUCKET_ID || process.env.BACKBLAZE_BUCKET_ID || '',
-        bucketName: configFile.BACKBLAZE_BUCKET_NAME || process.env.BACKBLAZE_BUCKET_NAME || '',
-        baseUrl: process.env.BACKBLAZE_BASE_URL || 'https://files.open-store.io/file/',
     },
     papertrail: {
         host: process.env.PAPERTRAIL_HOST,

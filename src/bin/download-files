@@ -1,0 +1,55 @@
+#!/usr/bin/env node
+
+const fs = require('fs');
+const path = require('path');
+const pLimit = require('p-limit');
+
+require('../db'); // Make sure the database connection gets setup
+const Package = require('../db/package/model');
+const helpers = require('../utils/helpers');
+
+const limit = pLimit(5);
+
+Package.find({}).then((pkgs) => {
+    return limit(() => Promise.all(pkgs.map((pkg) => {
+        let promises = pkg.revisions.filter((revision) => !!revision.download_url && !revision.old_download_url).map((revision) => {
+            revision.old_download_url = revision.download_url;
+            let downloadUrl = revision.download_url.replace(/,/g, '%2C');
+            let filePath = pkg.getClickFilePath(revision.channel, revision.architecture, revision.version);
+            revision.download_url = filePath;
+
+            if (!fs.existsSync(filePath)) {
+                console.log(`Downloading click for ${pkg.id} ${revision.channel} ${revision.architecture} ${revision.version}`);
+                return helpers.download(downloadUrl, filePath).catch(() => {
+                    if (revision.channel == 'vivid') {
+                        revision.download_url = null;
+                    }
+
+                    console.error(`failed to download ${downloadUrl} (${revision.channel})`);
+                });
+            }
+        });
+
+        if (pkg.icon && pkg.icon.startsWith('http')) {
+            console.log(`Downloading icon for ${pkg.id}`);
+            let iconUrl = pkg.icon;
+            let ext = path.extname(pkg.icon);
+            let iconPath = pkg.getIconFilePath(pkg.version, ext);
+            pkg.icon = iconPath;
+
+            promises.push(helpers.download(iconUrl, iconPath).catch(() => {
+                console.error(`failed to download ${iconUrl}`);
+            }));
+        }
+
+        return limit(() => Promise.all(promises).then(() => {
+            return pkg.save();
+        }));
+    })));
+}).then(() => {
+    console.log('done');
+    process.exit(0);
+}).catch((err) => {
+    console.log(err);
+    process.exit(1);
+});

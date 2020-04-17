@@ -6,7 +6,6 @@ const Package = require('../src/db/package/model');
 const PackageRepo = require('../src/db/package/repo');
 const Lock = require('../src/db/lock/model');
 const LockRepo = require('../src/db/lock/repo');
-const upload = require('../src/utils/upload');
 const reviewPackage = require('../src/utils/review-package');
 const clickParser = require('../src/utils/click-parser-async');
 const PackageSearch = require('../src/db/package/search');
@@ -29,7 +28,6 @@ describe('Manage Revision POST', () => {
         this.emptyClick = path.join(__dirname, 'fixtures/empty.click');
         this.notAClick = path.join(__dirname, 'fixtures/notaclick.txt');
 
-        this.uploadPackageStub = this.sandbox.stub(upload, 'uploadPackage').resolves(['packageUrl', 'iconUrl']);
         this.lockAcquireSpy = this.sandbox.spy(LockRepo, 'acquire');
         this.lockReleaseSpy = this.sandbox.spy(LockRepo, 'release');
     });
@@ -413,7 +411,7 @@ describe('Manage Revision POST', () => {
             expect(data.author).to.equal('OpenStore Team');
             expect(data.channels).to.deep.equal([Package.XENIAL]);
             expect(data.framework).to.equal('ubuntu-sdk-16.04');
-            expect(data.icon).to.equal('http://local.open-store.io/api/v3/apps/openstore-test.openstore-team/icon/1.0.0');
+            expect(data.icon).to.equal('http://local.open-store.io/api/v3/apps/openstore-test.openstore-team/icon/1.0.0.svg');
             expect(data.permissions).to.deep.equal(['networking']);
             expect(data.published).to.be.true;
             expect(data.manifest).to.be.ok;
@@ -427,7 +425,6 @@ describe('Manage Revision POST', () => {
             expect(data.revisions[1].architecture).to.equal(Package.ARMHF);
             expect(data.revisions[1].framework).to.equal('ubuntu-sdk-16.04');
 
-            expect(this.uploadPackageStub).to.have.been.calledOnce;
             expect(reviewStub).to.have.been.calledOnce;
             expect(upsertStub).to.have.been.calledOnce;
             expect(this.lockAcquireSpy).to.have.been.calledOnce;
@@ -570,8 +567,6 @@ describe('Manage Revision POST', () => {
             expect(data.revisions[0].architecture).to.equal(Package.ARMHF);
             expect(data.revisions[1].architecture).to.equal(Package.ARM64);
 
-
-            expect(this.uploadPackageStub).to.have.been.calledTwice;
             expect(this.lockAcquireSpy).to.have.been.calledTwice;
             expect(this.lockReleaseSpy).to.have.been.calledTwice;
         });

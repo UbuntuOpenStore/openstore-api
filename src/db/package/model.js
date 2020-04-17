@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const moment = require('moment');
+const path = require('path');
 
 const {sanitize} = require('../../utils/helpers');
 const config = require('../../utils/config');
@@ -11,7 +12,8 @@ const revisionSchema = mongoose.Schema({
     version: String, // Unique among revisions with this arch
     downloads: Number,
     channel: String,
-    download_url: String,
+    download_url: String, // The path to the local click file
+    old_download_url: String, // TODO remove this in the future
     download_sha512: String,
     architecture: String,
     framework: String,
@@ -61,7 +63,7 @@ const packageSchema = mongoose.Schema({
     revisions: [revisionSchema],
     channels: [String],
 
-    icon: String,
+    icon: String, // Path to a local icon file
 
     // Number of ratings in each category
     rating_counts: [{type: mongoose.Schema.Types.ObjectId, ref: 'RatingCount'}],
@@ -347,6 +349,14 @@ packageSchema.methods.newRevision = function(version, channel, architecture, fra
     });
 
     this.updated_date = moment().toISOString();
+};
+
+packageSchema.methods.getClickFilePath = function(channel, arch, version) {
+    return path.join(config.data_dir, `${this.id}-${channel}-${arch}-${version}.click`);
+};
+
+packageSchema.methods.getIconFilePath = function(version, ext) {
+    return path.join(config.icon_dir, `${this.id}-${version}${ext}`);
 };
 
 const Package = mongoose.model('Package', packageSchema);

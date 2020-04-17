@@ -9,6 +9,7 @@ const config = require('../utils/config');
 const discoverJSON = require('./json/discover_apps.json');
 const helpers = require('../utils/helpers');
 const logger = require('../utils/logger');
+const translations = require('../utils/translations');
 
 const router = express.Router();
 
@@ -74,19 +75,33 @@ router.get('/', async (req, res) => {
 
             let newAndUpdatedCategory = discover.categories.find((category) => (category.name == NEW_AND_UPDATED));
 
-            // Get the first 10 unique app ids (unique ids)
-            let ids = newApps.map((app) => app.id)
-                .concat(updatedApps.map((app) => app.id));
+            // Get the 10 latest updated or published apps
+            let newAndUpdatedApps = newApps.map((app) => {
+                app.sort = app.published_date;
+                return app;
+            }).concat(updatedApps.map((app) => {
+                app.sort = app.updated_date;
+                return app;
+            }));
 
-            newAndUpdatedCategory.ids = ids.filter((item, pos) => ids.indexOf(item) == pos)
-                .slice(0, 10);
-
-            let newAndUpdatedApps = newApps.concat(updatedApps);
             /* eslint-disable  arrow-body-style */
-            newAndUpdatedCategory.apps = newAndUpdatedCategory.ids.map((id) => {
-                return newAndUpdatedApps.find((app) => (app.id == id));
+            newAndUpdatedApps = newAndUpdatedApps.filter((app, pos) => {
+                return newAndUpdatedApps.findIndex((a) => a.id == app.id) == pos;
             });
-            newAndUpdatedCategory.apps = newAndUpdatedCategory.apps.map((app) => serialize(app, false, architecture, req.apiVersion));
+
+            newAndUpdatedApps.sort((a, b) => {
+                if (a.sort > b.sort) {
+                    return -1;
+                }
+
+                if (a.sort < b.sort) {
+                    return 1;
+                }
+
+                return 0;
+            });
+
+            newAndUpdatedCategory.apps = newAndUpdatedApps.slice(0, 10).map((app) => serialize(app, false, architecture, req.apiVersion));
 
             discover.categories = discover.categories.filter((category) => (category.apps.length > 0));
 
@@ -98,7 +113,19 @@ router.get('/', async (req, res) => {
             discoverCache[cacheKey] = discover;
             discoverDate[cacheKey] = now;
 
-            helpers.success(res, discover);
+            let lang = req.query.lang ? req.query.lang : null;
+            translations.setLang(lang);
+
+            let cloneDiscover = JSON.parse(JSON.stringify(discover));
+            cloneDiscover.categories = cloneDiscover.categories.map((category) => {
+                return {
+                    ...category,
+                    name: translations.gettext(category.name),
+                    tagline: category.tagline ? translations.gettext(category.tagline) : '',
+                };
+            });
+
+            helpers.success(res, cloneDiscover);
         }
         catch (err) {
             logger.error('Error processing discovery');

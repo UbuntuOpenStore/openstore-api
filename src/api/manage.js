@@ -12,7 +12,6 @@ const config = require('../utils/config');
 const logger = require('../utils/logger');
 const helpers = require('../utils/helpers');
 const apiLinks = require('../utils/api-links');
-const upload = require('../utils/upload');
 const clickParser = require('../utils/click-parser-async');
 const checksum = require('../utils/checksum');
 const reviewPackage = require('../utils/review-package');
@@ -405,28 +404,26 @@ router.post(
                 pkg.updateFromClick(data);
             }
 
-            let updateIcon = (channel == Package.XENIAL || !pkg.icon);
-            let [packageUrl, iconUrl] = await upload.uploadPackage(
-                pkg,
-                filePath,
-                updateIcon ? parseData.icon : null,
-                channel,
-                version,
-                architecture,
-            );
+            let localFilePath = pkg.getClickFilePath(channel, architecture, version);
+            await fs.copyFileAsync(filePath, localFilePath);
+            await fs.unlinkAsync(filePath);
 
             pkg.newRevision(
                 version,
                 channel,
                 architecture,
                 parseData.framework,
-                packageUrl,
+                localFilePath,
                 downloadSha512,
                 parseData.installedSize,
             );
 
-            if (updateIcon) {
-                pkg.icon = iconUrl;
+            let updateIcon = (channel == Package.XENIAL || !pkg.icon);
+            if (updateIcon && parseData.icon) {
+                let localIconPath = pkg.getIconFilePath(version, path.extname(parseData.icon));
+                await fs.copyFileAsync(parseData.icon, localIconPath);
+                await fs.unlinkAsync(parseData.icon);
+                pkg.icon = localIconPath;
             }
 
             if (req.body.changelog) {
