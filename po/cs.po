@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2017-06-20 01:45:+0000\n"
-"PO-Revision-Date: 2018-10-05 12:46+0000\n"
+"PO-Revision-Date: 2020-04-17 04:19+0000\n"
 "Last-Translator: Milan Korecký <milan.korecky@gmail.com>\n"
 "Language-Team: Czech <https://translate.ubports.com/projects/openstore/"
 "openstore-api/cs/>\n"
@@ -11,7 +11,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
-"X-Generator: Weblate 2.20\n"
+"X-Generator: Weblate 3.8\n"
 
 msgid "Accessibility"
 msgstr "Usnadnění"
@@ -85,33 +85,31 @@ msgstr "Ke stažení z"
 
 # Discovery section category name
 msgid "New and Updated Apps"
-msgstr ""
+msgstr "Nové a aktualizované aplikace"
 
 # Discovery section category tagline for "New and Updated Apps"
 msgid "Exciting new apps & updates"
-msgstr ""
+msgstr "Vzrušující nové aplikace a aktualizace"
 
-#, fuzzy
-#| msgid "Health & Fitness"
 msgid "Health & Wellness"
-msgstr "Zdraví a fitness"
+msgstr "Zdraví a wellness"
 
 # Discovery section category tagline for "Health & Wellness"
 msgid "An apple a day..."
-msgstr ""
+msgstr "Jedno jablko denně..."
 
 # Discovery section category name
 msgid "Cross Platform Apps"
-msgstr ""
+msgstr "Aplikace napříč platformami"
 
 # Discovery section category tagline for "Cross Platform Apps"
 msgid "Find these apps anywhere"
-msgstr ""
+msgstr "Najděte tyto aplikace kdekoli"
 
 # Discovery section category name
 msgid "Essential Apps"
-msgstr ""
+msgstr "Základní aplikace"
 
 # Discovery section category tagline for "Essential Apps"
 msgid "Check these out first"
-msgstr ""
+msgstr "Podívejte se na ně jako první"

@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2017-06-20 01:45:+0000\n"
-"PO-Revision-Date: 2019-03-24 00:00+0000\n"
-"Last-Translator: Rúben Carneiro <rubencarneiro01@gmail.com>\n"
+"PO-Revision-Date: 2020-04-17 04:19+0000\n"
+"Last-Translator: Ivo Xavier <ivofernandes12@gmail.com>\n"
 "Language-Team: Portuguese <https://translate.ubports.com/projects/openstore/"
 "openstore-api/pt/>\n"
 "Language: pt\n"
@@ -11,7 +11,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 3.1.1\n"
+"X-Generator: Weblate 3.8\n"
 
 msgid "Accessibility"
 msgstr "Acessibilidade"
@@ -85,33 +85,31 @@ msgstr "Transferir a partir de"
 
 # Discovery section category name
 msgid "New and Updated Apps"
-msgstr ""
+msgstr "Aplicações novas e atualizações"
 
 # Discovery section category tagline for "New and Updated Apps"
 msgid "Exciting new apps & updates"
-msgstr ""
+msgstr "Novas apps e atualizações emocionantes"
 
-#, fuzzy
-#| msgid "Health & Fitness"
 msgid "Health & Wellness"
-msgstr "Saúde e fitness"
+msgstr "Saúde e bem estar"
 
 # Discovery section category tagline for "Health & Wellness"
 msgid "An apple a day..."
-msgstr ""
+msgstr "Uma maça por dia..."
 
 # Discovery section category name
 msgid "Cross Platform Apps"
-msgstr ""
+msgstr "Apps multi-plataforma"
 
 # Discovery section category tagline for "Cross Platform Apps"
 msgid "Find these apps anywhere"
-msgstr ""
+msgstr "Encontre estas apps em qualquer lugar"
 
 # Discovery section category name
 msgid "Essential Apps"
-msgstr ""
+msgstr "Apps essenciais"
 
 # Discovery section category tagline for "Essential Apps"
 msgid "Check these out first"
-msgstr ""
+msgstr "Confia primeiro"
