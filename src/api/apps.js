@@ -82,6 +82,7 @@ router.get('/:id', async (req, res) => {
     }
 });
 
+// TODO account for older versions
 router.get('/:id/download/:channel/:arch', async (req, res) => {
     try {
         let pkg = await PackageRepo.findOne(req.params.id, { published: true });
@@ -100,20 +101,17 @@ router.get('/:id/download/:channel/:arch', async (req, res) => {
         }
 
         let { revisionData, revisionIndex } = pkg.getLatestRevision(channel, arch);
-
-        let downloadUrl = '';
-        if (revisionData) {
-            // encode url for b2
-            downloadUrl = revisionData.download_url.replace(/,/g, '%2C');
-        }
-        else {
+        if (!revisionData.download_url) {
             return helpers.error(res, DOWNLOAD_NOT_FOUND_FOR_CHANNEL, 404);
         }
 
-        let ext = path.extname(downloadUrl);
-        let filename = `${config.data_dir}/${pkg.id}-${channel}-${arch}-${revisionData.version}${ext}`;
-        let headers = { 'Content-Disposition': `attachment; filename=${pkg.id}_${revisionData.version}_${arch}.click` };
-        await helpers.checkDownload(downloadUrl, filename, headers, res);
+        let stat = await fs.statAsync(revisionData.download_url);
+        res.setHeader('Content-Length', stat.size);
+        res.setHeader('Content-type', mime.lookup(revisionData.download_url));
+        res.setHeader('Content-Disposition', `attachment; filename=${pkg.id}_${revisionData.version}_${arch}.click`);
+
+        fs.createReadStream(revisionData.download_url).pipe(res);
+
         return await PackageRepo.incrementDownload(pkg._id, revisionIndex);
     }
     catch (err) {
@@ -133,10 +131,12 @@ async function icon(req, res) {
             throw APP_NOT_FOUND;
         }
 
-        let ext = path.extname(pkg.icon);
-        let filename = `${config.data_dir}/${pkg.version}-${pkg.id}${ext}`;
-        let headers = {'Cache-Control': 'public, max-age=2592000'}; // 30 days
-        await helpers.checkDownload(pkg.icon, filename, headers, res);
+        let stat = await fs.statAsync(pkg.icon);
+        res.setHeader('Content-Length', stat.size);
+        res.setHeader('Content-type', mime.lookup(pkg.icon));
+        res.setHeader('Cache-Control', 'public, max-age=2592000'); // 30 days
+
+        fs.createReadStream(pkg.icon).pipe(res);
     }
     catch (err) {
         res.status(404);
@@ -147,8 +147,6 @@ async function icon(req, res) {
 router.get('/:id/icon/:version', icon);
 
 function screenshot(req, res) {
-    // TODO push these to b2 and use checkDownload()
-
     let filename = `${config.image_dir}/${req.params.name}`;
     if (fs.existsSync(filename)) {
         res.setHeader('Content-type', mime.lookup(filename));

@@ -11,6 +11,7 @@ if (fs.existsSync(configFilePath)) {
 let config = {
     data_dir: process.env.DATA_DIR || '/tmp',
     image_dir: process.env.IMAGE_DIR || '/tmp',
+    icon_dir: process.env.ICON_DIR || '/tmp',
     server: {
         ip: process.env.NODEJS_IP || '0.0.0.0',
         port: process.env.PORT || process.env.NODEJS_PORT || 8080,

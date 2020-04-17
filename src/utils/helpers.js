@@ -1,5 +1,4 @@
 const request = require('request');
-const mime = require('mime');
 const sanitizeHtml = require('sanitize-html');
 const Sentry = require('@sentry/node');
 
@@ -46,22 +45,6 @@ function download(url, filename) {
             }
         });
     });
-}
-
-async function checkDownload(url, filename, headers, res) {
-    if (!fs.existsSync(filename)) {
-        filename = await download(url, filename);
-    }
-
-    let stat = await fs.statAsync(filename);
-    res.setHeader('Content-Length', stat.size);
-    res.setHeader('Content-type', mime.lookup(filename));
-
-    Object.keys(headers).forEach((header) => {
-        res.setHeader(header, headers[header]);
-    });
-
-    fs.createReadStream(filename).pipe(res);
 }
 
 function getData(req, name) {
@@ -115,7 +98,6 @@ function captureException(err, route) {
 exports.success = success;
 exports.error = error;
 exports.download = download;
-exports.checkDownload = checkDownload;
 exports.getData = getData;
 exports.getDataArray = getDataArray;
 exports.sanitize = sanitize;
