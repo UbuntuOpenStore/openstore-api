@@ -2,7 +2,7 @@ const path = require('path');
 
 const config = require('../../utils/config');
 const Package = require('./model');
-const RATINGS = require('../../api/reviews').ratings;
+const { RATINGS } = require('../review/constants');
 
 const DEFAULT_VERSION = '0.0.0';
 

@@ -332,7 +332,7 @@ describe('Manage POST', () => {
             expect(pkg.name).to.equal('App Dev');
             expect(pkg.published).to.not.be.ok;
             expect(pkg.maintainer).to.equal(this.user._id.toString());
-            expect(pkg.maintainer_name).to.equal(this.user.username);
+            expect(pkg.maintainer_name).to.equal(this.user.name);
         });
 
         it('fails gracefully', async function() {

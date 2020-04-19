@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
-const RATINGS = require('../../api/reviews').ratings;
+const { RATINGS } = require('./constants');
+
 
 const reviewSchema = mongoose.Schema({
     pkg: {type: mongoose.Schema.Types.ObjectId, ref: 'Package'},

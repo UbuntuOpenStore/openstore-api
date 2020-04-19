@@ -1,16 +1,16 @@
-require('../db/comment/model');
 const express = require('express');
+
+require('../db/comment/model');
 const helpers = require('../utils/helpers');
+const apiLinks = require('../utils/api-links');
 const logger = require('../utils/logger');
 const PackageRepo = require('../db/package/repo');
 const Review = require('../db/review/model');
 const RatingCount = require('../db/rating_count/model');
 const Package = require('../db/package/model');
-const { authenticate, userRole } = require('../utils/middleware');
+const { authenticate, anonymousAuthenticate, userRole } = require('../utils/middleware');
 const { serialize } = require('../db/review/serializer');
-
-const REVIEW_MAX_LEN = 512;
-const RATINGS = ['THUMBS_UP', 'THUMBS_DOWN', 'HAPPY', 'NEUTRAL', 'BUGGY'];
+const { RATINGS, REVIEW_MAX_LEN } = require('../db/review/constants');
 
 const APP_NOT_FOUND = 'App not found';
 const PARAMETER_MISSING = 'Missing parameters for this endpoint';
@@ -19,9 +19,8 @@ const INVALID_RATING = 'Invalid rating';
 const VERSION_NOT_FOUND = 'Specified version is unknown';
 const CANNOT_REVIEW_OWN_APP = 'Reviewing your own app is not allowed';
 const NO_REVIEW_TO_EDIT = 'You have no review to edit';
-const REVIEW_REDACTED = 'Redacted review cannot be edited';
+const REVIEW_REDACTED = 'Redacted reviews cannot be edited';
 const ALREADY_REVIEWED = 'This app was already reviewed by you';
-
 
 const router = express.Router({ mergeParams: true });
 
@@ -29,7 +28,7 @@ const router = express.Router({ mergeParams: true });
 async function recalculateRatings(pkgId) {
     let pkg = await Package.findOne({ _id: pkgId }).populate('rating_counts');
     if (!pkg) {
-        console.log('Failed to recalculate ratings: could not find package');
+        logger.error('Failed to recalculate ratings: could not find package');
         return;
     }
     if (!pkg.rating_counts) {
@@ -65,48 +64,45 @@ async function recalculateRatings(pkgId) {
     await pkg.save();
 }
 
-/*
- * This function handles getting a (public) list of reviews for an app.
- * If the user specifies filter=apikey in the request, we continue
- * instead with authenticating the user and giving him his own review.
- */
-async function getReviews(req, res, next) {
+async function getReviews(req, res) {
     try {
-        if ('filter' in req.query && req.query.filter == 'apikey') {
-            return next();
-        }
-
         let pkg = await PackageRepo.findOne(req.params.id);
         if (!pkg) {
-            return helpers.error(res, APP_NOT_FOUND, 400);
+            return helpers.error(res, APP_NOT_FOUND, 404);
         }
 
         let limit = 10;
         if ('limit' in req.query) {
             limit = parseInt(req.query.limit, 10);
-            if (Number.isNaN(limit) || limit < 0 || limit > 100) {
+            if (Number.isNaN(limit) || limit < 0) {
                 limit = 10;
+            }
+            else if (limit > 100) {
+                limit = 100;
             }
         }
 
-        let query = { pkg: pkg._id, body: { $ne: '' } };
-        let reviewsTotalCount = await Review.countDocuments(query); // Total number of written reviews in database
-
+        let query = { pkg: pkg._id, redacted: false };
         // Add given filter criteria
         if ('from' in req.query && !Number.isNaN(parseInt(req.query.from, 10))) {
             query.date = { $lt: new Date(parseInt(req.query.from, 10)) };
         }
 
-        let data = {
-            count: reviewsTotalCount,
-            reviews: [],
-        };
+        if ('filter' in req.query && req.query.filter == 'apikey' && req.user) {
+            query.user = req.user._id;
+        }
 
-        // Get reviews and craft the response object
+        let reviewsTotalCount = await Review.countDocuments(query);
         let reviews = await Review.find(query, null, { limit: limit, sort: { date: -1 } }).populate('user', 'name').populate('comment');
-        data.reviews = serialize(reviews);
+        reviews = serialize(reviews);
+        let { next, previous } = apiLinks(req.originalUrl, reviews.length, req.query.limit, req.query.skip);
 
-        return helpers.success(res, data);
+        return helpers.success(res, {
+            count: reviewsTotalCount,
+            next,
+            previous,
+            reviews,
+        });
     }
     catch (err) {
         logger.error('Error getting reviews');
@@ -115,54 +111,27 @@ async function getReviews(req, res, next) {
     }
 }
 
-async function getOwnReview(req, res) {
-    try {
-        let pkg = await PackageRepo.findOne(req.params.id);
-        if (!pkg) {
-            return helpers.error(res, APP_NOT_FOUND, 400);
-        }
-
-        let ownReview = await Review.findOne({ pkg: pkg._id, user: req.user._id }).populate('comment');
-        let data = {
-            count: 0,
-            reviews: [],
-        };
-        if (ownReview) {
-            data.count++;
-            data.reviews = serialize([ownReview]);
-        }
-
-        return helpers.success(res, data);
-    }
-    catch (err) {
-        logger.error('Error getting own review');
-        helpers.captureException(err, req.originalUrl);
-        return helpers.error(res, 'There was an error getting your own review, please try again later');
-    }
-}
-
-
 async function postReview(req, res) {
     try {
-        // Check if necessary paramters are given
-        if (!('body' in req.body) || !('version' in req.body) || !('rating' in req.body)) {
+        // Check if necessary paramters are given (body can be empty)
+        if (!req.body.version || !req.body.rating) {
             return helpers.error(res, PARAMETER_MISSING, 400);
         }
 
-        let message = req.body.body.trim();
+        let message = req.body.body ? req.body.body.trim() : '';
         let version = req.body.version;
         let rating = req.body.rating;
         let pkg = await PackageRepo.findOne(req.params.id);
 
         // Sanity checks
         if (!pkg) {
-            return helpers.error(res, APP_NOT_FOUND, 400);
+            return helpers.error(res, APP_NOT_FOUND, 404);
         }
         if (req.user._id == pkg.maintainer) {
             return helpers.error(res, CANNOT_REVIEW_OWN_APP, 400);
         }
         if (!pkg.revisions || !pkg.revisions.find((revision) => revision.version == version)) {
-            return helpers.error(res, VERSION_NOT_FOUND, 400);
+            return helpers.error(res, VERSION_NOT_FOUND, 404);
         }
         if (message.length > REVIEW_MAX_LEN) {
             return helpers.error(res, REVIEW_TOO_LONG, 400);
@@ -210,9 +179,9 @@ async function postReview(req, res) {
     }
 }
 
-router.get('/', getReviews, authenticate, userRole, getOwnReview);
+router.get('/', anonymousAuthenticate, getReviews);
 router.post('/', authenticate, userRole, postReview);
 router.put('/', authenticate, userRole, postReview);
 
+exports.recalculateRatings = recalculateRatings;
 exports.main = router;
-exports.ratings = RATINGS;

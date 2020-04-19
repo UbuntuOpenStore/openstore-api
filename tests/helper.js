@@ -7,6 +7,7 @@ const sinonChai = require('sinon-chai');
 
 require('./factories/package');
 require('./factories/user');
+require('./factories/review');
 const api = require('../src/api');
 
 const adapter = new FactoryGirl.MongooseAdapter();

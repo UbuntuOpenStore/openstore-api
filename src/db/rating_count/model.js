@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const RATINGS = require('../../api/reviews').ratings;
+const { RATINGS } = require('../review/constants');
 
 const ratingCountSchema = mongoose.Schema({
     name: {type: String, enum: RATINGS},
