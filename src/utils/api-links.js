@@ -1,27 +1,27 @@
 const URL = require('url').URL;
 
-const config = require('../utils/config');
+const config = require('./config');
 
 function apiLinks(originalUrl, count, limit, skip) {
-    let next = null;
-    let previous = null;
-    limit = limit ? parseInt(limit, 10) : 0;
-    skip = skip ? parseInt(skip, 10) : 0;
+  let next = null;
+  let previous = null;
+  const parsedLimit = limit ? parseInt(limit, 10) : 0;
+  const parsedSkip = skip ? parseInt(skip, 10) : 0;
 
-    let url = new URL(config.server.host + originalUrl);
-    if (count == limit) {
-        let nextSkip = skip + limit;
-        url.searchParams.set('skip', nextSkip);
-        next = url.toString();
-    }
+  const url = new URL(config.server.host + originalUrl);
+  if (count == parsedLimit) {
+    const nextSkip = parsedSkip + parsedLimit;
+    url.searchParams.set('skip', nextSkip);
+    next = url.toString();
+  }
 
-    if (skip > 0) {
-        let previousSkip = (skip - limit > 0) ? (skip - limit) : 0;
-        url.searchParams.set('skip', previousSkip);
-        previous = url.toString();
-    }
+  if (parsedSkip > 0) {
+    const previousSkip = (parsedSkip - parsedLimit > 0) ? (parsedSkip - parsedLimit) : 0;
+    url.searchParams.set('skip', previousSkip);
+    previous = url.toString();
+  }
 
-    return {next, previous};
+  return { next, previous };
 }
 
 module.exports = apiLinks;

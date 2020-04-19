@@ -1,6 +1,7 @@
 module.exports = {
   root: true,
   parserOptions: {
+    ecmaVersion: 10,
     sourceType: 'module'
   },
   extends: [
@@ -16,7 +17,7 @@ module.exports = {
     'no-debugger': process.env.NODE_ENV === 'production' ? 2 : 0,
     'no-console': process.env.NODE_ENV === 'production' ? 1 : 0,
 
-    'max-len': ['error', {code: 140}],
+    'no-underscore-dangle': 'off',
   },
   overrides: [
     {

@@ -11,8 +11,8 @@ mongoose.set('useCreateIndex', true);
 mongoose.set('useUnifiedTopology', true);
 
 mongoose.connect(`${config.mongo.uri}/${config.mongo.database}`, (err) => {
-    if (err) {
-        logger.error('database error:', err);
-        process.exit(1);
-    }
+  if (err) {
+    logger.error('database error:', err);
+    process.exit(1);
+  }
 });
