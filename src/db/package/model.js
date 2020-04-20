@@ -110,10 +110,16 @@ packageSchema.methods.getLatestRevision = function(channel, architecture, detect
     let revisionData = null;
     let revisionIndex = -1;
     this.revisions.forEach((data, index) => {
+        let archCheck = data.architecture == architecture;
+        if (data.architecture && data.architecture.includes(',')) {
+            // Handle multi arch clicks
+            archCheck = data.architecture.includes(architecture);
+        }
+
         if (
             (!revisionData || revisionData.revision < data.revision) &&
             data.channel == channel &&
-            data.architecture == architecture &&
+            archCheck &&
             (!frameworks || frameworks.includes(data.framework))
         ) {
             revisionData = data;
