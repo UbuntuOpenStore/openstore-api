@@ -65,6 +65,8 @@ async function recalculateRatings(pkgId) {
       pkg.rating_counts.push(ratingCount._id);
     }
   }
+
+  // TODO only save the rating_counts
   await pkg.save();
 }
 

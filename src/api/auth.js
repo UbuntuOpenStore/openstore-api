@@ -1,7 +1,7 @@
 const passport = require('passport');
 const UbuntuStrategy = require('passport-ubuntu').Strategy;
 const LocalAPIKeyStrategy = require('passport-localapikey').Strategy;
-const GitHubStrategy = require('passport-github').Strategy;
+const GitHubStrategy = require('passport-github2').Strategy;
 const GitLabStrategy = require('passport-gitlab2').Strategy;
 const uuid = require('node-uuid');
 const express = require('express');
@@ -13,11 +13,13 @@ const User = require('../db/user/model');
 const router = express.Router();
 
 passport.serializeUser((user, done) => {
+  console.log('serializeUser', user);
   // This is kinda hacky, but not all ubuntu logins will have an email
   done(null, user.email ? user.email : `UBUNTU_${user.ubuntu_id}`);
 });
 
 passport.deserializeUser((identifier, done) => {
+  console.log('deserializeUser', identifier);
   if (identifier.substring(0, 7) == 'UBUNTU_') {
     User.findOne({ ubuntu_id: identifier }, done);
   }
@@ -112,12 +114,10 @@ if (config.github.clientID && config.github.clientSecret) {
         user.language = 'en';
       }
 
-      const emails = profile.emails.filter((email) => email.primary);
-
       user.github_id = profile.id;
-      user.email = (emails.length >= 1) ? emails[0].value : '';
-      user.name = profile.displayName;
-      user.username = profile.username;
+      user.email = (!user.email && profile.emails.length >= 1) ? profile.emails[0].value : user.email;
+      user.name = user.name ? user.name : profile.displayName;
+      user.username = user.username ? user.username : profile.username;
 
       user.save(callback);
     }).catch((err) => {
@@ -158,9 +158,9 @@ if (config.gitlab.clientID && config.gitlab.clientSecret) {
       }
 
       user.gitlab_id = profile.id;
-      user.email = (profile.emails.length > 0) ? profile.emails[0].value : '';
-      user.name = profile.displayName;
-      user.username = profile.username;
+      user.email = (!user.email && profile.emails.length > 0) ? profile.emails[0].value : user.email;
+      user.name = user.name ? user.name : profile.displayName;
+      user.username = user.username ? user.username : profile.username;
 
       user.save(callback);
     }).catch((err) => {
