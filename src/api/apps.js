@@ -107,7 +107,7 @@ router.get('/:id/download/:channel/:arch', async(req, res) => {
 
     const stat = await fs.statAsync(revisionData.download_url);
     res.setHeader('Content-Length', stat.size);
-    res.setHeader('Content-type', mime.lookup(revisionData.download_url));
+    res.setHeader('Content-type', mime.getType(revisionData.download_url));
     res.setHeader('Content-Disposition', `attachment; filename=${pkg.id}_${revisionData.version}_${arch}.click`);
 
     fs.createReadStream(revisionData.download_url).pipe(res);
@@ -135,7 +135,7 @@ async function icon(req, res) {
 
     const stat = await fs.statAsync(pkg.icon);
     res.setHeader('Content-Length', stat.size);
-    res.setHeader('Content-type', mime.lookup(pkg.icon));
+    res.setHeader('Content-type', mime.getType(pkg.icon));
     res.setHeader('Cache-Control', 'public, max-age=2592000'); // 30 days
 
     fs.createReadStream(pkg.icon).pipe(res);
@@ -151,7 +151,7 @@ router.get('/:id/icon/:version', icon);
 function screenshot(req, res) {
   const filename = `${config.image_dir}/${req.params.name}`;
   if (fs.existsSync(filename)) {
-    res.setHeader('Content-type', mime.lookup(filename));
+    res.setHeader('Content-type', mime.getType(filename));
     res.setHeader('Cache-Control', 'public, max-age=2592000'); // 30 days
     fs.createReadStream(filename).pipe(res);
   }

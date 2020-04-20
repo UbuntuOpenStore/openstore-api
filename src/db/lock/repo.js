@@ -1,5 +1,5 @@
 /* eslint-disable no-await-in-loop */
-const sleep = require('sleepjs');
+const { sleep } = require('sleepjs');
 
 const Lock = require('./model');
 const logger = require('../../utils/logger');
@@ -33,7 +33,7 @@ const LockRepo = {
       catch (err) {
         if (err.code == 11000) {
           // a lock already exists, try again
-          logger.debug(`Lock exists, going to wait (retries: ${retries}`);
+          logger.debug(`Lock exists, going to wait (retries: ${retries})`);
           retries--;
           await sleep(WAIT_TIME);
         }

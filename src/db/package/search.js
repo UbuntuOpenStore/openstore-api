@@ -45,7 +45,7 @@ const PackageSearch = {
     doc.nsfw = !!doc.nsfw; // Force a boolean
 
     if (doc.keywords) {
-      doc.keywords = doc.keywords.map((keyword) => keyword.toLowerCase());
+      doc.keywords = doc.keywords.map((keyword) => keyword.toLowerCase().trim()).filter(Boolean);
     }
     else {
       doc.keywords = [];

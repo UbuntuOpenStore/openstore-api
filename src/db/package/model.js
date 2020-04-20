@@ -220,8 +220,8 @@ packageSchema.methods.updateFromBody = async function(body) {
   }
 
   if (!this.published_date && this.published) {
-    this.published_date = (new Date()).toString();
-    this.updated_date = (new Date()).toString();
+    this.published_date = (new Date()).toISOString();
+    this.updated_date = (new Date()).toISOString();
   }
 
   if (body.category || body.category === '') {
@@ -346,10 +346,10 @@ packageSchema.methods.newRevision = function(version, channel, architecture, fra
     architecture,
     framework,
     filesize,
-    created_date: (new Date()).toString(),
+    created_date: (new Date()).toISOString(),
   });
 
-  this.updated_date = (new Date()).toString();
+  this.updated_date = (new Date()).toISOString();
 };
 
 packageSchema.methods.getClickFilePath = function(channel, arch, version) {
