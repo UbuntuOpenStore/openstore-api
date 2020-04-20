@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2017-06-20 01:45:+0000\n"
-"PO-Revision-Date: 2019-11-14 20:36+0000\n"
+"PO-Revision-Date: 2020-04-13 00:23+0000\n"
 "Last-Translator: Ari Börde Kröyer <ari.kroyer@online.no>\n"
 "Language-Team: Norwegian Bokmål <https://translate.ubports.com/projects/"
 "openstore/openstore-api/nb_NO/>\n"
@@ -85,33 +85,31 @@ msgstr "Last ned fra"
 
 # Discovery section category name
 msgid "New and Updated Apps"
-msgstr ""
+msgstr "Nye og oppdaterte apper"
 
 # Discovery section category tagline for "New and Updated Apps"
 msgid "Exciting new apps & updates"
-msgstr ""
+msgstr "Spennende nye apper & oppdateringer"
 
-#, fuzzy
-#| msgid "Health & Fitness"
 msgid "Health & Wellness"
 msgstr "Helse & velvære"
 
 # Discovery section category tagline for "Health & Wellness"
 msgid "An apple a day..."
-msgstr ""
+msgstr "Et eple om dagen..."
 
 # Discovery section category name
 msgid "Cross Platform Apps"
-msgstr ""
+msgstr "Tverrplattformsapper"
 
 # Discovery section category tagline for "Cross Platform Apps"
 msgid "Find these apps anywhere"
-msgstr ""
+msgstr "Finn disse appene hvor som helst"
 
 # Discovery section category name
 msgid "Essential Apps"
-msgstr ""
+msgstr "Essensielle apper"
 
 # Discovery section category tagline for "Essential Apps"
 msgid "Check these out first"
-msgstr ""
+msgstr "Sjekk disse først"

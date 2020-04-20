@@ -152,6 +152,7 @@ function toJson(pkg, architecture = Package.ARMHF, apiVersion) {
         if (downloadRevisionData) {
           const download = {
             ...downloadRevisionData.toObject(),
+            architecture: downloadRevisionData.architecture.includes(',') ? arch : downloadRevisionData.architecture,
             download_url: downloadUrl(pkg, channel, arch),
             filesize: toBytes(downloadRevisionData.filesize),
           };
