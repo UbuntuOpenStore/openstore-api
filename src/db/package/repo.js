@@ -141,7 +141,7 @@ const PackageRepo = {
     find(filters, sort, limit, skip) {
         let query = this.parseFilters(filters);
 
-        let findQuery = Package.find(query);
+        let findQuery = Package.find(query).populate('rating_counts');
 
         if (sort == 'relevance') {
             if (query.$text) {
@@ -196,7 +196,7 @@ const PackageRepo = {
             query.maintainer = maintainer;
         }
 
-        return Package.findOne(query);
+        return Package.findOne(query).populate('rating_counts');
     },
 
     incrementDownload(id, revisionIndex) {

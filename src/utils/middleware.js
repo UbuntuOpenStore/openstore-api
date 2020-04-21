@@ -151,6 +151,19 @@ function downloadFile(req, res, next) {
     }
 }
 
+// Check if the user is logged in, but allow anonymous access
+function anonymousAuthenticate(req, res, next) {
+    passport.authenticate('localapikey', { session: false }, (err, user) => {
+        if (err) {
+            return next(err);
+        }
+
+        req.user = user;
+        return next();
+    })(req, res, next);
+}
+
+exports.anonymousAuthenticate = anonymousAuthenticate;
 exports.authenticate = passport.authenticate('localapikey', {session: false});
 exports.userRole = userRole;
 exports.adminOnly = adminOnly;

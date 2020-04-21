@@ -2,6 +2,7 @@ const path = require('path');
 const mime = require('mime');
 const express = require('express');
 
+const reviews = require('./reviews');
 const Package = require('../db/package/model');
 const PackageRepo = require('../db/package/repo');
 const PackageSearch = require('../db/package/search');
@@ -120,6 +121,8 @@ router.get('/:id/download/:channel/:arch', async (req, res) => {
         return helpers.error(res, 'Could not download package at this time');
     }
 });
+
+router.use('/:id/reviews', reviews.main);
 
 async function icon(req, res) {
     let id = req.params.id.replace('.png', '').replace('.svg', '').replace('.jpg', '').replace('.jpeg', '');

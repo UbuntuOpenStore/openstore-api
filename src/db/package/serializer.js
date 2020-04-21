@@ -2,6 +2,7 @@ const path = require('path');
 
 const config = require('../../utils/config');
 const Package = require('./model');
+const { RATINGS } = require('../review/constants');
 
 const DEFAULT_VERSION = '0.0.0';
 
@@ -14,7 +15,7 @@ function iconUrl(pkg) {
     let version = DEFAULT_VERSION;
 
     if (pkg.getLatestRevision) {
-        let {revisionData} = pkg.getLatestRevision(Package.XENIAL);
+        let { revisionData } = pkg.getLatestRevision(Package.XENIAL);
         if (revisionData) {
             version = revisionData.version;
         }
@@ -29,6 +30,22 @@ function iconUrl(pkg) {
 
 function downloadUrl(pkg, channel, arch) {
     return `${config.server.host}/api/v3/apps/${pkg.id}/download/${channel}/${arch}`;
+}
+
+/* eslint-disable no-restricted-syntax */
+function getRatings(pkg) {
+    let ratings = {};
+    if (Array.isArray(pkg.rating_counts)) {
+        for (let r of pkg.rating_counts) {
+            ratings[r.name] = r.count;
+        }
+    }
+    for (let r of RATINGS) {
+        if (!(r in ratings)) {
+            ratings[r] = 0;
+        }
+    }
+    return ratings;
 }
 
 function toSlimJson(pkg) {
@@ -51,6 +68,7 @@ function toSlimJson(pkg) {
             tagline: pkg.tagline || '',
             types: pkg.types || [],
             updated_date: pkg.updated_date || '',
+            ratings: getRatings(pkg),
         };
     }
 
@@ -118,6 +136,7 @@ function toJson(pkg, architecture = Package.ARMHF, apiVersion) {
         totalDownloads: 0,
         latestDownloads: 0,
         version: revisionData ? revisionData.version : '',
+        ratings: getRatings(pkg),
 
         // TODO deprecate these
         revision: -1,
@@ -130,7 +149,7 @@ function toJson(pkg, architecture = Package.ARMHF, apiVersion) {
         /* eslint-disable-next-line arrow-body-style */
         let jsonDownloads = Package.CHANNELS.reduce((downloads, channel) => {
             return [...downloads, ...pkg.architectures.map((arch) => {
-                let {revisionData: downloadRevisionData} = pkg.getLatestRevision(channel, arch, false);
+                let { revisionData: downloadRevisionData } = pkg.getLatestRevision(channel, arch, false);
                 if (downloadRevisionData) {
                     let download = {
                         ...downloadRevisionData.toObject(),
