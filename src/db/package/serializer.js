@@ -149,6 +149,10 @@ function toJson(pkg, architecture = Package.ARMHF, apiVersion) {
         /* eslint-disable-next-line arrow-body-style */
         let jsonDownloads = Package.CHANNELS.reduce((downloads, channel) => {
             return [...downloads, ...pkg.architectures.map((arch) => {
+                if (!Package.ARCHITECTURES.includes(arch)) {
+                    return null; // Filter out unsupported arches like i386 (legacy apps)
+                }
+
                 let { revisionData: downloadRevisionData } = pkg.getLatestRevision(channel, arch, false);
                 if (downloadRevisionData) {
                     let download = {
