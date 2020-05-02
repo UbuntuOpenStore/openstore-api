@@ -12,6 +12,14 @@ const User = require('../db/user/model');
 
 const router = express.Router();
 
+function authenticated(req, res) {
+  if (req.headers['user-agent'].startsWith('OpenStore App')) {
+    return res.redirect(`/logged-in?apiKey=${req.user.apiKey}`);
+  }
+
+  return res.redirect('/manage');
+}
+
 passport.serializeUser((user, done) => {
   console.log('serializeUser', user);
   // This is kinda hacky, but not all ubuntu logins will have an email
@@ -81,14 +89,8 @@ passport.use(new UbuntuStrategy({
 }));
 
 router.post('/ubuntu', passport.authenticate('ubuntu'));
-router.get('/ubuntu/return', passport.authenticate('ubuntu', {
-  successRedirect: '/manage',
-  failureRedirect: '/',
-}));
-router.post('/ubuntu/return', passport.authenticate('ubuntu', {
-  successRedirect: '/manage',
-  failureRedirect: '/',
-}));
+router.get('/ubuntu/return', passport.authenticate('ubuntu'), authenticated);
+router.post('/ubuntu/return', passport.authenticate('ubuntu'), authenticated);
 
 if (config.github.clientID && config.github.clientSecret) {
   passport.use(new GitHubStrategy({
@@ -126,10 +128,7 @@ if (config.github.clientID && config.github.clientSecret) {
   }));
 
   router.get('/github', passport.authenticate('github'));
-  router.get('/github/callback', passport.authenticate('github', {
-    successRedirect: '/manage',
-    failureRedirect: '/',
-  }));
+  router.get('/github/callback', passport.authenticate('github'), authenticated);
 }
 else {
   logger.error('GitHub login is not available, set a client id & secret');
@@ -169,10 +168,7 @@ if (config.gitlab.clientID && config.gitlab.clientSecret) {
   }));
 
   router.get('/gitlab', passport.authenticate('gitlab'));
-  router.get('/gitlab/callback', passport.authenticate('gitlab', {
-    successRedirect: '/manage',
-    failureRedirect: '/',
-  }));
+  router.get('/gitlab/callback', passport.authenticate('gitlab'), authenticated);
 }
 else {
   logger.error('GitLab login is not available, set a client id & secret');

@@ -127,6 +127,14 @@ function setup() {
     res.redirect(302, `${config.server.host}/about`);
   });
 
+  app.get('/logged-in', (req, res) => {
+    if (req.isAuthenticated()) {
+      return res.status(200);
+    }
+
+    return res.redirect('/login');
+  });
+
   app.all([
     '/',
     '/submit',

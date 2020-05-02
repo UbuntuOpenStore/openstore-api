@@ -97,7 +97,6 @@ async function opengraph(req, res, next) {
   }
 }
 
-
 function userRole(req, res, next) {
   req.isAdminUser = (req.isAuthenticated() && req.user.role == 'admin');
   req.isTrustedUser = (req.isAuthenticated() && req.user.role == 'trusted');
