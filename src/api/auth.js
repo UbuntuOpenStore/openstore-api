@@ -13,6 +13,10 @@ const User = require('../db/user/model');
 const router = express.Router();
 
 function authenticated(req, res) {
+  if (!req.user) {
+    return res.redirect('/login');
+  }
+
   if (req.headers['user-agent'].startsWith('OpenStore App')) {
     return res.redirect(`/logged-in?apiKey=${req.user.apiKey}`);
   }
