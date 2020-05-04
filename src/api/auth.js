@@ -18,20 +18,18 @@ function authenticated(req, res) {
   }
 
   if (req.headers['user-agent'].startsWith('OpenStore App')) {
-    return res.redirect(`/logged-in?apiKey=${req.user.apiKey}`);
+    return res.redirect(`/logged-in?apiKey=${req.user.apikey}`);
   }
 
   return res.redirect('/manage');
 }
 
 passport.serializeUser((user, done) => {
-  console.log('serializeUser', user);
   // This is kinda hacky, but not all ubuntu logins will have an email
   done(null, user.email ? user.email : `UBUNTU_${user.ubuntu_id}`);
 });
 
 passport.deserializeUser((identifier, done) => {
-  console.log('deserializeUser', identifier);
   if (identifier.substring(0, 7) == 'UBUNTU_') {
     User.findOne({ ubuntu_id: identifier }, done);
   }

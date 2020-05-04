@@ -128,8 +128,9 @@ function setup() {
   });
 
   app.get('/logged-in', (req, res) => {
+    console.log('/logged-in !');
     if (req.isAuthenticated()) {
-      return res.status(200);
+      return helpers.success(res, { 'logged-in': 'ok' });
     }
 
     return res.redirect('/login');
