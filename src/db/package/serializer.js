@@ -40,6 +40,7 @@ function getRatings(pkg) {
       ratings[r.name] = r.count;
     }
   }
+
   for (const r of RATINGS) {
     if (!(r in ratings)) {
       ratings[r] = 0;

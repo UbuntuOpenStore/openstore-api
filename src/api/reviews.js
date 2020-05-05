@@ -46,6 +46,7 @@ async function recalculateRatings(pkgId) {
     for (const ratingCount of pkg.rating_counts) {
       if (ratingCount.name == ratingName) {
         ratingCount.count = count;
+        ratingCount.package_id = pkg.id;
 
         /* eslint-disable-next-line no-await-in-loop */
         await ratingCount.save();
@@ -58,6 +59,7 @@ async function recalculateRatings(pkgId) {
       const ratingCount = RatingCount();
       ratingCount.name = ratingName;
       ratingCount.count = count;
+      ratingCount.package_id = pkg.id;
 
       /* eslint-disable-next-line no-await-in-loop */
       await ratingCount.save();

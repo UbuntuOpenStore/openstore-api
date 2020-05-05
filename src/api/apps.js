@@ -7,6 +7,7 @@ const Package = require('../db/package/model');
 const PackageRepo = require('../db/package/repo');
 const PackageSearch = require('../db/package/search');
 const { serialize } = require('../db/package/serializer');
+const RatingCountRepo = require('../db/rating_count/repo');
 const config = require('../utils/config');
 const logger = require('../utils/logger');
 const helpers = require('../utils/helpers');
@@ -34,12 +35,23 @@ async function apps(req, res) {
       pkgs = results.hits.hits.map((hit) => hit._source);
       count = results.hits.total;
 
+      const ids = pkgs.map((pkg) => pkg.id);
       if (req.query.full) {
-        const ids = pkgs.map((pkg) => pkg.id);
         pkgs = await PackageRepo.find({ ids });
 
         // Maintain ordering from the elastic search results
         pkgs.sort((a, b) => ids.indexOf(a.id) - ids.indexOf(b.id));
+      }
+      else {
+        // Get the ratings
+        const ratingCounts = await RatingCountRepo.findByIds(ids);
+
+        pkgs = pkgs.map((pkg) => {
+          return {
+            ...pkg,
+            rating_counts: ratingCounts[pkg.id] || [],
+          };
+        });
       }
     }
     else {
