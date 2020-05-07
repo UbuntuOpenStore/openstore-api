@@ -33,10 +33,10 @@ function downloadUrl(pkg, channel, arch) {
 }
 
 /* eslint-disable no-restricted-syntax */
-function getRatings(pkg) {
+function serializeRatings(ratingCounts) {
   const ratings = {};
-  if (Array.isArray(pkg.rating_counts)) {
-    for (const r of pkg.rating_counts) {
+  if (Array.isArray(ratingCounts)) {
+    for (const r of ratingCounts) {
       ratings[r.name] = r.count;
     }
   }
@@ -69,7 +69,7 @@ function toSlimJson(pkg) {
       tagline: pkg.tagline || '',
       types: pkg.types || [],
       updated_date: pkg.updated_date || '',
-      ratings: getRatings(pkg),
+      ratings: serializeRatings(pkg.rating_counts),
     };
   }
 
@@ -137,7 +137,7 @@ function toJson(pkg, architecture = Package.ARMHF, apiVersion) {
     totalDownloads: 0,
     latestDownloads: 0,
     version: revisionData ? revisionData.version : '',
-    ratings: getRatings(pkg),
+    ratings: serializeRatings(pkg.rating_counts),
 
     // TODO deprecate these
     revision: -1,
@@ -222,3 +222,4 @@ function serialize(pkgs, slim, architecture, apiVersion) {
 exports.iconUrl = iconUrl;
 exports.downloadUrl = downloadUrl;
 exports.serialize = serialize;
+exports.serializeRatings = serializeRatings;

@@ -3,7 +3,8 @@ const express = require('express');
 
 const Package = require('../db/package/model');
 const PackageRepo = require('../db/package/repo');
-const { serialize } = require('../db/package/serializer');
+const RatingCountRepo = require('../db/rating_count/repo');
+const { serialize, serializeRatings } = require('../db/package/serializer');
 const config = require('../utils/config');
 const discoverJSON = require('./json/discover_apps.json');
 const helpers = require('../utils/helpers');
@@ -148,7 +149,28 @@ router.get('/', async(req, res) => {
     }
   }
   else { // Cache hit
-    helpers.success(res, discoverCache[cacheKey]);
+    const discover = JSON.parse(JSON.stringify(discoverCache[cacheKey]));
+
+    const ids = discover.categories.reduce((accumulator, category) => {
+      return [...accumulator, ...category.ids];
+    }, []).concat([discover.highlight.id]);
+
+    const ratingCounts = await RatingCountRepo.findByIds(ids);
+
+    discover.highlight.app.ratings = serializeRatings(ratingCounts[discover.highlight.id]);
+    discover.categories = discover.categories.map((category) => {
+      return {
+        ...category,
+        apps: category.apps.map((app) => {
+          return {
+            ...app,
+            ratings: serializeRatings(ratingCounts[app.id]),
+          }
+        }),
+      }
+    });
+
+    helpers.success(res, discover);
   }
 });
 
