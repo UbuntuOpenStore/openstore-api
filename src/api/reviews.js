@@ -31,9 +31,11 @@ async function recalculateRatings(pkgId) {
     logger.error('Failed to recalculate ratings: could not find package');
     return;
   }
+
   if (!pkg.rating_counts) {
     pkg.rating_counts = [];
   }
+
   const reviews = await Review.find({ pkg: pkgId });
 
   for (const ratingName of RATINGS) {
@@ -55,6 +57,7 @@ async function recalculateRatings(pkgId) {
         break;
       }
     }
+
     if (!updatedCount) {
       const ratingCount = RatingCount();
       ratingCount.name = ratingName;

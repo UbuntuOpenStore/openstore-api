@@ -97,7 +97,18 @@ describe('Reviews', () => {
     });
 
     it('updates own review', async function() {
-      await factory.create('review', { pkg: this.package._id, user: this.user._id });
+      await factory.create('review', { pkg: this.package._id, user: this.user._id, rating: 'THUMBS_DOWN' });
+      await recalculateRatings(this.package._id);
+
+      let pkg = await Package.findOne({ id  : this.package.id }).populate('rating_counts');
+      let checkRatings = pkg.rating_counts.reduce((accumulator, count) => {
+        return {
+          ...accumulator,
+          [count.name]: count.count,
+        }
+      }, {});
+      expect(checkRatings).to.deep.equal({ THUMBS_UP: 0, THUMBS_DOWN: 1, HAPPY: 1, NEUTRAL: 1, BUGGY: 0 });
+
       const res = await this.put(this.route)
         .send({ body: 'great app', version: '1.0.0', rating: 'THUMBS_UP' })
         .expect(200);
@@ -115,6 +126,15 @@ describe('Reviews', () => {
       expect(review.redacted).to.be.false;
       expect(review.pkg.toString()).to.equal(this.package._id.toString());
       expect(review.user.toString()).to.equal(this.user._id.toString());
+
+      pkg = await Package.findOne({ id: this.package.id }).populate('rating_counts');
+      checkRatings = pkg.rating_counts.reduce((accumulator, count) => {
+        return {
+          ...accumulator,
+          [count.name]: count.count,
+        }
+      }, {});
+      expect(checkRatings).to.deep.equal({ THUMBS_UP: 1, THUMBS_DOWN: 0, HAPPY: 1, NEUTRAL: 1, BUGGY: 0 });
     });
 
     it('throws a 404 when the package cannot be found', async function() {
