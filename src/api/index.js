@@ -128,8 +128,11 @@ function setup() {
   });
 
   app.get('/logged-in', (req, res) => {
-    console.log('/logged-in !');
     if (req.isAuthenticated()) {
+      if (!req.query.apiKey && req.headers['user-agent'].startsWith('OpenStore App')) {
+        return res.redirect(`/logged-in?apiKey=${req.user.apikey}`);
+      }
+
       return helpers.success(res, { 'logged-in': 'ok' });
     }
 
