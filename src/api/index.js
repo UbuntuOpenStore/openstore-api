@@ -103,7 +103,7 @@ function setup() {
   app.use(express.static(config.server.static_root));
 
   app.get('/api/health', (req, res) => {
-    helpers.success(res, { id: cluster.worker.id });
+    helpers.success(res, { id: cluster.worker ? cluster.worker.id : null });
   });
 
   app.get('/telegram', (req, res) => {
