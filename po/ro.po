@@ -2,17 +2,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2017-06-20 01:45:+0000\n"
-"PO-Revision-Date: 2017-12-10 22:38+0000\n"
+"PO-Revision-Date: 2020-05-09 19:23+0000\n"
 "Last-Translator: Brînzariu Cristian <info@ebeton.ro>\n"
 "Language-Team: Romanian <https://translate.ubports.com/projects/openstore/"
-"openstore-web/ro/>\n"
+"openstore-api/ro/>\n"
 "Language: ro\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : (n==0 || (n%100 > 0 && n%100 < "
 "20)) ? 1 : 2;\n"
-"X-Generator: Weblate 2.15\n"
+"X-Generator: Weblate 3.8\n"
 
 msgid "Accessibility"
 msgstr "Accesibilitate"
@@ -82,37 +82,35 @@ msgstr "Utilități"
 
 # This is text to go on a button that will say "Download from the\nOpenStore" (where \n is a line break)
 msgid "Download from the"
-msgstr ""
+msgstr "Descarcă din"
 
 # Discovery section category name
 msgid "New and Updated Apps"
-msgstr ""
+msgstr "Aplicaţii noi şi actualizate"
 
 # Discovery section category tagline for "New and Updated Apps"
 msgid "Exciting new apps & updates"
-msgstr ""
+msgstr "Aplicaţii şi actualizări noi interesante"
 
-#, fuzzy
-#| msgid "Health & Fitness"
 msgid "Health & Wellness"
-msgstr "Sănătate și Fitness"
+msgstr "Sănătate și Bunăstare"
 
 # Discovery section category tagline for "Health & Wellness"
 msgid "An apple a day..."
-msgstr ""
+msgstr "Un măr pe zi ..."
 
 # Discovery section category name
 msgid "Cross Platform Apps"
-msgstr ""
+msgstr "Aplicaţii cross-platform"
 
 # Discovery section category tagline for "Cross Platform Apps"
 msgid "Find these apps anywhere"
-msgstr ""
+msgstr "Găseşte aceste aplicaţii oriunde"
 
 # Discovery section category name
 msgid "Essential Apps"
-msgstr ""
+msgstr "Aplicaţii esenţiale"
 
 # Discovery section category tagline for "Essential Apps"
 msgid "Check these out first"
-msgstr ""
+msgstr "Verifică prima oară aceste aplicaţii"
