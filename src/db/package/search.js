@@ -4,7 +4,7 @@ const config = require('../../utils/config');
 
 // Modified from https://github.com/bhdouglass/uappexplorer/blob/master/src/db/elasticsearch/elasticsearch.js
 const PackageSearch = {
-  client: new elasticsearch.Client({ host: config.elasticsearch.uri }),
+  client: new elasticsearch.Client({ host: config.elasticsearch.uri, apiVersion: '6.8' }),
   index: config.elasticsearch.index,
   type: 'openstore_package',
 
