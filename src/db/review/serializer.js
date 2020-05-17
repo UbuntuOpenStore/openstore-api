@@ -9,7 +9,7 @@ function toJson(review) {
   }
 
   return {
-    author: review.user.name,
+    author: review.user.name || review.user.username,
     body: review.body,
     version: review.version,
     rating: review.rating,

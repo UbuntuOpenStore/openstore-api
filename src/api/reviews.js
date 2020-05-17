@@ -93,7 +93,7 @@ async function getReviews(req, res) {
       }
     }
 
-    const query = { pkg: pkg._id, redacted: false };
+    const query = { pkg: pkg._id, redacted: false, body: { $ne: '' } };
     // Add given filter criteria
     if ('from' in req.query && !Number.isNaN(parseInt(req.query.from, 10))) {
       query.date = { $lt: new Date(parseInt(req.query.from, 10)) };
