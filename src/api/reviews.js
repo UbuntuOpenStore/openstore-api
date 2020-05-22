@@ -93,8 +93,7 @@ async function getReviews(req, res) {
       }
     }
 
-    // Since this is the reviews api, don't return reviews that are only a rating
-    const query = { pkg: pkg._id, redacted: false, body: { $ne: '' } };
+    const query = { pkg: pkg._id, redacted: false };
 
     // Add given filter criteria
     if ('from' in req.query && !Number.isNaN(parseInt(req.query.from, 10))) {
@@ -103,6 +102,10 @@ async function getReviews(req, res) {
 
     if ('filter' in req.query && req.query.filter == 'apikey' && req.user) {
       query.user = req.user._id;
+    }
+    else {
+      // Since this is the reviews api, don't return reviews that are only a rating
+      query.body = { $ne: '' };
     }
 
     const reviewsTotalCount = await Review.countDocuments(query);

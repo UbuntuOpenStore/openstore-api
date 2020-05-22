@@ -100,12 +100,12 @@ describe('Reviews', () => {
       await factory.create('review', { pkg: this.package._id, user: this.user._id, rating: 'THUMBS_DOWN' });
       await recalculateRatings(this.package._id);
 
-      let pkg = await Package.findOne({ id  : this.package.id }).populate('rating_counts');
+      let pkg = await Package.findOne({ id: this.package.id }).populate('rating_counts');
       let checkRatings = pkg.rating_counts.reduce((accumulator, count) => {
         return {
           ...accumulator,
           [count.name]: count.count,
-        }
+        };
       }, {});
       expect(checkRatings).to.deep.equal({ THUMBS_UP: 0, THUMBS_DOWN: 1, HAPPY: 1, NEUTRAL: 1, BUGGY: 0 });
 
@@ -132,7 +132,7 @@ describe('Reviews', () => {
         return {
           ...accumulator,
           [count.name]: count.count,
-        }
+        };
       }, {});
       expect(checkRatings).to.deep.equal({ THUMBS_UP: 1, THUMBS_DOWN: 0, HAPPY: 1, NEUTRAL: 1, BUGGY: 0 });
     });

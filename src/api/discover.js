@@ -165,9 +165,9 @@ router.get('/', async(req, res) => {
           return {
             ...app,
             ratings: serializeRatings(ratingCounts[app.id]),
-          }
+          };
         }),
-      }
+      };
     });
 
     helpers.success(res, discover);
