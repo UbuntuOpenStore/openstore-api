@@ -1,7 +1,7 @@
 {
     "highlight": {
-        "id": "pure-maps.jonnius",
-        "image": "/banners/puremaps.svg"
+        "id": "https://open-store.io/app/sturmreader.emanuelesorce",
+        "image": "/banners/sturmreader.svg"
     },
     "categories": [
         {
@@ -10,26 +10,32 @@
             "referral": "",
             "ids": []
         }, {
-            "name": "Health & Wellness",
-            "tagline": "An apple a day...",
-            "referral": "Health & Fitness",
+            "name": "Dev Tools & Reference",
+            "tagline": "Talk is cheap. Show me the code.",
+            "referral": "Developer Tools",
             "ids": [
-                "pulse.mivoligo",
-                "activitytracker.cwayne18",
-                "iquit.aurora",
-                "fatburners.christianpauly",
-                "weight-tracker.avisoftware"
+                "https://open-store.io/app/seabass2.mikhael",
+                "https://open-store.io/app/me.fredl.qmlcreator",
+                "https://open-store.io/app/me.lduboeuf.livecoding",
+                "https://open-store.io/app/ubuntu-ui-toolkit-gallery-m.mateosalta",
+                "https://open-store.io/app/qqc2-gallery.ubad",
+                "https://open-store.io/app/org.kde.kirigami2.gallery",
+                "https://open-store.io/app/logviewer.neothethird"
             ]
         }, {
-            "name": "Cross Platform Apps",
-            "tagline": "Find these apps anywhere",
+            "name": "Most Loved",
+            "tagline": "When the heart speaks, its language is the same under all latitudes.",
             "referral": "",
             "ids": [
+                "teleports.ubports",
+                "dekko2.dekkoproject",
+                "openstore.openstore-team",
                 "pure-maps.jonnius",
-                "harbour-messwerk.mymike00",
-                "me.fredl.ghostcloud",
-                "me.fredl.qshodan",
-                "io.guh.nymeaapp"
+                "navigator.costales",
+                "fluffychat.christianpauly",
+                "com.mikeasoft.podbird",
+                "ut-tweak-tool.sverzegnassi",
+                "seabass2.mikhael"
             ]
         }, {
             "name": "Essential Apps",
