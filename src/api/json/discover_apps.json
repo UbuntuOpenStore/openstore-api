@@ -1,6 +1,6 @@
 {
     "highlight": {
-        "id": "https://open-store.io/app/sturmreader.emanuelesorce",
+        "id": "sturmreader.emanuelesorce",
         "image": "/banners/sturmreader.svg"
     },
     "categories": [
@@ -14,13 +14,13 @@
             "tagline": "Talk is cheap. Show me the code.",
             "referral": "Developer Tools",
             "ids": [
-                "https://open-store.io/app/seabass2.mikhael",
-                "https://open-store.io/app/me.fredl.qmlcreator",
-                "https://open-store.io/app/me.lduboeuf.livecoding",
-                "https://open-store.io/app/ubuntu-ui-toolkit-gallery-m.mateosalta",
-                "https://open-store.io/app/qqc2-gallery.ubad",
-                "https://open-store.io/app/org.kde.kirigami2.gallery",
-                "https://open-store.io/app/logviewer.neothethird"
+                "seabass2.mikhael",
+                "me.fredl.qmlcreator",
+                "me.lduboeuf.livecoding",
+                "ubuntu-ui-toolkit-gallery-m.mateosalta",
+                "qqc2-gallery.ubad",
+                "org.kde.kirigami2.gallery",
+                "logviewer.neothethird"
             ]
         }, {
             "name": "Most Loved",
