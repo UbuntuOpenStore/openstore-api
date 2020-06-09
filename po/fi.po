@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2017-06-20 01:45:+0000\n"
-"PO-Revision-Date: 2018-12-06 16:43+0000\n"
+"PO-Revision-Date: 2020-06-10 18:24+0000\n"
 "Last-Translator: Jiri Grönroos <jiri.gronroos@iki.fi>\n"
 "Language-Team: Finnish <https://translate.ubports.com/projects/openstore/"
 "openstore-api/fi/>\n"
@@ -11,7 +11,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 3.1.1\n"
+"X-Generator: Weblate 3.8\n"
 
 msgid "Accessibility"
 msgstr "Helppokäyttöisyys"
@@ -85,20 +85,18 @@ msgstr "Lataa"
 
 # Discovery section category name
 msgid "New and Updated Apps"
-msgstr ""
+msgstr "Uudet ja päivitetyt sovellukset"
 
 # Discovery section category tagline for "New and Updated Apps"
 msgid "Exciting new apps & updates"
-msgstr ""
+msgstr "Jännittävät uudet sovellukset ja päivitykset"
 
-#, fuzzy
-#| msgid "Health & Fitness"
 msgid "Health & Wellness"
-msgstr "Terveys & kuntoilu"
+msgstr "Terveys & hyvinvointi"
 
 # Discovery section category tagline for "Health & Wellness"
 msgid "An apple a day..."
-msgstr ""
+msgstr "Omena päivässä..."
 
 # Discovery section category name
 msgid "Cross Platform Apps"
@@ -110,8 +108,8 @@ msgstr ""
 
 # Discovery section category name
 msgid "Essential Apps"
-msgstr ""
+msgstr "Oleelliset sovellukset"
 
 # Discovery section category tagline for "Essential Apps"
 msgid "Check these out first"
-msgstr ""
+msgstr "Tutustu ensin näihin"
