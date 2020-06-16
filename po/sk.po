@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2017-06-20 01:45:+0000\n"
-"PO-Revision-Date: 2020-03-01 11:22+0000\n"
+"PO-Revision-Date: 2020-06-17 10:25+0000\n"
 "Last-Translator: dano6 <dano.kutka@gmail.com>\n"
 "Language-Team: Slovak <https://translate.ubports.com/projects/openstore/"
 "openstore-api/sk/>\n"
@@ -11,7 +11,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
-"X-Generator: Weblate 3.8\n"
+"X-Generator: Weblate 3.11.3\n"
 
 msgid "Accessibility"
 msgstr "Príslušenstvo"
@@ -85,33 +85,31 @@ msgstr "K stiahnutiu z"
 
 # Discovery section category name
 msgid "New and Updated Apps"
-msgstr ""
+msgstr "Nové a aktualizované aplikácie"
 
 # Discovery section category tagline for "New and Updated Apps"
 msgid "Exciting new apps & updates"
-msgstr ""
+msgstr "Vzrušujúce nové aplikácie a aktualizácie"
 
-#, fuzzy
-#| msgid "Health & Fitness"
 msgid "Health & Wellness"
-msgstr "Zdravie a fitnes"
+msgstr "Zdravie a wellness"
 
 # Discovery section category tagline for "Health & Wellness"
 msgid "An apple a day..."
-msgstr ""
+msgstr "Jedno jablko denne..."
 
 # Discovery section category name
 msgid "Cross Platform Apps"
-msgstr ""
+msgstr "Aplikácie naprieč platformami"
 
 # Discovery section category tagline for "Cross Platform Apps"
 msgid "Find these apps anywhere"
-msgstr ""
+msgstr "Nájdite tieto aplikácie kdekoľvek"
 
 # Discovery section category name
 msgid "Essential Apps"
-msgstr ""
+msgstr "Základné aplikácie"
 
 # Discovery section category tagline for "Essential Apps"
 msgid "Check these out first"
-msgstr ""
+msgstr "Pozrite sa najprv na tieto"
