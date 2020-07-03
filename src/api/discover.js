@@ -63,6 +63,7 @@ router.get('/', async(req, res) => {
           channel,
           architectures: [architecture, Package.ALL],
           nsfw: [null, false],
+          types: 'app',
         }, '-published_date', 8),
 
         PackageRepo.find({
@@ -70,6 +71,7 @@ router.get('/', async(req, res) => {
           channel,
           architectures: [architecture, Package.ALL],
           nsfw: [null, false],
+          types: 'app',
         }, '-updated_date', 8),
       ]);
 
