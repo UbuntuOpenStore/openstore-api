@@ -50,6 +50,7 @@ const packageSchema = mongoose.Schema({
   version: String, // TODO deprecate
   manifest: {}, // TODO deprecate
   types: [String],
+  type_override: String,
   languages: [String],
   architectures: [String],
 
@@ -205,7 +206,7 @@ packageSchema.methods.updateFromClick = function(data) {
   this.author = data.maintainer;
   this.id = data.name;
   this.manifest = manifest;
-  this.types = data.types;
+  this.types = this.type_override ? [this.type_override] : data.types;
   this.version = data.version;
   this.languages = data.languages;
   this.framework = data.framework;
@@ -330,6 +331,14 @@ packageSchema.methods.updateFromBody = async function(body) {
   this.description = sanitize(this.description);
   this.changelog = sanitize(this.changelog);
   this.tagline = sanitize(this.tagline);
+
+  if (body.type_override !== undefined) {
+    this.type_override = body.type_override;
+
+    if (body.type_override) {
+      this.types = [body.type_override];
+    }
+  }
 
   if (body.maintainer !== undefined) {
     this.maintainer = body.maintainer;

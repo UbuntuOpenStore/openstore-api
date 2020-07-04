@@ -138,6 +138,7 @@ function toJson(pkg, architecture = Package.ARMHF, apiVersion) {
     latestDownloads: 0,
     version: revisionData ? revisionData.version : '',
     ratings: serializeRatings(pkg.rating_counts),
+    type_override: pkg.type_override || '',
 
     // TODO deprecate these
     revision: -1,

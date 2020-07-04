@@ -232,6 +232,10 @@ router.put(
         delete req.body.maintainer;
       }
 
+      if (!req.isAdminUser && req.body && req.body.type_override) {
+        delete req.body.type_override;
+      }
+
       let pkg = await PackageRepo.findOne(req.params.id);
       if (!pkg) {
         return helpers.error(res, APP_NOT_FOUND, 404);
@@ -363,8 +367,8 @@ router.post(
         const matches = pkg.revisions.find((revision) => {
           return (
             revision.version == version &&
-                        revision.channel == channel &&
-                        revision.architecture == architecture
+            revision.channel == channel &&
+            revision.architecture == architecture
           );
         });
 
