@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2017-06-20 01:45:+0000\n"
-"PO-Revision-Date: 2018-10-04 19:20+0000\n"
-"Last-Translator: Ben van Hartingsveldt <benvanhartingsveldt@gmail.com>\n"
+"PO-Revision-Date: 2020-07-06 17:14+0000\n"
+"Last-Translator: Heimen Stoffels <vistausss@outlook.com>\n"
 "Language-Team: Dutch <https://translate.ubports.com/projects/openstore/"
 "openstore-api/nl/>\n"
 "Language: nl\n"
@@ -11,31 +11,31 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 2.20\n"
+"X-Generator: Weblate 3.11.3\n"
 
 msgid "Accessibility"
 msgstr "Toegankelijkheid"
 
 msgid "Books & Comics"
-msgstr "Boeken & Strips"
+msgstr "Boeken en strips"
 
 msgid "Business & Finance"
-msgstr "Zakelijk & Financiën"
+msgstr "Zakelijk en financiën"
 
 msgid "Communication & Social"
-msgstr "Communicatie & Sociaal"
+msgstr "Communicatie en sociaal"
 
 msgid "Developer Tools"
-msgstr "Ontwikkelaar Hulpmiddelen"
+msgstr "Ontwikkelaarshulpmiddelen"
 
 msgid "Education & Reference"
-msgstr "Educatie & Referentie"
+msgstr "Educatie en opzoeken"
 
 msgid "Entertainment"
 msgstr "Vermaak"
 
 msgid "Food & Drink"
-msgstr "Eten & Drinken"
+msgstr "Eten en drinken"
 
 msgid "Games"
 msgstr "Spellen"
@@ -44,19 +44,19 @@ msgid "Graphics"
 msgstr "Grafisch"
 
 msgid "Health & Fitness"
-msgstr "Gezondheid & Fitness"
+msgstr "Gezondheid en fitness"
 
 msgid "Lifestyle"
 msgstr "Levensstijl"
 
 msgid "Media & Video"
-msgstr "Media & Video"
+msgstr "Media en video"
 
 msgid "Music & Audio"
-msgstr "Muziek & Geluid"
+msgstr "Muziek en geluid"
 
 msgid "News & Magazines"
-msgstr "Nieuws & Magazines"
+msgstr "Nieuws en tijdschriften"
 
 msgid "Personalisation"
 msgstr "Personalisatie"
@@ -65,7 +65,7 @@ msgid "Productivity"
 msgstr "Productiviteit"
 
 msgid "Science & Engineering"
-msgstr "Wetenschap & Techniek"
+msgstr "Wetenschap en techniek"
 
 msgid "Shopping"
 msgstr "Winkelen"
@@ -74,44 +74,42 @@ msgid "Sports"
 msgstr "Sport"
 
 msgid "Travel & Weather"
-msgstr "Reizen & Weer"
+msgstr "Reizen en weer"
 
 msgid "Utilities"
 msgstr "Hulpprogramma's"
 
 # This is text to go on a button that will say "Download from the\nOpenStore" (where \n is a line break)
 msgid "Download from the"
-msgstr "Download van de"
+msgstr "Downloaden in"
 
 # Discovery section category name
 msgid "New and Updated Apps"
-msgstr ""
+msgstr "Nieuwe en onlangs bijgewerkte apps"
 
 # Discovery section category tagline for "New and Updated Apps"
 msgid "Exciting new apps & updates"
-msgstr ""
+msgstr "Spannende nieuwe apps en updates"
 
-#, fuzzy
-#| msgid "Health & Fitness"
 msgid "Health & Wellness"
-msgstr "Gezondheid & Fitness"
+msgstr "Gezondheid en welzijn"
 
 # Discovery section category tagline for "Health & Wellness"
 msgid "An apple a day..."
-msgstr ""
+msgstr "Gaan met die banaan..."
 
 # Discovery section category name
 msgid "Cross Platform Apps"
-msgstr ""
+msgstr "Platform-onafhankelijke apps"
 
 # Discovery section category tagline for "Cross Platform Apps"
 msgid "Find these apps anywhere"
-msgstr ""
+msgstr "Deze apps vind je overal terug"
 
 # Discovery section category name
 msgid "Essential Apps"
-msgstr ""
+msgstr "Essentiële apps"
 
 # Discovery section category tagline for "Essential Apps"
 msgid "Check these out first"
-msgstr ""
+msgstr "Kijk eerst eens naar deze"
