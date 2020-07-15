@@ -109,7 +109,7 @@ async function getReviews(req, res) {
     }
 
     const reviewsTotalCount = await Review.countDocuments(query);
-    let reviews = await Review.find(query, null, { limit, sort: { date: -1 } }).populate('user', 'name').populate('comment');
+    let reviews = await Review.find(query, null, { limit, sort: { date: -1 } }).populate('user').populate('comment');
     reviews = serialize(reviews);
     const { next, previous } = apiLinks(req.originalUrl, reviews.length, req.query.limit, req.query.skip);
 
