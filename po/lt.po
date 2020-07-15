@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2017-06-20 01:45:+0000\n"
-"PO-Revision-Date: 2019-11-11 23:36+0000\n"
-"Last-Translator: Moo <moose@mail.ru>\n"
+"PO-Revision-Date: 2020-07-08 21:48+0000\n"
+"Last-Translator: Arunas <arunas@anakonda.lt>\n"
 "Language-Team: Lithuanian <https://translate.ubports.com/projects/openstore/"
 "openstore-api/lt/>\n"
 "Language: lt\n"
@@ -13,7 +13,7 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n % 10 == 1 && (n % 100 < 11 || n % 100 > "
 "19)) ? 0 : ((n % 10 >= 2 && n % 10 <= 9 && (n % 100 < 11 || n % 100 > 19)) ? "
 "1 : 2);\n"
-"X-Generator: Weblate 3.8\n"
+"X-Generator: Weblate 3.11.3\n"
 
 msgid "Accessibility"
 msgstr "Prieinamumas"
@@ -25,13 +25,13 @@ msgid "Business & Finance"
 msgstr "Verslas ir finansai"
 
 msgid "Communication & Social"
-msgstr ""
+msgstr "Bendravimas ir socialiniai tinklai"
 
 msgid "Developer Tools"
 msgstr "Plėtotojo įrankiai"
 
 msgid "Education & Reference"
-msgstr ""
+msgstr "Švietimas ir rekomendacijos"
 
 msgid "Entertainment"
 msgstr "Pramogos"
@@ -46,7 +46,7 @@ msgid "Graphics"
 msgstr "Grafika"
 
 msgid "Health & Fitness"
-msgstr ""
+msgstr "Sveikata ir fitnesas"
 
 msgid "Lifestyle"
 msgstr "Gyvensena"
@@ -61,7 +61,7 @@ msgid "News & Magazines"
 msgstr "Naujienos ir žurnalai"
 
 msgid "Personalisation"
-msgstr ""
+msgstr "Suasmeninimas"
 
 msgid "Productivity"
 msgstr "Produktyvumas"
@@ -70,7 +70,7 @@ msgid "Science & Engineering"
 msgstr "Mokslas ir inžinerija"
 
 msgid "Shopping"
-msgstr ""
+msgstr "Apsipirkimas"
 
 msgid "Sports"
 msgstr "Sportas"
@@ -79,7 +79,7 @@ msgid "Travel & Weather"
 msgstr "Kelionės ir orai"
 
 msgid "Utilities"
-msgstr ""
+msgstr "Įrankiai"
 
 # This is text to go on a button that will say "Download from the\nOpenStore" (where \n is a line break)
 msgid "Download from the"
@@ -87,32 +87,32 @@ msgstr "Atsisiųsti iš"
 
 # Discovery section category name
 msgid "New and Updated Apps"
-msgstr ""
+msgstr "Naujos ir atnaujintos programos"
 
 # Discovery section category tagline for "New and Updated Apps"
 msgid "Exciting new apps & updates"
-msgstr ""
+msgstr "Įdomios naujos programos ir naujiniai"
 
 # Discovery section category name
 msgid "Health & Wellness"
-msgstr ""
+msgstr "Sveikata ir grožis"
 
 # Discovery section category tagline for "Health & Wellness"
 msgid "An apple a day..."
-msgstr ""
+msgstr "Obuolys per dieną..."
 
 # Discovery section category name
 msgid "Cross Platform Apps"
-msgstr ""
+msgstr "„Cross Platform“ programos"
 
 # Discovery section category tagline for "Cross Platform Apps"
 msgid "Find these apps anywhere"
-msgstr ""
+msgstr "Raskite šias programas bet kur"
 
 # Discovery section category name
 msgid "Essential Apps"
-msgstr ""
+msgstr "Pagrindinės programos"
 
 # Discovery section category tagline for "Essential Apps"
 msgid "Check these out first"
-msgstr ""
+msgstr "Pirmiausia patikrinkite tai"
