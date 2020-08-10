@@ -12,7 +12,6 @@ const revisionSchema = mongoose.Schema({
   downloads: Number,
   channel: String,
   download_url: String, // The path to the local click file
-  old_download_url: String, // TODO remove this in the future
   download_sha512: String,
   architecture: String,
   framework: String,

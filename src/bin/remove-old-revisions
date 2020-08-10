@@ -1,0 +1,39 @@
+#!/usr/bin/env node
+
+const fs = require('fs');
+
+require('../db'); // Make sure the database connection gets setup
+const Package = require('../db/package/model');
+
+const MAX_REVISIONS = 5;
+
+Package.find({}).then((pkgs) => {
+    return Promise.all(pkgs.map((pkg) => {
+        if (pkg.revisions) {
+            let fileCounts = Package.ARCHITECTURES.reduce((acc, current) => {
+                return {...acc, [current]: 0};
+            }, {});
+
+            for (let i = (pkg.revisions.length - 1); i >= 0; i--) {
+                let revision = pkg.revisions[i];
+                if (revision.download_url && revision.channel != 'vivid') {
+                    fileCounts[revision.architecture]++;
+                    if (fileCounts[revision.architecture] > MAX_REVISIONS) {
+                        console.log('removing ' + revision.download_url);
+                        fs.unlinkSync(revision.download_url);
+
+                        revision.download_url = null;
+                    }
+                }
+            }
+
+            return pkg.save();
+        }
+    }));
+}).then(() => {
+    console.log('done');
+    process.exit(0);
+}).catch((err) => {
+    console.log(err);
+    process.exit(1);
+});
