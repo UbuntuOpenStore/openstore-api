@@ -41,6 +41,7 @@ const APP_HAS_REVISIONS = 'Cannot delete an app that already has revisions';
 const NO_ALL = 'You cannot upload a click with the architecture "all" for the same version as an architecture specific click';
 const NO_NON_ALL = 'You cannot upload and architecture specific click for the same version as a click with the architecture "all"';
 const MISMATCHED_FRAMEWORK = 'Framework does not match existing click of a different architecture';
+const APP_LOCKED = 'Sorry this app has been locked by an admin';
 
 function fileName(file) {
   // Rename the file so click-review doesn't freak out
@@ -228,8 +229,10 @@ router.put(
         req.body.maintainer = req.user._id;
       }
 
-      if (!req.isAdminUser && req.body && req.body.maintainer) {
+      if (!req.isAdminUser && req.body) {
         delete req.body.maintainer;
+        delete req.body.locked;
+        delete req.body.type_override;
       }
 
       if (!req.isAdminUser && req.body && req.body.type_override) {
@@ -243,6 +246,10 @@ router.put(
 
       if (!req.isAdminUser && req.user._id != pkg.maintainer) {
         return helpers.error(res, PERMISSION_DENIED, 403);
+      }
+
+      if (!req.isAdminUser && pkg.locked) {
+        return helpers.error(res, APP_LOCKED, 403);
       }
 
       const published = (req.body.published == 'true' || req.body.published === true);
@@ -340,6 +347,11 @@ router.post(
       if (!req.isAdminUser && req.user._id != pkg.maintainer) {
         await LockRepo.release(lock, req);
         return helpers.error(res, PERMISSION_DENIED, 403);
+      }
+
+      if (!req.isAdminUser && pkg.locked) {
+        await LockRepo.release(lock, req);
+        return helpers.error(res, APP_LOCKED, 403);
       }
 
       const filePath = fileName(file);

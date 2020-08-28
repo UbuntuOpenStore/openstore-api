@@ -12,6 +12,8 @@ npm install
 
 echo -e "#!/bin/bash\nexport VERSION=$VERSION$ENV" > /srv/openstore$ENV/version.sh
 
+# TODO clean up node_modules somehow
+
 rm -f $BASE/current
 ln -s $BASE/$VERSION $BASE/current
 

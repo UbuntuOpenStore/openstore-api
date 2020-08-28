@@ -52,6 +52,7 @@ const packageSchema = mongoose.Schema({
   type_override: String,
   languages: [String],
   architectures: [String],
+  locked: Boolean,
 
   // Publication metadata
   published: Boolean,
@@ -228,6 +229,10 @@ packageSchema.methods.updateFromBody = async function(body) {
   if (!this.published_date && this.published) {
     this.published_date = (new Date()).toISOString();
     this.updated_date = (new Date()).toISOString();
+  }
+
+  if (body.locked !== undefined) {
+    this.locked = (body.locked == 'true' || body.locked === true);
   }
 
   if (body.category || body.category === '') {

@@ -394,6 +394,22 @@ describe('Manage PUT', () => {
       const pkg = await PackageRepo.findOne(this.package2.id);
       expect(pkg.name).to.equal('Foo Bar');
     });
+
+    it('can update a locked package', async function () {
+      this.package2.locked = true;
+      await this.package2.save();
+
+      const res = await this.put(`${this.route}/${this.package2.id}`)
+        .send({ name: 'Foo Bar' })
+        .expect(200);
+
+      expect(res.body.success).to.be.true;
+      expect(res.body.data.name).to.equal('Foo Bar');
+      expect(this.removeStub).to.have.been.calledOnce;
+
+      const pkg = await PackageRepo.findOne(this.package2.id);
+      expect(pkg.name).to.equal('Foo Bar');
+    });
   });
 
   context('community user', () => {
@@ -466,6 +482,23 @@ describe('Manage PUT', () => {
       expect(findStub).to.have.been.calledOnce;
     });
 
+    it('cannot update a locked package', async function () {
+      this.package.published = false;
+      this.package.locked = true;
+      await this.package.save();
+
+      const res = await this.put(`${this.route}/${this.package.id}`)
+        .send({ published: true, locked: false })
+        .expect(403);
+
+      expect(res.body.success).to.be.false;
+      expect(res.body.message).to.equal('Sorry this app has been locked by an admin');
+
+      const pkg = await PackageRepo.findOne(this.package.id);
+      expect(pkg.published).to.be.false;
+      expect(pkg.locked).to.be.true;
+    });
+
     // TODO implement these
     it('adds screenshots');
     it('removes screenshots');
@@ -524,7 +557,7 @@ describe('Manage DELETE', () => {
       expect(pkg).to.be.null;
     });
 
-    it('fails gracefully', async function() {
+    it('fails gracefully', async function () {
       const findStub = this.sandbox.stub(PackageRepo, 'findOne').rejects();
 
       const res = await this.delete(`${this.route}/${this.package.id}`).expect(500);

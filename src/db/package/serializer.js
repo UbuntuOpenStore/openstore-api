@@ -124,6 +124,7 @@ function toJson(pkg, architecture = Package.ARMHF, apiVersion) {
     permissions: pkg.permissions || [],
     published_date: pkg.published_date || '',
     published: !!pkg.published,
+    locked: !!pkg.locked,
     screenshots: pkg.screenshots || [],
     source: pkg.source || '',
     support_url: pkg.support_url || '',
