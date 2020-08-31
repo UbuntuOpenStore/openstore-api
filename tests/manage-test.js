@@ -395,7 +395,7 @@ describe('Manage PUT', () => {
       expect(pkg.name).to.equal('Foo Bar');
     });
 
-    it('can update a locked package', async function () {
+    it('can update a locked package', async function() {
       this.package2.locked = true;
       await this.package2.save();
 
@@ -482,7 +482,7 @@ describe('Manage PUT', () => {
       expect(findStub).to.have.been.calledOnce;
     });
 
-    it('cannot update a locked package', async function () {
+    it('cannot update a locked package', async function() {
       this.package.published = false;
       this.package.locked = true;
       await this.package.save();
@@ -557,7 +557,7 @@ describe('Manage DELETE', () => {
       expect(pkg).to.be.null;
     });
 
-    it('fails gracefully', async function () {
+    it('fails gracefully', async function() {
       const findStub = this.sandbox.stub(PackageRepo, 'findOne').rejects();
 
       const res = await this.delete(`${this.route}/${this.package.id}`).expect(500);
