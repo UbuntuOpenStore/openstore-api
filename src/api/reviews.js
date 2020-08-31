@@ -11,7 +11,7 @@ const RatingCount = require('../db/rating_count/model');
 const Package = require('../db/package/model');
 const { authenticate, anonymousAuthenticate, userRole } = require('../utils/middleware');
 const { serialize } = require('../db/review/serializer');
-const { RATINGS, REVIEW_MAX_LEN } = require('../db/review/constants');
+const { RATINGS, REVIEW_MAX_LEN, RATING_MAP } = require('../db/review/constants');
 
 const APP_NOT_FOUND = 'App not found';
 const PARAMETER_MISSING = 'Missing parameters for this endpoint';
@@ -32,6 +32,7 @@ async function recalculateRatings(pkgId) {
     return;
   }
 
+  let calculatedRating = 0;
   if (!pkg.rating_counts) {
     pkg.rating_counts = [];
   }
@@ -43,6 +44,8 @@ async function recalculateRatings(pkgId) {
     for (const rev of reviews) {
       if (rev.rating == ratingName) count++;
     }
+
+    calculatedRating += RATING_MAP[ratingName] * count;
 
     let updatedCount = false;
     for (const ratingCount of pkg.rating_counts) {
@@ -71,8 +74,9 @@ async function recalculateRatings(pkgId) {
     }
   }
 
-  // TODO only save the rating_counts
-  await pkg.save();
+  // TODO only save the rating_counts & calculated_rating
+  pkg.calculated_rating = calculatedRating;
+  return await pkg.save();
 }
 
 async function getReviews(req, res) {
@@ -111,7 +115,7 @@ async function getReviews(req, res) {
     const reviewsTotalCount = await Review.countDocuments(query);
     let reviews = await Review.find(query, null, { limit, sort: { date: -1 } }).populate('user').populate('comment');
     reviews = serialize(reviews);
-    const { next, previous } = apiLinks(req.originalUrl, reviews.length, req.query.limit, req.query.skip);
+    const { next, previous } = apiLinks(req.originalUrl, reviews.length, limit, req.query.skip);
 
     return helpers.success(res, {
       count: reviewsTotalCount,

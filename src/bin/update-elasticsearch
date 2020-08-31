@@ -5,8 +5,13 @@
 require('../db'); // Make sure the database connection gets setup
 const Package = require('../db/package/model');
 const PackageSearch = require('../db/package/search');
+const { recalculateRatings } = require('../api/reviews');
 
-Package.find({published: true}).then((pkgs) => {
+Package.find({ published: true }).then((pkgs) => {
+    return Promise.all(pkgs.map((pkg) => {
+        return recalculateRatings(pkg._id);
+    }));
+}).then((pkgs) => {
     return PackageSearch.bulk(pkgs);
 }).then(() => {
     console.log('done');

@@ -67,6 +67,7 @@ const packageSchema = mongoose.Schema({
 
   // Number of ratings in each category
   rating_counts: [{ type: mongoose.Schema.Types.ObjectId, ref: 'RatingCount' }],
+  calculated_rating: Number,
 }, { usePushEach: true });
 
 packageSchema.virtual('architecture').get(function() {

@@ -26,6 +26,7 @@ const PackageSearch = {
     'types',
     'updated_date',
     'version',
+    'calculated_rating',
   ],
 
   search_fields: [

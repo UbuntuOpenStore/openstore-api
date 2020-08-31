@@ -9,7 +9,8 @@
             "tagline": "Exciting new apps & updates",
             "referral": "",
             "ids": []
-        }, {
+        },
+        {
             "name": "Dev Tools & Reference",
             "tagline": "Talk is cheap. Show me the code.",
             "referral": "Developer Tools",
@@ -22,22 +23,8 @@
                 "org.kde.kirigami2.gallery",
                 "logviewer.neothethird"
             ]
-        }, {
-            "name": "Most Loved",
-            "tagline": "When the heart speaks, its language is the same under all latitudes.",
-            "referral": "",
-            "ids": [
-                "teleports.ubports",
-                "dekko2.dekkoproject",
-                "openstore.openstore-team",
-                "pure-maps.jonnius",
-                "navigator.costales",
-                "fluffychat.christianpauly",
-                "com.mikeasoft.podbird",
-                "ut-tweak-tool.sverzegnassi",
-                "seabass2.mikhael"
-            ]
-        }, {
+        },
+        {
             "name": "Essential Apps",
             "tagline": "Check these out first",
             "referral": "",
@@ -50,6 +37,12 @@
                 "dekko2.dekkoproject",
                 "com.ubuntu.docviewer"
             ]
+        },
+        {
+            "name": "Most Loved",
+            "tagline": "Apps with the highest ratings",
+            "referral": "",
+            "ids": []
         }
     ]
 }

@@ -18,6 +18,7 @@ const discoverCache = {};
 const discoverDate = {};
 
 const NEW_AND_UPDATED = 'New and Updated Apps';
+const POPULAR = 'Most Loved';
 
 // TODO return slim version of the pkg json
 router.get('/', async(req, res) => {
@@ -42,7 +43,7 @@ router.get('/', async(req, res) => {
     const discover = JSON.parse(JSON.stringify(discoverJSON));
 
     try {
-      const [highlight, discoverCategoriesApps, newApps, updatedApps] = await Promise.all([
+      const [highlight, discoverCategoriesApps, newApps, updatedApps, popularApps] = await Promise.all([
         PackageRepo.findOne(discover.highlight.id, { published: true }),
 
         Promise.all(discover.categories.map((category) => {
@@ -73,6 +74,14 @@ router.get('/', async(req, res) => {
           nsfw: [null, false],
           types: 'app',
         }, '-updated_date', 8),
+
+        PackageRepo.find({
+          published: true,
+          channel,
+          architectures: [architecture, Package.ALL],
+          nsfw: [null, false],
+          types: 'app',
+        }, '-calculated_rating', 8),
       ]);
 
       discover.highlight.app = highlight ? serialize(highlight, false, architecture, req.apiVersion) : null;
@@ -88,6 +97,7 @@ router.get('/', async(req, res) => {
       });
 
       const newAndUpdatedCategory = discover.categories.find((category) => (category.name == NEW_AND_UPDATED));
+      const popularCategory = discover.categories.find((category) => (category.name == POPULAR));
 
       // Get the 10 latest updated or published apps
       let newAndUpdatedApps = newApps.map((app) => {
@@ -117,6 +127,7 @@ router.get('/', async(req, res) => {
       });
 
       newAndUpdatedCategory.apps = newAndUpdatedApps.slice(0, 10).map((app) => serialize(app, false, architecture, req.apiVersion));
+      popularCategory.apps = popularApps.map((app) => serialize(app, false, architecture, req.apiVersion));
 
       discover.categories = discover.categories.filter((category) => (category.apps.length > 0));
 
