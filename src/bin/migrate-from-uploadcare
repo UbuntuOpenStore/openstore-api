@@ -1,0 +1,42 @@
+#!/usr/bin/env node
+
+const fs = require('fs');
+const uuid = require('node-uuid');
+
+require('../db'); // Make sure the database connection gets setup
+const Package = require('../db/package/model');
+const { download } = require('../utils/helpers');
+const config = require('../utils/config');
+
+const ext = '.jpg';
+
+Package.find({}).then((pkgs) => {
+    return Promise.all(pkgs.map((pkg) => {
+        if (pkg.screenshots) {
+            return Promise.all(pkg.screenshots.map((img) => {
+                if (!img.startsWith('https://open-store.io')) {
+                    console.log(img);
+                    const id = uuid.v4();
+                    const filename = `${pkg.id}-screenshot-${id}${ext}`;
+                    const path = `${config.image_dir}/${filename}`;
+                    const url = `${config.server.host}/api/screenshot/${filename}`;
+
+                    return download(img, path).then(() => {
+                        return url;
+                    });
+                }
+
+                return img;
+            })).then((screenshots) => {
+                pkg.screenshots = screenshots;
+                return pkg.save();
+            });
+        }
+    }));
+}).then(() => {
+    console.log('done');
+    process.exit(0);
+}).catch((err) => {
+    console.log(err);
+    process.exit(1);
+});
