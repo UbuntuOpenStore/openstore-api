@@ -2,134 +2,132 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2017-06-20 01:45:+0000\n"
-"PO-Revision-Date: 2020-07-08 21:48+0000\n"
-"Last-Translator: Arunas <arunas@anakonda.lt>\n"
-"Language-Team: Lithuanian <https://translate.ubports.com/projects/openstore/"
-"openstore-api/lt/>\n"
-"Language: lt\n"
+"PO-Revision-Date: 2020-09-05 06:21+0000\n"
+"Last-Translator: tamer dab <dabsantamer@yahoo.com>\n"
+"Language-Team: Hebrew <https://translate.ubports.com/projects/openstore/"
+"openstore-api/he/>\n"
+"Language: he\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=(n % 10 == 1 && (n % 100 < 11 || n % 100 > "
-"19)) ? 0 : ((n % 10 >= 2 && n % 10 <= 9 && (n % 100 < 11 || n % 100 > 19)) ? "
-"1 : 2);\n"
+"Plural-Forms: nplurals=4; plural=(n == 1) ? 0 : ((n == 2) ? 1 : ((n > 10 && "
+"n % 10 == 0) ? 2 : 3));\n"
 "X-Generator: Weblate 3.11.3\n"
 
 msgid "Accessibility"
-msgstr "Prieinamumas"
+msgstr "נגישות"
 
 msgid "Books & Comics"
-msgstr "Knygos ir komiksai"
+msgstr "ספרים וקומיקס"
 
 msgid "Business & Finance"
-msgstr "Verslas ir finansai"
+msgstr "עסקים ופיננסים"
 
 msgid "Communication & Social"
-msgstr "Bendravimas ir socialiniai tinklai"
+msgstr "תקשורת וחברה"
 
 msgid "Developer Tools"
-msgstr "Plėtotojo įrankiai"
+msgstr "כלי מפתח"
 
 msgid "Education & Reference"
-msgstr "Švietimas ir rekomendacijos"
+msgstr "חינוך והפניה"
 
 msgid "Entertainment"
-msgstr "Pramogos"
+msgstr "בידור"
 
 msgid "Food & Drink"
-msgstr "Maistas ir gėrimai"
+msgstr "אוכל ושתייה"
 
 msgid "Games"
-msgstr "Žaidimai"
+msgstr "משחקים"
 
 msgid "Graphics"
-msgstr "Grafika"
+msgstr "גרפיקה"
 
 msgid "Health & Fitness"
-msgstr "Sveikata ir fitnesas"
+msgstr "בריאות וכושר"
 
 msgid "Lifestyle"
-msgstr "Gyvensena"
+msgstr "סגנון חיים"
 
 msgid "Media & Video"
-msgstr "Medija ir vaizdo įrašai"
+msgstr "מדיה ווידאו"
 
 msgid "Music & Audio"
-msgstr "Muzika ir garso įrašai"
+msgstr "מוסיקה ואודיו"
 
 msgid "News & Magazines"
-msgstr "Naujienos ir žurnalai"
+msgstr "חדשות ומגזינים"
 
 msgid "Personalisation"
-msgstr "Suasmeninimas"
+msgstr "התאמה אישית"
 
 msgid "Productivity"
-msgstr "Produktyvumas"
+msgstr "פרודוקטיביות"
 
 msgid "Science & Engineering"
-msgstr "Mokslas ir inžinerija"
+msgstr "מדע והנדסה"
 
 msgid "Shopping"
-msgstr "Apsipirkimas"
+msgstr "קניות"
 
 msgid "Sports"
-msgstr "Sportas"
+msgstr "ספורט"
 
 msgid "Travel & Weather"
-msgstr "Kelionės ir orai"
+msgstr "נסיעות ומזג אוויר"
 
 msgid "Utilities"
-msgstr "Įrankiai"
+msgstr "כלי עזר"
 
 # This is text to go on a button that will say "Download from the\nOpenStore" (where \n is a line break)
 msgid "Download from the"
-msgstr "Atsisiųsti iš"
+msgstr "הורד מ"
 
 # Discovery section category name
 msgid "New and Updated Apps"
-msgstr "Naujos ir atnaujintos programos"
+msgstr "אפליקציות חדשות ומעודכנות"
 
 # Discovery section category tagline for "New and Updated Apps"
 msgid "Exciting new apps & updates"
-msgstr "Įdomios naujos programos ir naujiniai"
+msgstr "אפליקציות ועדכונים חדשים ומרתקים"
 
 # Discovery section category name
 msgid "Health & Wellness"
-msgstr "Sveikata ir grožis"
+msgstr "בריאות"
 
 # Discovery section category tagline for "Health & Wellness"
 msgid "An apple a day..."
-msgstr "Obuolys per dieną..."
+msgstr "תפוח ביום..."
 
 # Discovery section category name
 msgid "Cross Platform Apps"
-msgstr "„Cross Platform“ programos"
+msgstr "אפליקציות חוצות פלטפורמות"
 
 # Discovery section category tagline for "Cross Platform Apps"
 msgid "Find these apps anywhere"
-msgstr "Raskite šias programas bet kur"
+msgstr "מצא אפליקציות האלה בכל מקום"
 
 # Discovery section category name
 msgid "Essential Apps"
-msgstr "Pagrindinės programos"
+msgstr "אפליקציות חיוניות"
 
 # Discovery section category tagline for "Essential Apps"
 msgid "Check these out first"
-msgstr "Pirmiausia patikrinkite tai"
+msgstr "בדוק זאת קודם"
 
-#, fuzzy
-#| msgid "Education & Reference"
+# Discovery section category name
 msgid "Dev Tools & Reference"
-msgstr "Švietimas ir rekomendacijos"
+msgstr "כלי עזר והתייחסות"
 
 # Discovery section category tagline for "Dev Tools & Reference"
 msgid "Talk is cheap. Show me the code."
-msgstr ""
+msgstr "דיבורים זולים. הראה לי את הקוד."
 
 # Discovery section category name
 msgid "Most Loved"
-msgstr ""
+msgstr "הכי אהובים"
 
 # Discovery section category tagline for "Most Loved"
 msgid "Apps with the highest ratings"
-msgstr ""
+msgstr "אפליקציות עם הדירוג הגבוה ביותר"

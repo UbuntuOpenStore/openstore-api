@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2017-06-20 01:45:+0000\n"
-"PO-Revision-Date: 2020-07-06 17:14+0000\n"
+"PO-Revision-Date: 2020-08-31 11:14+0000\n"
 "Last-Translator: Heimen Stoffels <vistausss@outlook.com>\n"
 "Language-Team: Dutch <https://translate.ubports.com/projects/openstore/"
 "openstore-api/nl/>\n"
@@ -113,3 +113,18 @@ msgstr "Essentiële apps"
 # Discovery section category tagline for "Essential Apps"
 msgid "Check these out first"
 msgstr "Kijk eerst eens naar deze"
+
+msgid "Dev Tools & Reference"
+msgstr "Programmeren en opzoeken"
+
+# Discovery section category tagline for "Dev Tools & Reference"
+msgid "Talk is cheap. Show me the code."
+msgstr "Praatjes vullen geen gaatjes - laat me de code zien."
+
+# Discovery section category name
+msgid "Most Loved"
+msgstr "Meest gewaardeerd"
+
+# Discovery section category tagline for "Most Loved"
+msgid "Apps with the highest ratings"
+msgstr "Apps met de hoogste beoordelingen"

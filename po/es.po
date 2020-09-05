@@ -113,3 +113,20 @@ msgstr "Aplicaciones imprescindibles"
 # Discovery section category tagline for "Essential Apps"
 msgid "Check these out first"
 msgstr "Mire estas primero"
+
+#, fuzzy
+#| msgid "Education & Reference"
+msgid "Dev Tools & Reference"
+msgstr "Educación y referencia"
+
+# Discovery section category tagline for "Dev Tools & Reference"
+msgid "Talk is cheap. Show me the code."
+msgstr ""
+
+# Discovery section category name
+msgid "Most Loved"
+msgstr ""
+
+# Discovery section category tagline for "Most Loved"
+msgid "Apps with the highest ratings"
+msgstr ""

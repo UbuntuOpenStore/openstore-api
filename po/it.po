@@ -120,3 +120,20 @@ msgstr "App essenziali"
 # Discovery section category tagline for "Essential Apps"
 msgid "Check these out first"
 msgstr "Guarda prima qui"
+
+#, fuzzy
+#| msgid "Education & Reference"
+msgid "Dev Tools & Reference"
+msgstr "Istruzione e fonti"
+
+# Discovery section category tagline for "Dev Tools & Reference"
+msgid "Talk is cheap. Show me the code."
+msgstr ""
+
+# Discovery section category name
+msgid "Most Loved"
+msgstr ""
+
+# Discovery section category tagline for "Most Loved"
+msgid "Apps with the highest ratings"
+msgstr ""
