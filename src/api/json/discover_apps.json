@@ -1,7 +1,7 @@
 {
     "highlight": {
-        "id": "sturmreader.emanuelesorce",
-        "image": "/banners/sturmreader.svg"
+        "id": "tuxracer.abmyii",
+        "image": "/banners/tuxracer.svg"
     },
     "categories": [
         {
@@ -11,17 +11,18 @@
             "ids": []
         },
         {
-            "name": "Dev Tools & Reference",
-            "tagline": "Talk is cheap. Show me the code.",
-            "referral": "Developer Tools",
+            "name": "Tools",
+            "tagline": "We shape our tools, and thereafter our tools shape us",
+            "referral": "Utilities",
             "ids": [
-                "seabass2.mikhael",
-                "me.fredl.qmlcreator",
-                "me.lduboeuf.livecoding",
-                "ubuntu-ui-toolkit-gallery-m.mateosalta",
-                "qqc2-gallery.ubad",
-                "org.kde.kirigami2.gallery",
-                "logviewer.neothethird"
+                "me.fredl.isodrive",
+                "indicator-darkmode.kugiigi",
+                "wifiscanner.arubislander",
+                "uvolman.mateosalta",
+                "openstore.tagger",
+                "authenticator-ng.dobey",
+                "uadblock.mariogrip",
+                "ut-tweak-tool.sverzegnassi"
             ]
         },
         {
