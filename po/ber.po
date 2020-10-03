@@ -3,18 +3,18 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2017-06-20 01:45:+0000\n"
 "PO-Revision-Date: 2020-10-02 11:06+0000\n"
-"Last-Translator: Aashrut <Aashrut99@gmail.com>\n"
-"Language-Team: Gujarati <https://translate.ubports.com/projects/openstore/"
-"openstore-api/gu/>\n"
-"Language: gu\n"
+"Last-Translator: Hakim Oubouali <hakim.oubouali@protonmail.com>\n"
+"Language-Team: Berber <https://translate.ubports.com/projects/openstore/"
+"openstore-api/ber/>\n"
+"Language: ber\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=n > 1;\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Generator: Weblate 3.11.3\n"
 
 msgid "Accessibility"
-msgstr "ઉપલ્બધતા"
+msgstr ""
 
 msgid "Books & Comics"
 msgstr ""
@@ -26,7 +26,7 @@ msgid "Communication & Social"
 msgstr ""
 
 msgid "Developer Tools"
-msgstr ""
+msgstr "imassen n usebuɣlu"
 
 msgid "Education & Reference"
 msgstr ""
@@ -38,7 +38,7 @@ msgid "Food & Drink"
 msgstr ""
 
 msgid "Games"
-msgstr ""
+msgstr "tirarin"
 
 msgid "Graphics"
 msgstr ""
@@ -50,10 +50,10 @@ msgid "Lifestyle"
 msgstr ""
 
 msgid "Media & Video"
-msgstr ""
+msgstr "amidya d uvidyu"
 
 msgid "Music & Audio"
-msgstr ""
+msgstr "aẓawan d imsli"
 
 msgid "News & Magazines"
 msgstr ""
@@ -65,13 +65,13 @@ msgid "Productivity"
 msgstr ""
 
 msgid "Science & Engineering"
-msgstr ""
+msgstr "tamassant d atwal"
 
 msgid "Shopping"
-msgstr ""
+msgstr "tamsɣiwin"
 
 msgid "Sports"
-msgstr ""
+msgstr "tunnunin"
 
 msgid "Travel & Weather"
 msgstr ""
@@ -81,7 +81,7 @@ msgstr ""
 
 # This is text to go on a button that will say "Download from the\nOpenStore" (where \n is a line break)
 msgid "Download from the"
-msgstr ""
+msgstr "agem seg ufaylu"
 
 # Discovery section category name
 msgid "New and Updated Apps"
@@ -97,7 +97,7 @@ msgstr ""
 
 # Discovery section category tagline for "Health & Wellness"
 msgid "An apple a day..."
-msgstr ""
+msgstr "yat n tdffuyt dg wass..."
 
 # Discovery section category name
 msgid "Cross Platform Apps"
@@ -105,7 +105,7 @@ msgstr ""
 
 # Discovery section category tagline for "Cross Platform Apps"
 msgid "Find these apps anywhere"
-msgstr ""
+msgstr "af tidffuyin-ad akk mani"
 
 # Discovery section category name
 msgid "Essential Apps"
@@ -117,11 +117,11 @@ msgstr ""
 
 # Discovery section category name
 msgid "Dev Tools & Reference"
-msgstr ""
+msgstr "imassen n uusbuɣlu d tsaɣult"
 
 # Discovery section category tagline for "Dev Tools & Reference"
 msgid "Talk is cheap. Show me the code."
-msgstr ""
+msgstr "ssusem. ssemali tangalt."
 
 # Discovery section category name
 msgid "Most Loved"

@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2017-06-20 01:45:+0000\n"
-"PO-Revision-Date: 2019-08-28 09:49+0000\n"
-"Last-Translator: Adrià <adriamartinmor@gmail.com>\n"
+"PO-Revision-Date: 2020-10-03 13:48+0000\n"
+"Last-Translator: Adria <adriamartinmor@gmail.com>\n"
 "Language-Team: Sardinian <https://translate.ubports.com/projects/openstore/"
 "openstore-api/sc/>\n"
 "Language: sc\n"
@@ -11,7 +11,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 3.6.1\n"
+"X-Generator: Weblate 3.11.3\n"
 
 msgid "Accessibility"
 msgstr "Atzessibilidade"
@@ -85,50 +85,46 @@ msgstr "Iscàrriga dae"
 
 # Discovery section category name
 msgid "New and Updated Apps"
-msgstr ""
+msgstr "Aplicatziones noas e atualizatziones"
 
 # Discovery section category tagline for "New and Updated Apps"
 msgid "Exciting new apps & updates"
-msgstr ""
+msgstr "Aplicatziones noas e atualizatziones"
 
-#, fuzzy
-#| msgid "Health & Fitness"
 msgid "Health & Wellness"
 msgstr "Salude e benèssere"
 
 # Discovery section category tagline for "Health & Wellness"
 msgid "An apple a day..."
-msgstr ""
+msgstr "Una mela a sa die..."
 
 # Discovery section category name
 msgid "Cross Platform Apps"
-msgstr ""
+msgstr "Aplicatziones multiprataforma"
 
 # Discovery section category tagline for "Cross Platform Apps"
 msgid "Find these apps anywhere"
-msgstr ""
+msgstr "Ddas agatas in cada logu"
 
 # Discovery section category name
 msgid "Essential Apps"
-msgstr ""
+msgstr "Aplicatziones essentziales"
 
 # Discovery section category tagline for "Essential Apps"
 msgid "Check these out first"
-msgstr ""
+msgstr "Càstia prima custas"
 
-#, fuzzy
-#| msgid "Education & Reference"
 msgid "Dev Tools & Reference"
-msgstr "Educatzione e riferimentos"
+msgstr "Ainas de isvilupu e de riferimentu"
 
 # Discovery section category tagline for "Dev Tools & Reference"
 msgid "Talk is cheap. Show me the code."
-msgstr ""
+msgstr "Basta tzarradas: faghe bìdere su còdighe."
 
 # Discovery section category name
 msgid "Most Loved"
-msgstr ""
+msgstr "Is prus istimadas"
 
 # Discovery section category tagline for "Most Loved"
 msgid "Apps with the highest ratings"
-msgstr ""
+msgstr "Aplicatziones cun puntègios prus artos"
