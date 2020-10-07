@@ -100,30 +100,26 @@ router.get('/', async(req, res) => {
       const popularCategory = discover.categories.find((category) => (category.name == POPULAR));
 
       // Get the 10 latest updated or published apps
-      let newAndUpdatedApps = newApps.map((app) => {
-        /* eslint-disable-next-line no-param-reassign */
-        app.sort = app.published_date;
-        return app;
-      }).concat(updatedApps.map((app) => {
-        /* eslint-disable-next-line no-param-reassign */
-        app.sort = app.updated_date;
-        return app;
-      }));
+      let newAndUpdatedApps = newApps.concat(updatedApps);
 
       newAndUpdatedApps = newAndUpdatedApps.filter((app, pos) => {
         return newAndUpdatedApps.findIndex((a) => a.id == app.id) == pos;
       });
 
       newAndUpdatedApps.sort((a, b) => {
-        if (a.sort > b.sort) {
+        if (a.updated_date > b.updated_date) {
           return -1;
         }
 
-        if (a.sort < b.sort) {
+        if (a.updated_date < b.updated_date) {
           return 1;
         }
 
         return 0;
+      });
+
+      newAndUpdatedApps.forEach((app) => {
+        console.log(app.id, app.updated_date);
       });
 
       newAndUpdatedCategory.apps = newAndUpdatedApps.slice(0, 10).map((app) => serialize(app, false, architecture, req.apiVersion));
