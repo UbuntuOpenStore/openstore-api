@@ -53,6 +53,7 @@ const packageSchema = mongoose.Schema({
   languages: [String],
   architectures: [String],
   locked: Boolean,
+  qml_imports: [],
 
   // Publication metadata
   published: Boolean,
@@ -146,6 +147,7 @@ packageSchema.methods.updateFromClick = function(data) {
   };
 
   let permissions = [];
+  let qmlImports = [];
   data.apps.forEach((app) => {
     const hook = {};
 
@@ -194,12 +196,14 @@ packageSchema.methods.updateFromClick = function(data) {
 
       Object.keys(app.scopeIni).forEach((key) => {
         // Remove any ini properties with a `.` as mongo will reject them
-        hook.scope[key.replace('.', '__')] = app.scopeIni[key];
+        hook.scope[key.replace(/\./g, '__')] = app.scopeIni[key];
       });
     }
 
     // Mongo will reject this if there are any `.`s
-    manifest.hooks[app.name.replace('.', '__')] = hook;
+    manifest.hooks[app.name.replace(/\./g, '__')] = hook;
+
+    qmlImports = qmlImports.concat(app.qmlImports);
   });
 
   this.permissions = permissions;
@@ -211,6 +215,7 @@ packageSchema.methods.updateFromClick = function(data) {
   this.version = data.version;
   this.languages = data.languages;
   this.framework = data.framework;
+  this.qml_imports = qmlImports;
 
   // Don't overwrite the these if they already exists
   this.name = this.name ? this.name : data.title;

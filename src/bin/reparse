@@ -1,0 +1,32 @@
+#!/usr/bin/env node
+
+require('../db'); // Make sure the database connection gets setup
+const Package = require('../db/package/model');
+const fs = require('../utils/async-fs');
+const clickParser = require('../utils/click-parser-async');
+
+Package.find({}).then((pkgs) => {
+  return Promise.all(pkgs.map(async (pkg) => {
+    let revisionData = null;
+    pkg.revisions.forEach((data) => {
+      if (!revisionData || revisionData.revision < data.revision) {
+        revisionData = data;
+      }
+    });
+
+    if (revisionData && revisionData.download_url && fs.existsSync(revisionData.download_url)) {
+      console.log(`Parsing ${pkg.id}`);
+
+      const parseData = await clickParser.parse(revisionData.download_url, false);
+      pkg.updateFromClick(parseData);
+      console.log(`Saving ${pkg.id}`);
+      return pkg.save();
+    }
+  }));
+}).then(() => {
+  console.log('done');
+  process.exit(0);
+}).catch((err) => {
+  console.log(err);
+  process.exit(1);
+});
