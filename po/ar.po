@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2017-06-20 01:45:+0000\n"
-"PO-Revision-Date: 2019-01-03 23:40+0000\n"
-"Last-Translator: Charles Stevens <yugioh2017@yandex.com>\n"
+"PO-Revision-Date: 2020-11-16 20:57+0000\n"
+"Last-Translator: abidin <abidin24@tutanota.com>\n"
 "Language-Team: Arabic <https://translate.ubports.com/projects/openstore/"
 "openstore-api/ar/>\n"
 "Language: ar\n"
@@ -12,10 +12,10 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
 "&& n%100<=10 ? 3 : n%100>=11 ? 4 : 5;\n"
-"X-Generator: Weblate 3.1.1\n"
+"X-Generator: Weblate 3.11.3\n"
 
 msgid "Accessibility"
-msgstr "موصلية"
+msgstr "إتاحة"
 
 msgid "Books & Comics"
 msgstr "كتب وقصص مصورة"
@@ -86,11 +86,11 @@ msgstr "حمّل من"
 
 # Discovery section category name
 msgid "New and Updated Apps"
-msgstr ""
+msgstr "التطبيقات الجديدة والمحدثة"
 
 # Discovery section category tagline for "New and Updated Apps"
 msgid "Exciting new apps & updates"
-msgstr ""
+msgstr "تطبيقات وتحديثات جديدة مشوقة"
 
 #, fuzzy
 #| msgid "Health & Fitness"
@@ -103,15 +103,15 @@ msgstr ""
 
 # Discovery section category name
 msgid "Cross Platform Apps"
-msgstr ""
+msgstr "تطبيقات متعدد المنصات"
 
 # Discovery section category tagline for "Cross Platform Apps"
 msgid "Find these apps anywhere"
-msgstr ""
+msgstr "ستجد هذه التطبيقات في كل مكان"
 
 # Discovery section category name
 msgid "Essential Apps"
-msgstr ""
+msgstr "تطبيقات ضرورية"
 
 # Discovery section category tagline for "Essential Apps"
 msgid "Check these out first"
