@@ -11,6 +11,22 @@
             "ids": []
         },
         {
+            "name": "Games",
+            "tagline": "Do a Barrel Roll!",
+            "referral": "Games",
+            "ids": [
+                "neverball.abmyii",
+                "openttd.abmyii",
+                "tuxracer.abmyii",
+                "randomcreature.cibersheep",
+                "superttt.emanuelesorce",
+                "guess-words.bhdouglass",
+                "circlepuzzle.cibersheep",
+                "esviji.cibersheep",
+                "uports-netwalk.mateo-salta"
+            ]
+        },
+        {
             "name": "Tools",
             "tagline": "We shape our tools, and thereafter our tools shape us",
             "referral": "Utilities",
