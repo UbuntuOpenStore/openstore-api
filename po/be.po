@@ -1,0 +1,133 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2017-06-20 01:45:+0000\n"
+"PO-Revision-Date: 2020-12-04 13:26+0000\n"
+"Last-Translator: Zmicer <nashtlumach@gmail.com>\n"
+"Language-Team: Belarusian <https://translate.ubports.com/projects/openstore/"
+"openstore-api/be/>\n"
+"Language: be\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<="
+"4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
+"X-Generator: Weblate 3.11.3\n"
+
+msgid "Accessibility"
+msgstr "Адмысловыя магчымасці"
+
+msgid "Books & Comics"
+msgstr "Кнігі і коміксы"
+
+msgid "Business & Finance"
+msgstr "Бізнес і фінансы"
+
+msgid "Communication & Social"
+msgstr "Зносіны і сацыяльныя сеткі"
+
+msgid "Developer Tools"
+msgstr "Інструменты для распрацоўкі"
+
+msgid "Education & Reference"
+msgstr "Адукацыя і даведнікі"
+
+msgid "Entertainment"
+msgstr "Забавы"
+
+msgid "Food & Drink"
+msgstr "Ежа і напоі"
+
+msgid "Games"
+msgstr "Гульні"
+
+msgid "Graphics"
+msgstr "Графіка"
+
+msgid "Health & Fitness"
+msgstr "Здароўе і спорт"
+
+msgid "Lifestyle"
+msgstr "Стыль жыцця"
+
+msgid "Media & Video"
+msgstr "Медыя і відэа"
+
+msgid "Music & Audio"
+msgstr "Музыка і аўдыё"
+
+msgid "News & Magazines"
+msgstr "Навіны і часопісы"
+
+msgid "Personalisation"
+msgstr "Персаналізацыя"
+
+msgid "Productivity"
+msgstr "Прадукцыйнасць"
+
+msgid "Science & Engineering"
+msgstr "Навука і інжынерыя"
+
+msgid "Shopping"
+msgstr "Пакупкі"
+
+msgid "Sports"
+msgstr "Спорт"
+
+msgid "Travel & Weather"
+msgstr "Падарожжы і надвор'е"
+
+msgid "Utilities"
+msgstr "Утыліты"
+
+# This is text to go on a button that will say "Download from the\nOpenStore" (where \n is a line break)
+msgid "Download from the"
+msgstr "Спампаваць з"
+
+# Discovery section category name
+msgid "New and Updated Apps"
+msgstr "Новыя і абноўленыя праграмы"
+
+# Discovery section category tagline for "New and Updated Apps"
+msgid "Exciting new apps & updates"
+msgstr "Новыя праграмы і абнаўленні"
+
+# Discovery section category name
+msgid "Health & Wellness"
+msgstr "Здароўе і аздараўленне"
+
+# Discovery section category tagline for "Health & Wellness"
+msgid "An apple a day..."
+msgstr "Яблык на дзень…"
+
+# Discovery section category name
+msgid "Cross Platform Apps"
+msgstr "Шматплатформавыя праграмы"
+
+# Discovery section category tagline for "Cross Platform Apps"
+msgid "Find these apps anywhere"
+msgstr "Шукайце гэтыя праграмы ў любым месцы"
+
+# Discovery section category name
+msgid "Essential Apps"
+msgstr "Асноўныя праграмы"
+
+# Discovery section category tagline for "Essential Apps"
+msgid "Check these out first"
+msgstr "Спачатку паглядзіце тут"
+
+# Discovery section category name
+msgid "Dev Tools & Reference"
+msgstr "Інструменты і матэрыялы для распрацоўнікаў"
+
+# Discovery section category tagline for "Dev Tools & Reference"
+msgid "Talk is cheap. Show me the code."
+msgstr "Інструменты і спасылкі для распрацоўнікаў."
+
+# Discovery section category name
+msgid "Most Loved"
+msgstr "Найбольш папулярныя"
+
+# Discovery section category tagline for "Most Loved"
+msgid "Apps with the highest ratings"
+msgstr "Праграмы з высокім рэйтынгам"
