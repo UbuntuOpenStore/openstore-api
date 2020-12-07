@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2017-06-20 01:45:+0000\n"
-"PO-Revision-Date: 2020-11-16 20:57+0000\n"
+"PO-Revision-Date: 2020-12-07 20:19+0000\n"
 "Last-Translator: abidin <abidin24@tutanota.com>\n"
 "Language-Team: Arabic <https://translate.ubports.com/projects/openstore/"
 "openstore-api/ar/>\n"
@@ -39,7 +39,7 @@ msgid "Food & Drink"
 msgstr "طعام و شراب"
 
 msgid "Games"
-msgstr "العاب"
+msgstr "ألعاب"
 
 msgid "Graphics"
 msgstr "رسوميات"
@@ -48,7 +48,7 @@ msgid "Health & Fitness"
 msgstr "الصحة واللياقة"
 
 msgid "Lifestyle"
-msgstr "اسلوب العيش"
+msgstr "اسلوب الحياة"
 
 msgid "Media & Video"
 msgstr "الوسائط والفيديو"
@@ -60,7 +60,7 @@ msgid "News & Magazines"
 msgstr "اخبار ومجلات"
 
 msgid "Personalisation"
-msgstr "إضفاء الطابع الشخصي"
+msgstr "تخصيص"
 
 msgid "Productivity"
 msgstr "إنتاجية"
@@ -82,7 +82,7 @@ msgstr "خدمات"
 
 # This is text to go on a button that will say "Download from the\nOpenStore" (where \n is a line break)
 msgid "Download from the"
-msgstr "حمّل من"
+msgstr "نزّل من"
 
 # Discovery section category name
 msgid "New and Updated Apps"
@@ -92,14 +92,12 @@ msgstr "التطبيقات الجديدة والمحدثة"
 msgid "Exciting new apps & updates"
 msgstr "تطبيقات وتحديثات جديدة مشوقة"
 
-#, fuzzy
-#| msgid "Health & Fitness"
 msgid "Health & Wellness"
-msgstr "الصحة واللياقة"
+msgstr "الصحة والعافية"
 
 # Discovery section category tagline for "Health & Wellness"
 msgid "An apple a day..."
-msgstr ""
+msgstr "تفاحة كل يوم…"
 
 # Discovery section category name
 msgid "Cross Platform Apps"
@@ -115,21 +113,19 @@ msgstr "تطبيقات ضرورية"
 
 # Discovery section category tagline for "Essential Apps"
 msgid "Check these out first"
-msgstr ""
+msgstr "تحقق من هذه أولاً"
 
-#, fuzzy
-#| msgid "Education & Reference"
 msgid "Dev Tools & Reference"
-msgstr "تعليم ومراجع"
+msgstr "أدوات تطوير ومراجع"
 
 # Discovery section category tagline for "Dev Tools & Reference"
 msgid "Talk is cheap. Show me the code."
-msgstr ""
+msgstr "الكلام سهل. أرني الشفرة."
 
 # Discovery section category name
 msgid "Most Loved"
-msgstr ""
+msgstr "المحبوبة"
 
 # Discovery section category tagline for "Most Loved"
 msgid "Apps with the highest ratings"
-msgstr ""
+msgstr "التطبيقات الأعلى تقييمًا"
