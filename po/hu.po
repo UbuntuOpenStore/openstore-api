@@ -1,0 +1,132 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2017-06-20 01:45:+0000\n"
+"PO-Revision-Date: 2021-01-14 05:34+0000\n"
+"Last-Translator: Adam <padamyno@gmail.com>\n"
+"Language-Team: Hungarian <https://translate.ubports.com/projects/openstore/"
+"openstore-api/hu/>\n"
+"Language: hu\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 3.11.3\n"
+
+msgid "Accessibility"
+msgstr "Könnyű kezelés"
+
+msgid "Books & Comics"
+msgstr "Könyvek és képregények"
+
+msgid "Business & Finance"
+msgstr "Üzlet és pénzügy"
+
+msgid "Communication & Social"
+msgstr "Kommunikáció és kapcsolatok"
+
+msgid "Developer Tools"
+msgstr "Fejlesztői eszközök"
+
+msgid "Education & Reference"
+msgstr "Oktatás"
+
+msgid "Entertainment"
+msgstr "Szórakozás"
+
+msgid "Food & Drink"
+msgstr "Étel és ital"
+
+msgid "Games"
+msgstr "Játékok"
+
+msgid "Graphics"
+msgstr "Grafika"
+
+msgid "Health & Fitness"
+msgstr "Egészség és Fitnesz"
+
+msgid "Lifestyle"
+msgstr "Életstítlus"
+
+msgid "Media & Video"
+msgstr "Média és videó"
+
+msgid "Music & Audio"
+msgstr "Zene és hang"
+
+msgid "News & Magazines"
+msgstr "Hírek és magazinok"
+
+msgid "Personalisation"
+msgstr "Személyreszabás"
+
+msgid "Productivity"
+msgstr "Produktivitás"
+
+msgid "Science & Engineering"
+msgstr "Tudomány"
+
+msgid "Shopping"
+msgstr "Vásárlás"
+
+msgid "Sports"
+msgstr "Sportok"
+
+msgid "Travel & Weather"
+msgstr "Utazás és időjárás"
+
+msgid "Utilities"
+msgstr "Segédprogramok"
+
+# This is text to go on a button that will say "Download from the\nOpenStore" (where \n is a line break)
+msgid "Download from the"
+msgstr "Letöltés innen:"
+
+# Discovery section category name
+msgid "New and Updated Apps"
+msgstr "Új és frissített alkalmazások"
+
+# Discovery section category tagline for "New and Updated Apps"
+msgid "Exciting new apps & updates"
+msgstr "Érdekes új alkalmazások és frissítések"
+
+# Discovery section category name
+msgid "Health & Wellness"
+msgstr "Egészség és velnesz"
+
+# Discovery section category tagline for "Health & Wellness"
+msgid "An apple a day..."
+msgstr "Minden nap egy alma..."
+
+# Discovery section category name
+msgid "Cross Platform Apps"
+msgstr "Cross Platform alkalmazások"
+
+# Discovery section category tagline for "Cross Platform Apps"
+msgid "Find these apps anywhere"
+msgstr "Találja meg őket bárhol"
+
+# Discovery section category name
+msgid "Essential Apps"
+msgstr "Alapvető alkalmazások"
+
+# Discovery section category tagline for "Essential Apps"
+msgid "Check these out first"
+msgstr "Először nézzen be ide"
+
+# Discovery section category name
+msgid "Dev Tools & Reference"
+msgstr "Fejlesztői eszközök"
+
+# Discovery section category tagline for "Dev Tools & Reference"
+msgid "Talk is cheap. Show me the code."
+msgstr "Beszélni könnyű. Mutasd a kódod."
+
+# Discovery section category name
+msgid "Most Loved"
+msgstr "Legkedveltebb"
+
+# Discovery section category tagline for "Most Loved"
+msgid "Apps with the highest ratings"
+msgstr "Legjobb értékeléssel rendelkező alkalmazások"

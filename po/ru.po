@@ -2,17 +2,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2017-06-20 01:45:+0000\n"
-"PO-Revision-Date: 2019-08-05 07:49+0000\n"
-"Last-Translator: vokaliz <vokaliz@protonmail.com>\n"
+"PO-Revision-Date: 2021-01-16 01:15+0000\n"
+"Last-Translator: ierihon <idekovets@mail.ru>\n"
 "Language-Team: Russian <https://translate.ubports.com/projects/openstore/"
 "openstore-api/ru/>\n"
 "Language: ru\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
-"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 3.6.1\n"
+"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<="
+"4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
+"X-Generator: Weblate 3.11.3\n"
 
 msgid "Accessibility"
 msgstr "Доступность"
@@ -69,7 +69,7 @@ msgid "Science & Engineering"
 msgstr "Наука и техника"
 
 msgid "Shopping"
-msgstr "Покупка"
+msgstr "Покупки"
 
 msgid "Sports"
 msgstr "Спортивный"
@@ -86,11 +86,11 @@ msgstr "Скачать с"
 
 # Discovery section category name
 msgid "New and Updated Apps"
-msgstr ""
+msgstr "Новые и обновленные приложения"
 
 # Discovery section category tagline for "New and Updated Apps"
 msgid "Exciting new apps & updates"
-msgstr ""
+msgstr "Свежие и обновленные приложения"
 
 #, fuzzy
 #| msgid "Health & Fitness"
@@ -99,23 +99,23 @@ msgstr "Здоровье и фитнес"
 
 # Discovery section category tagline for "Health & Wellness"
 msgid "An apple a day..."
-msgstr ""
+msgstr "Яблоко в день..."
 
 # Discovery section category name
 msgid "Cross Platform Apps"
-msgstr ""
+msgstr "Кросс-платформенные приложения"
 
 # Discovery section category tagline for "Cross Platform Apps"
 msgid "Find these apps anywhere"
-msgstr ""
+msgstr "Находите эти приложения где угодно"
 
 # Discovery section category name
 msgid "Essential Apps"
-msgstr ""
+msgstr "Нужные приложения"
 
 # Discovery section category tagline for "Essential Apps"
 msgid "Check these out first"
-msgstr ""
+msgstr "Попробуйте их в первую очередь"
 
 #, fuzzy
 #| msgid "Education & Reference"
@@ -124,12 +124,12 @@ msgstr "Образование и справочники"
 
 # Discovery section category tagline for "Dev Tools & Reference"
 msgid "Talk is cheap. Show me the code."
-msgstr ""
+msgstr "Инструменты и ссылки для разработчиков."
 
 # Discovery section category name
 msgid "Most Loved"
-msgstr ""
+msgstr "Самые популярные"
 
 # Discovery section category tagline for "Most Loved"
 msgid "Apps with the highest ratings"
-msgstr ""
+msgstr "Приложения с наивысшей оценкой"
