@@ -1,7 +1,7 @@
 {
     "highlight": {
-        "id": "tuxracer.abmyii",
-        "image": "/banners/tuxracer.svg"
+        "id": "datamonitor.matteobellei",
+        "image": "/banners/datamonitor.svg"
     },
     "categories": [
         {
@@ -12,27 +12,28 @@
         },
         {
             "name": "Games",
-            "tagline": "Do a Barrel Roll!",
+            "tagline": "We are all our own worst enemy. But also, our best teacher.",
             "referral": "Games",
             "ids": [
+                "circlejump.abmyii",
+                "taquin.aloysliska",
                 "neverball.abmyii",
                 "openttd.abmyii",
                 "tuxracer.abmyii",
-                "randomcreature.cibersheep",
                 "superttt.emanuelesorce",
                 "guess-words.bhdouglass",
                 "circlepuzzle.cibersheep",
-                "esviji.cibersheep",
-                "uports-netwalk.mateo-salta"
+                "esviji.cibersheep"
             ]
         },
         {
             "name": "Tools",
-            "tagline": "We shape our tools, and thereafter our tools shape us",
+            "tagline": "It’s not the thing itself, but how you use it.",
             "referral": "Utilities",
             "ids": [
-                "me.fredl.isodrive",
-                "indicator-darkmode.kugiigi",
+                "watercount.aaron",
+                "it.mardy.lomiri-vnc",
+                "quickconversions.phelion",
                 "wifiscanner.arubislander",
                 "uvolman.mateosalta",
                 "openstore.tagger",
