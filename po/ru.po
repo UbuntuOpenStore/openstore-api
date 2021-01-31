@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2017-06-20 01:45:+0000\n"
-"PO-Revision-Date: 2021-01-16 01:15+0000\n"
+"PO-Revision-Date: 2021-01-31 12:27+0000\n"
 "Last-Translator: ierihon <idekovets@mail.ru>\n"
 "Language-Team: Russian <https://translate.ubports.com/projects/openstore/"
 "openstore-api/ru/>\n"
@@ -63,7 +63,7 @@ msgid "Personalisation"
 msgstr "Персонализация"
 
 msgid "Productivity"
-msgstr "Производительность"
+msgstr "Продуктивность"
 
 msgid "Science & Engineering"
 msgstr "Наука и техника"
@@ -92,14 +92,12 @@ msgstr "Новые и обновленные приложения"
 msgid "Exciting new apps & updates"
 msgstr "Свежие и обновленные приложения"
 
-#, fuzzy
-#| msgid "Health & Fitness"
 msgid "Health & Wellness"
-msgstr "Здоровье и фитнес"
+msgstr "Здоровье и самочувствие"
 
 # Discovery section category tagline for "Health & Wellness"
 msgid "An apple a day..."
-msgstr "Яблоко в день..."
+msgstr "Кто яблоко в день съедает..."
 
 # Discovery section category name
 msgid "Cross Platform Apps"
@@ -111,16 +109,14 @@ msgstr "Находите эти приложения где угодно"
 
 # Discovery section category name
 msgid "Essential Apps"
-msgstr "Нужные приложения"
+msgstr "Рекомендуемые приложения"
 
 # Discovery section category tagline for "Essential Apps"
 msgid "Check these out first"
 msgstr "Попробуйте их в первую очередь"
 
-#, fuzzy
-#| msgid "Education & Reference"
 msgid "Dev Tools & Reference"
-msgstr "Образование и справочники"
+msgstr "Средства разработки и справочники"
 
 # Discovery section category tagline for "Dev Tools & Reference"
 msgid "Talk is cheap. Show me the code."
