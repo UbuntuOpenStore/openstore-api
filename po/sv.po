@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: openstore-web\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2017-06-20 01:45:+0000\n"
-"PO-Revision-Date: 2019-01-14 18:33+0000\n"
-"Last-Translator: Rondy Andersson <rondarius@gmail.com>\n"
+"PO-Revision-Date: 2021-01-31 22:54+0000\n"
+"Last-Translator: Rondy Andersson <rondarius@vivaldi.net>\n"
 "Language-Team: Swedish <https://translate.ubports.com/projects/openstore/"
 "openstore-api/sv/>\n"
 "Language: sv\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 3.1.1\n"
+"X-Generator: Weblate 3.11.3\n"
 "X-Launchpad-Export-Date: 2017-06-21 14:52+0000\n"
 
 msgid "Accessibility"
@@ -92,50 +92,46 @@ msgstr "Ladda ned från"
 
 # Discovery section category name
 msgid "New and Updated Apps"
-msgstr ""
+msgstr "Nya och Uppdaterade Appar"
 
 # Discovery section category tagline for "New and Updated Apps"
 msgid "Exciting new apps & updates"
-msgstr ""
+msgstr "Spännande nya appar & uppdateringar"
 
-#, fuzzy
-#| msgid "Health & Fitness"
 msgid "Health & Wellness"
-msgstr "Kost och hälsa"
+msgstr "Hälsa & Välmående"
 
 # Discovery section category tagline for "Health & Wellness"
 msgid "An apple a day..."
-msgstr ""
+msgstr "Ett äpple om dagen..."
 
 # Discovery section category name
 msgid "Cross Platform Apps"
-msgstr ""
+msgstr "Multiplattform Appar"
 
 # Discovery section category tagline for "Cross Platform Apps"
 msgid "Find these apps anywhere"
-msgstr ""
+msgstr "Hitta dessa appar vart som helst"
 
 # Discovery section category name
 msgid "Essential Apps"
-msgstr ""
+msgstr "Väsentliga Appar"
 
 # Discovery section category tagline for "Essential Apps"
 msgid "Check these out first"
-msgstr ""
+msgstr "Spana in dessa först"
 
-#, fuzzy
-#| msgid "Education & Reference"
 msgid "Dev Tools & Reference"
-msgstr "Utbildning & referens"
+msgstr "Utvecklings Verktyg & Referens"
 
 # Discovery section category tagline for "Dev Tools & Reference"
 msgid "Talk is cheap. Show me the code."
-msgstr ""
+msgstr "Prata är billigt. Visa mig koden."
 
 # Discovery section category name
 msgid "Most Loved"
-msgstr ""
+msgstr "Mest Älskade"
 
 # Discovery section category tagline for "Most Loved"
 msgid "Apps with the highest ratings"
-msgstr ""
+msgstr "Appar med högst betyg"
