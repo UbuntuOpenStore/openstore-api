@@ -11,6 +11,9 @@ const helpers = require('../utils/helpers');
 const logger = require('../utils/logger');
 const translations = require('../utils/translations');
 
+// TODO remove this when system settings properly sends frameworks
+const defaultFrameworks = require('./json/default_frameworks.json');
+
 const router = express.Router();
 
 discoverJSON.highlight.image = config.server.host + discoverJSON.highlight.image;
@@ -20,8 +23,23 @@ const discoverDate = {};
 const NEW_AND_UPDATED = 'New and Updated Apps';
 const POPULAR = 'Most Loved';
 
+function checkFramework(discover, frameworks) {
+  if (frameworks && frameworks.length > 0) {
+    discover.categories.forEach((category) => {
+      category.apps = category.apps.filter((app) => {
+        return frameworks.includes(app.framework);
+      });
+      category.ids = category.apps.map((app) => app.id);
+    });
+  }
+
+  return discover;
+}
+
 // TODO return slim version of the pkg json
 router.get('/', async(req, res) => {
+  const frameworks = helpers.getDataArray(req, 'frameworks', defaultFrameworks);
+
   let channel = helpers.getData(req, 'channel', Package.XENIAL).toLowerCase();
   if (!Package.CHANNELS.includes(channel)) {
     channel = Package.XENIAL;
@@ -140,7 +158,8 @@ router.get('/', async(req, res) => {
       const lang = req.query.lang ? req.query.lang : null;
       translations.setLang(lang);
 
-      const cloneDiscover = JSON.parse(JSON.stringify(discover));
+      let cloneDiscover = JSON.parse(JSON.stringify(discover));
+      cloneDiscover = checkFramework(cloneDiscover, frameworks);
       cloneDiscover.categories = cloneDiscover.categories.map((category) => {
         return {
           ...category,
@@ -158,7 +177,8 @@ router.get('/', async(req, res) => {
     }
   }
   else { // Cache hit
-    const discover = JSON.parse(JSON.stringify(discoverCache[cacheKey]));
+    let discover = JSON.parse(JSON.stringify(discoverCache[cacheKey]));
+    discover = checkFramework(discover, frameworks);
 
     const ids = discover.categories.reduce((accumulator, category) => {
       return [...accumulator, ...category.ids];
