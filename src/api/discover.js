@@ -25,10 +25,13 @@ const POPULAR = 'Most Loved';
 
 function checkFramework(discover, frameworks) {
   if (frameworks && frameworks.length > 0) {
+    /* eslint-disable-next-line no-param-reassign */
     discover.categories.forEach((category) => {
+      /* eslint-disable-next-line no-param-reassign */
       category.apps = category.apps.filter((app) => {
         return frameworks.includes(app.framework);
       });
+      /* eslint-disable-next-line no-param-reassign */
       category.ids = category.apps.map((app) => app.id);
     });
   }
