@@ -139,10 +139,6 @@ router.get('/', async(req, res) => {
         return 0;
       });
 
-      newAndUpdatedApps.forEach((app) => {
-        console.log(app.id, app.updated_date);
-      });
-
       newAndUpdatedCategory.apps = newAndUpdatedApps.slice(0, 10).map((app) => serialize(app, false, architecture, req.apiVersion));
       popularCategory.apps = popularApps.map((app) => serialize(app, false, architecture, req.apiVersion));
 
