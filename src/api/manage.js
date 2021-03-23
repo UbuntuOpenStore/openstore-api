@@ -323,6 +323,12 @@ router.post(
   userRole,
   downloadFile,
   async(req, res) => {
+    // There seems to be a default timeout of 2 minutes: https://stackoverflow.com/a/46157120
+    req.socket.setTimeout(240000); // 4 minutes
+    req.socket.on('timeout', () => {
+      console.log(`socket timeout processing new revision for  ${req.params.id}`);
+    });
+
     if (!req.files || !req.files.file || !req.files.file.length == 1) {
       return helpers.error(res, NO_FILE, 400);
     }
