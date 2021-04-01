@@ -1,37 +1,95 @@
 #!/usr/bin/env node
 
 const fs = require('fs');
+const path = require('path');
 
 require('../db'); // Make sure the database connection gets setup
 const Package = require('../db/package/model');
+const config = require('../utils/config');
+const limitedApps = require('./limited-apps.json');
 
-const MAX_REVISIONS = 5;
+const MAX_REVISIONS = 3;
+const MIN_FILES_CHECK = 20;
 
-Package.find({}).then((pkgs) => {
+Package.find({ id: { $in: limitedApps}}).then((pkgs) => {
     return Promise.all(pkgs.map((pkg) => {
         if (pkg.revisions) {
             let fileCounts = Package.ARCHITECTURES.reduce((acc, current) => {
                 return {...acc, [current]: 0};
             }, {});
 
+            let keepFiles = [];
             for (let i = (pkg.revisions.length - 1); i >= 0; i--) {
                 let revision = pkg.revisions[i];
                 if (revision.download_url && revision.channel != 'vivid') {
                     fileCounts[revision.architecture]++;
                     if (fileCounts[revision.architecture] > MAX_REVISIONS) {
-                        console.log('removing ' + revision.download_url);
-                        fs.unlinkSync(revision.download_url);
+                        console.log(`[${pkg.id}] removing ${revision.download_url}`);
 
+                        try {
+                            fs.unlinkSync(revision.download_url);
+                        }
+                        catch (err) {
+                            if (err.message.includes('no such file or directory')) {
+                                console.log(err.message);
+                            }
+                            else {
+                                throw err;
+                            }
+                        }
                         revision.download_url = null;
                     }
+                    else {
+                        if (fs.existsSync(revision.download_url)) {
+                            keepFiles.push(revision.download_url);
+                            console.log(`[${pkg.id}] not removing ${revision.download_url}`);
+                        }
+                        else {
+                            console.log(`[${pkg.id}] missing ${revision.download_url}`);
+                            revision.download_url = null;
+                        }
+                    }
                 }
+            }
+
+            let allFiles = fs.readdirSync(config.data_dir);
+            let extraFiles = allFiles.filter((file) => {
+                let fullFile = path.join(config.data_dir, file);
+                return file.startsWith(`${pkg.id}-xenial`) && !keepFiles.includes(fullFile);
+            });
+
+            for (let i = 0; i < extraFiles.length; i++) {
+                let file = path.join(config.data_dir, extraFiles[i]);
+                console.log(`[${pkg.id}] removing extra file ${file}`);
+                fs.unlinkSync(file);
             }
 
             return pkg.save();
         }
     }));
 }).then(() => {
-    console.log('done');
+    console.log('done removing old revisions');
+
+    let allFiles = fs.readdirSync(config.data_dir);
+    let counts = allFiles.map((file) => {
+        return file.split('-xenial')[0];
+    }).reduce((acc, curr) => {
+        if (!acc[curr]) {
+            acc[curr] = 0;
+        }
+
+        acc[curr] += 1;
+
+        return acc;
+    }, {});
+
+    console.log(`packages with ${MIN_FILES_CHECK} or more files`);
+    Object.keys(counts).filter((key) => {
+        return counts[key] >= MIN_FILES_CHECK;
+    }).forEach((key) => {
+        console.log(key, counts[key]);
+    });
+
     process.exit(0);
 }).catch((err) => {
     console.log(err);

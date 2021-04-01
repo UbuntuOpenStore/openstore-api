@@ -1,0 +1,45 @@
+#!/usr/bin/env node
+
+const fs = require('fs');
+
+require('../db'); // Make sure the database connection gets setup
+const Package = require('../db/package/model');
+const limitedApps = require('./limited-apps.json');
+
+const MAX_REVISIONS = 3;
+
+Package.find({ id: { $in: limitedApps}}).then((pkgs) => {
+    return Promise.all(pkgs.map((pkg) => {
+        if (pkg.revisions) {
+            let existing = [];
+            for (let i = (pkg.revisions.length - 1); i >= 0; i--) {
+                let revision = pkg.revisions[i];
+                if (revision.download_url && revision.channel != 'vivid') {
+                    if (fs.existsSync(revision.download_url)) {
+                        existing.push(revision.download_url);
+                    }
+                    else {
+                        console.log(`[${pkg.id}] ${revision.download_url} does not exist`);
+                    }
+                }
+            }
+
+            Package.ARCHITECTURES.forEach((arch) => {
+                let data = pkg.getLatestRevision(Package.XENIAL, arch, false);
+                if (data && data.revisionData) {
+                    if (!existing.includes(data.revisionData.download_url)) {
+                        console.log(`[${pkg.id}] Missing latest revision for ${arch}`);
+                    }
+                }
+            });
+
+            console.log(`[${pkg.id}] file count: ${existing.length}`);
+        }
+    }));
+}).then(() => {
+    console.log('done');
+    process.exit(0);
+}).catch((err) => {
+    console.log(err);
+    process.exit(1);
+});
