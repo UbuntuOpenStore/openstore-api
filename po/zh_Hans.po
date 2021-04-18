@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2017-06-20 01:45:+0000\n"
-"PO-Revision-Date: 2021-04-17 18:25+0000\n"
+"PO-Revision-Date: 2021-04-18 09:07+0000\n"
 "Last-Translator: Enceka <enceka@yeah.net>\n"
 "Language-Team: Chinese (Simplified) <https://translate.ubports.com/projects/"
 "openstore/openstore-api/zh_Hans/>\n"
@@ -119,11 +119,11 @@ msgstr "开发工具 & 参考"
 
 # Discovery section category tagline for "Dev Tools & Reference"
 msgid "Talk is cheap. Show me the code."
-msgstr ""
+msgstr "屁话少说，放码过来。"
 
 # Discovery section category name
 msgid "Most Loved"
-msgstr ""
+msgstr "最受喜爱的"
 
 # Discovery section category tagline for "Most Loved"
 msgid "Apps with the highest ratings"
