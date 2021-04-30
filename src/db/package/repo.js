@@ -153,7 +153,7 @@ const PackageRepo = {
       }
     }
     else {
-      findQuery.sort(sort);
+      findQuery.sort(sort).sort('name');
     }
 
     if (limit) {
