@@ -16,7 +16,6 @@ const defaultFrameworks = require('./json/default_frameworks.json');
 
 const router = express.Router();
 
-discoverJSON.highlight.image = config.server.host + discoverJSON.highlight.image;
 const discoverCache = {};
 const discoverDate = {};
 
@@ -64,8 +63,13 @@ router.get('/', async(req, res) => {
     const discover = JSON.parse(JSON.stringify(discoverJSON));
 
     try {
-      const [highlight, discoverCategoriesApps, newApps, updatedApps, popularApps] = await Promise.all([
-        PackageRepo.findOne(discover.highlight.id, { published: true }),
+      const [highlights, discoverCategoriesApps, newApps, updatedApps, popularApps] = await Promise.all([
+        PackageRepo.find({
+          ids: discover.highlights.map((highlight) => highlight.id),
+          channel,
+          architectures: [architecture, Package.ALL],
+          published: true,
+        }),
 
         Promise.all(discover.categories.map((category) => {
           if (category.ids.length === 0) {
@@ -105,7 +109,18 @@ router.get('/', async(req, res) => {
         }, '-calculated_rating', 8),
       ]);
 
-      discover.highlight.app = highlight ? serialize(highlight, false, architecture, req.apiVersion) : null;
+      discover.highlights = discover.highlights.map((highlight) => {
+        const highlightedApp = highlights.find((app) => app.id == highlight.id);
+
+        return {
+          ...highlight,
+          image: config.server.host + highlight.image,
+          app: serialize(highlightedApp, false, architecture, req.apiVersion),
+        };
+      });
+
+      // Deprecated, for backwards compatibility
+      discover.highlight = discover.highlights[0];
 
       discover.categories = discover.categories.map((category, index) => {
         const apps = discoverCategoriesApps[index].map((app) => serialize(app, false, architecture, req.apiVersion));
@@ -181,11 +196,18 @@ router.get('/', async(req, res) => {
 
     const ids = discover.categories.reduce((accumulator, category) => {
       return [...accumulator, ...category.ids];
-    }, []).concat([discover.highlight.id]);
+    }, []).concat(discover.highlights.map((highlight) => highlight.id));
 
     const ratingCounts = await RatingCountRepo.findByIds(ids);
 
-    discover.highlight.app.ratings = serializeRatings(ratingCounts[discover.highlight.id]);
+    discover.highlight.app.ratings = serializeRatings(ratingCounts[discover.highlights[0].id]);
+    discover.highlights = discover.highlights.map((app) => {
+      return {
+        ...app,
+        ratings: serializeRatings(ratingCounts[app.id]),
+      };
+    });
+
     discover.categories = discover.categories.map((category) => {
       return {
         ...category,

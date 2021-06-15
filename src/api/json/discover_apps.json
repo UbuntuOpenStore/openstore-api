@@ -1,8 +1,21 @@
 {
-    "highlight": {
-        "id": "circlejump.abmyii",
-        "image": "/banners/circlejump.svg"
-    },
+    "highlights": [
+        {
+            "id": "circlejump.abmyii",
+            "image": "/banners/circlejump.svg",
+            "description": "How far can you get? Tap to jump from circle to circle for as long as you can."
+        },
+        {
+            "id": "me.lduboeuf.stellarium",
+            "image": "/banners/stellarium.svg",
+            "description": "A realistic night sky map in 3D in the palm of your hand."
+        },
+        {
+            "id": "fluffychat.christianpauly",
+            "image": "/banners/fluffychat.svg",
+            "description": "A cute and open source matrix client to chat with all your friends!"
+        }
+    ],
     "categories": [
         {
             "name": "New and Updated Apps",
