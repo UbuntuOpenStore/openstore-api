@@ -144,6 +144,7 @@ function setup() {
     '/submit',
     '/apps',
     '/app/:name',
+    '/app/:name/versions',
     '/users',
     '/manage',
     '/manage/:name',
