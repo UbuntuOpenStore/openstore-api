@@ -15,9 +15,9 @@ router.get('/', async(req, res) => {
   const lang = req.query.lang ? req.query.lang : null;
   translations.setLang(lang);
 
-  let channel = req.query.channel ? req.query.channel.toLowerCase() : Package.XENIAL;
+  let channel = req.query.channel ? req.query.channel.toLowerCase() : Package.DEFAULT_CHANNEL;
   if (!Package.CHANNELS.includes(channel)) {
-    channel = Package.XENIAL;
+    channel = Package.DEFAULT_CHANNEL;
   }
 
   try {
@@ -32,7 +32,7 @@ router.get('/', async(req, res) => {
       });
     }
     else {
-      categories = await PackageRepo.categoryStats(channel);
+      categories = await PackageRepo.categoryStats([channel]);
 
       categories = categories.filter((category) => !!category._id)
         .map((category) => {

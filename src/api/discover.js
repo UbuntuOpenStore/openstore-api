@@ -42,9 +42,9 @@ function checkFramework(discover, frameworks) {
 router.get('/', async(req, res) => {
   const frameworks = helpers.getDataArray(req, 'frameworks', defaultFrameworks);
 
-  let channel = helpers.getData(req, 'channel', Package.XENIAL).toLowerCase();
+  let channel = helpers.getData(req, 'channel', Package.DEFAULT_CHANNEL).toLowerCase();
   if (!Package.CHANNELS.includes(channel)) {
-    channel = Package.XENIAL;
+    channel = Package.DEFAULT_CHANNEL;
   }
 
   let architecture = helpers.getData(req, 'architecture', Package.ARMHF).toLowerCase();

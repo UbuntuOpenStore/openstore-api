@@ -206,12 +206,13 @@ const PackageRepo = {
     return Package.updateOne({ _id: id }, { $inc: inc });
   },
 
+  // TODO refactor to support multiple channels
   async stats() {
     const [categoryStats, typeStats, frameworkStats, archStats] = await Promise.all([
-      this.categoryStats(Package.XENIAL),
+      this.categoryStats(Package.CHANNELS),
       Package.aggregate([
         {
-          $match: { published: true, channels: Package.XENIAL },
+          $match: { published: true, channels: { $in: Package.CHANNELS } },
         }, {
           $group: {
             _id: '$types',
@@ -223,7 +224,7 @@ const PackageRepo = {
       ]),
       Package.aggregate([
         {
-          $match: { published: true, channels: Package.XENIAL },
+          $match: { published: true, channels: { $in: Package.CHANNELS } },
         }, {
           $group: {
             _id: '$framework',
@@ -235,7 +236,7 @@ const PackageRepo = {
       ]),
       Package.aggregate([
         {
-          $match: { published: true, channels: Package.XENIAL },
+          $match: { published: true, channels: { $in: Package.CHANNELS } },
         }, {
           $group: {
             _id: '$architectures',
@@ -283,10 +284,10 @@ const PackageRepo = {
     return { categories, types, frameworks, architectures };
   },
 
-  categoryStats(channel) {
+  categoryStats(channels) {
     const match = { published: true };
-    if (channel) {
-      match.channels = channel;
+    if (channels) {
+      match.channels = { $in: channels };
     }
 
     return Package.aggregate([

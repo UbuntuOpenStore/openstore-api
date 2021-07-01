@@ -15,7 +15,12 @@ function iconUrl(pkg) {
   let version = DEFAULT_VERSION;
 
   if (pkg.getLatestRevision) {
-    const { revisionData } = pkg.getLatestRevision(Package.XENIAL);
+    let channel = Package.DEFAULT_CHANNEL;
+    if (!pkg.channels.includes(channel) && pkg.channels.length > 0) {
+      channel = pkg.channels[0];
+    }
+
+    const { revisionData } = pkg.getLatestRevision(channel);
     if (revisionData) {
       version = revisionData.version;
     }
@@ -28,8 +33,13 @@ function iconUrl(pkg) {
   return `${config.server.host}/api/v3/apps/${pkg.id}/icon/${version}${ext}`;
 }
 
-function downloadUrl(pkg, channel, arch) {
-  return `${config.server.host}/api/v3/apps/${pkg.id}/download/${channel}/${arch}`;
+function downloadUrl(pkg, channel, arch, version = null) {
+  let url = `${config.server.host}/api/v3/apps/${pkg.id}/download/${channel}/${arch}`;
+  if (version) {
+    url = `${url}/${version}`;
+  }
+
+  return url;
 }
 
 /* eslint-disable no-restricted-syntax */
@@ -89,17 +99,25 @@ function toJson(pkg, architecture = Package.ARMHF, apiVersion) {
     return cleanLanguage;
   });
 
-  const { revisionData } = pkg.getLatestRevision(Package.XENIAL, architecture);
+  let defaultChannel = Package.DEFAULT_CHANNEL;
+  if (!pkg.channels.includes(defaultChannel) && pkg.channels.length > 0) {
+    defaultChannel = pkg.channels[0];
+  }
+
+  const { revisionData } = pkg.getLatestRevision(defaultChannel, pkg.architectures.includes(architecture) ? architecture : null);
   let filesize = revisionData ? revisionData.filesize : pkg.filesize;
   if (!filesize) {
     filesize = 0;
   }
 
   let revisions = pkg.revisions || [];
-  revisions = revisions.map((revision) => {
-    const r = revision.toObject();
-    delete r._id;
-    return r;
+  revisions = revisions.map((rData) => {
+    return {
+      ...rData.toObject(),
+      _id: undefined,
+      download_url: rData.download_url ? downloadUrl(pkg, rData.channel, rData.architecture, rData.version) : null,
+      filesize: toBytes(rData.filesize),
+    };
   });
 
   const json = {
@@ -108,7 +126,7 @@ function toJson(pkg, architecture = Package.ARMHF, apiVersion) {
     author: pkg.author || '',
     category: pkg.category || '',
     changelog: pkg.changelog || '',
-    channels: pkg.channels || [Package.XENIAL],
+    channels: pkg.channels || [Package.DEFAULT_CHANNEL],
     description: pkg.description || '',
     downloads: [],
     framework: pkg.framework || '',

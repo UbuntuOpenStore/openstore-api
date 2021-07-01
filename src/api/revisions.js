@@ -20,7 +20,7 @@ async function revisionsByVersion(req, res) {
   let architecture = helpers.getData(req, 'architecture', Package.ARMHF).toLowerCase();
 
   if (!Package.CHANNELS.includes(defaultChannel)) {
-    defaultChannel = Package.XENIAL;
+    defaultChannel = Package.DEFAULT_CHANNEL;
   }
 
   if (!Package.ARCHITECTURES.includes(architecture)) {

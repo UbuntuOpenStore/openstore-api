@@ -416,8 +416,8 @@ router.post(
         }
       }
 
-      // Only update the data from the parsed click if it's for XENIAL or if it's the first one
-      const data = (channel == Package.XENIAL || pkg.revisions.length === 0) ? parseData : null;
+      // Only update the data from the parsed click if it's for the default channel or if it's the first one
+      const data = (channel == Package.DEFAULT_CHANNEL || pkg.revisions.length === 0) ? parseData : null;
       const downloadSha512 = await checksum(filePath);
 
       if (data) {
@@ -438,7 +438,7 @@ router.post(
         parseData.installedSize,
       );
 
-      const updateIcon = (channel == Package.XENIAL || !pkg.icon);
+      const updateIcon = (channel == Package.DEFAULT_CHANNEL || !pkg.icon);
       if (updateIcon && parseData.icon) {
         const localIconPath = pkg.getIconFilePath(version, path.extname(parseData.icon));
         await fs.copyFileAsync(parseData.icon, localIconPath);

@@ -94,15 +94,14 @@ router.get('/:id', async(req, res) => {
   }
 });
 
-// TODO account for older versions
-router.get('/:id/download/:channel/:arch', async(req, res) => {
+async function download(req, res) {
   try {
     const pkg = await PackageRepo.findOne(req.params.id, { published: true });
     if (!pkg) {
       return helpers.error(res, APP_NOT_FOUND, 404);
     }
 
-    const channel = req.params.channel ? req.params.channel.toLowerCase() : Package.XENIAL;
+    const channel = req.params.channel ? req.params.channel.toLowerCase() : Package.DEFAULT_CHANNEL;
     if (!Package.CHANNELS.includes(channel)) {
       return helpers.error(res, INVALID_CHANNEL);
     }
@@ -112,8 +111,10 @@ router.get('/:id/download/:channel/:arch', async(req, res) => {
       return helpers.error(res, INVALID_ARCH);
     }
 
-    const { revisionData, revisionIndex } = pkg.getLatestRevision(channel, arch);
-    if (!revisionData.download_url) {
+    const version = req.params.version && req.params.version != 'latest' ? req.params.version : null;
+    const { revisionData, revisionIndex } = pkg.getLatestRevision(channel, arch, true, null, version);
+
+    if (!revisionData || !revisionData.download_url) {
       return helpers.error(res, DOWNLOAD_NOT_FOUND_FOR_CHANNEL, 404);
     }
 
@@ -131,7 +132,10 @@ router.get('/:id/download/:channel/:arch', async(req, res) => {
     helpers.captureException(err, req.originalUrl);
     return helpers.error(res, 'Could not download package at this time');
   }
-});
+}
+
+router.get('/:id/download/:channel/:arch', download);
+router.get('/:id/download/:channel/:arch/:version', download);
 
 router.use('/:id/reviews', reviews.main);
 

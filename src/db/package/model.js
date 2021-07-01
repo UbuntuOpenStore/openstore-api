@@ -104,7 +104,7 @@ packageSchema.index(
   },
 );
 
-packageSchema.methods.getLatestRevision = function(channel, arch, detectAll = true, frameworks = null) {
+packageSchema.methods.getLatestRevision = function(channel, arch, detectAll = true, frameworks = null, version = null) {
   let architecture = arch;
   if (this.architectures.includes('all') && detectAll) {
     architecture = 'all';
@@ -122,8 +122,9 @@ packageSchema.methods.getLatestRevision = function(channel, arch, detectAll = tr
     if (
       (!revisionData || revisionData.revision < data.revision) &&
             data.channel == channel &&
-            archCheck &&
-            (!frameworks || frameworks.includes(data.framework))
+            (!arch || archCheck) &&
+            (!frameworks || frameworks.includes(data.framework)) &&
+            (!version || version == data.version)
     ) {
       revisionData = data;
       revisionIndex = index;
@@ -387,10 +388,13 @@ packageSchema.methods.getIconFilePath = function(version, ext) {
 
 const Package = mongoose.model('Package', packageSchema);
 
-// TODO make a default channel
 Package.XENIAL = 'xenial';
+Package.FOCAL = 'focal';
+Package.DEFAULT_CHANNEL = Package.XENIAL;
+
 Package.CHANNELS = [
   Package.XENIAL,
+  Package.FOCAL,
 ];
 
 Package.ALL = 'all';
