@@ -33,10 +33,6 @@ async function revisionsByVersion(req, res) {
       .filter((pkg) => (pkg.architectures.includes(architecture) || pkg.architectures.includes(Package.ALL)))
       .map((pkg) => {
         let version = versions.filter((v) => (v.split('@')[0] == pkg.id))[0];
-        if (!version) {
-          return null;
-        }
-
         const parts = version.split('@');
         const channel = (parts.length > 2) ? parts[2] : defaultChannel;
         version = parts[1];

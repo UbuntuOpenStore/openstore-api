@@ -118,6 +118,16 @@ function adminOnly(req, res, next) {
   }
 }
 
+function extendTimeout(req, res, next) {
+  // There seems to be a default timeout of 2 minutes: https://stackoverflow.com/a/46157120
+  req.socket.setTimeout(240000); // 4 minutes
+  req.socket.on('timeout', () => {
+    console.log(`socket timeout processing`, req.originalUrl, req.params);
+  });
+
+  next();
+}
+
 function downloadFile(req, res, next) {
   if (!req.file && req.body && req.body.downloadUrl) {
     let filename = path.basename(req.body.downloadUrl);
@@ -167,3 +177,4 @@ exports.userRole = userRole;
 exports.adminOnly = adminOnly;
 exports.downloadFile = downloadFile;
 exports.opengraph = opengraph;
+exports.extendTimeout = extendTimeout;

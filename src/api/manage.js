@@ -15,7 +15,7 @@ const apiLinks = require('../utils/api-links');
 const clickParser = require('../utils/click-parser-async');
 const checksum = require('../utils/checksum');
 const reviewPackage = require('../utils/review-package');
-const { authenticate, userRole, downloadFile } = require('../utils/middleware');
+const { authenticate, userRole, downloadFile, extendTimeout } = require('../utils/middleware');
 const fs = require('../utils/async-fs');
 
 const mupload = multer({ dest: '/tmp' });
@@ -215,7 +215,8 @@ router.post(
 );
 
 const putUpload = mupload.fields([
-  { name: 'screenshot_files', maxCount: 5 },
+  // Don't have a max count here because items over the max count cause a cryptic error, the handling of extra files is done in updateScreenshotFiles()
+  { name: 'screenshot_files' },
 ]);
 
 router.put(
@@ -232,10 +233,6 @@ router.put(
       if (!req.isAdminUser && req.body) {
         delete req.body.maintainer;
         delete req.body.locked;
-        delete req.body.type_override;
-      }
-
-      if (!req.isAdminUser && req.body && req.body.type_override) {
         delete req.body.type_override;
       }
 
@@ -319,16 +316,11 @@ const postUpload = mupload.fields([
 router.post(
   '/:id/revision',
   authenticate,
+  extendTimeout,
   postUpload,
   userRole,
   downloadFile,
   async(req, res) => {
-    // There seems to be a default timeout of 2 minutes: https://stackoverflow.com/a/46157120
-    req.socket.setTimeout(240000); // 4 minutes
-    req.socket.on('timeout', () => {
-      console.log(`socket timeout processing new revision for  ${req.params.id}`);
-    });
-
     if (!req.files || !req.files.file || !req.files.file.length == 1) {
       return helpers.error(res, NO_FILE, 400);
     }
@@ -482,17 +474,6 @@ router.post(
       const message = err.message ? err.message : err;
       logger.error(`Error updating package: ${message}`);
       helpers.captureException(err, req.originalUrl);
-
-      if (err.response) {
-        logger.info('Response data');
-        console.log(err.response.data);
-        console.log(err.response.status);
-        console.log(err.response.headers);
-      }
-      else if (err.request) {
-        logger.info('Request data (no response received)');
-        console.log(err.request);
-      }
 
       return helpers.error(res, 'There was an error updating your app, please try again later');
     }

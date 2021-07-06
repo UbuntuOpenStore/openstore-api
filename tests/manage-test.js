@@ -1,4 +1,5 @@
 const { factory } = require('factory-girl');
+const path = require('path');
 
 const { expect } = require('./helper');
 const PackageRepo = require('../src/db/package/repo');
@@ -350,6 +351,10 @@ describe('Manage POST', () => {
 describe('Manage PUT', () => {
   before(function() {
     this.route = '/api/v3/manage/';
+
+    this.screenshot1 = path.join(__dirname, 'fixtures/empty1.png');
+    this.screenshot2 = path.join(__dirname, 'fixtures/empty2.png');
+    this.notAScreenshot = path.join(__dirname, 'fixtures/empty.click');
   });
 
   beforeEach(async function() {
@@ -367,15 +372,17 @@ describe('Manage PUT', () => {
   });
 
   context('admin user', () => {
-    it('allows changing the maintainer', async function() {
+    it('allows changing admin only fields', async function() {
       const user2 = await factory.create('user');
 
       const res = await this.put(`${this.route}/${this.package.id}`)
-        .send({ maintainer: user2._id })
+        .send({ maintainer: user2._id, type_override: 'webapp', locked: true })
         .expect(200);
 
       expect(res.body.success).to.be.true;
       expect(res.body.data.maintainer).to.equal(user2._id.toString());
+      expect(res.body.data.type_override).to.equal('webapp');
+      expect(res.body.data.locked).to.be.true;
       expect(this.removeStub).to.have.been.calledOnce;
 
       const pkg = await PackageRepo.findOne(this.package.id);
@@ -435,13 +442,15 @@ describe('Manage PUT', () => {
       expect(res.body.message).to.equal('You cannot publish your package until you upload a revision');
     });
 
-    it('does not allow changing the maintainer', async function() {
+    it('does not allow changing admin only fields', async function() {
       const res = await this.put(`${this.route}/${this.package.id}`)
-        .send({ maintainer: 'foo' })
+        .send({ maintainer: 'foo', type_override: 'webapp', locked: true })
         .expect(200);
 
       expect(res.body.success).to.be.true;
       expect(res.body.data.maintainer).to.equal(this.user._id.toString());
+      expect(res.body.data.type_override).to.equal('');
+      expect(res.body.data.locked).to.be.false;
       expect(this.removeStub).to.have.been.calledOnce;
     });
 
@@ -499,10 +508,82 @@ describe('Manage PUT', () => {
       expect(pkg.locked).to.be.true;
     });
 
-    // TODO implement these
-    it('adds screenshots');
-    it('removes screenshots');
-    it('reorders screenshots');
+    it('adds screenshots up to the limit', async function () {
+      const res = await this.put(`${this.route}/${this.package.id}`)
+        .attach('screenshot_files', this.screenshot1)
+        .attach('screenshot_files', this.screenshot2)
+        .attach('screenshot_files', this.screenshot1)
+        .attach('screenshot_files', this.screenshot2)
+        .attach('screenshot_files', this.screenshot1)
+        .attach('screenshot_files', this.screenshot2)
+        .expect(200);
+
+      expect(res.body.success).to.be.true;
+      expect(res.body.data.screenshots).to.have.lengthOf(5);
+
+      const pkg = await PackageRepo.findOne(this.package.id);
+      expect(pkg.screenshots).to.have.lengthOf(5);
+    });
+
+    it('rejects non-images uploaded as screenshots', async function () {
+      const res = await this.put(`${this.route}/${this.package.id}`)
+        .attach('screenshot_files', this.screenshot1)
+        .attach('screenshot_files', this.notAScreenshot)
+        .expect(200);
+
+      expect(res.body.success).to.be.true;
+      expect(res.body.data.screenshots).to.have.lengthOf(1);
+
+      const pkg = await PackageRepo.findOne(this.package.id);
+      expect(pkg.screenshots).to.have.lengthOf(1);
+    });
+
+    it('removes screenshots', async function() {
+      const res = await this.put(`${this.route}/${this.package.id}`)
+        .attach('screenshot_files', this.screenshot1)
+        .attach('screenshot_files', this.screenshot2)
+        .expect(200);
+
+      expect(res.body.success).to.be.true;
+      expect(res.body.data.screenshots).to.have.lengthOf(2);
+
+      const res2 = await this.put(`${this.route}/${this.package.id}`)
+        .send({ screenshots: [] })
+        .expect(200);
+
+      expect(res2.body.success).to.be.true;
+      expect(res2.body.data.screenshots).to.have.lengthOf(0);
+
+      const pkg = await PackageRepo.findOne(this.package.id);
+      expect(pkg.screenshots).to.have.lengthOf(0);
+    });
+
+    it('reorders screenshots', async function() {
+      const res = await this.put(`${this.route}/${this.package.id}`)
+        .attach('screenshot_files', this.screenshot1)
+        .attach('screenshot_files', this.screenshot2)
+        .expect(200);
+
+      expect(res.body.success).to.be.true;
+      expect(res.body.data.screenshots).to.have.lengthOf(2);
+
+      const res2 = await this.put(`${this.route}/${this.package.id}`)
+        .send({ screenshots: [
+          res.body.data.screenshots[1],
+          res.body.data.screenshots[0]
+        ] })
+        .expect(200);
+
+      expect(res2.body.success).to.be.true;
+      expect(res2.body.data.screenshots).to.have.lengthOf(2);
+      expect(res2.body.data.screenshots[0]).to.equal(res.body.data.screenshots[1]);
+      expect(res2.body.data.screenshots[1]).to.equal(res.body.data.screenshots[0]);
+
+      const pkg = await PackageRepo.findOne(this.package.id);
+      expect(pkg.screenshots).to.have.lengthOf(2);
+      expect(pkg.screenshots[0]).to.equal(res.body.data.screenshots[1]);
+      expect(pkg.screenshots[1]).to.equal(res.body.data.screenshots[0]);
+    });
 
     // TODO test pkg.updateFromBody()
   });

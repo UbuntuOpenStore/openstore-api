@@ -167,6 +167,21 @@ describe('Manage Revision POST', () => {
       expect(this.lockReleaseSpy).to.have.been.calledOnce;
     });
 
+    it('fails review (general)', async function () {
+      const reviewStub = this.sandbox.stub(reviewPackage, 'review').resolves(true);
+
+      const res = await this.post(this.route)
+        .attach('file', this.emptyClick)
+        .field('channel', Package.XENIAL)
+        .expect(400);
+
+      expect(res.body.success).to.be.false;
+      expect(res.body.message).to.equal("This app needs to be reviewed manually, please check your app using the click-review command");
+      expect(reviewStub).to.have.been.calledOnce;
+      expect(this.lockAcquireSpy).to.have.been.calledOnce;
+      expect(this.lockReleaseSpy).to.have.been.calledOnce;
+    });
+
     it('fails if not a click', async function() {
       const res = await this.post(this.route)
         .attach('file', this.notAClick)
@@ -357,6 +372,21 @@ describe('Manage Revision POST', () => {
       expect(res.body.message).to.equal('Framework does not match existing click of a different architecture');
       expect(reviewStub).to.have.been.calledOnce;
       expect(parseStub).to.have.been.calledOnce;
+      expect(this.lockAcquireSpy).to.have.been.calledOnce;
+      expect(this.lockReleaseSpy).to.have.been.calledOnce;
+    });
+
+    it('fails when the app is locked', async function() {
+      this.package.locked = true;
+      await this.package.save();
+
+      const res = await this.post(this.route)
+        .attach('file', this.emptyClick)
+        .field('channel', Package.XENIAL)
+        .expect(403);
+
+      expect(res.body.success).to.be.false;
+      expect(res.body.message).to.equal('Sorry this app has been locked by an admin');
       expect(this.lockAcquireSpy).to.have.been.calledOnce;
       expect(this.lockReleaseSpy).to.have.been.calledOnce;
     });

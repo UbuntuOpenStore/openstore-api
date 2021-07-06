@@ -24,6 +24,7 @@ function error(res, message, code) {
   });
 }
 
+// TODO refactor to use axios
 function download(url, filename) {
   return new Promise((resolve, reject) => {
     const r = request(url);
@@ -41,6 +42,8 @@ function download(url, filename) {
         r.pipe(f);
       }
       else {
+        console.log(response);
+
         reject(new Error(`Failed to download "${url}": ${response.statusCode}`));
       }
     });
