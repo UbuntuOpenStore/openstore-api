@@ -508,7 +508,7 @@ describe('Manage PUT', () => {
       expect(pkg.locked).to.be.true;
     });
 
-    it('adds screenshots up to the limit', async function () {
+    it('adds screenshots up to the limit', async function() {
       const res = await this.put(`${this.route}/${this.package.id}`)
         .attach('screenshot_files', this.screenshot1)
         .attach('screenshot_files', this.screenshot2)
@@ -525,7 +525,7 @@ describe('Manage PUT', () => {
       expect(pkg.screenshots).to.have.lengthOf(5);
     });
 
-    it('rejects non-images uploaded as screenshots', async function () {
+    it('rejects non-images uploaded as screenshots', async function() {
       const res = await this.put(`${this.route}/${this.package.id}`)
         .attach('screenshot_files', this.screenshot1)
         .attach('screenshot_files', this.notAScreenshot)
@@ -570,7 +570,7 @@ describe('Manage PUT', () => {
       const res2 = await this.put(`${this.route}/${this.package.id}`)
         .send({ screenshots: [
           res.body.data.screenshots[1],
-          res.body.data.screenshots[0]
+          res.body.data.screenshots[0],
         ] })
         .expect(200);
 

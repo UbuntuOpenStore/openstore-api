@@ -21,29 +21,30 @@ router.get('/', async(req, res) => {
   }
 
   try {
-    let categories = [];
-    if (req.query.all) {
-      categories = categoryNames.map((category) => {
+    let categories = categoryNames.map((category) => {
+      return {
+        name: category,
+      };
+    });
+
+    if (!req.query.all) {
+      categories = (await PackageRepo.categoryStats([channel])).map((stats) => {
         return {
-          category,
-          translation: translations.gettext(category),
-          icon: config.server.host + categoryIcons[category],
+          ...stats,
+          name: stats._id,
         };
       });
     }
-    else {
-      categories = await PackageRepo.categoryStats([channel]);
 
-      categories = categories.filter((category) => !!category._id)
-        .map((category) => {
-          return {
-            category: category._id,
-            translation: translations.gettext(category._id),
-            count: category.count,
-            icon: config.server.host + categoryIcons[category._id],
-          };
-        });
-    }
+    categories = categories.filter((category) => !!category.name)
+      .map((category) => {
+        return {
+          category: category.name,
+          translation: translations.gettext(category.name),
+          count: category.count,
+          icon: config.server.host + categoryIcons[category.name],
+        };
+      });
 
     helpers.success(res, categories);
   }

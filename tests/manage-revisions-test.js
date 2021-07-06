@@ -167,7 +167,7 @@ describe('Manage Revision POST', () => {
       expect(this.lockReleaseSpy).to.have.been.calledOnce;
     });
 
-    it('fails review (general)', async function () {
+    it('fails review (general)', async function() {
       const reviewStub = this.sandbox.stub(reviewPackage, 'review').resolves(true);
 
       const res = await this.post(this.route)
@@ -176,7 +176,7 @@ describe('Manage Revision POST', () => {
         .expect(400);
 
       expect(res.body.success).to.be.false;
-      expect(res.body.message).to.equal("This app needs to be reviewed manually, please check your app using the click-review command");
+      expect(res.body.message).to.equal('This app needs to be reviewed manually, please check your app using the click-review command');
       expect(reviewStub).to.have.been.calledOnce;
       expect(this.lockAcquireSpy).to.have.been.calledOnce;
       expect(this.lockReleaseSpy).to.have.been.calledOnce;

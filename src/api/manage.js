@@ -215,7 +215,10 @@ router.post(
 );
 
 const putUpload = mupload.fields([
-  // Don't have a max count here because items over the max count cause a cryptic error, the handling of extra files is done in updateScreenshotFiles()
+  /*
+    Don't have a max count here because items over the max count cause a cryptic error,
+    the handling of extra files is done in updateScreenshotFiles()
+  */
   { name: 'screenshot_files' },
 ]);
 
