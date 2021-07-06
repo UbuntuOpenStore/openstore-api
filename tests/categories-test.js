@@ -11,7 +11,7 @@ describe('Manage GET', () => {
   });
 
   beforeEach(async function() {
-    [this.package] = await Promise.all([
+    await Promise.all([
       factory.create('package', { published: true, category: 'Utilities', channels: [Package.DEFAULT_CHANNEL] }),
       factory.create('package', { published: true, category: 'Utilities', channels: [Package.DEFAULT_CHANNEL] }),
       factory.create('package', { published: true, category: 'Games', channels: [Package.DEFAULT_CHANNEL] }),

@@ -112,12 +112,16 @@ router.get('/', async(req, res) => {
       discover.highlights = discover.highlights.map((highlight) => {
         const highlightedApp = highlights.find((app) => app.id == highlight.id);
 
+        if (!highlightedApp) {
+          return null;
+        }
+
         return {
           ...highlight,
           image: config.server.host + highlight.image,
           app: serialize(highlightedApp, false, architecture, req.apiVersion),
         };
-      });
+      }).filter(Boolean);
 
       // Deprecated, for backwards compatibility
       discover.highlight = discover.highlights[0];
@@ -137,7 +141,6 @@ router.get('/', async(req, res) => {
 
       // Get the 10 latest updated or published apps
       let newAndUpdatedApps = newApps.concat(updatedApps);
-
       newAndUpdatedApps = newAndUpdatedApps.filter((app, pos) => {
         return newAndUpdatedApps.findIndex((a) => a.id == app.id) == pos;
       });

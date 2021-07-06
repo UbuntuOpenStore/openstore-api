@@ -86,7 +86,6 @@ function sanitize(html) {
 
 function captureException(err, route) {
   if (process.env.NODE_ENV != 'testing') {
-    // TODO clean this up
     console.error(err);
   }
 
