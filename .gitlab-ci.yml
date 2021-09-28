@@ -46,3 +46,14 @@ deploy_staging:
     - npm install
     - rsync -av --delete --exclude node_modules --exclude ".*" . root@ssh.open-store.io:/srv/openstore-api$ENV/$VERSION
     - ssh root@ssh.open-store.io "/srv/openstore-api$ENV/$VERSION/deploy/post-deploy.sh $VERSION $ENV"
+
+sast:
+  variables:
+    SAST_EXCLUDED_PATHS: spec, test, tests, tmp, po, deploy
+    SAST_EXCLUDED_ANALYZERS: bandit, brakeman, eslint, flawfinder, gosec, kubesec,
+      phpcs-security-audit, pmd-apex, security-code-scan, sobelow, spotbugs
+  stage: test
+
+include:
+  - template: Security/SAST.gitlab-ci.yml
+  - template: Security/Dependency-Scanning.gitlab-ci.yml
