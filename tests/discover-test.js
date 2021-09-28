@@ -6,7 +6,7 @@ const PackageRepo = require('../src/db/package/repo');
 const RatingCountRepo = require('../src/db/rating_count/repo');
 const discoverJSON = require('../src/api/json/discover_apps.json');
 
-describe('Manage GET', () => {
+describe('Discover API', () => {
   before(function() {
     this.route = '/api/v3/discover/';
   });

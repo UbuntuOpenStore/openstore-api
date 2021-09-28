@@ -139,6 +139,7 @@ router.get('/:id/download/:channel/:arch/:version', download);
 
 router.use('/:id/reviews', reviews.main);
 
+// TODO allow nginx to serve these directly
 async function icon(req, res) {
   const id = req.params.id.replace('.png', '').replace('.svg', '').replace('.jpg', '').replace('.jpeg', '');
 
@@ -164,6 +165,7 @@ async function icon(req, res) {
 
 router.get('/:id/icon/:version', icon);
 
+// TODO allow nginx to serve these directly
 function screenshot(req, res) {
   const filename = `${config.image_dir}/${req.params.name}`;
   if (fs.existsSync(filename)) {

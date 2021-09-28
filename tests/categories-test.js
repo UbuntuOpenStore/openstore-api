@@ -5,7 +5,7 @@ const Package = require('../src/db/package/model');
 const PackageRepo = require('../src/db/package/repo');
 const categoryIcons = require('../src/api/json/category_icons.json');
 
-describe('Manage GET', () => {
+describe('Categories API', () => {
   before(function() {
     this.route = '/api/v3/categories/';
   });
