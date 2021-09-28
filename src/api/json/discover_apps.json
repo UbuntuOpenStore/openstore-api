@@ -24,36 +24,31 @@
             "ids": []
         },
         {
-            "name": "Games",
-            "tagline": "We are all our own worst enemy. But also, our best teacher.",
+            "name": "Godot Games",
+            "tagline": "The game engine you waited for",
             "referral": "Games",
             "ids": [
-                "taquin.aloysliska",
+                "tanks.arc676",
                 "circlejump.abmyii",
-                "neverball.abmyii",
-                "openttd.abmyii",
-                "tuxracer.abmyii",
-                "superttt.emanuelesorce",
-                "guess-words.bhdouglass",
-                "circlepuzzle.cibersheep",
-                "esviji.cibersheep"
+                "liner.abmyii",
+                "package-resolved.marquiskurt",
+                "godot3dtest.pavelprosto"
             ]
         },
         {
             "name": "Tools",
-            "tagline": "It’s not the thing itself, but how you use it.",
+            "tagline": "Even the simplest tools can empower people to do great things",
             "referral": "Utilities",
             "ids": [
-                "watercount.aaron",
-                "it.mardy.lomiri-vnc",
-                "quickconversions.phelion",
-                "wifiscanner.arubislander",
-                "uvolman.mateosalta",
-                "openstore.tagger",
-                "authenticator-ng.dobey",
-                "uadblock.mariogrip",
-                "ut-tweak-tool.sverzegnassi",
-                "webber.timsueberkrueb"
+                "ut-sysbench-qt-gui",
+                "wireguard.davidv.dev",
+                "keepass.davidv.dev",
+                "networkspeedtest.francesco",
+                "bincalc.piotrzpl",
+                "scooter.s710",
+                "subaybay.kugiigi",
+                "hhash.mateosalta",
+                "transmission.pavelprosto"
             ]
         },
         {
