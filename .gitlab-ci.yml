@@ -12,6 +12,7 @@ test:
     - npm install
   script:
     - npm run lint
+    - npm run lint:json
     - npm run test:ci
 
 deploy:
