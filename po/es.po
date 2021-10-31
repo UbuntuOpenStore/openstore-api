@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2017-06-20 01:45:+0000\n"
-"PO-Revision-Date: 2021-02-11 11:33+0000\n"
-"Last-Translator: Josué <j2g2rp@gmail.com>\n"
+"PO-Revision-Date: 2021-10-04 12:16+0000\n"
+"Last-Translator: anonymous <noreply@weblate.org>\n"
 "Language-Team: Spanish <https://translate.ubports.com/projects/openstore/"
 "openstore-api/es/>\n"
 "Language: es\n"
@@ -26,7 +26,7 @@ msgid "Communication & Social"
 msgstr "Comunicación y social"
 
 msgid "Developer Tools"
-msgstr "Herramientas de desarrollador"
+msgstr "Herramientas de desarrollo"
 
 msgid "Education & Reference"
 msgstr "Educación y referencia"
@@ -44,13 +44,13 @@ msgid "Graphics"
 msgstr "Gráficos"
 
 msgid "Health & Fitness"
-msgstr "Salud y fitness"
+msgstr "Salud y condición física"
 
 msgid "Lifestyle"
 msgstr "Estilo de vida"
 
 msgid "Media & Video"
-msgstr "Medios de comunicación y vídeo"
+msgstr "Multimedia y vídeo"
 
 msgid "Music & Audio"
 msgstr "Música y sonido"
@@ -74,7 +74,7 @@ msgid "Sports"
 msgstr "Deportes"
 
 msgid "Travel & Weather"
-msgstr "Viaje y clima"
+msgstr "Viajes y meteorología"
 
 msgid "Utilities"
 msgstr "Utilidades"
@@ -96,7 +96,7 @@ msgstr "Salud y bienestar"
 
 # Discovery section category tagline for "Health & Wellness"
 msgid "An apple a day..."
-msgstr "Una manzana al día..."
+msgstr "Una manzana al día…"
 
 # Discovery section category name
 msgid "Cross Platform Apps"
@@ -119,12 +119,12 @@ msgstr "Herramientas de desarrollo y referencia"
 
 # Discovery section category tagline for "Dev Tools & Reference"
 msgid "Talk is cheap. Show me the code."
-msgstr "Hablar es gratis. Enséñame el código."
+msgstr "Hablar es fácil. Enséñame el código."
 
 # Discovery section category name
 msgid "Most Loved"
-msgstr "Mas queridas"
+msgstr "Mejor valoradas"
 
 # Discovery section category tagline for "Most Loved"
 msgid "Apps with the highest ratings"
-msgstr "Aplicaciones con la puntuación mas alta"
+msgstr "Aplicaciones con las mejores puntuaciones"
