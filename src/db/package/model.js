@@ -286,8 +286,11 @@ packageSchema.methods.updateFromBody = async function(body) {
   }
 
   if (body.video_url || body.video_url === '') {
-    // TODO support regular youtube urls and transform them into embedded urls
-    if (body.video_url.indexOf('https://www.youtube.com/embed/') === 0) {
+    // TODO support regular urls and transform them into embedded urls
+    if (
+      body.video_url.indexOf('https://www.youtube.com/embed/') === 0 ||
+      body.video_url.indexOf('https://odysee.com/$/embed/') === 0
+    ) {
       this.video_url = body.video_url;
     }
     else {
