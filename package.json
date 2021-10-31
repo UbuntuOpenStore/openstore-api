@@ -8,8 +8,8 @@
     "dev": "cd src && supervisor -V -w api,db,utils,index.js index.js",
     "lint": "eslint ./src/ ./tests/ --fix",
     "lint:json": "jsonlint -q ./src/api/json/category_icons.json && jsonlint -q ./src/api/json/default_frameworks.json && jsonlint -q ./src/api/json/discover_apps.json",
-    "test": "PORT=8888 NODE_ENV=testing MONGODB_URI=mongodb://127.0.0.1:27017 MONGODB_DB=openstore-test mocha tests --reporter dot",
-    "coverage": "PORT=8888 NODE_ENV=testing MONGODB_URI=mongodb://127.0.0.1:27017 MONGODB_DB=openstore-test nyc mocha tests --reporter dot",
+    "test": "PORT=8888 NODE_ENV=testing MONGODB_URI=mongodb://127.0.0.1:27017 MONGODB_DB=openstore-test ELASTICSEARCH_URI=http://127.0.0.1:9200/ ELASTICSEARCH_INDEX=openstore_test mocha tests --reporter dot",
+    "coverage": "PORT=8888 NODE_ENV=testing MONGODB_URI=mongodb://127.0.0.1:27017 MONGODB_DB=openstore-test ELASTICSEARCH_URI=http://127.0.0.1:9200/ ELASTICSEARCH_INDEX=openstore_test nyc mocha tests --reporter dot",
     "test:ci": "NODE_ENV=testing nyc mocha tests --reporter dot",
     "update-pot-file": "src/bin/update-pot-file"
   },

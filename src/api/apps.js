@@ -103,12 +103,12 @@ async function download(req, res) {
 
     const channel = req.params.channel ? req.params.channel.toLowerCase() : Package.DEFAULT_CHANNEL;
     if (!Package.CHANNELS.includes(channel)) {
-      return helpers.error(res, INVALID_CHANNEL);
+      return helpers.error(res, INVALID_CHANNEL, 400);
     }
 
     const arch = req.params.arch ? req.params.arch.toLowerCase() : Package.ARMHF;
     if (!Package.ARCHITECTURES.includes(arch)) {
-      return helpers.error(res, INVALID_ARCH);
+      return helpers.error(res, INVALID_ARCH, 400);
     }
 
     const version = req.params.version && req.params.version != 'latest' ? req.params.version : null;
