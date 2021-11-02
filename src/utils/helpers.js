@@ -1,6 +1,7 @@
 const request = require('request');
 const sanitizeHtml = require('sanitize-html');
 const Sentry = require('@sentry/node');
+const isString = require('lodash/isString');
 
 const fs = require('./async-fs');
 const logger = require('./logger');
@@ -50,7 +51,7 @@ function download(url, filename) {
   });
 }
 
-function getData(req, name) {
+function getData(req, name, defaultData) {
   if (req.query && req.query[name]) {
     return req.query[name].trim();
   }
@@ -59,11 +60,15 @@ function getData(req, name) {
     return req.body[name].trim();
   }
 
-  return '';
+  return defaultData || '';
 }
 
 function getDataArray(req, name, defaultData) {
   if (req.query && req.query[name]) {
+    if (Array.isArray(req.query[name])) {
+      return req.query[name];
+    }
+
     return req.query[name].split(',');
   }
 
@@ -72,6 +77,26 @@ function getDataArray(req, name, defaultData) {
   }
 
   return defaultData || [];
+}
+
+function getDataBoolean(req, name, defaultData) {
+  if (req.query && req.query[name] !== undefined) {
+    if (isString(req.query[name])) {
+      return req.query[name].toLowerCase() == 'true';
+    }
+
+    return Boolean(req.query[name]);
+  }
+
+  if (req.body && req.body[name] !== undefined) {
+    if (isString(req.body[name])) {
+      return req.body[name].toLowerCase() == 'true';
+    }
+
+    return Boolean(req.body[name]);
+  }
+
+  return Boolean(defaultData);
 }
 
 function sanitize(html) {
@@ -100,5 +125,6 @@ exports.error = error;
 exports.download = download;
 exports.getData = getData;
 exports.getDataArray = getDataArray;
+exports.getDataBoolean = getDataBoolean;
 exports.sanitize = sanitize;
 exports.captureException = captureException;

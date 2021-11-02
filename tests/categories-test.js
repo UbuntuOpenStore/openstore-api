@@ -10,7 +10,7 @@ describe('Categories API', () => {
     this.route = '/api/v3/categories/';
   });
 
-  beforeEach(async function() {
+  beforeEach(async() => {
     await Promise.all([
       factory.create('package', { published: true, category: 'Utilities', channels: [Package.DEFAULT_CHANNEL] }),
       factory.create('package', { published: true, category: 'Utilities', channels: [Package.DEFAULT_CHANNEL] }),
