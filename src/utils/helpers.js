@@ -73,7 +73,11 @@ function getDataArray(req, name, defaultData) {
   }
 
   if (req.body && req.body[name]) {
-    return req.body[name];
+    if (Array.isArray(req.body[name])) {
+      return req.body[name];
+    }
+
+    return req.body[name].split(',');
   }
 
   return defaultData || [];
