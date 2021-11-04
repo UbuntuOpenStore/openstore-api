@@ -569,8 +569,8 @@ describe('Manage PUT', () => {
 
       const res2 = await this.put(`${this.route}/${this.package.id}`)
         .send({ screenshots: [
-          res.body.data.screenshots[1],
-          res.body.data.screenshots[0],
+          res.body.data.screenshots[1].replace('http://local.open-store.io/screenshots/', ''),
+          res.body.data.screenshots[0].replace('http://local.open-store.io/screenshots/', ''),
         ] })
         .expect(200);
 
@@ -581,8 +581,8 @@ describe('Manage PUT', () => {
 
       const pkg = await PackageRepo.findOne(this.package.id);
       expect(pkg.screenshots).to.have.lengthOf(2);
-      expect(pkg.screenshots[0]).to.equal(res.body.data.screenshots[1]);
-      expect(pkg.screenshots[1]).to.equal(res.body.data.screenshots[0]);
+      expect(pkg.screenshots[0]).to.equal(res.body.data.screenshots[1].replace('http://local.open-store.io/screenshots/', ''));
+      expect(pkg.screenshots[1]).to.equal(res.body.data.screenshots[0].replace('http://local.open-store.io/screenshots/', ''));
     });
 
     // TODO test pkg.updateFromBody()

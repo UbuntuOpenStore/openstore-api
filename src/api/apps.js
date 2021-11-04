@@ -1,4 +1,3 @@
-const path = require('path');
 const mime = require('mime');
 const express = require('express');
 
@@ -8,7 +7,6 @@ const PackageRepo = require('../db/package/repo');
 const PackageSearch = require('../db/package/search');
 const { serialize } = require('../db/package/serializer');
 const RatingCountRepo = require('../db/rating_count/repo');
-const config = require('../utils/config');
 const logger = require('../utils/logger');
 const helpers = require('../utils/helpers');
 const apiLinks = require('../utils/api-links');
