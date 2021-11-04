@@ -33,6 +33,12 @@ function iconUrl(pkg) {
   return `${config.server.host}/icons/${pkg.id}/${pkg.id}-${version}${ext}`;
 }
 
+function screenshotUrls(pkg) {
+  return pkg.screenshots.map((file) => {
+    return `${config.server.host}/screenshots/${file}`;
+  });
+}
+
 function downloadUrl(pkg, channel, arch, version = null) {
   let url = `${config.server.host}/api/v3/apps/${pkg.id}/download/${channel}/${arch}`;
   if (version) {
@@ -145,7 +151,7 @@ function toJson(pkg, architecture = Package.ARMHF, apiVersion) {
     published_date: pkg.published_date || '',
     published: !!pkg.published,
     locked: !!pkg.locked,
-    screenshots: pkg.screenshots || [],
+    screenshots: screenshotUrls(pkg),
     source: pkg.source || '',
     support_url: pkg.support_url || '',
     donate_url: pkg.donate_url || '',

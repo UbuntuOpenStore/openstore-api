@@ -107,7 +107,7 @@ function updateScreenshotFiles(pkg, screenshotFiles) {
         `${config.image_dir}/${filename}`,
       );
 
-      pkg.screenshots.push(`${config.server.host}/api/screenshot/${filename}`);
+      pkg.screenshots.push(filename);
     }
   }
 

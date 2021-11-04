@@ -139,28 +139,18 @@ router.get('/:id/download/:channel/:arch/:version', download);
 
 router.use('/:id/reviews', reviews.main);
 
+// can be removed in next api version
 router.get('/:id/icon/:version', (req, res) => {
   const id = req.params.id.replace('.png', '').replace('.svg', '').replace('.jpg', '').replace('.jpeg', '');
 
   res.redirect(301, `/icons/${id}/${id}-${req.params.version || '0.0.0'}`);
 });
 
-// TODO allow nginx to serve these directly
+// can be removed in next api version
 function screenshot(req, res) {
-  const filename = `${config.image_dir}/${req.params.name}`;
-  if (fs.existsSync(filename)) {
-    res.setHeader('Content-type', mime.getType(filename));
-    res.setHeader('Cache-Control', 'public, max-age=2592000'); // 30 days
-    fs.createReadStream(filename).pipe(res);
-  }
-  else {
-    res.status(404);
-    fs.createReadStream(path.join(config.image_dir, '404.png')).pipe(res);
-  }
+  res.redirect(301, `/screenshots/${req.params.name}`);
 }
 
-// TODO depricate & update existing urls
-// TODO make urls be generated based on file name
 screenshotRouter.get('/:name', screenshot);
 router.get('/:id/screenshot/:name', screenshot);
 

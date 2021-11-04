@@ -1,0 +1,28 @@
+#!/usr/bin/env node
+
+const pLimit = require('p-limit');
+const path = require('path');
+
+require('../db'); // Make sure the database connection gets setup
+const Package = require('../db/package/model');
+const fs = require('../utils/async-fs');
+const config = require('../utils/config');
+
+const limit = pLimit(10);
+
+Package.find({}).then((pkgs) => {
+  return Promise.all(pkgs.map((pkg) => {
+    return limit(async () => {
+        pkg.screenshots = pkg.screenshots.map((url) => url.replace('https://open-store.io/api/screenshot/', '')).filter((file) => {
+            return fs.existsSync(path.join(config.image_dir, file));
+        });
+        return pkg.save();
+    });
+  }));
+}).then(() => {
+  console.log('done');
+  process.exit(0);
+}).catch((err) => {
+  console.log(err);
+  process.exit(1);
+});
