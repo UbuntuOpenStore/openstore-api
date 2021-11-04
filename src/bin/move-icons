@@ -1,0 +1,50 @@
+#!/usr/bin/env node
+
+const pLimit = require('p-limit');
+const path = require('path');
+
+require('../db'); // Make sure the database connection gets setup
+const Package = require('../db/package/model');
+const fs = require('../utils/async-fs');
+const clickParser = require('../utils/click-parser-async');
+const config = require('../utils/config');
+
+const limit = pLimit(10);
+
+Package.find({}).then((pkgs) => {
+  return Promise.all(pkgs.map((pkg) => {
+    return limit(async () => {
+        if (pkg.icon) {
+            const newName = `${pkg.id}${path.extname(pkg.icon)}`;
+            const newPath = path.join(config.icon_dir, newName);
+            console.log(`moving icon for ${pkg.id}: ${newPath}`);
+
+            await fs.renameAsync(pkg.icon, newPath);
+
+            pkg.icon = newPath;
+            await pkg.save();
+
+            return newName;
+        }
+        else {
+            console.log(`no icon found for ${pkg.id}`);
+        }
+    });
+  }));
+}).then(async (newIconPaths) => {
+    const existing = await fs.readdirSync(config.icon_dir);
+    return Promise.all(existing.map((existingFile) => {
+        return limit(() => {
+            if (!newIconPaths.includes(existingFile) && existingFile != '404.png') {
+                console.log(`removing ${existingFile}`);
+                return fs.unlinkAsync(path.join(config.icon_dir, existingFile));
+            }
+        });
+    }));
+}).then(() => {
+  console.log('done');
+  process.exit(0);
+}).catch((err) => {
+  console.log(err);
+  process.exit(1);
+});
