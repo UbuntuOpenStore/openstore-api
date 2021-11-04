@@ -385,8 +385,8 @@ packageSchema.methods.getClickFilePath = function(channel, arch, version) {
   return path.join(config.data_dir, `${this.id}-${channel}-${arch}-${version}.click`);
 };
 
-packageSchema.methods.getIconFilePath = function(version, ext) {
-  return path.join(config.icon_dir, `${this.id}-${version}${ext}`);
+packageSchema.methods.getIconFilePath = function(ext) {
+  return path.join(config.icon_dir, `${this.id}${ext}`);
 };
 
 const Package = mongoose.model('Package', packageSchema);

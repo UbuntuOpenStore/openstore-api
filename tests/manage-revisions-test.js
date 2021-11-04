@@ -440,7 +440,7 @@ describe('Manage Revision POST', () => {
       expect(data.author).to.equal('OpenStore Team');
       expect(data.channels).to.deep.equal([Package.XENIAL]);
       expect(data.framework).to.equal('ubuntu-sdk-16.04');
-      expect(data.icon).to.equal('http://local.open-store.io/api/v3/apps/openstore-test.openstore-team/icon/1.0.0.svg');
+      expect(data.icon).to.equal('http://local.open-store.io/icons/openstore-test.openstore-team/openstore-test.openstore-team-1.0.0.svg');
       expect(data.permissions).to.deep.equal(['networking']);
       expect(data.published).to.be.true;
       expect(data.manifest).to.be.ok;

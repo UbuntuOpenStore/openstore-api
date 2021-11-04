@@ -38,11 +38,11 @@ describe('PackageSerializer', () => {
   context('iconUrl', () => {
     it('generates an icon url', function() {
       this.package.newRevision('1.0.0', Package.XENIAL, Package.ARMHF, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
-      expect(iconUrl(this.package)).to.equal('http://local.open-store.io/api/v3/apps/app.id/icon/1.0.0.png');
+      expect(iconUrl(this.package)).to.equal('http://local.open-store.io/icons/app.id/app.id-1.0.0.png');
     });
 
     it('generates an icon url with no version info', function() {
-      expect(iconUrl(this.package)).to.equal('http://local.open-store.io/api/v3/apps/app.id/icon/0.0.0.png');
+      expect(iconUrl(this.package)).to.equal('http://local.open-store.io/icons/app.id/app.id-0.0.0.png');
     });
   });
 
@@ -67,7 +67,7 @@ describe('PackageSerializer', () => {
       expect(serialized).to.deep.equal({
         id: 'app.id',
         name: 'Best App Ever',
-        icon: 'http://local.open-store.io/api/v3/apps/app.id/icon/0.0.0.png',
+        icon: 'http://local.open-store.io/icons/app.id/app.id-0.0.0.png',
         channels: [Package.DEFAULT_CHANNEL],
         architectures: [Package.ARMHF, Package.ARM64],
         author: 'Jill',
@@ -104,7 +104,7 @@ describe('PackageSerializer', () => {
       expect(serialized).to.deep.equal({
         id: 'app.id',
         name: 'Best App Ever',
-        icon: 'http://local.open-store.io/api/v3/apps/app.id/icon/1.0.0.png',
+        icon: 'http://local.open-store.io/icons/app.id/app.id-1.0.0.png',
         channels: [Package.DEFAULT_CHANNEL],
         architecture: `${Package.ARMHF},${Package.ARM64}`,
         architectures: [Package.ARMHF, Package.ARM64],

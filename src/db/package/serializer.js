@@ -30,7 +30,7 @@ function iconUrl(pkg) {
     version = pkg.version;
   }
 
-  return `${config.server.host}/api/v3/apps/${pkg.id}/icon/${version}${ext}`;
+  return `${config.server.host}/icons/${pkg.id}/${pkg.id}-${version}${ext}`;
 }
 
 function downloadUrl(pkg, channel, arch, version = null) {

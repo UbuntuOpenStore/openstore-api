@@ -435,10 +435,15 @@ router.post(
 
       const updateIcon = (channel == Package.DEFAULT_CHANNEL || !pkg.icon);
       if (updateIcon && parseData.icon) {
-        const localIconPath = pkg.getIconFilePath(version, path.extname(parseData.icon));
-        await fs.copyFileAsync(parseData.icon, localIconPath);
+        const ext = path.extname(parseData.icon).toLowerCase();
+        if (['.png', '.jpg', '.jpeg', '.svg'].includes(ext)) {
+          const localIconPath = pkg.getIconFilePath(ext);
+          await fs.copyFileAsync(parseData.icon, localIconPath);
+
+          pkg.icon = localIconPath;
+        }
+
         await fs.unlinkAsync(parseData.icon);
-        pkg.icon = localIconPath;
       }
 
       if (req.body.changelog) {

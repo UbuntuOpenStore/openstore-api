@@ -139,31 +139,11 @@ router.get('/:id/download/:channel/:arch/:version', download);
 
 router.use('/:id/reviews', reviews.main);
 
-// TODO allow nginx to serve these directly
-async function icon(req, res) {
+router.get('/:id/icon/:version', (req, res) => {
   const id = req.params.id.replace('.png', '').replace('.svg', '').replace('.jpg', '').replace('.jpeg', '');
 
-  try {
-    // Not filtering out unpublished packages here so we can show the icon when managing apps
-    const pkg = await PackageRepo.findOne(id);
-    if (!pkg || !pkg.icon) {
-      throw APP_NOT_FOUND;
-    }
-
-    const stat = await fs.statAsync(pkg.icon);
-    res.setHeader('Content-Length', stat.size);
-    res.setHeader('Content-type', mime.getType(pkg.icon));
-    res.setHeader('Cache-Control', 'public, max-age=2592000'); // 30 days
-
-    fs.createReadStream(pkg.icon).pipe(res);
-  }
-  catch (err) {
-    res.status(404);
-    fs.createReadStream(path.join(__dirname, '../404.png')).pipe(res);
-  }
-}
-
-router.get('/:id/icon/:version', icon);
+  res.redirect(301, `/icons/${id}/${id}-${req.params.version ?? '0.0.0'}`);
+});
 
 // TODO allow nginx to serve these directly
 function screenshot(req, res) {
