@@ -112,12 +112,14 @@ function toJson(pkg, architecture = Package.ARMHF, apiVersion) {
 
   let revisions = pkg.revisions || [];
   revisions = revisions.map((rData) => {
-    return {
+    const revision = {
       ...rData.toObject(),
-      _id: undefined,
       download_url: rData.download_url ? downloadUrl(pkg, rData.channel, rData.architecture, rData.version) : null,
       filesize: toBytes(rData.filesize),
     };
+
+    delete revision._id;
+    return revision;
   });
 
   const json = {
@@ -175,6 +177,7 @@ function toJson(pkg, architecture = Package.ARMHF, apiVersion) {
         }
 
         const { revisionData: downloadRevisionData } = pkg.getLatestRevision(channel, arch, false);
+
         if (downloadRevisionData) {
           const download = {
             ...downloadRevisionData.toObject(),

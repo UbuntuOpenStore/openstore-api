@@ -1,4 +1,10 @@
-exports.RATINGS = ['THUMBS_UP', 'THUMBS_DOWN', 'HAPPY', 'NEUTRAL', 'BUGGY'];
+exports.RATINGS = [
+  'THUMBS_UP',
+  'THUMBS_DOWN',
+  'HAPPY',
+  'NEUTRAL',
+  'BUGGY',
+];
 
 exports.REVIEW_MAX_LEN = 512;
 

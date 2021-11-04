@@ -18,7 +18,7 @@ describe('Helpers', () => {
 
   context('getDataArray', () => {
     it('gets array data from the query', () => {
-      expect(getDataArray({ query: { foo: [ 'bar', 'baz' ]}}, 'foo')).to.deep.equal(['bar', 'baz']);
+      expect(getDataArray({ query: { foo: ['bar', 'baz'] } }, 'foo')).to.deep.equal(['bar', 'baz']);
     });
 
     it('gets csv data from the query', () => {
