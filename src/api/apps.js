@@ -155,7 +155,7 @@ function screenshot(req, res) {
   }
   else {
     res.status(404);
-    fs.createReadStream(path.join(__dirname, '../404.png')).pipe(res);
+    fs.createReadStream(path.join(config.image_dir, '404.png')).pipe(res);
   }
 }
 
