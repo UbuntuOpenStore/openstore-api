@@ -142,7 +142,7 @@ router.use('/:id/reviews', reviews.main);
 router.get('/:id/icon/:version', (req, res) => {
   const id = req.params.id.replace('.png', '').replace('.svg', '').replace('.jpg', '').replace('.jpeg', '');
 
-  res.redirect(301, `/icons/${id}/${id}-${req.params.version ?? '0.0.0'}`);
+  res.redirect(301, `/icons/${id}/${id}-${req.params.version || '0.0.0'}`);
 });
 
 // TODO allow nginx to serve these directly

@@ -1,6 +1,6 @@
-const Package = require("../src/db/package/model");
-const Review = require("../src/db/review/model");
-const User = require("../src/db/user/model");
+const Package = require('../src/db/package/model');
+const Review = require('../src/db/review/model');
+const User = require('../src/db/user/model');
 
 module.exports = {
   package(data = {}) {
@@ -36,5 +36,5 @@ module.exports = {
     });
 
     return user.save();
-  }
+  },
 };

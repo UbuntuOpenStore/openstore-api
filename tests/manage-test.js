@@ -1,5 +1,5 @@
-const factory = require('./factory');
 const path = require('path');
+const factory = require('./factory');
 
 const { expect } = require('./helper');
 const PackageRepo = require('../src/db/package/repo');
