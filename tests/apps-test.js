@@ -1,4 +1,4 @@
-const { factory } = require('factory-girl');
+const factory = require('./factory');
 
 const { expect } = require('./helper');
 const Package = require('../src/db/package/model');
@@ -11,7 +11,7 @@ describe('Apps API', () => {
 
   beforeEach(async function() {
     const [package1, package2, package3] = await Promise.all([
-      factory.create('package', {
+      factory.package({
         id: 'app1',
         name: 'App1',
         author: 'John',
@@ -19,7 +19,7 @@ describe('Apps API', () => {
         category: 'Utilities',
         channels: [Package.DEFAULT_CHANNEL],
       }),
-      factory.create('package', {
+      factory.package({
         id: 'app2',
         name: 'App2',
         author: 'Jane',
@@ -27,7 +27,7 @@ describe('Apps API', () => {
         category: 'Games',
         channels: [Package.DEFAULT_CHANNEL],
       }),
-      factory.create('package', {
+      factory.package({
         id: 'app3',
         name: 'App3',
         author: 'Joe',
@@ -120,7 +120,7 @@ describe('Apps API', () => {
 
   context('GET app download', () => {
     beforeEach(async function() {
-      this.package4 = await factory.create('package', {
+      this.package4 = await factory.package({
         id: 'app4',
         published: true,
         category: 'Utilities',

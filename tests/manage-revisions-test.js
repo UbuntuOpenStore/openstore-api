@@ -1,5 +1,5 @@
 const path = require('path');
-const { factory } = require('factory-girl');
+const factory = require('./factory');
 
 const { expect } = require('./helper');
 const Package = require('../src/db/package/model');
@@ -13,12 +13,12 @@ const PackageSearch = require('../src/db/package/search');
 describe('Manage Revision POST', () => {
   beforeEach(async function() {
     [this.package, this.package2] = await Promise.all([
-      factory.create('package', {
+      factory.package({
         maintainer: this.user._id,
         name: 'OpenStore Test',
         id: 'openstore-test.openstore-team',
       }),
-      factory.create('package'),
+      factory.package(),
     ]);
 
     this.route = `/api/v3/manage/${this.package.id}/revision`;

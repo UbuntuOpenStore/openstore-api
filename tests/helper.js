@@ -1,17 +1,11 @@
 const chai = require('chai');
-const FactoryGirl = require('factory-girl');
 const mongoose = require('mongoose');
 const request = require('supertest');
 const sinon = require('sinon');
 const sinonChai = require('sinon-chai');
 
-require('./factories/package');
-require('./factories/user');
-require('./factories/review');
+const factory = require('./factory');
 const api = require('../src/api');
-
-const adapter = new FactoryGirl.MongooseAdapter();
-FactoryGirl.factory.setAdapter(adapter);
 
 chai.use(sinonChai);
 chai.config.includeStack = true;
@@ -55,7 +49,7 @@ beforeEach(async function() {
     return collection.deleteMany({});
   }));
 
-  this.user = await FactoryGirl.factory.create('user', { role: 'admin' });
+  this.user = await factory.user({ role: 'admin' });
 });
 
 after(function() {

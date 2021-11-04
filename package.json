@@ -56,7 +56,6 @@
     "eslint-config-airbnb-base": "^14.1.0",
     "eslint-config-bhdouglass": "0.0.2",
     "eslint-plugin-import": "^2.25.2",
-    "factory-girl": "^5.0.4",
     "jsonlint": "^1.6.3",
     "mocha": "^9.1.3",
     "nyc": "^15.0.1",

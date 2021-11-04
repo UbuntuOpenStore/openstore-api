@@ -1,4 +1,4 @@
-const { factory } = require('factory-girl');
+const factory = require('./factory');
 const path = require('path');
 
 const { expect } = require('./helper');
@@ -12,8 +12,8 @@ describe('Manage GET', () => {
 
   beforeEach(async function() {
     [this.package] = await Promise.all([
-      factory.create('package', { maintainer: this.user._id, name: 'User app' }),
-      factory.create('package'),
+      factory.package({ maintainer: this.user._id, name: 'User app' }),
+      factory.package(),
     ]);
   });
 
@@ -94,8 +94,8 @@ describe('Manage GET id', () => {
 
   beforeEach(async function() {
     [this.package, this.package2] = await Promise.all([
-      factory.create('package', { maintainer: this.user._id, name: 'User app' }),
-      factory.create('package'),
+      factory.package({ maintainer: this.user._id, name: 'User app' }),
+      factory.package(),
     ]);
   });
 
@@ -152,7 +152,7 @@ describe('Manage POST', () => {
   });
 
   beforeEach(async function() {
-    this.package = await factory.create('package', { maintainer: this.user._id, name: 'User app' });
+    this.package = await factory.package({ maintainer: this.user._id, name: 'User app' });
   });
 
   it('blocks access when not logged in', async function() {
@@ -362,8 +362,8 @@ describe('Manage PUT', () => {
     this.upsertStub = this.sandbox.stub(PackageSearch, 'upsert');
 
     [this.package, this.package2] = await Promise.all([
-      factory.create('package', { maintainer: this.user._id, name: 'User app' }),
-      factory.create('package'),
+      factory.package({ maintainer: this.user._id, name: 'User app' }),
+      factory.package(),
     ]);
   });
 
@@ -373,7 +373,7 @@ describe('Manage PUT', () => {
 
   context('admin user', () => {
     it('allows changing admin only fields', async function() {
-      const user2 = await factory.create('user');
+      const user2 = await factory.user();
 
       const res = await this.put(`${this.route}/${this.package.id}`)
         .send({ maintainer: user2._id, type_override: 'webapp', locked: true })
@@ -596,8 +596,8 @@ describe('Manage DELETE', () => {
 
   beforeEach(async function() {
     [this.package, this.package2] = await Promise.all([
-      factory.create('package', { maintainer: this.user._id, name: 'User app' }),
-      factory.create('package'),
+      factory.package({ maintainer: this.user._id, name: 'User app' }),
+      factory.package(),
     ]);
   });
 

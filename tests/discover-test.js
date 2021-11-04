@@ -1,4 +1,4 @@
-const { factory } = require('factory-girl');
+const factory = require('./factory');
 
 const { expect } = require('./helper');
 const Package = require('../src/db/package/model');
@@ -13,7 +13,7 @@ describe('Discover API', () => {
 
   beforeEach(async function() {
     [this.package] = await Promise.all([
-      factory.create('package', {
+      factory.package({
         published: true,
         id: discoverJSON.highlights[0].id,
         architectures: [Package.ALL],
@@ -21,7 +21,7 @@ describe('Discover API', () => {
         published_date: (new Date()).toISOString(),
         types: ['app'],
       }),
-      factory.create('package', {
+      factory.package({
         published: true,
         id: discoverJSON.categories[1].ids[0],
         architectures: [Package.ALL],
@@ -30,7 +30,7 @@ describe('Discover API', () => {
         updated_date: '2021-01-01T13:35:16.095Z',
         types: ['app'],
       }),
-      factory.create('package', {
+      factory.package({
         published: true,
         id: discoverJSON.categories[1].ids[1],
         architectures: [Package.ALL],
@@ -39,7 +39,7 @@ describe('Discover API', () => {
         updated_date: '2021-01-01T13:35:16.095Z',
         types: ['app'],
       }),
-      factory.create('package', {
+      factory.package({
         published: true,
         id: discoverJSON.categories[1].ids[2],
         architectures: [Package.ALL],

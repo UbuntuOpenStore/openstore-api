@@ -1,4 +1,4 @@
-const { factory } = require('factory-girl');
+const factory = require('./factory');
 
 const { expect } = require('./helper');
 const Package = require('../src/db/package/model');
@@ -13,7 +13,7 @@ describe('Revisions GET', () => {
   });
 
   beforeEach(async function() {
-    this.package = await factory.create('package', {
+    this.package = await factory.package({
       published: true,
       framework: 'ubuntu-sdk-16.04',
       architectures: [Package.ALL],

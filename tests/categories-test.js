@@ -1,4 +1,4 @@
-const { factory } = require('factory-girl');
+const factory = require('./factory');
 
 const { expect } = require('./helper');
 const Package = require('../src/db/package/model');
@@ -12,9 +12,9 @@ describe('Categories API', () => {
 
   beforeEach(async() => {
     await Promise.all([
-      factory.create('package', { published: true, category: 'Utilities', channels: [Package.DEFAULT_CHANNEL] }),
-      factory.create('package', { published: true, category: 'Utilities', channels: [Package.DEFAULT_CHANNEL] }),
-      factory.create('package', { published: true, category: 'Games', channels: [Package.DEFAULT_CHANNEL] }),
+      factory.package({ published: true, category: 'Utilities', channels: [Package.DEFAULT_CHANNEL] }),
+      factory.package({ published: true, category: 'Utilities', channels: [Package.DEFAULT_CHANNEL] }),
+      factory.package({ published: true, category: 'Games', channels: [Package.DEFAULT_CHANNEL] }),
     ]);
   });
 

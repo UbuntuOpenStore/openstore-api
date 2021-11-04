@@ -1,4 +1,4 @@
-const { factory } = require('factory-girl');
+const factory = require('./factory');
 
 const { expect } = require('./helper');
 const { recalculateRatings } = require('../src/api/reviews');
@@ -12,12 +12,12 @@ describe('Reviews', () => {
 
   beforeEach(async function() {
     const [user2, user3, user4] = await Promise.all([
-      factory.create('user'),
-      factory.create('user'),
-      factory.create('user'),
+      factory.user(),
+      factory.user(),
+      factory.user(),
     ]);
 
-    this.package = await factory.create('package', {
+    this.package = await factory.package({
       id: 'pkg-id',
       maintainer: user2._id,
       published: true,
@@ -34,8 +34,8 @@ describe('Reviews', () => {
     });
 
     [this.review] = await Promise.all([
-      factory.create('review', { pkg: this.package._id, user: user3._id, rating: 'HAPPY' }),
-      factory.create('review', { pkg: this.package._id, user: user4._id, rating: 'NEUTRAL' }),
+      factory.review({ pkg: this.package._id, user: user3._id, rating: 'HAPPY' }),
+      factory.review({ pkg: this.package._id, user: user4._id, rating: 'NEUTRAL' }),
     ]);
 
     await recalculateRatings(this.package._id);
@@ -51,7 +51,7 @@ describe('Reviews', () => {
     });
 
     it('shows own review', async function() {
-      await factory.create('review', { pkg: this.package._id, user: this.user._id });
+      await factory.review({ pkg: this.package._id, user: this.user._id });
       const res = await this.get(`${this.route}?filter=apikey`).expect(200);
 
       expect(res.body.success).to.be.true;
@@ -69,7 +69,7 @@ describe('Reviews', () => {
     });
 
     it('does not return redacted reviews', async function() {
-      await factory.create('review', { pkg: this.package._id, user: this.user._id, redacted: true });
+      await factory.review({ pkg: this.package._id, user: this.user._id, redacted: true });
       const res = await this.get(this.route, false).expect(200);
 
       expect(res.body.success).to.be.true;
@@ -97,7 +97,7 @@ describe('Reviews', () => {
     });
 
     it('updates own review', async function() {
-      await factory.create('review', { pkg: this.package._id, user: this.user._id, rating: 'THUMBS_DOWN' });
+      await factory.review({ pkg: this.package._id, user: this.user._id, rating: 'THUMBS_DOWN' });
       await recalculateRatings(this.package._id);
 
       let pkg = await Package.findOne({ id: this.package.id }).populate('rating_counts');
@@ -204,7 +204,7 @@ describe('Reviews', () => {
     });
 
     it('throws a 400 when updating a redacted review', async function() {
-      await factory.create('review', { pkg: this.package._id, user: this.user._id, redacted: true });
+      await factory.review({ pkg: this.package._id, user: this.user._id, redacted: true });
       const res = await this.put(this.route)
         .send({ body: 'great app', version: '1.0.0', rating: 'THUMBS_UP' })
         .expect(400);
@@ -214,7 +214,7 @@ describe('Reviews', () => {
     });
 
     it('throws a 400 when trying to create another review', async function() {
-      await factory.create('review', { pkg: this.package._id, user: this.user._id });
+      await factory.review({ pkg: this.package._id, user: this.user._id });
       const res = await this.post(this.route)
         .send({ body: 'great app', version: '1.0.0', rating: 'THUMBS_UP' })
         .expect(400);

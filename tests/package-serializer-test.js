@@ -1,4 +1,4 @@
-const { factory } = require('factory-girl');
+const factory = require('./factory');
 
 const { expect } = require('./helper');
 const Package = require('../src/db/package/model');
@@ -8,7 +8,7 @@ describe('PackageSerializer', () => {
   beforeEach(async function() {
     this.now = (new Date()).toISOString();
 
-    this.package = await factory.create('package', {
+    this.package = await factory.package({
       id: 'app.id',
       name: 'Best App Ever',
       channels: [Package.DEFAULT_CHANNEL],
