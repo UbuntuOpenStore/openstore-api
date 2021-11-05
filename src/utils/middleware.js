@@ -4,98 +4,6 @@ const path = require('path');
 const helpers = require('./helpers');
 const config = require('./config');
 const fs = require('./async-fs');
-const PackageRepo = require('../db/package/repo');
-
-// list borrowed from https://github.com/prerender/prerender-node
-const useragents = [
-  /*
-    'googlebot',
-    'yahoo',
-    'bingbot',
-    */
-  'baiduspider',
-  'facebookexternalhit',
-  'twitterbot',
-  'rogerbot',
-  'linkedinbot',
-  'embedly',
-  'quora link preview',
-  'showyoubot',
-  'outbrain',
-  'pinterest',
-  'developers.google.com/+/web/snippet',
-  'slackbot',
-  'vkShare',
-  'W3C_Validator',
-  'DuckDuckBot',
-];
-
-function ogReplace(html, og) {
-  const ogHtml = `
-        <meta name="description" content="${og.description}" />
-        <meta itemprop="name" content="${og.title}" />
-        <meta itemprop="description" content="${og.description}" />
-        <meta itemprop="image" content="${og.image}" />
-        <meta name="twitter:card" content="summary" />
-        <meta name="twitter:site" content="@uappexplorer" />
-        <meta name="twitter:title" content="${og.title}" />
-        <meta name="twitter:description" content="${og.description}" />
-        <meta name="twitter:image:src" content="${og.image}" />
-        <meta property="og:title" content="${og.title}" />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="${og.url}" />
-        <meta property="og:image" content="${og.image}" />
-        <meta property="og:description" content="${og.description}" />
-        <meta property="og:site_name" content="${og.title} - OpenStore" />
-    `;
-
-  const ogStart = html.indexOf('<meta name=opengraphstart>');
-  const ogEnd = html.indexOf('<meta name=opengraphend>');
-
-  return html.substring(0, ogStart) + ogHtml + html.substring(ogEnd);
-}
-
-function ogMatch(req) {
-  const useragent = req.headers['user-agent'];
-  let match = false;
-  if (useragent) {
-    match = useragents.some((ua) => useragent.toLowerCase().indexOf(ua.toLowerCase()) !== -1);
-  }
-
-  return (match || req.query._escaped_fragment_ !== undefined);
-}
-
-async function opengraph(req, res, next) {
-  if (req.originalUrl.startsWith('/app/') && req.params.name && ogMatch(req)) {
-    try {
-      const pkg = await PackageRepo.findOne(req.params.name, { published: true });
-
-      if (!pkg) {
-        res.status(404);
-        return res.send();
-      }
-
-      const data = await fs.readFileAsync(path.join(config.server.static_root, 'index.html'), { encoding: 'utf8' });
-
-      res.header('Content-Type', 'text/html');
-      res.status(200);
-      return res.send(ogReplace(data, {
-        title: pkg.name,
-        url: `${config.server.host}/app/${pkg.id}`,
-        image: pkg.icon,
-        description: pkg.tagline ? pkg.tagline : '',
-      }));
-    }
-    catch (err) {
-      helpers.captureException(err, req.originalUrl);
-      res.status(500);
-      return res.send();
-    }
-  }
-  else {
-    return next();
-  }
-}
 
 function userRole(req, res, next) {
   req.isAdminUser = (req.isAuthenticated() && req.user.role == 'admin');
@@ -176,5 +84,4 @@ exports.authenticate = passport.authenticate('localapikey', { session: false });
 exports.userRole = userRole;
 exports.adminOnly = adminOnly;
 exports.downloadFile = downloadFile;
-exports.opengraph = opengraph;
 exports.extendTimeout = extendTimeout;

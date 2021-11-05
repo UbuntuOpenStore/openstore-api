@@ -18,7 +18,6 @@ const users = require('./users');
 const rss = require('./rss');
 const logger = require('../utils/logger');
 const helpers = require('../utils/helpers');
-const { opengraph } = require('../utils/middleware');
 require('../db'); // Make sure the database connection gets setup
 
 function setup() {
@@ -137,26 +136,6 @@ function setup() {
     }
 
     return res.redirect('/login');
-  });
-
-  app.all([
-    '/',
-    '/submit',
-    '/apps',
-    '/app/:name',
-    '/app/:name/versions',
-    '/users',
-    '/manage',
-    '/manage/:name',
-    '/manage/:name/revision',
-    '/login',
-    '/stats',
-    '/about',
-    '/feeds',
-    '/badge',
-  ], opengraph, (req, res) => {
-    // For html5mode on frontend
-    res.sendFile('index.html', { root: config.server.static_root });
   });
 
   app.server = app.listen(config.server.port, config.server.ip);
