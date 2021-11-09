@@ -6,3 +6,4 @@ scripts
 config.json
 *.log
 .nyc_output/
+dist
