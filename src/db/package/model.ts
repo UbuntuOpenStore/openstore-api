@@ -294,25 +294,31 @@ packageSchema.methods.updateFromBody = async function(body: BodyUpdate) {
     this.tagline = body.tagline;
   }
 
-  let screenshots: string[] = [];
+  let updatedScreenshots: string[] = [];
   if (body.screenshots) {
     if (Array.isArray(body.screenshots)) {
-      screenshots = body.screenshots;
+      updatedScreenshots = body.screenshots;
     }
     else {
-      screenshots = JSON.parse(body.screenshots);
+      updatedScreenshots = JSON.parse(body.screenshots);
     }
   }
 
+  const regex = new RegExp(`${config.server.host}/screenshots/`, 'g');
+  updatedScreenshots = updatedScreenshots.map((screenshot) => {
+    return screenshot.replace(regex, '');
+  });
+
+  console.log(updatedScreenshots, regex);
+
   // Unlink the screenshot file if it gets removed
   this.screenshots.forEach((screenshot) => {
-    const prefix = `${config.server.host}/api/screenshot/`;
-    if (screenshots.indexOf(screenshot) == -1 && screenshot.startsWith(prefix)) {
-      const filename = screenshot.replace(prefix, '');
+    const filename = screenshot.replace(regex, '');
+    if (updatedScreenshots.indexOf(filename) == -1) {
       fs.unlinkSync(`${config.image_dir}/${filename}`);
     }
   });
-  this.screenshots = screenshots;
+  this.screenshots = updatedScreenshots;
 
   if (body.keywords) {
     let keywords = body.keywords;
