@@ -11,13 +11,13 @@ export default function apiLinks(originalUrl: string, count: number, limit: numb
   const url = new URL(config.server.host + originalUrl);
   if (count == parsedLimit) {
     const nextSkip = parsedSkip + parsedLimit;
-    url.searchParams.set('skip', nextSkip + '');
+    url.searchParams.set('skip', `${nextSkip}`);
     next = url.toString();
   }
 
   if (parsedSkip > 0) {
     const previousSkip = (parsedSkip - parsedLimit > 0) ? (parsedSkip - parsedLimit) : 0;
-    url.searchParams.set('skip', previousSkip + '');
+    url.searchParams.set('skip', `${previousSkip}`);
     previous = url.toString();
   }
 

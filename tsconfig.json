@@ -6,6 +6,12 @@
     "src/index.ts",
     "types/express.d.ts"
   ],
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "node_modules"
+  ],
   "compilerOptions": {
     /* Visit https://aka.ms/tsconfig.json to read more about this file */
 

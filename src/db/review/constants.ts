@@ -4,7 +4,7 @@ export enum Ratings {
   HAPPY = 'HAPPY',
   NEUTRAL = 'NEUTRAL',
   BUGGY = 'BUGGY',
-};
+}
 
 export const RATINGS = [
   'THUMBS_UP',

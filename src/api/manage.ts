@@ -3,6 +3,9 @@ import path from 'path';
 import uuid from 'node-uuid';
 import express, { Request, Response } from 'express';
 
+import fs from 'fs/promises';
+import { LockDoc } from 'db/lock/types';
+import { PackageDoc } from 'db/package/types';
 import Package from '../db/package/model';
 import PackageRepo from '../db/package/repo';
 import PackageSearch from '../db/package/search';
@@ -10,15 +13,12 @@ import LockRepo from '../db/lock/repo';
 import { serialize } from '../db/package/serializer';
 import config from '../utils/config';
 import logger from '../utils/logger';
-import { success, error, captureException, sanitize, getDataInt } from '../utils/helpers';
+import { success, error, captureException, sanitize } from '../utils/helpers';
 import apiLinks from '../utils/api-links';
 import * as clickParser from '../utils/click-parser-async';
 import checksum from '../utils/checksum';
 import * as reviewPackage from '../utils/review-package';
 import { authenticate, userRole, downloadFile, extendTimeout } from '../utils/middleware';
-import fs from 'fs/promises';
-import { LockDoc } from 'db/lock/types';
-import { PackageDoc, PackageModel } from 'db/package/types';
 
 const mupload = multer({ dest: '/tmp' });
 const router = express.Router();
@@ -65,16 +65,16 @@ async function review(req: Request, file: any, filePath: string) {
     const needsManualReview = await reviewPackage.review(filePath);
     if (needsManualReview) {
       // TODO improve this feedback
-      let error = NEEDS_MANUAL_REVIEW;
+      let reviewError = NEEDS_MANUAL_REVIEW;
       if (needsManualReview === true) {
-        error = `${NEEDS_MANUAL_REVIEW}, please check your app using the click-review command`;
+        reviewError = `${NEEDS_MANUAL_REVIEW}, please check your app using the click-review command`;
       }
       else {
-        error = `${NEEDS_MANUAL_REVIEW} (Error: ${needsManualReview})`;
+        reviewError = `${NEEDS_MANUAL_REVIEW} (Error: ${needsManualReview})`;
       }
 
       await fs.unlink(filePath);
-      return [false, error];
+      return [false, reviewError];
     }
   }
 

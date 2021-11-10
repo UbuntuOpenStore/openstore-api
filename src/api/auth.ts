@@ -67,7 +67,7 @@ passport.use(new UbuntuStrategy({
     if (!user) {
       user = new User();
       user.apikey = uuid.v4();
-      user.username = Math.random() + '';
+      user.username = `${Math.random()}`;
       user.language = 'en';
     }
 

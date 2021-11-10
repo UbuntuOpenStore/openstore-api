@@ -2,7 +2,7 @@
 import express, { Request, Response } from 'express';
 
 import '../db/comment/model';
-import { error, success, captureException, getDataInt} from '../utils/helpers';
+import { error, success, captureException, getDataInt } from '../utils/helpers';
 import apiLinks from '../utils/api-links';
 import logger from '../utils/logger';
 import PackageRepo from '../db/package/repo';
@@ -12,7 +12,6 @@ import Package from '../db/package/model';
 import { authenticate, anonymousAuthenticate, userRole } from '../utils/middleware';
 import { serialize } from '../db/review/serializer';
 import { RATINGS, REVIEW_MAX_LEN, RATING_MAP, Ratings } from '../db/review/constants';
-import { ReviewDoc } from 'db/review/types';
 
 const APP_NOT_FOUND = 'App not found';
 const PARAMETER_MISSING = 'Missing parameters for this endpoint';
@@ -115,7 +114,7 @@ async function getReviews(req: Request, res: Response) {
     }
 
     const reviewsTotalCount = await Review.countDocuments(query);
-    let reviews = serialize(await Review.find(query, null, { limit, sort: { date: -1 } }).populate('user').populate('comment'));
+    const reviews = serialize(await Review.find(query, null, { limit, sort: { date: -1 } }).populate('user').populate('comment'));
     const { next, previous } = apiLinks(req.originalUrl, Array.isArray(reviews) ? reviews.length : 0, limit, skip);
 
     return success(res, {

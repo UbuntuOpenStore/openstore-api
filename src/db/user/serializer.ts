@@ -1,4 +1,4 @@
-import { UserDoc } from "./types";
+import { UserDoc } from './types';
 
 function toJson(user: UserDoc) {
   return {

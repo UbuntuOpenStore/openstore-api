@@ -114,9 +114,9 @@ function toJson(pkg: PackageDoc, architecture: Architecture = Architecture.ARMHF
   }
 
   const { revisionData } = pkg.getLatestRevision(defaultChannel, pkg.architectures.includes(architecture) ? architecture : undefined);
-  let filesize = revisionData ? revisionData.filesize : 0;
+  const filesize = revisionData ? revisionData.filesize : 0;
 
-  let revisions = (pkg.revisions || []).map((rData) => {
+  const revisions = (pkg.revisions || []).map((rData) => {
     const revision = {
       ...rData.toObject(),
       download_url: rData.download_url ? downloadUrl(pkg, rData.channel, rData.architecture, rData.version) : null,

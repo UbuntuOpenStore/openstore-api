@@ -28,7 +28,8 @@ async function revisionsByVersion(req: Request, res: Response) {
   }
 
   try {
-    let pkgs = (await PackageRepo.find({ published: true, ids })).filter((pkg) => (frameworks.length === 0 || frameworks.includes(pkg.framework)))
+    const pkgs = (await PackageRepo.find({ published: true, ids }))
+      .filter((pkg) => (frameworks.length === 0 || frameworks.includes(pkg.framework)))
       .filter((pkg) => (pkg.architectures.includes(architecture) || pkg.architectures.includes(Package.ALL)))
       .map((pkg) => {
         let version = versions.filter((v) => (v.split('@')[0] == pkg.id))[0];

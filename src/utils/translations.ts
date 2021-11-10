@@ -36,6 +36,6 @@ export function setLang(lang: string) {
   else {
     gt.setLocale('en_US');
   }
-};
+}
 
 export const gettext = gt.gettext.bind(gt);

@@ -101,4 +101,4 @@ export interface PackageModel extends Model<PackageDoc> {
   ARM64: Architecture,
   AMD64: Architecture,
   ARCHITECTURES: Architecture[],
-};
+}

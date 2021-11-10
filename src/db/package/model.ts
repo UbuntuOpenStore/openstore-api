@@ -72,11 +72,11 @@ const packageSchema = new Schema<PackageDoc, PackageModel>({
   calculated_rating: Number,
 }, { usePushEach: true });
 
-packageSchema.virtual('architecture').get(function (this: PackageDoc) {
+packageSchema.virtual('architecture').get(function(this: PackageDoc) {
   return this.architectures.join(',');
 });
 
-packageSchema.virtual('next_revision').get(function (this: PackageDoc) {
+packageSchema.virtual('next_revision').get(function(this: PackageDoc) {
   let revision = 0;
   const revisions = this.revisions.map((data) => data.revision);
 
@@ -216,7 +216,7 @@ packageSchema.methods.updateFromClick = function(data: any) {
   this.tagline = this.tagline ? this.tagline : sanitize(data.description);
 };
 
-packageSchema.methods.updateFromBody = async function (body: BodyUpdate) {
+packageSchema.methods.updateFromBody = async function(body: BodyUpdate) {
   if (body.name) {
     this.name = body.name;
   }

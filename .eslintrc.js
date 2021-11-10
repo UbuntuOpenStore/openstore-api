@@ -1,12 +1,23 @@
 module.exports = {
   root: true,
   parserOptions: {
-    ecmaVersion: 10,
+    ecmaVersion: 12,
     sourceType: 'module',
   },
   extends: [
     'eslint-config-bhdouglass',
+    'plugin:chai-friendly/recommended',
   ],
+  parser: '@typescript-eslint/parser',
+  plugins: ['@typescript-eslint', 'chai-friendly'],
+  settings: {
+    'import/resolver': {
+      node: {
+        extensions: ['.js', '.ts'],
+        moduleDirectory: ['node_modules', 'src']
+      }
+    }
+  },
   env: {
     browser: false,
     node: true,
@@ -18,6 +29,16 @@ module.exports = {
     'no-console': process.env.NODE_ENV === 'production' ? 1 : 0,
 
     'no-underscore-dangle': 'off',
+    'import/extensions': [
+      'error',
+      'ignorePackages',
+      {
+        js: 'never',
+        ts: 'never',
+      },
+    ],
+    'import/prefer-default-export': 'off', // TODO turn this back on later
+    'no-await-in-loop': 'off',
   },
   overrides: [
     {

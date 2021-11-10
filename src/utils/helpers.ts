@@ -4,8 +4,8 @@ import * as Sentry from '@sentry/node';
 import isString from 'lodash/isString';
 import fs from 'fs';
 
-import logger from './logger';
 import { Request, Response } from 'express';
+import logger from './logger';
 
 export function success(res: Response, data: any, message?: string) {
   res.send({
@@ -78,7 +78,7 @@ export function getDataInt(req: Request, name: string, defaultData = 0) {
   }
 
   if (req.body && req.body[name]) {
-    returnValue = parseInt(req.body[name].trim(), 0);
+    returnValue = parseInt(req.body[name].trim(), 10);
   }
 
   return Number.isNaN(returnValue) ? defaultData : returnValue;

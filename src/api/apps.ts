@@ -1,8 +1,10 @@
 import mime from 'mime';
 import express, { Request, Response } from 'express';
 
+import fsPromise from 'fs/promises';
+import fs from 'fs';
+import { Architecture, Channel, DEFAULT_CHANNEL } from 'db/package/types';
 import reviews from './reviews';
-import Package from '../db/package/model';
 import PackageRepo from '../db/package/repo';
 import PackageSearch from '../db/package/search';
 import { serialize } from '../db/package/serializer';
@@ -10,9 +12,6 @@ import RatingCountRepo from '../db/rating_count/repo';
 import logger from '../utils/logger';
 import { success, error, captureException, getData } from '../utils/helpers';
 import apiLinks from '../utils/api-links';
-import fsPromise from 'fs/promises';
-import fs from 'fs';
-import { Architecture, Channel, DEFAULT_CHANNEL } from 'db/package/types';
 
 // TODO properly namespace these so we only need one router
 const router = express.Router();
