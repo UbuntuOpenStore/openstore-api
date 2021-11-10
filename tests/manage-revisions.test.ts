@@ -1,14 +1,14 @@
-const path = require('path');
-const factory = require('./factory');
+import path from 'path';
+import factory from './factory';
 
-const { expect } = require('./helper');
-const Package = require('../src/db/package/model');
-const PackageRepo = require('../src/db/package/repo');
-const Lock = require('../src/db/lock/model');
-const LockRepo = require('../src/db/lock/repo');
-const reviewPackage = require('../src/utils/review-package');
-const clickParser = require('../src/utils/click-parser-async');
-const PackageSearch = require('../src/db/package/search');
+import { expect } from './helper';
+import Package from '../src/db/package/model';
+import PackageRepo from '../src/db/package/repo';
+import Lock from '../src/db/lock/model';
+import LockRepo from '../src/db/lock/repo';
+import * as reviewPackage from '../src/utils/review-package';
+import * as clickParser from '../src/utils/click-parser-async';
+import PackageSearch from '../src/db/package/search';
 
 describe('Manage Revision POST', () => {
   beforeEach(async function() {
@@ -37,7 +37,7 @@ describe('Manage Revision POST', () => {
 
   context('admin user', () => {
     it('allows access to other packages', async function() {
-      const parseStub = this.sandbox.stub(clickParser, 'parse').resolves({
+      const parseStub = this.sandbox.stub(clickParser, 'parsePackage').resolves({
         name: this.package2.id,
         version: '1.0.0',
         architecture: 'armhf',
@@ -57,7 +57,7 @@ describe('Manage Revision POST', () => {
 
     it('does not review', async function() {
       const reviewSpy = this.sandbox.spy(reviewPackage, 'review');
-      const parseStub = this.sandbox.stub(clickParser, 'parse').resolves({
+      const parseStub = this.sandbox.stub(clickParser, 'parsePackage').resolves({
         name: this.package.id,
         version: '1.0.0',
         architecture: 'armhf',
@@ -85,7 +85,7 @@ describe('Manage Revision POST', () => {
 
     it('does not review', async function() {
       const reviewSpy = this.sandbox.spy(reviewPackage, 'review');
-      const parseStub = this.sandbox.stub(clickParser, 'parse').resolves({
+      const parseStub = this.sandbox.stub(clickParser, 'parsePackage').resolves({
         name: this.package.id,
         version: '1.0.0',
         architecture: 'armhf',
@@ -196,7 +196,7 @@ describe('Manage Revision POST', () => {
 
     it('fails with a different package id from file', async function() {
       const reviewStub = this.sandbox.stub(reviewPackage, 'review').resolves(false);
-      const parseStub = this.sandbox.stub(clickParser, 'parse').resolves({
+      const parseStub = this.sandbox.stub(clickParser, 'parsePackage').resolves({
         name: 'foo',
         version: '1.0.0',
         architecture: 'armhf',
@@ -217,7 +217,7 @@ describe('Manage Revision POST', () => {
 
     it('fails with a malformed manifest', async function() {
       const reviewStub = this.sandbox.stub(reviewPackage, 'review').resolves(false);
-      const parseStub = this.sandbox.stub(clickParser, 'parse').resolves({});
+      const parseStub = this.sandbox.stub(clickParser, 'parsePackage').resolves({});
 
       const res = await this.post(this.route)
         .attach('file', this.emptyClick)
@@ -237,7 +237,7 @@ describe('Manage Revision POST', () => {
       await this.package.save();
 
       const reviewStub = this.sandbox.stub(reviewPackage, 'review').resolves(false);
-      const parseStub = this.sandbox.stub(clickParser, 'parse').resolves({
+      const parseStub = this.sandbox.stub(clickParser, 'parsePackage').resolves({
         name: this.package.id,
         version: '1.0.0',
         architecture: Package.ARMHF,
@@ -264,7 +264,7 @@ describe('Manage Revision POST', () => {
       await this.package.save();
 
       const reviewStub = this.sandbox.stub(reviewPackage, 'review').resolves(false);
-      const parseStub = this.sandbox.stub(clickParser, 'parse').resolves({
+      const parseStub = this.sandbox.stub(clickParser, 'parsePackage').resolves({
         name: this.package.id,
         version: '1.0.0',
         architecture: Package.ARMHF,
@@ -299,7 +299,7 @@ describe('Manage Revision POST', () => {
       await this.package.save();
 
       const reviewStub = this.sandbox.stub(reviewPackage, 'review').resolves(false);
-      const parseStub = this.sandbox.stub(clickParser, 'parse').resolves({
+      const parseStub = this.sandbox.stub(clickParser, 'parsePackage').resolves({
         name: this.package.id,
         version: '1.0.0',
         architecture: Package.ALL,
@@ -327,7 +327,7 @@ describe('Manage Revision POST', () => {
       await this.package.save();
 
       const reviewStub = this.sandbox.stub(reviewPackage, 'review').resolves(false);
-      const parseStub = this.sandbox.stub(clickParser, 'parse').resolves({
+      const parseStub = this.sandbox.stub(clickParser, 'parsePackage').resolves({
         name: this.package.id,
         version: '1.0.0',
         architecture: Package.ARMHF,
@@ -355,7 +355,7 @@ describe('Manage Revision POST', () => {
       await this.package.save();
 
       const reviewStub = this.sandbox.stub(reviewPackage, 'review').resolves(false);
-      const parseStub = this.sandbox.stub(clickParser, 'parse').resolves({
+      const parseStub = this.sandbox.stub(clickParser, 'parsePackage').resolves({
         name: this.package.id,
         version: '1.0.0',
         architecture: Package.ARMHF,
@@ -396,7 +396,7 @@ describe('Manage Revision POST', () => {
       await this.package.save();
 
       const reviewStub = this.sandbox.stub(reviewPackage, 'review').resolves(false);
-      const parseStub = this.sandbox.stub(clickParser, 'parse').resolves({
+      const parseStub = this.sandbox.stub(clickParser, 'parsePackage').resolves({
         name: this.package.id,
         version: '1.0.0',
         architecture: 'armhf',
@@ -416,7 +416,7 @@ describe('Manage Revision POST', () => {
       expect(this.lockReleaseSpy).to.have.been.calledOnce;
 
       const pkg = await PackageRepo.findOne(this.package.id);
-      expect(pkg.changelog).to.equal('changelog update\n\nold changelog');
+      expect(pkg?.changelog).to.equal('changelog update\n\nold changelog');
     });
 
     it('successfully reviews/updates/saves a package and icon and updates elasticsearch', async function() {
@@ -441,7 +441,6 @@ describe('Manage Revision POST', () => {
       expect(data.channels).to.deep.equal([Package.XENIAL]);
       expect(data.framework).to.equal('ubuntu-sdk-16.04');
       expect(data.icon).to.equal('http://local.open-store.io/icons/openstore-test.openstore-team/openstore-test.openstore-team-1.0.0.svg');
-      expect(data.permissions).to.deep.equal(['networking']);
       expect(data.published).to.be.true;
       expect(data.manifest).to.be.ok;
       expect(data.tagline).to.equal('OpenStore test app');
@@ -480,7 +479,7 @@ describe('Manage Revision POST', () => {
       await this.package.save();
 
       const reviewStub = this.sandbox.stub(reviewPackage, 'review').resolves(false);
-      const parseStub = this.sandbox.stub(clickParser, 'parse').resolves({
+      const parseStub = this.sandbox.stub(clickParser, 'parsePackage').resolves({
         name: this.package.id,
         version: '2.0.0',
         architecture: Package.ALL,
@@ -512,7 +511,7 @@ describe('Manage Revision POST', () => {
       await this.package.save();
 
       const reviewStub = this.sandbox.stub(reviewPackage, 'review').resolves(false);
-      const parseStub = this.sandbox.stub(clickParser, 'parse').resolves({
+      const parseStub = this.sandbox.stub(clickParser, 'parsePackage').resolves({
         name: this.package.id,
         version: '2.0.0',
         architecture: Package.ARMHF,
@@ -554,7 +553,7 @@ describe('Manage Revision POST', () => {
       await lock.save();
 
       const saveSpy = this.sandbox.spy(Lock.prototype, 'save');
-      const parseStub = this.sandbox.stub(clickParser, 'parse').resolves({
+      const parseStub = this.sandbox.stub(clickParser, 'parsePackage').resolves({
         name: this.package.id,
         version: '1.0.0',
         architecture: 'armhf',

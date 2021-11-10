@@ -1,9 +1,9 @@
-const path = require('path');
-const factory = require('./factory');
+import path from 'path';
+import factory from './factory';
 
-const { expect } = require('./helper');
-const PackageRepo = require('../src/db/package/repo');
-const PackageSearch = require('../src/db/package/search');
+import { expect } from './helper';
+import PackageRepo from '../src/db/package/repo';
+import PackageSearch from '../src/db/package/search';
 
 describe('Manage GET', () => {
   before(function() {
@@ -328,11 +328,11 @@ describe('Manage POST', () => {
 
       const pkg = await PackageRepo.findOne('app.dev');
       expect(pkg).to.exist;
-      expect(pkg.id).to.equal('app.dev');
-      expect(pkg.name).to.equal('App Dev');
-      expect(pkg.published).to.not.be.ok;
-      expect(pkg.maintainer).to.equal(this.user._id.toString());
-      expect(pkg.maintainer_name).to.equal(this.user.name);
+      expect(pkg?.id).to.equal('app.dev');
+      expect(pkg?.name).to.equal('App Dev');
+      expect(pkg?.published).to.not.be.ok;
+      expect(pkg?.maintainer).to.equal(this.user._id.toString());
+      expect(pkg?.maintainer_name).to.equal(this.user.name);
     });
 
     it('fails gracefully', async function() {
@@ -386,7 +386,7 @@ describe('Manage PUT', () => {
       expect(this.removeStub).to.have.been.calledOnce;
 
       const pkg = await PackageRepo.findOne(this.package.id);
-      expect(pkg.maintainer).to.equal(user2._id.toString());
+      expect(pkg?.maintainer).to.equal(user2._id.toString());
     });
 
     it('can update any package', async function() {
@@ -399,7 +399,7 @@ describe('Manage PUT', () => {
       expect(this.removeStub).to.have.been.calledOnce;
 
       const pkg = await PackageRepo.findOne(this.package2.id);
-      expect(pkg.name).to.equal('Foo Bar');
+      expect(pkg?.name).to.equal('Foo Bar');
     });
 
     it('can update a locked package', async function() {
@@ -415,7 +415,7 @@ describe('Manage PUT', () => {
       expect(this.removeStub).to.have.been.calledOnce;
 
       const pkg = await PackageRepo.findOne(this.package2.id);
-      expect(pkg.name).to.equal('Foo Bar');
+      expect(pkg?.name).to.equal('Foo Bar');
     });
   });
 
@@ -464,7 +464,7 @@ describe('Manage PUT', () => {
       expect(this.removeStub).to.have.been.calledOnce;
 
       const pkg = await PackageRepo.findOne(this.package.id);
-      expect(pkg.name).to.equal('Foo Bar');
+      expect(pkg?.name).to.equal('Foo Bar');
     });
 
     it('publishes the package', async function() {
@@ -479,7 +479,7 @@ describe('Manage PUT', () => {
       expect(this.upsertStub).to.have.been.calledOnce;
 
       const pkg = await PackageRepo.findOne(this.package.id);
-      expect(pkg.published).to.be.true;
+      expect(pkg?.published).to.be.true;
     });
 
     it('fails gracefully', async function() {
@@ -504,8 +504,8 @@ describe('Manage PUT', () => {
       expect(res.body.message).to.equal('Sorry this app has been locked by an admin');
 
       const pkg = await PackageRepo.findOne(this.package.id);
-      expect(pkg.published).to.be.false;
-      expect(pkg.locked).to.be.true;
+      expect(pkg?.published).to.be.false;
+      expect(pkg?.locked).to.be.true;
     });
 
     it('adds screenshots up to the limit', async function() {
@@ -522,7 +522,7 @@ describe('Manage PUT', () => {
       expect(res.body.data.screenshots).to.have.lengthOf(5);
 
       const pkg = await PackageRepo.findOne(this.package.id);
-      expect(pkg.screenshots).to.have.lengthOf(5);
+      expect(pkg?.screenshots).to.have.lengthOf(5);
     });
 
     it('rejects non-images uploaded as screenshots', async function() {
@@ -535,7 +535,7 @@ describe('Manage PUT', () => {
       expect(res.body.data.screenshots).to.have.lengthOf(1);
 
       const pkg = await PackageRepo.findOne(this.package.id);
-      expect(pkg.screenshots).to.have.lengthOf(1);
+      expect(pkg?.screenshots).to.have.lengthOf(1);
     });
 
     it('removes screenshots', async function() {
@@ -555,7 +555,7 @@ describe('Manage PUT', () => {
       expect(res2.body.data.screenshots).to.have.lengthOf(0);
 
       const pkg = await PackageRepo.findOne(this.package.id);
-      expect(pkg.screenshots).to.have.lengthOf(0);
+      expect(pkg?.screenshots).to.have.lengthOf(0);
     });
 
     it('reorders screenshots', async function() {
@@ -580,9 +580,9 @@ describe('Manage PUT', () => {
       expect(res2.body.data.screenshots[1]).to.equal(res.body.data.screenshots[0]);
 
       const pkg = await PackageRepo.findOne(this.package.id);
-      expect(pkg.screenshots).to.have.lengthOf(2);
-      expect(pkg.screenshots[0]).to.equal(res.body.data.screenshots[1].replace('http://local.open-store.io/screenshots/', ''));
-      expect(pkg.screenshots[1]).to.equal(res.body.data.screenshots[0].replace('http://local.open-store.io/screenshots/', ''));
+      expect(pkg?.screenshots).to.have.lengthOf(2);
+      expect(pkg?.screenshots[0]).to.equal(res.body.data.screenshots[1].replace('http://local.open-store.io/screenshots/', ''));
+      expect(pkg?.screenshots[1]).to.equal(res.body.data.screenshots[0].replace('http://local.open-store.io/screenshots/', ''));
     });
 
     // TODO test pkg.updateFromBody()

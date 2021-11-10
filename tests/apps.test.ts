@@ -1,8 +1,8 @@
-const factory = require('./factory');
+import factory from './factory';
 
-const { expect } = require('./helper');
-const Package = require('../src/db/package/model');
-const PackageRepo = require('../src/db/package/repo');
+import { expect } from './helper';
+import Package from '../src/db/package/model';
+import PackageRepo from '../src/db/package/repo';
 
 describe('Apps API', () => {
   before(function() {

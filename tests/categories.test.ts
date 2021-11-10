@@ -1,9 +1,9 @@
-const factory = require('./factory');
+import factory from './factory';
 
-const { expect } = require('./helper');
-const Package = require('../src/db/package/model');
-const PackageRepo = require('../src/db/package/repo');
-const categoryIcons = require('../src/api/json/category_icons.json');
+import { expect } from './helper';
+import Package from '../src/db/package/model';
+import PackageRepo from '../src/db/package/repo';
+import categoryIcons from '../src/api/json/category_icons.json';
 
 describe('Categories API', () => {
   before(function() {

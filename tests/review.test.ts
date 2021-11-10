@@ -1,9 +1,9 @@
-const factory = require('./factory');
+import factory from './factory';
 
-const { expect } = require('./helper');
-const { recalculateRatings } = require('../src/api/reviews');
-const Package = require('../src/db/package/model');
-const Review = require('../src/db/review/model');
+import { expect } from './helper';
+import { recalculateRatings } from '../src/api/reviews';
+import Package from '../src/db/package/model';
+import Review from '../src/db/review/model';
 
 describe('Reviews', () => {
   before(function() {
@@ -87,13 +87,13 @@ describe('Reviews', () => {
       expect(res.body.success).to.be.true;
 
       const review = await Review.findOne({ user: this.user._id });
-      expect(review.body).to.equal('great app');
-      expect(review.version).to.equal('1.0.0');
-      expect(review.rating).to.equal('THUMBS_UP');
-      expect(review.date).to.exist;
-      expect(review.redacted).to.be.false;
-      expect(review.pkg.toString()).to.equal(this.package._id.toString());
-      expect(review.user.toString()).to.equal(this.user._id.toString());
+      expect(review?.body).to.equal('great app');
+      expect(review?.version).to.equal('1.0.0');
+      expect(review?.rating).to.equal('THUMBS_UP');
+      expect(review?.date).to.exist;
+      expect(review?.redacted).to.be.false;
+      expect(review?.pkg.toString()).to.equal(this.package._id.toString());
+      expect(review?.user.toString()).to.equal(this.user._id.toString());
     });
 
     it('updates own review', async function() {
@@ -101,7 +101,7 @@ describe('Reviews', () => {
       await recalculateRatings(this.package._id);
 
       let pkg = await Package.findOne({ id: this.package.id }).populate('rating_counts');
-      let checkRatings = pkg.rating_counts.reduce((accumulator, count) => {
+      let checkRatings = pkg!.rating_counts.reduce((accumulator, count) => {
         return {
           ...accumulator,
           [count.name]: count.count,
@@ -119,16 +119,16 @@ describe('Reviews', () => {
       expect(reviews).to.be.lengthOf(1);
 
       const review = reviews[0];
-      expect(review.body).to.equal('great app');
-      expect(review.version).to.equal('1.0.0');
-      expect(review.rating).to.equal('THUMBS_UP');
-      expect(review.date).to.exist;
-      expect(review.redacted).to.be.false;
-      expect(review.pkg.toString()).to.equal(this.package._id.toString());
-      expect(review.user.toString()).to.equal(this.user._id.toString());
+      expect(review?.body).to.equal('great app');
+      expect(review?.version).to.equal('1.0.0');
+      expect(review?.rating).to.equal('THUMBS_UP');
+      expect(review?.date).to.exist;
+      expect(review?.redacted).to.be.false;
+      expect(review?.pkg.toString()).to.equal(this.package._id.toString());
+      expect(review?.user.toString()).to.equal(this.user._id.toString());
 
       pkg = await Package.findOne({ id: this.package.id }).populate('rating_counts');
-      checkRatings = pkg.rating_counts.reduce((accumulator, count) => {
+      checkRatings = pkg!.rating_counts.reduce((accumulator, count) => {
         return {
           ...accumulator,
           [count.name]: count.count,

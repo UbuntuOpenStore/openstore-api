@@ -1,9 +1,9 @@
 import request from 'request';
 import sanitizeHtml from 'sanitize-html';
-import Sentry from '@sentry/node';
+import * as Sentry from '@sentry/node';
 import isString from 'lodash/isString';
+import fs from 'fs';
 
-import fs from './async-fs';
 import logger from './logger';
 import { Request, Response } from 'express';
 

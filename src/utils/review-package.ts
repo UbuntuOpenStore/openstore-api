@@ -26,7 +26,7 @@ function parseReview(reviewData: { [key: string]: { [key: string]: { [key: strin
   return manualReview;
 }
 
-export default function review(file: string) {
+export function review(file: string) {
   return new Promise((resolve) => {
     const command = `${config.clickreview.command} --json ${file}`;
     childProcess.exec(command, {

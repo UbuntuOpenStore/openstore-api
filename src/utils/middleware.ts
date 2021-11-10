@@ -1,10 +1,10 @@
 import passport from 'passport';
 import path from 'path';
 import { Request, Response, NextFunction } from 'express';
+import fs from 'fs';
 
 import { error, download } from './helpers';
 import config from './config';
-import fs from './async-fs';
 
 export function userRole(req: Request, res: Response, next: NextFunction) {
   req.isAdminUser = (req.isAuthenticated() && req.user && req.user.role == 'admin');

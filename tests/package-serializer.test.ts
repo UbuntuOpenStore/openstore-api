@@ -1,8 +1,9 @@
-const factory = require('./factory');
+import factory from './factory';
 
-const { expect } = require('./helper');
-const Package = require('../src/db/package/model');
-const { iconUrl, downloadUrl, serialize, serializeRatings } = require('../src/db/package/serializer');
+import { expect } from './helper';
+import Package from '../src/db/package/model';
+import { iconUrl, downloadUrl, serialize, serializeRatings } from '../src/db/package/serializer';
+import { Ratings } from '../src/db/review/constants';
 
 describe('PackageSerializer', () => {
   beforeEach(async function() {
@@ -207,8 +208,8 @@ describe('PackageSerializer', () => {
   context('serializeRatings', () => {
     it('formats ratings', () => {
       expect(serializeRatings([
-        { name: 'THUMBS_UP', count: 10 },
-        { name: 'THUMBS_DOWN', count: 10 },
+        { name: Ratings.THUMBS_UP, count: 10 } as any,
+        { name: Ratings.THUMBS_DOWN, count: 10 } as any,
       ])).to.deep.equal({
         THUMBS_UP: 10,
         THUMBS_DOWN: 10,

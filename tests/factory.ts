@@ -1,8 +1,8 @@
-const Package = require('../src/db/package/model');
-const Review = require('../src/db/review/model');
-const User = require('../src/db/user/model');
+import Package from '../src/db/package/model';
+import Review from '../src/db/review/model';
+import User from '../src/db/user/model';
 
-module.exports = {
+export default {
   package(data = {}) {
     const pkg = new Package({
       id: `foo.${Math.random()}`,

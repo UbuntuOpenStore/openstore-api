@@ -42,7 +42,7 @@ export default {
     };
   },
 
-  parseFilters({ types, ids, frameworks, architectures, category, author, channel, search, nsfw, maintainer, published }: { types?: PackageType[], ids?: string[], frameworks?: string[], architectures?: Architecture[], category?: string, author?: string, channel?: Channel, search?: string, nsfw?: boolean, maintainer?: string, published?: boolean }) {
+  parseFilters({ types, ids, frameworks, architectures, category, author, channel, search, nsfw, maintainer, published }: { types?: PackageType[], ids?: string[], frameworks?: string[], architectures?: Architecture[], category?: string, author?: string, channel?: Channel, search?: string, nsfw?: boolean[], maintainer?: string, published?: boolean }) {
     const query: { [key: string]: any } = {}; // TODO fix types
 
     if (types && types.length > 0) {

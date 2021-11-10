@@ -1,10 +1,10 @@
-const factory = require('./factory');
+import factory from './factory';
 
-const { expect } = require('./helper');
-const Package = require('../src/db/package/model');
-const PackageRepo = require('../src/db/package/repo');
-const RatingCountRepo = require('../src/db/rating_count/repo');
-const discoverJSON = require('../src/api/json/discover_apps.json');
+import { expect } from './helper';
+import Package from '../src/db/package/model';
+import PackageRepo from '../src/db/package/repo';
+import RatingCountRepo from '../src/db/rating_count/repo';
+import discoverJSON from '../src/api/json/discover_apps.json';
 
 describe('Discover API', () => {
   before(function() {

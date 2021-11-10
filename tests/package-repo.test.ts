@@ -1,14 +1,15 @@
-const { expect } = require('./helper');
-const PackageRepo = require('../src/db/package/repo');
+import { expect } from './helper';
+import PackageRepo from '../src/db/package/repo';
+import { Architecture, Channel, PackageType } from '../src/db/package/types';
 
 describe('PackageRepo', () => {
   context('parseRequestFilters', () => {
     it('parses a request', () => {
       const parsed = PackageRepo.parseRequestFilters({
         query: {
-          types: 'app',
-          type: 'app',
-          architecture: 'ALL',
+          types: PackageType.APP,
+          type: PackageType.APP,
+          architecture: Architecture.ALL,
           limit: '100',
           skip: '20',
           sort: '-published_date',
@@ -17,14 +18,14 @@ describe('PackageRepo', () => {
           category: 'Category',
           author: 'Author',
           search: 'term',
-          channel: 'Xenial',
+          channel: Channel.XENIAL,
           nsfw: 'false',
         },
-      });
+      } as any);
 
       expect(parsed).to.deep.equal({
-        types: ['app'],
-        architectures: ['all'],
+        types: [PackageType.APP],
+        architectures: [Architecture.ALL],
         limit: 100,
         skip: 20,
         sort: '-published_date',
@@ -33,24 +34,24 @@ describe('PackageRepo', () => {
         category: 'Category',
         author: 'Author',
         search: 'term',
-        channel: 'xenial',
+        channel: Channel.XENIAL,
         nsfw: [null, false],
       });
     });
 
     it('handles types and type and webapp+', () => {
       expect(PackageRepo.parseRequestFilters({
-        query: { type: 'app', types: 'webapp' },
-      })).to.deep.include({
-        types: ['webapp', 'app', 'webapp+'],
+        query: { type: PackageType.APP, types: PackageType.WEBAPP },
+      } as any)).to.deep.include({
+        types: [PackageType.WEBAPP, PackageType.APP, PackageType.WEBAPP_PLUS],
       });
     });
 
     it('adds arch all when the arch is not all', () => {
       expect(PackageRepo.parseRequestFilters({
-        query: { architecture: 'armhf' },
-      })).to.deep.include({
-        architectures: ['armhf', 'all'],
+        query: { architecture: Architecture.ARMHF },
+      } as any)).to.deep.include({
+        architectures: [Architecture.ARMHF, Architecture.ALL],
       });
     });
   });
@@ -58,13 +59,13 @@ describe('PackageRepo', () => {
   context('parseFilters', () => {
     it('parses filters', () => {
       const parsed = PackageRepo.parseFilters({
-        types: ['app', 'webapp'],
+        types: [PackageType.APP, PackageType.WEBAPP],
         ids: ['foo.bar'],
         frameworks: ['ubuntu-16.04'],
-        architectures: ['armhf', 'all'],
+        architectures: [Architecture.ARMHF, Architecture.ALL],
         category: 'Category',
         author: 'Author',
-        channel: 'xenial',
+        channel: Channel.XENIAL,
         search: 'term',
         nsfw: [true],
         maintainer: 'foobar',
@@ -72,13 +73,13 @@ describe('PackageRepo', () => {
       });
 
       expect(parsed).to.deep.equal({
-        types: { $in: ['app', 'webapp'] },
+        types: { $in: [PackageType.APP, PackageType.WEBAPP] },
         id: { $in: ['foo.bar'] },
         framework: { $in: ['ubuntu-16.04'] },
-        architectures: { $in: ['armhf', 'all'] },
+        architectures: { $in: [Architecture.ARMHF, Architecture.ALL] },
         category: 'Category',
         author: 'Author',
-        channels: 'xenial',
+        channels: Channel.XENIAL,
         $text: { $search: 'term' },
         nsfw: { $in: [true] },
         maintainer: 'foobar',

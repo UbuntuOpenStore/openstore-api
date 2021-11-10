@@ -1,11 +1,11 @@
-const chai = require('chai');
-const mongoose = require('mongoose');
-const request = require('supertest');
-const sinon = require('sinon');
-const sinonChai = require('sinon-chai');
+import chai from 'chai';
+import mongoose from 'mongoose';
+import request from 'supertest';
+import sinon from 'sinon';
+import sinonChai from 'sinon-chai';
 
-const factory = require('./factory');
-const api = require('../src/api');
+import factory from './factory';
+import * as api from '../src/api';
 
 chai.use(sinonChai);
 chai.config.includeStack = true;
@@ -61,4 +61,4 @@ afterEach(function() {
   this.sandbox.restore();
 });
 
-exports.expect = chai.expect;
+export const expect = chai.expect;

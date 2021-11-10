@@ -12,9 +12,9 @@ import config from '../utils/config';
 import logger from '../utils/logger';
 import { success, error, captureException, sanitize, getDataInt } from '../utils/helpers';
 import apiLinks from '../utils/api-links';
-import clickParser from '../utils/click-parser-async';
+import * as clickParser from '../utils/click-parser-async';
 import checksum from '../utils/checksum';
-import reviewPackage from '../utils/review-package';
+import * as reviewPackage from '../utils/review-package';
 import { authenticate, userRole, downloadFile, extendTimeout } from '../utils/middleware';
 import fs from 'fs/promises';
 import { LockDoc } from 'db/lock/types';
@@ -62,7 +62,7 @@ async function review(req: Request, file: any, filePath: string) {
 
   if (!req.isAdminUser && !req.isTrustedUser) {
     // Admin & trusted users can upload apps without manual review
-    const needsManualReview = await reviewPackage(filePath);
+    const needsManualReview = await reviewPackage.review(filePath);
     if (needsManualReview) {
       // TODO improve this feedback
       let error = NEEDS_MANUAL_REVIEW;
@@ -367,7 +367,7 @@ router.post(
         return error(res, reviewError, 400);
       }
 
-      const parseData = await clickParser(filePath, true);
+      const parseData = await clickParser.parsePackage(filePath, true);
       const { version, architecture } = parseData;
       if (!parseData.name || !version || !architecture) {
         await LockRepo.release(lock, req);
