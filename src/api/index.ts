@@ -5,7 +5,7 @@ import methodOverride from 'method-override';
 import session from 'cookie-session';
 import express, { Request, Response, NextFunction } from 'express';
 import cluster from 'cluster';
-import Sentry from '@sentry/node';
+import * as Sentry from '@sentry/node';
 
 import config from '../utils/config';
 import * as apps from './apps';

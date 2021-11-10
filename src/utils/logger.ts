@@ -1,5 +1,5 @@
 import winston from 'winston';
-import Sentry from '@sentry/node';
+import * as Sentry from '@sentry/node';
 
 const logger = winston.createLogger({
   transports: [

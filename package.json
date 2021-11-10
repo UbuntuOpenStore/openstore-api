@@ -4,12 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node dist/index.js",
+    "start": "node -r tsconfig-paths/register dist/index.js",
     "dev": "nodemon ./src/index.ts",
     "build": "tsc",
     "lint": "eslint ./src/ ./tests/ --fix",
     "lint:json": "jsonlint -q ./src/api/json/category_icons.json && jsonlint -q ./src/api/json/default_frameworks.json && jsonlint -q ./src/api/json/discover_apps.json",
-    "test": "PORT=8888 NODE_ENV=testing MONGODB_URI=mongodb://127.0.0.1:27017 MONGODB_DB=openstore-test ELASTICSEARCH_URI=http://127.0.0.1:9200/ ELASTICSEARCH_INDEX=openstore_test mocha tests --reporter dot",
+    "test": "PORT=8888 NODE_ENV=testing MONGODB_URI=mongodb://127.0.0.1:27017 MONGODB_DB=openstore-test ELASTICSEARCH_URI=http://127.0.0.1:9200/ ELASTICSEARCH_INDEX=openstore_test mocha -r ts-node/register -r tsconfig-paths/register tests --reporter dot",
     "coverage": "PORT=8888 NODE_ENV=testing MONGODB_URI=mongodb://127.0.0.1:27017 MONGODB_DB=openstore-test ELASTICSEARCH_URI=http://127.0.0.1:9200/ ELASTICSEARCH_INDEX=openstore_test nyc mocha tests --reporter dot",
     "test:ci": "NODE_ENV=testing nyc mocha tests --reporter dot",
     "update-pot-file": "src/bin/update-pot-file"
@@ -20,6 +20,19 @@
   },
   "author": "Brian Douglass",
   "license": "GPL-3.0",
+  "nodemonConfig": {
+    "ignore": [
+      "**/*.test.ts",
+      "**/*.spec.ts",
+      ".git",
+      "node_modules"
+    ],
+    "watch": [
+      "src"
+    ],
+    "exec": "node -r tsconfig-paths/register -r ts-node/register ./src/index.ts",
+    "ext": "ts, js, json"
+  },
   "dependencies": {
     "@sentry/node": "^5.15.4",
     "bluebird": "^3.7.2",
@@ -70,6 +83,7 @@
     "sinon-chai": "^3.5.0",
     "supertest": "^4.0.2",
     "ts-node": "^10.4.0",
+    "tsconfig-paths": "^3.11.0",
     "typescript": "^4.4.4"
   }
 }

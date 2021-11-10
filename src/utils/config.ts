@@ -3,7 +3,7 @@ import path from 'path';
 
 // Allow api key/pass to be set when testing locally
 let configFile: { [key: string]: string } = {};
-const configFilePath = path.join(__dirname, 'config.json');
+const configFilePath = path.join(__dirname, 'config-file.json');
 if (fs.existsSync(configFilePath)) {
   configFile = JSON.parse(fs.readFileSync(configFilePath, { encoding: 'utf-8' }));
 }

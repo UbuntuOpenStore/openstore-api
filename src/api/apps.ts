@@ -148,8 +148,6 @@ router.get('/:id/icon/:version', (req: Request, res: Response) => {
   res.redirect(301, `/icons/${id}/${id}-${req.params.version || '0.0.0'}`);
 });
 
-console.log('test');
-
 // can be removed in next api version
 function getScreenshot(req: Request, res: Response) {
   res.redirect(301, `/screenshots/${req.params.name}`);
