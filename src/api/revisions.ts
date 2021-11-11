@@ -1,10 +1,10 @@
 import express, { Request, Response } from 'express';
 
-import Package from '../db/package/model';
-import PackageRepo from '../db/package/repo';
-import { downloadUrl } from '../db/package/serializer';
-import { getDataArray, getData, success, error, captureException } from '../utils/helpers';
-import logger from '../utils/logger';
+import Package from 'db/package/model';
+import PackageRepo from 'db/package/repo';
+import { downloadUrl } from 'db/package/serializer';
+import { getDataArray, getData, success, error, captureException } from 'utils/helpers';
+import logger from 'utils/logger';
 
 // TODO remove this when system settings properly sends frameworks
 import defaultFrameworks from './json/default_frameworks.json';

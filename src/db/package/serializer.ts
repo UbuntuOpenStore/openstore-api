@@ -1,6 +1,6 @@
 import path from 'path';
 
-import config from '../../utils/config';
+import config from 'utils/config';
 import Package from './model';
 import { Architecture, Channel, DEFAULT_CHANNEL, PackageDoc } from './types';
 import { RatingCountDoc } from '../rating_count/types';

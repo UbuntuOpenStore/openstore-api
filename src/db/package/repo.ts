@@ -2,7 +2,7 @@ import uniq from 'lodash/uniq';
 import { Request } from 'express';
 
 import Package from './model';
-import { getData, getDataArray, getDataBoolean, getDataInt } from '../../utils/helpers';
+import { getData, getDataArray, getDataBoolean, getDataInt } from 'utils/helpers';
 import { Architecture, Channel, PackageType } from './types';
 
 export default {

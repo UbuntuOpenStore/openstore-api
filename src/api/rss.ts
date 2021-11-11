@@ -1,11 +1,11 @@
 import RSS from 'rss';
 import express, { Request, Response } from 'express';
 
-import PackageRepo from '../db/package/repo';
-import { iconUrl } from '../db/package/serializer';
-import logger from '../utils/logger';
-import config from '../utils/config';
-import { error, captureException } from '../utils/helpers';
+import PackageRepo from 'db/package/repo';
+import { iconUrl } from 'db/package/serializer';
+import logger from 'utils/logger';
+import config from 'utils/config';
+import { error, captureException } from 'utils/helpers';
 
 const router = express.Router();
 

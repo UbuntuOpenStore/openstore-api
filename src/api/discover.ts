@@ -1,15 +1,15 @@
 import shuffle from 'shuffle-array';
 import express, { Request, Response } from 'express';
 
-import Package from '../db/package/model';
-import PackageRepo from '../db/package/repo';
-import RatingCountRepo from '../db/rating_count/repo';
-import { serialize, serializeRatings } from '../db/package/serializer';
-import config from '../utils/config';
+import Package from 'db/package/model';
+import PackageRepo from 'db/package/repo';
+import RatingCountRepo from 'db/rating_count/repo';
+import { serialize, serializeRatings } from 'db/package/serializer';
+import config from 'utils/config';
+import { success, error, getData, getDataArray, captureException } from 'utils/helpers';
+import logger from 'utils/logger';
+import * as translations from 'utils/translations';
 import discoverJSON from './json/discover_apps.json';
-import { success, error, getData, getDataArray, captureException } from '../utils/helpers';
-import logger from '../utils/logger';
-import * as translations from '../utils/translations';
 
 // TODO remove this when system settings properly sends frameworks
 import defaultFrameworks from './json/default_frameworks.json';

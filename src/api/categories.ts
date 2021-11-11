@@ -1,12 +1,12 @@
 import express, { Request, Response } from 'express';
 
 import { DEFAULT_CHANNEL } from 'db/package/types';
-import Package from '../db/package/model';
-import PackageRepo from '../db/package/repo';
-import config from '../utils/config';
-import logger from '../utils/logger';
-import { success, error, captureException, getData } from '../utils/helpers';
-import * as translations from '../utils/translations';
+import Package from 'db/package/model';
+import PackageRepo from 'db/package/repo';
+import config from 'utils/config';
+import logger from 'utils/logger';
+import { success, error, captureException, getData } from 'utils/helpers';
+import * as translations from 'utils/translations';
 import categoryIcons from './json/category_icons.json';
 
 const categoryNames = Object.keys(categoryIcons);

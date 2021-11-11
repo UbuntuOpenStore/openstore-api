@@ -4,8 +4,8 @@ const fs = require('fs');
 const path = require('path');
 
 require('../db'); // Make sure the database connection gets setup
-const Package = require('../db/package/model');
-const config = require('../utils/config');
+const Package = require('db/package/model');
+const config = require('utils/config');
 const limitedApps = require('./limited-apps.json');
 
 const MAX_REVISIONS = 3;

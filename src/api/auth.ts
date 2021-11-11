@@ -6,9 +6,9 @@ import { Strategy as GitLabStrategy } from 'passport-gitlab2';
 import uuid from 'node-uuid';
 import express, { Request, Response } from 'express';
 
-import config from '../utils/config';
-import logger from '../utils/logger';
-import User from '../db/user/model';
+import config from 'utils/config';
+import logger from 'utils/logger';
+import User from 'db/user/model';
 
 const router = express.Router();
 

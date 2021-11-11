@@ -1,17 +1,17 @@
 /* eslint-disable no-restricted-syntax */
 import express, { Request, Response } from 'express';
 
-import '../db/comment/model';
-import { error, success, captureException, getDataInt } from '../utils/helpers';
-import apiLinks from '../utils/api-links';
-import logger from '../utils/logger';
-import PackageRepo from '../db/package/repo';
-import Review from '../db/review/model';
-import RatingCount from '../db/rating_count/model';
-import Package from '../db/package/model';
-import { authenticate, anonymousAuthenticate, userRole } from '../utils/middleware';
-import { serialize } from '../db/review/serializer';
-import { RATINGS, REVIEW_MAX_LEN, RATING_MAP, Ratings } from '../db/review/constants';
+import 'db/comment/model';
+import { error, success, captureException, getDataInt } from 'utils/helpers';
+import apiLinks from 'utils/api-links';
+import logger from 'utils/logger';
+import PackageRepo from 'db/package/repo';
+import Review from 'db/review/model';
+import RatingCount from 'db/rating_count/model';
+import Package from 'db/package/model';
+import { authenticate, anonymousAuthenticate, userRole } from 'utils/middleware';
+import { serialize } from 'db/review/serializer';
+import { RATINGS, REVIEW_MAX_LEN, RATING_MAP, Ratings } from 'db/review/constants';
 
 const APP_NOT_FOUND = 'App not found';
 const PARAMETER_MISSING = 'Missing parameters for this endpoint';

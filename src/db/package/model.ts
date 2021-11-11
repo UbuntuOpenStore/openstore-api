@@ -2,8 +2,8 @@ import { Schema, model } from 'mongoose';
 import path from 'path';
 import fs from 'fs';
 
-import { sanitize } from '../../utils/helpers';
-import config from '../../utils/config';
+import { sanitize } from 'utils/helpers';
+import config from 'utils/config';
 import UserRepo from '../user/repo';
 import { RevisionDoc, RevisionModel, PackageDoc, PackageModel, Architecture, Channel, BodyUpdate } from './types';
 
@@ -308,8 +308,6 @@ packageSchema.methods.updateFromBody = async function(body: BodyUpdate) {
   updatedScreenshots = updatedScreenshots.map((screenshot) => {
     return screenshot.replace(regex, '');
   });
-
-  console.log(updatedScreenshots, regex);
 
   // Unlink the screenshot file if it gets removed
   this.screenshots.forEach((screenshot) => {

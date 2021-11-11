@@ -7,7 +7,9 @@ import express, { Request, Response, NextFunction } from 'express';
 import cluster from 'cluster';
 import * as Sentry from '@sentry/node';
 
-import config from '../utils/config';
+import config from 'utils/config';
+import logger from 'utils/logger';
+import { success } from 'utils/helpers';
 import * as apps from './apps';
 import manage from './manage';
 import categories from './categories';
@@ -16,8 +18,6 @@ import revisions from './revisions';
 import auth from './auth';
 import users from './users';
 import rss from './rss';
-import logger from '../utils/logger';
-import { success } from '../utils/helpers';
 import '../db'; // Make sure the database connection gets setup
 
 export function setup() {

@@ -3,7 +3,7 @@
 const fs = require('fs');
 
 require('../db'); // Make sure the database connection gets setup
-const Package = require('../db/package/model');
+const Package = require('db/package/model');
 const limitedApps = require('./limited-apps.json');
 
 const MAX_REVISIONS = 3;

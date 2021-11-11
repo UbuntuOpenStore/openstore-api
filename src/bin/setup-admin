@@ -2,7 +2,7 @@
 
 'use strict';
 
-const User = require('../db/user/model');
+const User = require('db/user/model');
 
 User.findOne({}).then((user) => {
     user.role = 'admin';

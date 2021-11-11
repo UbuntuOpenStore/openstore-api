@@ -2,7 +2,7 @@
 
 'use strict';
 
-const PackageSearch = require('../db/package/search');
+const PackageSearch = require('db/package/search');
 
 PackageSearch.removeIndex().then(() => {
     console.log('done');

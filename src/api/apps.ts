@@ -3,15 +3,15 @@ import express, { Request, Response } from 'express';
 
 import fsPromise from 'fs/promises';
 import fs from 'fs';
-import { Architecture, Channel, DEFAULT_CHANNEL } from 'db/package/types';
+import { Architecture, Channel, DEFAULT_CHANNEL, PackageDoc } from 'db/package/types';
+import PackageRepo from 'db/package/repo';
+import PackageSearch from 'db/package/search';
+import { serialize } from 'db/package/serializer';
+import RatingCountRepo from 'db/rating_count/repo';
+import logger from 'utils/logger';
+import { success, error, captureException, getData } from 'utils/helpers';
+import apiLinks from 'utils/api-links';
 import reviews from './reviews';
-import PackageRepo from '../db/package/repo';
-import PackageSearch from '../db/package/search';
-import { serialize } from '../db/package/serializer';
-import RatingCountRepo from '../db/rating_count/repo';
-import logger from '../utils/logger';
-import { success, error, captureException, getData } from '../utils/helpers';
-import apiLinks from '../utils/api-links';
 
 // TODO properly namespace these so we only need one router
 const router = express.Router();
@@ -24,10 +24,9 @@ const INVALID_CHANNEL = 'The provided channel is not valid';
 const INVALID_ARCH = 'The provided architecture is not valid';
 
 async function apps(req: Request, res: Response) {
-  // TODO fix types
-  const filters: { [key: string]: any } = PackageRepo.parseRequestFilters(req);
+  const filters = PackageRepo.parseRequestFilters(req);
   let count = 0;
-  let pkgs: any[] = [];
+  let pkgs: PackageDoc[] = [];
 
   try {
     if (filters.search && filters.search.indexOf('author:') !== 0) {
@@ -55,9 +54,9 @@ async function apps(req: Request, res: Response) {
       }
     }
     else {
-      filters.published = true;
-      pkgs = await PackageRepo.find(filters, filters.sort, filters.limit, filters.skip);
-      count = await PackageRepo.count(filters);
+      const publishedFilters = { ...filters, published: true };
+      pkgs = await PackageRepo.find(publishedFilters, publishedFilters.sort, publishedFilters.limit, publishedFilters.skip);
+      count = await PackageRepo.count(publishedFilters);
     }
 
     const formatted = serialize(pkgs, !req.query.full, getData(req, 'architecture', Architecture.ARMHF), req.apiVersion);

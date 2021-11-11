@@ -1,6 +1,6 @@
 import elasticsearch from 'elasticsearch';
 
-import config from '../../utils/config';
+import config from 'utils/config';
 import { PackageDoc, PackageType, Architecture, Channel } from './types';
 
 // Modified from https://github.com/bhdouglass/uappexplorer/blob/master/src/db/elasticsearch/elasticsearch.js
