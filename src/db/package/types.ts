@@ -108,3 +108,5 @@ export type PackageRequestFilters = {
   maintainer?: string;
   published?: boolean;
 }
+
+export interface SerializedDownload extends RevisionSchema {}

@@ -1,8 +1,7 @@
 import path from 'path';
 
 import config from 'utils/config';
-import Package from './model';
-import { Architecture, Channel, DEFAULT_CHANNEL, PackageDoc } from './types';
+import { Architecture, Channel, DEFAULT_CHANNEL, PackageDoc, SerializedDownload } from './types';
 import { RatingCountDoc } from '../rating_count/types';
 
 const DEFAULT_VERSION = '0.0.0';
@@ -135,7 +134,7 @@ function toJson(pkg: PackageDoc, architecture: Architecture = Architecture.ARMHF
     changelog: pkg.changelog || '',
     channels: pkg.channels || [DEFAULT_CHANNEL],
     description: pkg.description || '',
-    downloads: <any[]>[], // TODO fix types
+    downloads: <SerializedDownload[]>[],
     framework: pkg.framework || '',
     icon: iconUrl(pkg),
     id: pkg.id || '',
@@ -175,8 +174,7 @@ function toJson(pkg: PackageDoc, architecture: Architecture = Architecture.ARMHF
   };
 
   if (pkg.revisions) {
-    // TODO fix types
-    const jsonDownloads = Object.values(Channel).reduce<any[]>((downloads: any[], channel: Channel) => {
+    const jsonDownloads = Object.values(Channel).reduce<(SerializedDownload | null)[]>((downloads: (SerializedDownload | null)[], channel: Channel) => {
       return [...downloads, ...pkg.architectures.map((arch) => {
         if (!Object.values(Architecture).includes(arch)) {
           return null; // Filter out unsupported arches like i386 (legacy apps)
@@ -198,7 +196,7 @@ function toJson(pkg: PackageDoc, architecture: Architecture = Architecture.ARMHF
 
         return null;
       })];
-    }, []).filter((revision) => (!!revision || (revision && !revision.download_url)));
+    }, []).filter((revision) => (revision?.download_url)) as SerializedDownload[];
 
     // Make sure the current architecture is last to not break old versions of the app
     jsonDownloads.sort((a, b) => {
