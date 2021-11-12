@@ -3,7 +3,7 @@ import { Request } from 'express';
 
 import Package from './model';
 import { getData, getDataArray, getDataBoolean, getDataInt } from 'utils/helpers';
-import { Architecture, Channel, PackageType, PackageRequestFilters, PackageDoc } from './types';
+import { Architecture, Channel, PackageType, PackageRequestFilters, PackageDoc, PackageFindOneFilters } from './types';
 import { FilterQuery } from 'mongoose';
 
 export default {
@@ -137,7 +137,7 @@ export default {
     return findQuery.exec();
   },
 
-  findOne(id: string, { published, frameworks, architecture, maintainer }: { published?: boolean, frameworks?: string, architecture?: Architecture, maintainer?: string} = {}) {
+  findOne(id: string, { published, frameworks, architecture, maintainer }: PackageFindOneFilters = {}) {
     const query: FilterQuery<PackageDoc> = {
       id,
     };

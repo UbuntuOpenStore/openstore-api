@@ -109,4 +109,12 @@ export type PackageRequestFilters = {
   published?: boolean;
 }
 
+// TODO merge this with PackageRequestFilters
+export type PackageFindOneFilters = {
+  published?: boolean;
+  frameworks?: string;
+  architecture?: Architecture;
+  maintainer?: string;
+}
+
 export interface SerializedDownload extends RevisionSchema {}

@@ -1,5 +1,6 @@
 /* eslint-disable no-restricted-syntax */
 import express, { Request, Response } from 'express';
+import { FilterQuery } from 'mongoose';
 
 import 'db/comment/model';
 import { error, success, captureException, getDataInt } from 'utils/helpers';
@@ -7,6 +8,7 @@ import apiLinks from 'utils/api-links';
 import logger from 'utils/logger';
 import PackageRepo from 'db/package/repo';
 import Review from 'db/review/model';
+import { ReviewDoc } from 'db/review/types';
 import RatingCount from 'db/rating_count/model';
 import Package from 'db/package/model';
 import { authenticate, anonymousAuthenticate, userRole } from 'utils/middleware';
@@ -96,13 +98,12 @@ async function getReviews(req: Request, res: Response) {
       limit = 100;
     }
 
-    // TODO fix type
-    const query: { [key:string]: any } = { pkg: pkg._id, redacted: false };
+    const query: FilterQuery<ReviewDoc> = { pkg: pkg._id, redacted: false };
 
     // Add given filter criteria
     const from = getDataInt(req, 'from');
     if (from) {
-      query.date = { $lt: from };
+      query.date = { $lt: new Date(from) };
     }
 
     if ('filter' in req.query && req.query.filter == 'apikey' && req.user) {

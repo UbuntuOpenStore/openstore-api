@@ -5,7 +5,7 @@ import express, { Request, Response } from 'express';
 
 import fs from 'fs/promises';
 import { LockDoc } from 'db/lock/types';
-import { PackageDoc, Architecture, Channel, DEFAULT_CHANNEL } from 'db/package/types';
+import { PackageDoc, Architecture, Channel, DEFAULT_CHANNEL, PackageFindOneFilters } from 'db/package/types';
 import Package from 'db/package/model';
 import PackageRepo from 'db/package/repo';
 import PackageSearch from 'db/package/search';
@@ -118,8 +118,7 @@ async function updateScreenshotFiles(pkg: PackageDoc, screenshotFiles: { [key: s
 }
 
 router.get('/', authenticate, userRole, async(req: Request, res: Response) => {
-  // TODO fix types
-  const filters: { [key: string]: any } = PackageRepo.parseRequestFilters(req);
+  const filters = PackageRepo.parseRequestFilters(req);
   if (!req.isAdminUser) {
     filters.maintainer = req.user!._id;
   }
@@ -140,8 +139,7 @@ router.get('/', authenticate, userRole, async(req: Request, res: Response) => {
 });
 
 router.get('/:id', authenticate, userRole, async(req: Request, res: Response) => {
-  // TODO fix types
-  const filters: { [key: string]: any } = {};
+  const filters: PackageFindOneFilters = {};
   if (!req.isAdminUser) {
     filters.maintainer = req.user!._id;
   }
@@ -484,7 +482,7 @@ router.post(
         await LockRepo.release(lock, req);
       }
 
-      const message = (err as any).message ? (err as any).message : err;
+      const message = err?.message ? err.message : err;
       logger.error(`Error updating package: ${message}`);
       captureException(err, req.originalUrl);
 

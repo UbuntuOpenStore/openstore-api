@@ -83,7 +83,7 @@ export default {
     }
     catch (err) {
       // TODO fix types
-      if ((err as any)?.status == 404) {
+      if (err?.status == 404) {
         return item;
       }
 

@@ -38,7 +38,7 @@ export default {
         logger.debug('Lock acquired');
       }
       catch (err) {
-        if ((err as any)?.code == 11000) {
+        if (err?.code == 11000) {
           // a lock already exists, try again
           logger.debug(`Lock exists, going to wait (retries: ${retries})`);
           retries--;
