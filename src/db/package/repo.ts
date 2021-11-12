@@ -3,26 +3,27 @@ import { Request } from 'express';
 
 import Package from './model';
 import { getData, getDataArray, getDataBoolean, getDataInt } from 'utils/helpers';
-import { Architecture, Channel, PackageType } from './types';
+import { Architecture, Channel, PackageType, PackageRequestFilters, PackageDoc } from './types';
+import { FilterQuery } from 'mongoose';
 
 export default {
-  parseRequestFilters(req: Request) {
+  parseRequestFilters(req: Request): PackageRequestFilters {
     const types = [
       ...getDataArray(req, 'types'),
       // Handle non-pluralized form
       ...getDataArray(req, 'type'),
     ];
 
-    if (types.includes('webapp')) {
-      types.push('webapp+');
+    if (types.includes(PackageType.WEBAPP)) {
+      types.push(PackageType.WEBAPP_PLUS);
     }
 
     const architecture = getData(req, 'architecture').toLowerCase();
-    let architectures: string[] = [];
+    let architectures: Architecture[] = [];
     if (architecture) {
       architectures = [architecture];
-      if (architecture != 'all') {
-        architectures.push('all');
+      if (architecture != Architecture.ALL) {
+        architectures.push(Architecture.ALL);
       }
     }
 
@@ -42,8 +43,8 @@ export default {
     };
   },
 
-  parseFilters({ types, ids, frameworks, architectures, category, author, channel, search, nsfw, maintainer, published }: { types?: PackageType[], ids?: string[], frameworks?: string[], architectures?: Architecture[], category?: string, author?: string, channel?: Channel, search?: string, nsfw?: boolean[], maintainer?: string, published?: boolean }) {
-    const query: { [key: string]: any } = {}; // TODO fix types
+  parseFilters({ types, ids, frameworks, architectures, category, author, channel, search, nsfw, maintainer, published }: PackageRequestFilters) {
+    const query: FilterQuery<PackageDoc> = {};
 
     if (types && types.length > 0) {
       query.types = {
@@ -100,16 +101,14 @@ export default {
     return query;
   },
 
-  // TODO fix types
-  count(filters: { [key: string]: any }) {
+  count(filters: PackageRequestFilters) {
     const query = this.parseFilters(filters);
 
     return Package.countDocuments(query);
   },
 
 
-  // TODO fix types
-  find(filters: { [key: string]: any }, sort: string = 'relevance', limit?: number, skip?: number) {
+  find(filters: PackageRequestFilters, sort: string = 'relevance', limit?: number, skip?: number) {
     const query = this.parseFilters(filters);
 
     const findQuery = Package.find(query).populate('rating_counts');
@@ -139,8 +138,7 @@ export default {
   },
 
   findOne(id: string, { published, frameworks, architecture, maintainer }: { published?: boolean, frameworks?: string, architecture?: Architecture, maintainer?: string} = {}) {
-    // TODO fix types
-    const query: { [key: string]: any } = {
+    const query: FilterQuery<PackageDoc> = {
       id,
     };
 
@@ -181,10 +179,10 @@ export default {
   // TODO refactor to support multiple channels
   async stats() {
     const [categoryStats, typeStats, frameworkStats, archStats] = await Promise.all([
-      this.categoryStats(Package.CHANNELS),
+      this.categoryStats(Object.values(Channel)),
       Package.aggregate([
         {
-          $match: { published: true, channels: { $in: Package.CHANNELS } },
+          $match: { published: true, channels: { $in: Object.values(Channel) } },
         }, {
           $group: {
             _id: '$types',
@@ -196,7 +194,7 @@ export default {
       ]),
       Package.aggregate([
         {
-          $match: { published: true, channels: { $in: Package.CHANNELS } },
+          $match: { published: true, channels: { $in: Object.values(Channel) } },
         }, {
           $group: {
             _id: '$framework',
@@ -208,7 +206,7 @@ export default {
       ]),
       Package.aggregate([
         {
-          $match: { published: true, channels: { $in: Package.CHANNELS } },
+          $match: { published: true, channels: { $in: Object.values(Channel) } },
         }, {
           $group: {
             _id: '$architectures',
@@ -257,7 +255,7 @@ export default {
   },
 
   categoryStats(channels: Channel[]) {
-    const match: { [key: string]: any } = { published: true }; // TODO fix type
+    const match: FilterQuery<PackageDoc> = { published: true };
     if (channels) {
       match.channels = { $in: channels };
     }

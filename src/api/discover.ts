@@ -1,8 +1,8 @@
 import shuffle from 'shuffle-array';
 import express, { Request, Response } from 'express';
 
-import Package from 'db/package/model';
 import PackageRepo from 'db/package/repo';
+import { Architecture, DEFAULT_CHANNEL, Channel, PackageType } from 'db/package/types';
 import RatingCountRepo from 'db/rating_count/repo';
 import { serialize, serializeRatings } from 'db/package/serializer';
 import config from 'utils/config';
@@ -43,14 +43,14 @@ function checkFramework(discover, frameworks) {
 router.get('/', async(req: Request, res: Response) => {
   const frameworks = getDataArray(req, 'frameworks', defaultFrameworks);
 
-  let channel = getData(req, 'channel', Package.DEFAULT_CHANNEL).toLowerCase();
-  if (!Package.CHANNELS.includes(channel)) {
-    channel = Package.DEFAULT_CHANNEL;
+  let channel = getData(req, 'channel', DEFAULT_CHANNEL).toLowerCase();
+  if (!Object.values(Channel).includes(channel)) {
+    channel = DEFAULT_CHANNEL;
   }
 
-  let architecture = getData(req, 'architecture', Package.ARMHF).toLowerCase();
-  if (!Package.ARCHITECTURES.includes(architecture)) {
-    architecture = Package.ARMHF;
+  let architecture = getData(req, 'architecture', Architecture.ARMHF).toLowerCase();
+  if (!Object.values(Architecture).includes(architecture)) {
+    architecture = Architecture.ARMHF;
   }
 
   const cacheKey = `${channel}-${architecture}`;
@@ -69,7 +69,7 @@ router.get('/', async(req: Request, res: Response) => {
         PackageRepo.find({
           ids: discover.highlights.map((highlight) => highlight.id),
           channel,
-          architectures: [architecture, Package.ALL],
+          architectures: [architecture, Architecture.ALL],
           published: true,
         }),
 
@@ -81,7 +81,7 @@ router.get('/', async(req: Request, res: Response) => {
           return PackageRepo.find({
             ids: category.ids,
             channel,
-            architectures: [architecture, Package.ALL],
+            architectures: [architecture, Architecture.ALL],
             published: true,
           });
         })),
@@ -89,25 +89,25 @@ router.get('/', async(req: Request, res: Response) => {
         PackageRepo.find({
           published: true,
           channel,
-          architectures: [architecture, Package.ALL],
+          architectures: [architecture, Architecture.ALL],
           nsfw: [null, false],
-          types: 'app',
+          types: [PackageType.APP],
         }, '-published_date', 8),
 
         PackageRepo.find({
           published: true,
           channel,
-          architectures: [architecture, Package.ALL],
+          architectures: [architecture, Architecture.ALL],
           nsfw: [null, false],
-          types: 'app',
+          types: [PackageType.APP],
         }, '-updated_date', 8),
 
         PackageRepo.find({
           published: true,
           channel,
-          architectures: [architecture, Package.ALL],
+          architectures: [architecture, Architecture.ALL],
           nsfw: [null, false],
-          types: 'app',
+          types: [PackageType.APP],
         }, '-calculated_rating', 8),
       ]);
 

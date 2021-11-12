@@ -2,8 +2,8 @@ import path from 'path';
 import factory from './factory';
 
 import { expect } from './helper';
-import Package from '../src/db/package/model';
 import PackageRepo from '../src/db/package/repo';
+import { Architecture, Channel } from '../src/db/package/types';
 import Lock from '../src/db/lock/model';
 import LockRepo from '../src/db/lock/repo';
 import * as reviewPackage from '../src/utils/review-package';
@@ -46,7 +46,7 @@ describe('Manage Revision POST', () => {
 
       const res = await this.post(`/api/v3/manage/${this.package2.id}/revision`)
         .attach('file', this.emptyClick)
-        .field('channel', Package.XENIAL)
+        .field('channel', Channel.XENIAL)
         .expect(200);
 
       expect(res.body.success).to.be.true;
@@ -66,7 +66,7 @@ describe('Manage Revision POST', () => {
 
       const res = await this.post(this.route)
         .attach('file', this.emptyClick)
-        .field('channel', Package.XENIAL)
+        .field('channel', Channel.XENIAL)
         .expect(200);
 
       expect(res.body.success).to.be.true;
@@ -94,7 +94,7 @@ describe('Manage Revision POST', () => {
 
       const res = await this.post(this.route)
         .attach('file', this.emptyClick)
-        .field('channel', Package.XENIAL)
+        .field('channel', Channel.XENIAL)
         .expect(200);
 
       expect(res.body.success).to.be.true;
@@ -134,7 +134,7 @@ describe('Manage Revision POST', () => {
     it('fails with bad id', async function() {
       const res = await this.post('/api/v3/manage/foo/revision')
         .attach('file', this.emptyClick)
-        .field('channel', Package.XENIAL)
+        .field('channel', Channel.XENIAL)
         .expect(404);
 
       expect(res.body.message).to.equal('App not found');
@@ -145,7 +145,7 @@ describe('Manage Revision POST', () => {
     it('does not allow access to other packages', async function() {
       await this.post(`/api/v3/manage/${this.package2.id}/revision`)
         .attach('file', this.emptyClick)
-        .field('channel', Package.XENIAL)
+        .field('channel', Channel.XENIAL)
         .expect(403);
 
       expect(this.lockAcquireSpy).to.have.been.calledOnce;
@@ -157,7 +157,7 @@ describe('Manage Revision POST', () => {
 
       const res = await this.post(this.route)
         .attach('file', this.emptyClick)
-        .field('channel', Package.XENIAL)
+        .field('channel', Channel.XENIAL)
         .expect(400);
 
       expect(res.body.success).to.be.false;
@@ -172,7 +172,7 @@ describe('Manage Revision POST', () => {
 
       const res = await this.post(this.route)
         .attach('file', this.emptyClick)
-        .field('channel', Package.XENIAL)
+        .field('channel', Channel.XENIAL)
         .expect(400);
 
       expect(res.body.success).to.be.false;
@@ -185,7 +185,7 @@ describe('Manage Revision POST', () => {
     it('fails if not a click', async function() {
       const res = await this.post(this.route)
         .attach('file', this.notAClick)
-        .field('channel', Package.XENIAL)
+        .field('channel', Channel.XENIAL)
         .expect(400);
 
       expect(res.body.success).to.be.false;
@@ -204,7 +204,7 @@ describe('Manage Revision POST', () => {
 
       const res = await this.post(this.route)
         .attach('file', this.emptyClick)
-        .field('channel', Package.XENIAL)
+        .field('channel', Channel.XENIAL)
         .expect(400);
 
       expect(res.body.success).to.be.false;
@@ -221,7 +221,7 @@ describe('Manage Revision POST', () => {
 
       const res = await this.post(this.route)
         .attach('file', this.emptyClick)
-        .field('channel', Package.XENIAL)
+        .field('channel', Channel.XENIAL)
         .expect(400);
 
       expect(res.body.success).to.be.false;
@@ -233,21 +233,21 @@ describe('Manage Revision POST', () => {
     });
 
     it('fails with an existing version of the same arch', async function() {
-      this.package.newRevision('1.0.0', Package.XENIAL, Package.ARMHF, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
+      this.package.newRevision('1.0.0', Channel.XENIAL, Architecture.ARMHF, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
       await this.package.save();
 
       const reviewStub = this.sandbox.stub(reviewPackage, 'review').resolves(false);
       const parseStub = this.sandbox.stub(clickParser, 'parsePackage').resolves({
         name: this.package.id,
         version: '1.0.0',
-        architecture: Package.ARMHF,
+        architecture: Architecture.ARMHF,
         framework: 'ubuntu-sdk-16.04',
         apps: [],
       });
 
       const res = await this.post(this.route)
         .attach('file', this.emptyClick)
-        .field('channel', Package.XENIAL)
+        .field('channel', Channel.XENIAL)
         .expect(400);
 
       expect(res.body.success).to.be.false;
@@ -259,22 +259,22 @@ describe('Manage Revision POST', () => {
     });
 
     it('does not fail with an existing version of a different arch', async function() {
-      this.package.newRevision('1.0.0', Package.XENIAL, Package.ARM64, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
-      this.package.architectures = [Package.ARM64];
+      this.package.newRevision('1.0.0', Channel.XENIAL, Architecture.ARM64, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
+      this.package.architectures = [Architecture.ARM64];
       await this.package.save();
 
       const reviewStub = this.sandbox.stub(reviewPackage, 'review').resolves(false);
       const parseStub = this.sandbox.stub(clickParser, 'parsePackage').resolves({
         name: this.package.id,
         version: '1.0.0',
-        architecture: Package.ARMHF,
+        architecture: Architecture.ARMHF,
         framework: 'ubuntu-sdk-16.04',
         apps: [],
       });
 
       const res = await this.post(this.route)
         .attach('file', this.emptyClick)
-        .field('channel', Package.XENIAL)
+        .field('channel', Channel.XENIAL)
         .expect(200);
 
       const data = res.body.data;
@@ -282,12 +282,12 @@ describe('Manage Revision POST', () => {
       expect(data.revisions).to.be.lengthOf(2);
       expect(data.revisions[1].revision).to.equal(2);
       expect(data.revisions[1].version).to.equal('1.0.0');
-      expect(data.revisions[1].channel).to.equal(Package.XENIAL);
-      expect(data.revisions[1].architecture).to.equal(Package.ARMHF);
+      expect(data.revisions[1].channel).to.equal(Channel.XENIAL);
+      expect(data.revisions[1].architecture).to.equal(Architecture.ARMHF);
       expect(data.revisions[1].framework).to.equal('ubuntu-sdk-16.04');
       expect(data.architectures).to.be.lengthOf(2);
-      expect(data.architectures).to.contain(Package.ARMHF);
-      expect(data.architectures).to.contain(Package.ARM64);
+      expect(data.architectures).to.contain(Architecture.ARMHF);
+      expect(data.architectures).to.contain(Architecture.ARM64);
       expect(reviewStub).to.have.been.calledOnce;
       expect(parseStub).to.have.been.calledOnce;
       expect(this.lockAcquireSpy).to.have.been.calledOnce;
@@ -295,21 +295,21 @@ describe('Manage Revision POST', () => {
     });
 
     it('fails when uploading all with existing armhf', async function() {
-      this.package.newRevision('1.0.0', Package.XENIAL, Package.ARMHF, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
+      this.package.newRevision('1.0.0', Channel.XENIAL, Architecture.ARMHF, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
       await this.package.save();
 
       const reviewStub = this.sandbox.stub(reviewPackage, 'review').resolves(false);
       const parseStub = this.sandbox.stub(clickParser, 'parsePackage').resolves({
         name: this.package.id,
         version: '1.0.0',
-        architecture: Package.ALL,
+        architecture: Architecture.ALL,
         framework: 'ubuntu-sdk-16.04',
         apps: [],
       });
 
       const res = await this.post(this.route)
         .attach('file', this.emptyClick)
-        .field('channel', Package.XENIAL)
+        .field('channel', Channel.XENIAL)
         .expect(400);
 
       expect(res.body.success).to.be.false;
@@ -323,21 +323,21 @@ describe('Manage Revision POST', () => {
     });
 
     it('fails when uploading armhf with existing all', async function() {
-      this.package.newRevision('1.0.0', Package.XENIAL, Package.ALL, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
+      this.package.newRevision('1.0.0', Channel.XENIAL, Architecture.ALL, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
       await this.package.save();
 
       const reviewStub = this.sandbox.stub(reviewPackage, 'review').resolves(false);
       const parseStub = this.sandbox.stub(clickParser, 'parsePackage').resolves({
         name: this.package.id,
         version: '1.0.0',
-        architecture: Package.ARMHF,
+        architecture: Architecture.ARMHF,
         framework: 'ubuntu-sdk-16.04',
         apps: [],
       });
 
       const res = await this.post(this.route)
         .attach('file', this.emptyClick)
-        .field('channel', Package.XENIAL)
+        .field('channel', Channel.XENIAL)
         .expect(400);
 
       expect(res.body.success).to.be.false;
@@ -351,21 +351,21 @@ describe('Manage Revision POST', () => {
     });
 
     it('fails when the same version but different arch and framework', async function() {
-      this.package.newRevision('1.0.0', Package.XENIAL, Package.ARM64, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
+      this.package.newRevision('1.0.0', Channel.XENIAL, Architecture.ARM64, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
       await this.package.save();
 
       const reviewStub = this.sandbox.stub(reviewPackage, 'review').resolves(false);
       const parseStub = this.sandbox.stub(clickParser, 'parsePackage').resolves({
         name: this.package.id,
         version: '1.0.0',
-        architecture: Package.ARMHF,
+        architecture: Architecture.ARMHF,
         framework: 'ubuntu-sdk-15.04',
         apps: [],
       });
 
       const res = await this.post(this.route)
         .attach('file', this.emptyClick)
-        .field('channel', Package.XENIAL)
+        .field('channel', Channel.XENIAL)
         .expect(400);
 
       expect(res.body.success).to.be.false;
@@ -382,7 +382,7 @@ describe('Manage Revision POST', () => {
 
       const res = await this.post(this.route)
         .attach('file', this.emptyClick)
-        .field('channel', Package.XENIAL)
+        .field('channel', Channel.XENIAL)
         .expect(403);
 
       expect(res.body.success).to.be.false;
@@ -405,7 +405,7 @@ describe('Manage Revision POST', () => {
 
       const res = await this.post(this.route)
         .attach('file', this.emptyClick)
-        .field('channel', Package.XENIAL)
+        .field('channel', Channel.XENIAL)
         .field('changelog', '<script></script> changelog update')
         .expect(200);
 
@@ -423,7 +423,7 @@ describe('Manage Revision POST', () => {
       this.timeout(5000);
 
       this.package.published = true;
-      this.package.newRevision('0.0.1', Package.XENIAL, Package.ARMHF, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
+      this.package.newRevision('0.0.1', Channel.XENIAL, Architecture.ARMHF, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
       await this.package.save();
 
       const reviewStub = this.sandbox.stub(reviewPackage, 'review').resolves(false);
@@ -431,14 +431,14 @@ describe('Manage Revision POST', () => {
 
       const res = await this.post(this.route)
         .attach('file', this.goodClick)
-        .field('channel', Package.XENIAL)
+        .field('channel', Channel.XENIAL)
         .expect(200);
 
       const data = res.body.data;
 
-      expect(data.architectures).to.deep.equal([Package.ARMHF]);
+      expect(data.architectures).to.deep.equal([Architecture.ARMHF]);
       expect(data.author).to.equal('OpenStore Team');
-      expect(data.channels).to.deep.equal([Package.XENIAL]);
+      expect(data.channels).to.deep.equal([Channel.XENIAL]);
       expect(data.framework).to.equal('ubuntu-sdk-16.04');
       expect(data.icon).to.equal('http://local.open-store.io/icons/openstore-test.openstore-team/openstore-test.openstore-team-1.0.0.svg');
       expect(data.published).to.be.true;
@@ -449,8 +449,8 @@ describe('Manage Revision POST', () => {
       expect(data.revisions).to.have.lengthOf(2);
       expect(data.revisions[1].revision).to.equal(2);
       expect(data.revisions[1].version).to.equal('1.0.0');
-      expect(data.revisions[1].channel).to.equal(Package.XENIAL);
-      expect(data.revisions[1].architecture).to.equal(Package.ARMHF);
+      expect(data.revisions[1].channel).to.equal(Channel.XENIAL);
+      expect(data.revisions[1].architecture).to.equal(Architecture.ARMHF);
       expect(data.revisions[1].framework).to.equal('ubuntu-sdk-16.04');
 
       expect(reviewStub).to.have.been.calledOnce;
@@ -464,7 +464,7 @@ describe('Manage Revision POST', () => {
 
       const res = await this.post(this.route)
         .attach('file', this.emptyClick)
-        .field('channel', Package.XENIAL)
+        .field('channel', Channel.XENIAL)
         .expect(500);
 
       expect(res.body.success).to.be.false;
@@ -474,31 +474,31 @@ describe('Manage Revision POST', () => {
     });
 
     it('sets the arch to "all" only when switching to a new version (from "arm64")', async function() {
-      this.package.newRevision('1.0.0', Package.XENIAL, Package.ARM64, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
-      this.package.architectures = [Package.ARM64];
+      this.package.newRevision('1.0.0', Channel.XENIAL, Architecture.ARM64, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
+      this.package.architectures = [Architecture.ARM64];
       await this.package.save();
 
       const reviewStub = this.sandbox.stub(reviewPackage, 'review').resolves(false);
       const parseStub = this.sandbox.stub(clickParser, 'parsePackage').resolves({
         name: this.package.id,
         version: '2.0.0',
-        architecture: Package.ALL,
+        architecture: Architecture.ALL,
         framework: 'ubuntu-sdk-16.04',
         apps: [],
       });
 
       const res = await this.post(this.route)
         .attach('file', this.emptyClick)
-        .field('channel', Package.XENIAL)
+        .field('channel', Channel.XENIAL)
         .expect(200);
 
       const data = res.body.data;
       expect(res.body.success).to.be.true;
       expect(data.revisions).to.be.lengthOf(2);
       expect(data.architectures).to.be.lengthOf(1);
-      expect(data.architectures[0]).to.equal(Package.ALL);
+      expect(data.architectures[0]).to.equal(Architecture.ALL);
       expect(data.downloads).to.be.lengthOf(1);
-      expect(data.downloads[0].architecture).to.equal(Package.ALL);
+      expect(data.downloads[0].architecture).to.equal(Architecture.ALL);
       expect(reviewStub).to.have.been.calledOnce;
       expect(parseStub).to.have.been.calledOnce;
       expect(this.lockAcquireSpy).to.have.been.calledOnce;
@@ -506,31 +506,31 @@ describe('Manage Revision POST', () => {
     });
 
     it('sets the arch to "armhf" only when switching to a new version (from "all")', async function() {
-      this.package.newRevision('1.0.0', Package.XENIAL, Package.ALL, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
-      this.package.architectures = [Package.ALL];
+      this.package.newRevision('1.0.0', Channel.XENIAL, Architecture.ALL, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
+      this.package.architectures = [Architecture.ALL];
       await this.package.save();
 
       const reviewStub = this.sandbox.stub(reviewPackage, 'review').resolves(false);
       const parseStub = this.sandbox.stub(clickParser, 'parsePackage').resolves({
         name: this.package.id,
         version: '2.0.0',
-        architecture: Package.ARMHF,
+        architecture: Architecture.ARMHF,
         framework: 'ubuntu-sdk-16.04',
         apps: [],
       });
 
       const res = await this.post(this.route)
         .attach('file', this.emptyClick)
-        .field('channel', Package.XENIAL)
+        .field('channel', Channel.XENIAL)
         .expect(200);
 
       const data = res.body.data;
       expect(res.body.success).to.be.true;
       expect(data.revisions).to.be.lengthOf(2);
       expect(data.architectures).to.be.lengthOf(1);
-      expect(data.architectures[0]).to.equal(Package.ARMHF);
+      expect(data.architectures[0]).to.equal(Architecture.ARMHF);
       expect(data.downloads).to.be.lengthOf(1);
-      expect(data.downloads[0].architecture).to.equal(Package.ARMHF);
+      expect(data.downloads[0].architecture).to.equal(Architecture.ARMHF);
       expect(reviewStub).to.have.been.calledOnce;
       expect(parseStub).to.have.been.calledOnce;
       expect(this.lockAcquireSpy).to.have.been.calledOnce;
@@ -562,7 +562,7 @@ describe('Manage Revision POST', () => {
 
       const res = await this.post(this.route)
         .attach('file', this.emptyClick)
-        .field('channel', Package.XENIAL)
+        .field('channel', Channel.XENIAL)
         .field('changelog', '<script></script> changelog update')
         .expect(200);
 
@@ -580,20 +580,20 @@ describe('Manage Revision POST', () => {
 
       const armhfRevision = this.post(this.route)
         .attach('file', this.goodClick)
-        .field('channel', Package.XENIAL)
+        .field('channel', Channel.XENIAL)
         .expect(200);
 
       const arm64Revision = this.post(this.route)
         .attach('file', this.good64Click)
-        .field('channel', Package.XENIAL)
+        .field('channel', Channel.XENIAL)
         .expect(200);
 
       const [arm64Res] = await Promise.all([arm64Revision, armhfRevision]);
 
       const data = arm64Res.body.data;
       expect(data.revisions).to.have.lengthOf(2);
-      expect(data.revisions[0].architecture).to.equal(Package.ARMHF);
-      expect(data.revisions[1].architecture).to.equal(Package.ARM64);
+      expect(data.revisions[0].architecture).to.equal(Architecture.ARMHF);
+      expect(data.revisions[1].architecture).to.equal(Architecture.ARM64);
 
       expect(this.lockAcquireSpy).to.have.been.calledTwice;
       expect(this.lockReleaseSpy).to.have.been.calledTwice;

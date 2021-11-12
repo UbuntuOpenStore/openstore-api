@@ -212,7 +212,7 @@ export default {
 
   // TODO enum sort
   // TODO fix filters type
-  search(filters: { [key: string]: any }, sort: string, skip: number, limit: number) {
+  search(filters: { [key: string]: any }, sort: string = 'relevance', skip: number = 0, limit: number = 30) {
     let sortTerm = '';
     let direction = 'asc';
     if (sort && sort != 'relevance') {

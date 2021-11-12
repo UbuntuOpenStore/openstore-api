@@ -4,6 +4,7 @@ import { expect } from './helper';
 import { recalculateRatings } from '../src/api/reviews';
 import Package from '../src/db/package/model';
 import Review from '../src/db/review/model';
+import { Architecture, Channel } from '../src/db/package/types';
 
 describe('Reviews', () => {
   before(function() {
@@ -25,8 +26,8 @@ describe('Reviews', () => {
         {
           revision: 1,
           version: '1.0.0',
-          channel: Package.XENIAL,
-          architecture: Package.ALL,
+          channel: Channel.XENIAL,
+          architecture: Architecture.ALL,
           framework: 'ubuntu-sdk-16.04',
           download_url: 'url',
         },

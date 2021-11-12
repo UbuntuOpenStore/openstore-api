@@ -1,7 +1,6 @@
 import express, { Request, Response } from 'express';
 
-import { DEFAULT_CHANNEL } from 'db/package/types';
-import Package from 'db/package/model';
+import { DEFAULT_CHANNEL, Channel } from 'db/package/types';
 import PackageRepo from 'db/package/repo';
 import config from 'utils/config';
 import logger from 'utils/logger';
@@ -16,8 +15,8 @@ router.get('/', async(req: Request, res: Response) => {
   translations.setLang(getData(req, 'lang'));
 
   let channel = getData(req, 'channel', DEFAULT_CHANNEL);
-  if (!Package.CHANNELS.includes(channel)) {
-    channel = Package.DEFAULT_CHANNEL;
+  if (!Object.values(Channel).includes(channel)) {
+    channel = DEFAULT_CHANNEL;
   }
 
   try {

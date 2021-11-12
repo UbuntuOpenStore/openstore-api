@@ -47,7 +47,7 @@ export interface PackageSchema {
   screenshots: string[],
   category?: string,
   keywords: string[],
-  nsfw?: boolean,
+  nsfw?: boolean | null,
   license?: string,
   source?: string,
   support_url?: string,
@@ -90,15 +90,21 @@ export interface PackageDoc extends PackageSchema {
   next_revision: number;
 }
 
-export interface PackageModel extends Model<PackageDoc> {
-  // TODO remove these
-  XENIAL: Channel;
-  FOCAL: Channel;
-  DEFAULT_CHANNEL: Channel;
-  CHANNELS: Channel[];
-  ALL: Architecture,
-  ARMHF: Architecture,
-  ARM64: Architecture,
-  AMD64: Architecture,
-  ARCHITECTURES: Architecture[],
+export interface PackageModel extends Model<PackageDoc> {}
+
+export type PackageRequestFilters = {
+  limit?: number;
+  skip?: number;
+  sort?: string;
+  types?: PackageType[];
+  ids?: string[];
+  frameworks?: string[];
+  architectures?: Architecture[];
+  category?: string;
+  author?: string;
+  search?: string;
+  channel?: Channel;
+  nsfw?: (boolean | null)[];
+  maintainer?: string;
+  published?: boolean;
 }

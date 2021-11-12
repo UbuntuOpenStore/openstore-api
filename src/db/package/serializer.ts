@@ -133,7 +133,7 @@ function toJson(pkg: PackageDoc, architecture: Architecture = Architecture.ARMHF
     author: pkg.author || '',
     category: pkg.category || '',
     changelog: pkg.changelog || '',
-    channels: pkg.channels || [Package.DEFAULT_CHANNEL],
+    channels: pkg.channels || [DEFAULT_CHANNEL],
     description: pkg.description || '',
     downloads: <any[]>[], // TODO fix types
     framework: pkg.framework || '',
@@ -176,9 +176,9 @@ function toJson(pkg: PackageDoc, architecture: Architecture = Architecture.ARMHF
 
   if (pkg.revisions) {
     // TODO fix types
-    const jsonDownloads = Package.CHANNELS.reduce<any[]>((downloads: any[], channel: Channel) => {
+    const jsonDownloads = Object.values(Channel).reduce<any[]>((downloads: any[], channel: Channel) => {
       return [...downloads, ...pkg.architectures.map((arch) => {
-        if (!Package.ARCHITECTURES.includes(arch)) {
+        if (!Object.values(Architecture).includes(arch)) {
           return null; // Filter out unsupported arches like i386 (legacy apps)
         }
 
@@ -214,7 +214,7 @@ function toJson(pkg: PackageDoc, architecture: Architecture = Architecture.ARMHF
 
     if (apiVersion == 3) {
       json.downloads = jsonDownloads.filter((download) => (
-        download.architecture == architecture || download.architecture == Package.ALL
+        download.architecture == architecture || download.architecture == Architecture.ALL
       ));
     }
     else {

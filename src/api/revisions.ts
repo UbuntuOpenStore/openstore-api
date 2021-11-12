@@ -1,7 +1,7 @@
 import express, { Request, Response } from 'express';
 
-import Package from 'db/package/model';
 import PackageRepo from 'db/package/repo';
+import { Architecture, Channel, DEFAULT_CHANNEL } from 'db/package/types';
 import { downloadUrl } from 'db/package/serializer';
 import { getDataArray, getData, success, error, captureException } from 'utils/helpers';
 import logger from 'utils/logger';
@@ -17,20 +17,20 @@ async function revisionsByVersion(req: Request, res: Response) {
 
   let defaultChannel = getData(req, 'channel').toLowerCase();
   const frameworks = getDataArray(req, 'frameworks', defaultFrameworks);
-  let architecture = getData(req, 'architecture', Package.ARMHF).toLowerCase();
+  let architecture = getData(req, 'architecture', Architecture.ARMHF).toLowerCase();
 
-  if (!Package.CHANNELS.includes(defaultChannel)) {
-    defaultChannel = Package.DEFAULT_CHANNEL;
+  if (!Object.values(Channel).includes(defaultChannel)) {
+    defaultChannel = DEFAULT_CHANNEL;
   }
 
-  if (!Package.ARCHITECTURES.includes(architecture)) {
-    architecture = Package.ARMHF;
+  if (!Object.values(Architecture).includes(architecture)) {
+    architecture = Architecture.ARMHF;
   }
 
   try {
     const pkgs = (await PackageRepo.find({ published: true, ids }))
       .filter((pkg) => (frameworks.length === 0 || frameworks.includes(pkg.framework)))
-      .filter((pkg) => (pkg.architectures.includes(architecture) || pkg.architectures.includes(Package.ALL)))
+      .filter((pkg) => (pkg.architectures.includes(architecture) || pkg.architectures.includes(Architecture.ALL)))
       .map((pkg) => {
         let version = versions.filter((v) => (v.split('@')[0] == pkg.id))[0];
         const parts = version.split('@');
@@ -40,7 +40,7 @@ async function revisionsByVersion(req: Request, res: Response) {
         const revisionData = pkg.revisions.filter((rev) => (
           rev.version == version &&
                     rev.channel == channel &&
-                    (rev.architecture == architecture || rev.architecture == Package.ALL)
+                    (rev.architecture == architecture || rev.architecture == Architecture.ALL)
         ))[0];
         const revision = revisionData ? revisionData.revision : 0;
 

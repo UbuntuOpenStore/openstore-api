@@ -1,8 +1,8 @@
 import factory from './factory';
 
 import { expect } from './helper';
-import Package from '../src/db/package/model';
 import PackageRepo from '../src/db/package/repo';
+import { Architecture, Channel } from '../src/db/package/types';
 
 describe('Revisions GET', () => {
   before(function() {
@@ -16,29 +16,29 @@ describe('Revisions GET', () => {
     this.package = await factory.package({
       published: true,
       framework: 'ubuntu-sdk-16.04',
-      architectures: [Package.ALL],
+      architectures: [Architecture.ALL],
       revisions: [
         {
           revision: 1,
           version: '1.0.0',
-          channel: Package.XENIAL,
-          architecture: Package.ALL,
+          channel: Channel.XENIAL,
+          architecture: Architecture.ALL,
           framework: 'ubuntu-sdk-16.04',
           download_url: 'url',
         },
         {
           revision: 2,
           version: '1.0.1',
-          channel: Package.XENIAL,
-          architecture: Package.ALL,
+          channel: Channel.XENIAL,
+          architecture: Architecture.ALL,
           framework: 'ubuntu-sdk-16.04',
           download_url: 'url',
         },
         {
           revision: 3,
           version: '2.0.0',
-          channel: Package.XENIAL,
-          architecture: Package.ALL,
+          channel: Channel.XENIAL,
+          architecture: Architecture.ALL,
           framework: 'ubuntu-sdk-16.04',
           download_url: 'url',
         },
@@ -62,7 +62,7 @@ describe('Revisions GET', () => {
   });
 
   it('returns latest update for an app that is "all" when requesting a different arch', async function() {
-    const { body } = await this.get(this.makeUrl({ architecture: Package.ARMHF })).expect(200);
+    const { body } = await this.get(this.makeUrl({ architecture: Architecture.ARMHF })).expect(200);
 
     expect(body.success).to.be.true;
     expect(body.data).to.have.lengthOf(1);
@@ -117,13 +117,13 @@ describe('Revisions GET', () => {
     this.package.revisions = this.package.revisions.map((revision) => {
       return {
         ...revision.toObject(),
-        architecture: Package.ARM64,
+        architecture: Architecture.ARM64,
       };
     });
-    this.package.architectures = [Package.ARM64];
+    this.package.architectures = [Architecture.ARM64];
     await this.package.save();
 
-    const { body } = await this.get(this.makeUrl({ architecture: Package.ARMHF })).expect(200);
+    const { body } = await this.get(this.makeUrl({ architecture: Architecture.ARMHF })).expect(200);
 
     expect(body.success).to.be.true;
     expect(body.data).to.have.lengthOf(0);
@@ -133,21 +133,21 @@ describe('Revisions GET', () => {
     this.package.revisions = this.package.revisions.map((revision) => {
       return {
         ...revision.toObject(),
-        architecture: Package.ARM64,
+        architecture: Architecture.ARM64,
       };
     });
     this.package.revisions.push({
       revision: 4,
       version: '2.0.0',
-      channel: Package.XENIAL,
-      architecture: Package.ARMHF,
+      channel: Channel.XENIAL,
+      architecture: Architecture.ARMHF,
       framework: 'ubuntu-sdk-16.04',
       download_url: 'url',
     });
-    this.package.architectures = [Package.ARM64, Package.ARMHF];
+    this.package.architectures = [Architecture.ARM64, Architecture.ARMHF];
     await this.package.save();
 
-    const { body } = await this.get(this.makeUrl({ version: '2.0.0', architecture: Package.ARMHF })).expect(200);
+    const { body } = await this.get(this.makeUrl({ version: '2.0.0', architecture: Architecture.ARMHF })).expect(200);
 
     expect(body.success).to.be.true;
     expect(body.data).to.have.lengthOf(1);
@@ -186,7 +186,7 @@ describe('Revisions GET', () => {
   });
 
   it('gets the channel from the version', async function() {
-    const url = `${this.route}?apps=${this.package.id}@1.0.0@${Package.XENIAL}&architecture=${Package.ARMHF}`;
+    const url = `${this.route}?apps=${this.package.id}@1.0.0@${Channel.XENIAL}&architecture=${Architecture.ARMHF}`;
     const { body } = await this.get(url).expect(200);
 
     expect(body.success).to.be.true;
@@ -205,10 +205,10 @@ describe('Revisions GET', () => {
     this.package.revisions = this.package.revisions.forEach((revision) => {
       return {
         ...revision,
-        architecture: Package.ARM64,
+        architecture: Architecture.ARM64,
       };
     });
-    this.package.architectures = [Package.ARM64];
+    this.package.architectures = [Architecture.ARM64];
     await this.package.save();
 
     const { body } = await this.get(this.makeUrl({ architecture: 'foo' })).expect(200);

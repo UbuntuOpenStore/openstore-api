@@ -24,8 +24,8 @@ Package.find({ id: { $in: limitedApps}}).then((pkgs) => {
                 }
             }
 
-            Package.ARCHITECTURES.forEach((arch) => {
-                let data = pkg.getLatestRevision(Package.XENIAL, arch, false);
+            Object.values(Architecture).forEach((arch) => {
+                let data = pkg.getLatestRevision(Channel.XENIAL, arch, false);
                 if (data && data.revisionData) {
                     if (!existing.includes(data.revisionData.download_url)) {
                         console.log(`[${pkg.id}] Missing latest revision for ${arch}`);

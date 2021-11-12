@@ -14,7 +14,7 @@ const MIN_FILES_CHECK = 20;
 Package.find({ id: { $in: limitedApps}}).then((pkgs) => {
     return Promise.all(pkgs.map((pkg) => {
         if (pkg.revisions) {
-            let fileCounts = Package.ARCHITECTURES.reduce((acc, current) => {
+            let fileCounts = Object.values(Architecture).reduce((acc, current) => {
                 return {...acc, [current]: 0};
             }, {});
 

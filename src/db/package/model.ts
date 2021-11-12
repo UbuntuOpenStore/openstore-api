@@ -385,27 +385,4 @@ packageSchema.methods.getIconFilePath = function(ext) {
   return path.join(config.icon_dir, `${this.id}${ext}`);
 };
 
-const Package = model<PackageDoc, PackageModel>('Package', packageSchema);
-
-// TODO remove these
-Package.XENIAL = Channel.XENIAL;
-Package.FOCAL = Channel.FOCAL;
-Package.DEFAULT_CHANNEL = Package.XENIAL;
-
-Package.CHANNELS = [
-  Package.XENIAL,
-  Package.FOCAL,
-];
-
-Package.ALL = Architecture.ALL;
-Package.ARMHF = Architecture.ARMHF;
-Package.ARM64 = Architecture.ARM64;
-Package.AMD64 = Architecture.AMD64;
-Package.ARCHITECTURES = [
-  Package.ALL,
-  Package.ARMHF,
-  Package.ARM64,
-  Package.AMD64,
-];
-
-export default Package;
+export default model<PackageDoc, PackageModel>('Package', packageSchema);

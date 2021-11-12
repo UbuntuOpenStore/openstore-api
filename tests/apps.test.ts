@@ -1,7 +1,7 @@
+import { DEFAULT_CHANNEL } from 'db/package/types';
 import factory from './factory';
 
 import { expect } from './helper';
-import Package from '../src/db/package/model';
 import PackageRepo from '../src/db/package/repo';
 
 describe('Apps API', () => {
@@ -17,7 +17,7 @@ describe('Apps API', () => {
         author: 'John',
         published: true,
         category: 'Utilities',
-        channels: [Package.DEFAULT_CHANNEL],
+        channels: [DEFAULT_CHANNEL],
       }),
       factory.package({
         id: 'app2',
@@ -25,7 +25,7 @@ describe('Apps API', () => {
         author: 'Jane',
         published: true,
         category: 'Games',
-        channels: [Package.DEFAULT_CHANNEL],
+        channels: [DEFAULT_CHANNEL],
       }),
       factory.package({
         id: 'app3',
@@ -33,7 +33,7 @@ describe('Apps API', () => {
         author: 'Joe',
         published: false,
         category: 'Games',
-        channels: [Package.DEFAULT_CHANNEL],
+        channels: [DEFAULT_CHANNEL],
       }),
     ]);
 
@@ -124,13 +124,13 @@ describe('Apps API', () => {
         id: 'app4',
         published: true,
         category: 'Utilities',
-        channels: [Package.DEFAULT_CHANNEL],
+        channels: [DEFAULT_CHANNEL],
         revisions: [
           {
             revision: 1,
             version: '1',
             downloads: 10,
-            channel: Package.DEFAULT_CHANNEL,
+            channel: DEFAULT_CHANNEL,
             download_url: `${__dirname}/fixtures/empty.click`,
             architecture: 'armhf',
             framework: 'ubuntu-sdk-16.04',
@@ -140,7 +140,7 @@ describe('Apps API', () => {
             revision: 2,
             version: '2',
             downloads: 10,
-            channel: Package.DEFAULT_CHANNEL,
+            channel: DEFAULT_CHANNEL,
             download_url: `${__dirname}/fixtures/empty.click`,
             architecture: 'armhf',
             framework: 'ubuntu-sdk-16.04',
@@ -151,11 +151,11 @@ describe('Apps API', () => {
     });
 
     it('returns successfully', async function() {
-      await this.get(`${this.route}${this.package4.id}/download/${Package.DEFAULT_CHANNEL}/armhf`, false).expect(200);
+      await this.get(`${this.route}${this.package4.id}/download/${DEFAULT_CHANNEL}/armhf`, false).expect(200);
     });
 
     it('throws a 404', async function() {
-      const res = await this.get(`${this.route}somepackage/download/${Package.DEFAULT_CHANNEL}/armhf`, false).expect(404);
+      const res = await this.get(`${this.route}somepackage/download/${DEFAULT_CHANNEL}/armhf`, false).expect(404);
 
       expect(res.body.success).to.be.false;
       expect(res.body.message).to.equal('App not found');
@@ -169,14 +169,14 @@ describe('Apps API', () => {
     });
 
     it('throws for an invalid arch', async function() {
-      const res = await this.get(`${this.route}${this.package4.id}/download/${Package.DEFAULT_CHANNEL}/invalid`, false).expect(400);
+      const res = await this.get(`${this.route}${this.package4.id}/download/${DEFAULT_CHANNEL}/invalid`, false).expect(400);
 
       expect(res.body.success).to.be.false;
       expect(res.body.message).to.equal('The provided architecture is not valid');
     });
 
     it('throws for a download not found for unknown version', async function() {
-      const res = await this.get(`${this.route}${this.package4.id}/download/${Package.DEFAULT_CHANNEL}/armhf/3`, false).expect(404);
+      const res = await this.get(`${this.route}${this.package4.id}/download/${DEFAULT_CHANNEL}/armhf/3`, false).expect(404);
 
       expect(res.body.success).to.be.false;
       expect(res.body.message).to.equal('Download not available for this channel');
@@ -185,14 +185,14 @@ describe('Apps API', () => {
     it('fails gracefully', async function() {
       const findStub = this.sandbox.stub(PackageRepo, 'findOne').rejects();
 
-      const res = await this.get(`${this.route}${this.package4.id}/download/${Package.DEFAULT_CHANNEL}/armhf`, false).expect(500);
+      const res = await this.get(`${this.route}${this.package4.id}/download/${DEFAULT_CHANNEL}/armhf`, false).expect(500);
 
       expect(res.body.success).to.be.false;
       expect(findStub).to.have.been.calledOnce;
     });
 
     it('gets the download by version', async function() {
-      await this.get(`${this.route}${this.package4.id}/download/${Package.DEFAULT_CHANNEL}/armhf/2`, false).expect(200);
+      await this.get(`${this.route}${this.package4.id}/download/${DEFAULT_CHANNEL}/armhf/2`, false).expect(200);
     });
   });
 });

@@ -1,10 +1,10 @@
 import factory from './factory';
 
 import { expect } from './helper';
-import Package from '../src/db/package/model';
 import PackageRepo from '../src/db/package/repo';
 import RatingCountRepo from '../src/db/rating_count/repo';
 import discoverJSON from '../src/api/json/discover_apps.json';
+import { Architecture, DEFAULT_CHANNEL } from '../src/db/package/types';
 
 describe('Discover API', () => {
   before(function() {
@@ -16,16 +16,16 @@ describe('Discover API', () => {
       factory.package({
         published: true,
         id: discoverJSON.highlights[0].id,
-        architectures: [Package.ALL],
-        channels: [Package.DEFAULT_CHANNEL],
+        architectures: [Architecture.ALL],
+        channels: [DEFAULT_CHANNEL],
         published_date: (new Date()).toISOString(),
         types: ['app'],
       }),
       factory.package({
         published: true,
         id: discoverJSON.categories[1].ids[0],
-        architectures: [Package.ALL],
-        channels: [Package.DEFAULT_CHANNEL],
+        architectures: [Architecture.ALL],
+        channels: [DEFAULT_CHANNEL],
         published_date: '2021-01-01T13:35:16.095Z',
         updated_date: '2021-01-01T13:35:16.095Z',
         types: ['app'],
@@ -33,8 +33,8 @@ describe('Discover API', () => {
       factory.package({
         published: true,
         id: discoverJSON.categories[1].ids[1],
-        architectures: [Package.ALL],
-        channels: [Package.DEFAULT_CHANNEL],
+        architectures: [Architecture.ALL],
+        channels: [DEFAULT_CHANNEL],
         published_date: '2021-01-01T13:35:16.095Z',
         updated_date: '2021-01-01T13:35:16.095Z',
         types: ['app'],
@@ -42,8 +42,8 @@ describe('Discover API', () => {
       factory.package({
         published: true,
         id: discoverJSON.categories[1].ids[2],
-        architectures: [Package.ALL],
-        channels: [Package.DEFAULT_CHANNEL],
+        architectures: [Architecture.ALL],
+        channels: [DEFAULT_CHANNEL],
         published_date: (new Date()).toISOString(),
         types: ['app'],
       }),

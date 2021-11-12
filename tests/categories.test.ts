@@ -1,9 +1,9 @@
 import factory from './factory';
 
 import { expect } from './helper';
-import Package from '../src/db/package/model';
 import PackageRepo from '../src/db/package/repo';
 import categoryIcons from '../src/api/json/category_icons.json';
+import { DEFAULT_CHANNEL } from '../src/db/package/types';
 
 describe('Categories API', () => {
   before(function() {
@@ -12,9 +12,9 @@ describe('Categories API', () => {
 
   beforeEach(async() => {
     await Promise.all([
-      factory.package({ published: true, category: 'Utilities', channels: [Package.DEFAULT_CHANNEL] }),
-      factory.package({ published: true, category: 'Utilities', channels: [Package.DEFAULT_CHANNEL] }),
-      factory.package({ published: true, category: 'Games', channels: [Package.DEFAULT_CHANNEL] }),
+      factory.package({ published: true, category: 'Utilities', channels: [DEFAULT_CHANNEL] }),
+      factory.package({ published: true, category: 'Utilities', channels: [DEFAULT_CHANNEL] }),
+      factory.package({ published: true, category: 'Games', channels: [DEFAULT_CHANNEL] }),
     ]);
   });
 

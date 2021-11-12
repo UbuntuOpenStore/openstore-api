@@ -5,7 +5,7 @@ import express, { Request, Response } from 'express';
 
 import fs from 'fs/promises';
 import { LockDoc } from 'db/lock/types';
-import { PackageDoc } from 'db/package/types';
+import { PackageDoc, Architecture, Channel, DEFAULT_CHANNEL } from 'db/package/types';
 import Package from 'db/package/model';
 import PackageRepo from 'db/package/repo';
 import PackageSearch from 'db/package/search';
@@ -336,7 +336,7 @@ router.post(
     const file = req.files.file[0];
 
     const channel = req.body.channel ? req.body.channel.toLowerCase() : '';
-    if (!Package.CHANNELS.includes(channel)) {
+    if (!Object.values(Channel).includes(channel)) {
       return error(res, INVALID_CHANNEL, 400);
     }
 
@@ -398,11 +398,11 @@ router.post(
         const currentRevisions = pkg.revisions.filter((rev) => rev.version === version);
         if (currentRevisions.length > 0) {
           const currentArches = currentRevisions.map((rev) => rev.architecture);
-          if (architecture == Package.ALL && !currentArches.includes(Package.ALL)) {
+          if (architecture == Architecture.ALL && !currentArches.includes(Architecture.ALL)) {
             await LockRepo.release(lock, req);
             return error(res, NO_ALL, 400);
           }
-          if (architecture != Package.ALL && currentArches.includes(Package.ALL)) {
+          if (architecture != Architecture.ALL && currentArches.includes(Architecture.ALL)) {
             await LockRepo.release(lock, req);
             return error(res, NO_NON_ALL, 400);
           }
@@ -417,7 +417,7 @@ router.post(
       }
 
       // Only update the data from the parsed click if it's for the default channel or if it's the first one
-      const data = (channel == Package.DEFAULT_CHANNEL || pkg.revisions.length === 0) ? parseData : null;
+      const data = (channel == DEFAULT_CHANNEL || pkg.revisions.length === 0) ? parseData : null;
       const downloadSha512 = await checksum(filePath);
 
       if (data) {
@@ -438,7 +438,7 @@ router.post(
         parseData.installedSize,
       );
 
-      const updateIcon = (channel == Package.DEFAULT_CHANNEL || !pkg.icon);
+      const updateIcon = (channel == DEFAULT_CHANNEL || !pkg.icon);
       if (updateIcon && parseData.icon) {
         const ext = path.extname(parseData.icon).toLowerCase();
         if (['.png', '.jpg', '.jpeg', '.svg'].includes(ext)) {
@@ -460,11 +460,11 @@ router.post(
         pkg.channels.push(channel);
       }
 
-      if (pkg.architectures.includes(Package.ALL) && architecture != Package.ALL) {
+      if (pkg.architectures.includes(Architecture.ALL) && architecture != Architecture.ALL) {
         pkg.architectures = [architecture];
       }
-      else if (!pkg.architectures.includes(Package.ALL) && architecture == Package.ALL) {
-        pkg.architectures = [Package.ALL];
+      else if (!pkg.architectures.includes(Architecture.ALL) && architecture == Architecture.ALL) {
+        pkg.architectures = [Architecture.ALL];
       }
       else if (!pkg.architectures.includes(architecture)) {
         pkg.architectures.push(architecture);
