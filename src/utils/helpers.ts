@@ -84,7 +84,7 @@ export function getDataInt(req: Request, name: string, defaultData = 0) {
   return Number.isNaN(returnValue) ? defaultData : returnValue;
 }
 
-export function getDataArray(req: Request, name: string, defaultData: any[] = []) {
+export function getDataArray(req: Request, name: string, defaultData: string[] = []) {
   if (req.query && req.query[name]) {
     const value = req.query[name];
     if (Array.isArray(value)) {

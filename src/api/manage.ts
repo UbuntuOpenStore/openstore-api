@@ -45,14 +45,18 @@ const NO_NON_ALL = 'You cannot upload and architecture specific click for the sa
 const MISMATCHED_FRAMEWORK = 'Framework does not match existing click of a different architecture';
 const APP_LOCKED = 'Sorry this app has been locked by an admin';
 
-// TODO fix types
-function fileName(file: any) {
+export type File = {
+  originalname: string;
+  path: string;
+  size: number;
+}
+
+function fileName(file: File) {
   // Rename the file so click-review doesn't freak out
   return `${file.path}.click`;
 }
 
-// TODO fix types
-async function review(req: Request, file: any, filePath: string) {
+async function review(req: Request, file: File, filePath: string) {
   if (!file.originalname.endsWith('.click')) {
     await fs.unlink(file.path);
     return [false, BAD_FILE];
@@ -81,8 +85,7 @@ async function review(req: Request, file: any, filePath: string) {
   return [true, null];
 }
 
-// TODO fix type
-async function updateScreenshotFiles(pkg: PackageDoc, screenshotFiles: { [key: string]: any }) {
+async function updateScreenshotFiles(pkg: PackageDoc, screenshotFiles: File[]) {
   // Clear out the uploaded files that are over the limit
   let screenshotLimit = 5 - pkg.screenshots.length;
   if (screenshotFiles.length < screenshotLimit) {

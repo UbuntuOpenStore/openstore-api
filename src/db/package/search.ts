@@ -1,7 +1,7 @@
-import elasticsearch from 'elasticsearch';
+import elasticsearch, { NameList, SearchParams } from 'elasticsearch';
 
 import config from 'utils/config';
-import { PackageDoc, PackageType, Architecture, Channel } from './types';
+import { PackageDoc, PackageType, Architecture, Channel, PackageRequestFilters, PackageSchema } from './types';
 
 // Modified from https://github.com/bhdouglass/uappexplorer/blob/master/src/db/elasticsearch/elasticsearch.js
 export default {
@@ -39,7 +39,7 @@ export default {
   ],
 
   convert(item: PackageDoc) {
-    const doc: { [key: string]: any} = {}; // TODO fix types
+    const doc: Partial<PackageSchema> & { search_name?: string } = {};
     this.properties.forEach((prop) => {
       doc[prop] = item[prop] ? item[prop] : null;
     });
@@ -82,7 +82,6 @@ export default {
       });
     }
     catch (err) {
-      // TODO fix types
       if (err?.status == 404) {
         return item;
       }
@@ -94,7 +93,7 @@ export default {
   },
 
   bulk(upserts: PackageDoc[], removals?: PackageDoc[]) {
-    let body: { [key: string]: any }[] = []; // TODO fix type
+    let body: { [key: string]: any }[] = [];
     upserts.forEach((item) => {
       body.push({
         update: {
@@ -127,12 +126,12 @@ export default {
     return this.client.bulk({ body });
   },
 
-  parseFilters({ types, ids, frameworks, architectures, category, author, channel, nsfw }: { types: PackageType[], ids: string[], frameworks: string[], architectures: Architecture[], category: string, author: string, channel: Channel, nsfw: boolean }) {
-    const query: { [key: string]: any } = { // TODO fix types
+  parseFilters({ types, ids, frameworks, architectures, category, author, channel, nsfw }: PackageRequestFilters) {
+    const query: { [key: string]: any } = {
       and: [], // No default published=true filter, only published apps are in elasticsearch
     };
 
-    if (types.length > 0) {
+    if (types && types.length > 0) {
       query.and.push({
         in: {
           types,
@@ -140,7 +139,7 @@ export default {
       });
     }
 
-    if (ids.length > 0) {
+    if (ids && ids.length > 0) {
       query.and.push({
         in: {
           id: ids,
@@ -148,7 +147,7 @@ export default {
       });
     }
 
-    if (frameworks.length > 0) {
+    if (frameworks && frameworks.length > 0) {
       query.and.push({
         in: {
           framework: frameworks,
@@ -156,7 +155,7 @@ export default {
       });
     }
 
-    if (architectures.length > 0) {
+    if (architectures && architectures.length > 0) {
       query.and.push({
         in: {
           architectures,
@@ -189,30 +188,17 @@ export default {
     }
 
     if (nsfw) {
-      if (Array.isArray(nsfw)) {
-        // This looks a big weird because the filters.nsfw == [null, false]
-        // TODO clean it up
-        query.and.push({
-          term: {
-            nsfw: false,
-          },
-        });
-      }
-      else {
-        query.and.push({
-          term: {
-            nsfw,
-          },
-        });
-      }
+      query.and.push({
+        term: {
+          nsfw: nsfw.includes(true),
+        },
+      });
     }
 
     return query;
   },
 
-  // TODO enum sort
-  // TODO fix filters type
-  search(filters: { [key: string]: any }, sort: string = 'relevance', skip: number = 0, limit: number = 30) {
+  search(filters: PackageRequestFilters, sort: string = 'relevance', skip: number = 0, limit: number = 30) {
     let sortTerm = '';
     let direction = 'asc';
     if (sort && sort != 'relevance') {
@@ -225,8 +211,7 @@ export default {
       }
     }
 
-    // TODO fix types
-    const request: { [key: string]: any } = {
+    const request: SearchParams = {
       index: this.index,
       type: this.type,
       body: {
@@ -234,7 +219,7 @@ export default {
         size: limit || 30,
         query: {
           multi_match: {
-            query: filters.search.toLowerCase(),
+            query: filters.search?.toLowerCase() || '',
             fields: this.search_fields,
             slop: 10,
             max_expansions: 50,
@@ -250,7 +235,7 @@ export default {
     }
 
     if (sortTerm) {
-      const s: { [key: string]: any } = {}; // TODO fix types
+      const s: { [key: string]: { order: string; ignore_unmapped: boolean } } = {};
       s[sortTerm] = {
         order: direction,
         ignore_unmapped: true,

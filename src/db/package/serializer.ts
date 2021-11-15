@@ -1,7 +1,7 @@
 import path from 'path';
 
 import config from 'utils/config';
-import { Architecture, Channel, DEFAULT_CHANNEL, PackageDoc, SerializedDownload } from './types';
+import { Architecture, Channel, DEFAULT_CHANNEL, PackageDoc, SerializedDownload, SerializedPackage, SerializedRatings, SerializedPackageSlim } from './types';
 import { RatingCountDoc } from '../rating_count/types';
 
 const DEFAULT_VERSION = '0.0.0';
@@ -49,7 +49,7 @@ export function downloadUrl(pkg: PackageDoc, channel: Channel, arch: Architectur
 }
 
 /* eslint-disable no-restricted-syntax */
-export function serializeRatings(ratingCounts: RatingCountDoc[]) {
+export function serializeRatings(ratingCounts: RatingCountDoc[]): SerializedRatings {
   const ratings = {
     THUMBS_UP: 0,
     THUMBS_DOWN: 0,
@@ -67,7 +67,7 @@ export function serializeRatings(ratingCounts: RatingCountDoc[]) {
   return ratings;
 }
 
-function toSlimJson(pkg: PackageDoc) {
+function toSlimJson(pkg: PackageDoc): SerializedPackageSlim {
   let json = {};
   if (pkg) {
     json = {
@@ -94,7 +94,7 @@ function toSlimJson(pkg: PackageDoc) {
   return json;
 }
 
-function toJson(pkg: PackageDoc, architecture: Architecture = Architecture.ARMHF, apiVersion = 4) {
+function toJson(pkg: PackageDoc, architecture: Architecture = Architecture.ARMHF, apiVersion = 4): SerializedPackage {
   // Clean up languages that got screwed up by click-parser
   let languages = pkg.languages ? pkg.languages.sort() : [];
   languages = languages.map((language) => {
@@ -174,29 +174,30 @@ function toJson(pkg: PackageDoc, architecture: Architecture = Architecture.ARMHF
   };
 
   if (pkg.revisions) {
-    const jsonDownloads = Object.values(Channel).reduce<(SerializedDownload | null)[]>((downloads: (SerializedDownload | null)[], channel: Channel) => {
-      return [...downloads, ...pkg.architectures.map((arch) => {
-        if (!Object.values(Architecture).includes(arch)) {
-          return null; // Filter out unsupported arches like i386 (legacy apps)
-        }
+    const jsonDownloads = Object.values(Channel)
+      .reduce<(SerializedDownload | null)[]>((downloads: (SerializedDownload | null)[], channel: Channel) => {
+        return [...downloads, ...pkg.architectures.map((arch) => {
+          if (!Object.values(Architecture).includes(arch)) {
+            return null; // Filter out unsupported arches like i386 (legacy apps)
+          }
 
-        const { revisionData: downloadRevisionData } = pkg.getLatestRevision(channel, arch, false);
+          const { revisionData: downloadRevisionData } = pkg.getLatestRevision(channel, arch, false);
 
-        if (downloadRevisionData) {
-          const download = {
-            ...downloadRevisionData.toObject(),
-            architecture: downloadRevisionData.architecture.includes(',') ? arch : downloadRevisionData.architecture,
-            download_url: downloadUrl(pkg, channel, arch),
-            filesize: toBytes(downloadRevisionData.filesize),
-          };
+          if (downloadRevisionData) {
+            const download = {
+              ...downloadRevisionData.toObject(),
+              architecture: downloadRevisionData.architecture.includes(',') ? arch : downloadRevisionData.architecture,
+              download_url: downloadUrl(pkg, channel, arch),
+              filesize: toBytes(downloadRevisionData.filesize),
+            };
 
-          delete download._id;
-          return download;
-        }
+            delete download._id;
+            return download;
+          }
 
-        return null;
-      })];
-    }, []).filter((revision) => (revision?.download_url)) as SerializedDownload[];
+          return null;
+        })];
+      }, []).filter((revision) => (revision?.download_url)) as SerializedDownload[];
 
     // Make sure the current architecture is last to not break old versions of the app
     jsonDownloads.sort((a, b) => {
@@ -231,7 +232,12 @@ function toJson(pkg: PackageDoc, architecture: Architecture = Architecture.ARMHF
   return json;
 }
 
-export function serialize(pkgs: PackageDoc[] | PackageDoc, slim: boolean = false, architecture: Architecture = Architecture.ARMHF, apiVersion = 4) {
+export function serialize(
+  pkgs: PackageDoc[] | PackageDoc,
+  slim: boolean = false,
+  architecture: Architecture = Architecture.ARMHF,
+  apiVersion = 4,
+): SerializedPackage[] | SerializedPackage | SerializedPackageSlim[] | SerializedPackageSlim {
   if (Array.isArray(pkgs)) {
     if (slim) {
       return pkgs.map(toSlimJson);

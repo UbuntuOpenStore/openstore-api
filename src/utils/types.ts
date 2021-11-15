@@ -1,4 +1,4 @@
-import { Architecture } from 'db/package/types';
+import { Architecture, PackageType } from 'db/package/types';
 
 export type ClickParserApp = {
   name: string;
@@ -56,6 +56,7 @@ export type ClickParserData = {
   apps: ClickParserApp[];
   architecture: Architecture;
   description: string;
+  changelog: string;
   framework: string;
   icon: string | null;
   maintainer: string;
@@ -63,7 +64,7 @@ export type ClickParserData = {
   name: string;
   permissions: string[];
   title: string;
-  types: string[];
+  types: PackageType[];
   urls: string[];
   version: string;
   installedSize: number;

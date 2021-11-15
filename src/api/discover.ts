@@ -2,7 +2,7 @@ import shuffle from 'shuffle-array';
 import express, { Request, Response } from 'express';
 
 import PackageRepo from 'db/package/repo';
-import { Architecture, DEFAULT_CHANNEL, Channel, PackageType } from 'db/package/types';
+import { Architecture, DEFAULT_CHANNEL, Channel, PackageType, SerializedPackage } from 'db/package/types';
 import RatingCountRepo from 'db/rating_count/repo';
 import { serialize, serializeRatings } from 'db/package/serializer';
 import config from 'utils/config';
@@ -10,15 +10,15 @@ import { success, error, getData, getDataArray, captureException } from 'utils/h
 import logger from 'utils/logger';
 import * as translations from 'utils/translations';
 import discoverJSON from './json/discover_apps.json';
+import { DiscoverHighlight, DiscoverData } from './types';
 
 // TODO remove this when system settings properly sends frameworks
 import defaultFrameworks from './json/default_frameworks.json';
 
 const router = express.Router();
 
-// TODO fix types
-const discoverCache: { [key: string]: any } = {};
-const discoverDate: { [key: string]: any } = {};
+const discoverCache: { [key: string]: DiscoverData } = {};
+const discoverDate: { [key: string]: Date } = {};
 
 const NEW_AND_UPDATED = 'New and Updated Apps';
 const POPULAR = 'Most Loved';
@@ -61,11 +61,10 @@ router.get('/', async(req: Request, res: Response) => {
     (now.getTime() - discoverDate[cacheKey].getTime()) > 600000 ||
     !discoverCache[cacheKey]
   ) { // Cache miss (10 minutes)
-    // TODO fix types
-    const discover: { highlights: any[], categories: any[], highlight: any } = JSON.parse(JSON.stringify(discoverJSON));
+    const discover: DiscoverData = JSON.parse(JSON.stringify(discoverJSON));
 
     try {
-      const [highlights, discoverCategoriesApps, newApps, updatedApps, popularApps] = await Promise.all([
+      const [highlights, discoverCategoriesApps] = await Promise.all([
         PackageRepo.find({
           ids: discover.highlights.map((highlight) => highlight.id),
           channel,
@@ -85,7 +84,9 @@ router.get('/', async(req: Request, res: Response) => {
             published: true,
           });
         })),
+      ]);
 
+      const [newApps, updatedApps, popularApps] = await Promise.all([
         PackageRepo.find({
           published: true,
           channel,
@@ -123,13 +124,13 @@ router.get('/', async(req: Request, res: Response) => {
           image: config.server.host + highlight.image,
           app: serialize(highlightedApp, false, architecture, req.apiVersion),
         };
-      }).filter(Boolean);
+      }).filter(Boolean) as DiscoverHighlight[];
 
       // Deprecated, for backwards compatibility
       discover.highlight = discover.highlights[0];
 
       discover.categories = discover.categories.map((category, index) => {
-        const apps = discoverCategoriesApps[index].map((app) => serialize(app, false, architecture, req.apiVersion));
+        const apps = discoverCategoriesApps[index].map((app) => serialize(app, false, architecture, req.apiVersion) as SerializedPackage);
 
         return {
           ...category,
@@ -159,8 +160,9 @@ router.get('/', async(req: Request, res: Response) => {
         return 0;
       });
 
-      newAndUpdatedCategory.apps = newAndUpdatedApps.slice(0, 10).map((app) => serialize(app, false, architecture, req.apiVersion));
-      popularCategory.apps = popularApps.map((app) => serialize(app, false, architecture, req.apiVersion));
+      newAndUpdatedCategory!.apps = newAndUpdatedApps.slice(0, 10)
+        .map((app) => serialize(app, false, architecture, req.apiVersion) as SerializedPackage);
+      popularCategory!.apps = popularApps.map((app) => serialize(app, false, architecture, req.apiVersion) as SerializedPackage);
 
       discover.categories = discover.categories.filter((category) => (category.apps.length > 0));
 

@@ -4,6 +4,7 @@ import fs from 'fs';
 
 import { sanitize } from 'utils/helpers';
 import config from 'utils/config';
+import { ClickParserData } from 'utils/types';
 import UserRepo from '../user/repo';
 import { RevisionDoc, RevisionModel, PackageDoc, PackageModel, Architecture, Channel, BodyUpdate } from './types';
 
@@ -135,8 +136,7 @@ packageSchema.methods.getLatestRevision = function(channel, arch, detectAll = tr
   return { revisionData, revisionIndex };
 };
 
-// TODO fix types
-packageSchema.methods.updateFromClick = function(data: any) {
+packageSchema.methods.updateFromClick = function(data: ClickParserData) {
   const manifest = {
     architecture: data.architecture,
     changelog: data.changelog,
@@ -149,9 +149,9 @@ packageSchema.methods.updateFromClick = function(data: any) {
     version: data.version,
   };
 
-  let qmlImports: string[] = [];
+  let qmlImports: { module: string; version: string; }[] = [];
   data.apps.forEach((app) => {
-    const hook: { [key: string]: any } = {}; // TODO fix type
+    const hook: { [key: string]: any } = {};
 
     if (Object.keys(app.apparmor).length > 0) {
       hook.apparmor = app.apparmor;
