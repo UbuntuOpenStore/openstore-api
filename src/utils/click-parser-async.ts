@@ -1,7 +1,8 @@
 import parse from 'click-parser';
 
-// TODO fix types
-export function parsePackage(file: string, getIcon: boolean): Promise<{ [key: string]: any }> {
+import { ClickParserData } from './types';
+
+export function parsePackage(file: string, getIcon: boolean): Promise<ClickParserData> {
   return new Promise((resolve, reject) => {
     parse(file, getIcon,
       (err, data) => {
