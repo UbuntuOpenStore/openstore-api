@@ -4,6 +4,7 @@ npm-debug.log
 bundle.js
 scripts
 config.json
+config-file.json
 *.log
 .nyc_output/
 dist
