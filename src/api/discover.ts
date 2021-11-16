@@ -23,7 +23,7 @@ const discoverDate: { [key: string]: Date } = {};
 const NEW_AND_UPDATED = 'New and Updated Apps';
 const POPULAR = 'Most Loved';
 
-function checkFramework(discover, frameworks) {
+function checkFramework(discover: DiscoverData, frameworks: string[]) {
   if (frameworks && frameworks.length > 0) {
     /* eslint-disable-next-line no-param-reassign */
     discover.categories.forEach((category) => {
@@ -179,7 +179,7 @@ router.get('/', async(req: Request, res: Response) => {
       const lang = getData(req, 'lang');
       translations.setLang(lang);
 
-      let cloneDiscover = JSON.parse(JSON.stringify(discover));
+      let cloneDiscover: DiscoverData = JSON.parse(JSON.stringify(discover));
       cloneDiscover = checkFramework(cloneDiscover, frameworks);
       cloneDiscover.categories = cloneDiscover.categories.map((category) => {
         return {
@@ -198,10 +198,10 @@ router.get('/', async(req: Request, res: Response) => {
     }
   }
   else { // Cache hit
-    let discover = JSON.parse(JSON.stringify(discoverCache[cacheKey]));
+    let discover: DiscoverData = JSON.parse(JSON.stringify(discoverCache[cacheKey]));
     discover = checkFramework(discover, frameworks);
 
-    const ids = discover.categories.reduce((accumulator, category) => {
+    const ids = discover.categories.reduce<string[]>((accumulator, category) => {
       return [...accumulator, ...category.ids];
     }, []).concat(discover.highlights.map((highlight) => highlight.id));
 

@@ -42,7 +42,7 @@ router.get('/', async(req: Request, res: Response) => {
           category: category.name,
           translation: translations.gettext(category.name),
           count: category.count,
-          icon: config.server.host + categoryIcons[category.name],
+          icon: config.server.host + (categoryIcons as { [key: string]: string })[category.name],
         };
       });
 

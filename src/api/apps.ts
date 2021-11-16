@@ -31,7 +31,7 @@ async function apps(req: Request, res: Response) {
   try {
     if (filters.search && filters.search.indexOf('author:') !== 0) {
       const results = await PackageSearch.search(filters, filters.sort, filters.skip, filters.limit);
-      pkgs = results.hits.hits.map((hit) => hit._source);
+      pkgs = results.hits.hits.map((hit: any) => hit._source);
       count = results.hits.total;
 
       const ids = pkgs.map((pkg) => pkg.id);
@@ -102,12 +102,12 @@ async function download(req: Request, res: Response) {
     }
 
     const channel = req.params.channel ? req.params.channel.toLowerCase() as Channel : DEFAULT_CHANNEL;
-    if (!Channel[channel.toUpperCase()]) {
+    if (!Object.values(Channel).includes(channel)) {
       return error(res, INVALID_CHANNEL, 400);
     }
 
     const arch = req.params.arch ? req.params.arch.toLowerCase() as Architecture : Architecture.ARMHF;
-    if (!Architecture[arch.toUpperCase()]) {
+    if (!Object.values(Architecture).includes(arch)) {
       return error(res, INVALID_ARCH, 400);
     }
 

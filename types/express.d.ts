@@ -29,11 +29,12 @@ declare global {
     }
 
     interface Response {
-      user?: UserDoc;
     }
 
     interface Application {
       server?: any;
     }
+
+    interface User extends UserDoc {}
   }
 }

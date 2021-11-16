@@ -27,7 +27,7 @@ const ALREADY_REVIEWED = 'This app was already reviewed by you';
 
 const router = express.Router({ mergeParams: true });
 
-export async function recalculateRatings(pkgId) {
+export async function recalculateRatings(pkgId: string) {
   let pkg = await Package.findOne({ _id: pkgId }).populate('rating_counts');
   if (!pkg) {
     logger.error('Failed to recalculate ratings: could not find package');
@@ -39,7 +39,7 @@ export async function recalculateRatings(pkgId) {
     pkg.rating_counts = [];
   }
 
-  const reviews = await Review.find({ pkg: pkgId });
+  const reviews = await Review.find({ pkg: pkgId } as FilterQuery<ReviewDoc>);
 
   for (const ratingName of RATINGS) {
     let count = 0;

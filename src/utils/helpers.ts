@@ -30,9 +30,9 @@ export function error(res: Response, message: string | unknown | Error, code = 5
 export function download(url: string, filename: string): Promise<string> {
   return new Promise((resolve, reject) => {
     const r = request(url);
-    r.on('error', (err) => {
+    r.on('error', (err: any) => {
       reject(err);
-    }).on('response', (response) => {
+    }).on('response', (response: any) => {
       if (response.statusCode == 200) {
         const f = fs.createWriteStream(filename);
         f.on('error', (err) => {
@@ -131,7 +131,7 @@ export function getDataBoolean(req: Request, name: string, defaultData = false) 
 export function sanitize(html: string) {
   return sanitizeHtml(html, {
     allowedTags: [],
-    allowedAttributes: [],
+    allowedAttributes: {},
   }).replace(/&amp;/g, '&')
     .replace(/&quot;/g, '"')
     .replace(/\r/g, '')

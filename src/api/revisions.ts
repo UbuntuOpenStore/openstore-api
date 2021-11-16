@@ -13,7 +13,7 @@ const router = express.Router();
 
 async function revisionsByVersion(req: Request, res: Response) {
   const versions = getDataArray(req, 'apps');
-  const ids = versions.map((version) => version.split('@')[0]);
+  const ids = versions.map((version: string) => version.split('@')[0]);
 
   let defaultChannel = getData(req, 'channel').toLowerCase();
   const frameworks = getDataArray(req, 'frameworks', defaultFrameworks);
@@ -32,7 +32,7 @@ async function revisionsByVersion(req: Request, res: Response) {
       .filter((pkg) => (frameworks.length === 0 || frameworks.includes(pkg.framework)))
       .filter((pkg) => (pkg.architectures.includes(architecture) || pkg.architectures.includes(Architecture.ALL)))
       .map((pkg) => {
-        let version = versions.filter((v) => (v.split('@')[0] == pkg.id))[0];
+        let version = versions.filter((v: string) => (v.split('@')[0] == pkg.id))[0];
         const parts = version.split('@');
         const channel = (parts.length > 2) ? parts[2] : defaultChannel;
         version = parts[1];

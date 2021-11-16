@@ -1,6 +1,6 @@
 import multer from 'multer';
 import path from 'path';
-import uuid from 'node-uuid';
+import { v4 } from 'uuid';
 import express, { Request, Response } from 'express';
 
 import fs from 'fs/promises';
@@ -107,7 +107,7 @@ async function updateScreenshotFiles(pkg: PackageDoc, screenshotFiles: File[]) {
       await fs.unlink(file.path);
     }
     else {
-      const id = uuid.v4();
+      const id = v4();
       const filename = `${pkg.id}-screenshot-${id}${ext}`;
 
       await fs.rename(
@@ -265,7 +265,7 @@ router.put(
 
       await pkg.updateFromBody(req.body);
 
-      if (req.files && req.files.screenshot_files && req.files.screenshot_files.length > 0) {
+      if (req.files && !Array.isArray(req.files) && req.files.screenshot_files && req.files.screenshot_files.length > 0) {
         await updateScreenshotFiles(pkg, req.files.screenshot_files);
       }
 
@@ -330,7 +330,7 @@ router.post(
   userRole,
   downloadFile,
   async(req: Request, res: Response) => {
-    if (!req.files || !req.files.file || req.files.file.length === 0) {
+    if (!req.files || Array.isArray(req.files) || !req.files.file || req.files.file.length === 0) {
       return error(res, NO_FILE, 400);
     }
 

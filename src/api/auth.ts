@@ -1,14 +1,29 @@
 import passport from 'passport';
+// @ts-ignore
 import { Strategy as UbuntuStrategy } from 'passport-ubuntu';
+// @ts-ignore
 import { Strategy as LocalAPIKeyStrategy } from 'passport-localapikey';
+// @ts-ignore
 import { Strategy as GitHubStrategy } from 'passport-github2';
+// @ts-ignore
 import { Strategy as GitLabStrategy } from 'passport-gitlab2';
-import uuid from 'node-uuid';
+import { v4 } from 'uuid';
 import express, { Request, Response } from 'express';
+import { UserDoc } from 'db/user/types';
 
 import config from 'utils/config';
 import logger from 'utils/logger';
 import User from 'db/user/model';
+
+// TODO fix type
+export interface GenericCallback {
+  // eslint-disable-next-line no-unused-vars
+  (err: any, arg1?: any, arg2?: any): void;
+}
+
+export type PassportProfile = {
+  [key: string]: any;
+}
 
 const router = express.Router();
 
@@ -24,12 +39,12 @@ function authenticated(req: Request, res: Response) {
   return res.redirect('/manage');
 }
 
-passport.serializeUser((user, done) => {
+passport.serializeUser((user: UserDoc, done: GenericCallback) => {
   // This is kinda hacky, but not all ubuntu logins will have an email
   done(null, user.email ? user.email : `UBUNTU_${user.ubuntu_id}`);
 });
 
-passport.deserializeUser((identifier, done) => {
+passport.deserializeUser((identifier: string, done: GenericCallback) => {
   if (identifier.substring(0, 7) == 'UBUNTU_') {
     User.findOne({ ubuntu_id: identifier }, done);
   }
@@ -38,7 +53,7 @@ passport.deserializeUser((identifier, done) => {
   }
 });
 
-passport.use(new LocalAPIKeyStrategy((apikey, done) => {
+passport.use(new LocalAPIKeyStrategy((apikey: string, done: GenericCallback) => {
   User.findOne({ apikey }).then((user) => {
     if (!user) {
       done(null, false);
@@ -55,23 +70,23 @@ passport.use(new UbuntuStrategy({
   returnURL: `${config.server.host}/auth/ubuntu/return`,
   realm: config.server.host,
   stateless: true,
-}, (identifier, profile, callback) => {
+}, (identifier: string, profile: PassportProfile, callback: GenericCallback) => {
   User.findOne({ ubuntu_id: identifier }).then((user) => {
     if (!user && profile.email) {
       return User.findOne({ email: Array.isArray(profile.email) ? profile.email[0] : profile.email }).then((emailUser) => emailUser);
     }
 
     return user;
-  }).then((existing) => {
+  }).then((existing: UserDoc | null) => {
     let user = existing;
     if (!user) {
       user = new User();
-      user.apikey = uuid.v4();
+      user.apikey = v4();
       user.username = `${Math.random()}`;
       user.language = 'en';
     }
 
-    function uboneParameter(value) {
+    function uboneParameter(value: string | string[]) {
       if (Array.isArray(value)) {
         return value.length >= 1 ? value[0] : null;
       }
@@ -100,10 +115,10 @@ if (config.github.clientID && config.github.clientSecret) {
     clientSecret: config.github.clientSecret,
     callbackURL: `${config.server.host}/auth/github/callback`,
     scope: ['user:email'],
-  }, (accessToken, refreshToken, profile, callback) => {
+  }, (accessToken: string, refreshToken: string, profile: PassportProfile, callback: GenericCallback) => {
     User.findOne({ github_id: profile.id }).then((user) => {
-      const emails = profile.emails.filter((email) => email.verified)
-        .map((email) => email.value);
+      const emails = profile.emails.filter((email: { verified: boolean, value: string }) => email.verified)
+        .map((email: { verified: boolean, value: string }) => email.value);
 
       if (!user && emails) {
         return User.findOne({ email: { $in: emails } }).then((emailUser) => emailUser);
@@ -114,7 +129,7 @@ if (config.github.clientID && config.github.clientSecret) {
       let user = existing;
       if (!user) {
         user = new User();
-        user.apikey = uuid.v4();
+        user.apikey = v4();
         user.language = 'en';
       }
 
@@ -141,9 +156,9 @@ if (config.gitlab.clientID && config.gitlab.clientSecret) {
     clientID: config.gitlab.clientID,
     clientSecret: config.gitlab.clientSecret,
     callbackURL: `${config.server.host}/auth/gitlab/callback`,
-  }, (accessToken, refreshToken, profile, callback) => {
+  }, (accessToken: string, refreshToken: string, profile: PassportProfile, callback: GenericCallback) => {
     User.findOne({ gitlab_id: profile.id }).then((user) => {
-      const emails = profile.emails.map((email) => email.value);
+      const emails = profile.emails.map((email: { value: string }) => email.value);
 
       if (!user && emails.length > 0) {
         return User.findOne({ email: { $in: emails } }).then((emailUser) => emailUser);
@@ -154,7 +169,7 @@ if (config.gitlab.clientID && config.gitlab.clientSecret) {
       let user = existing;
       if (!user) {
         user = new User();
-        user.apikey = uuid.v4();
+        user.apikey = v4();
         user.language = 'en';
       }
 

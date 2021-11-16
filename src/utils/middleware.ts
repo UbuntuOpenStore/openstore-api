@@ -56,7 +56,7 @@ export function downloadFile(req: Request, res: Response, next: NextFunction) {
           originalname: filename,
           path: tmpfile,
           size: fs.statSync(tmpfile).size,
-        }],
+        } as any],
       };
       next();
     }).catch(() => {

@@ -40,8 +40,8 @@ export default {
 
   convert(item: PackageDoc) {
     const doc: Partial<PackageSchema> & { search_name?: string } = {};
-    this.properties.forEach((prop) => {
-      doc[prop] = item[prop] ? item[prop] : null;
+    this.properties.forEach((prop: string) => {
+      (doc as any)[prop] = (item as any)[prop] ? (item as any)[prop] : null;
     });
     doc.search_name = item.name;
     doc.category = doc.category ? doc.category.replace(/&/g, '_').replace(/ /g, '_').toLowerCase() : '';

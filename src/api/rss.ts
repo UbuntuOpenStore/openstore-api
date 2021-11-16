@@ -39,7 +39,7 @@ async function generateFeed(req: Request, res: Response, updates: boolean) {
         url,
         description: `<a href="${url}"><img src="${iconUrl(pkg)}" /></a>${changelog}${description}`,
         author: pkg.author,
-        date: pkg.updated_date,
+        date: pkg.updated_date!,
         custom_elements: [{ tagline: pkg.tagline ? pkg.tagline : '' }],
       });
     });

@@ -1,10 +1,10 @@
 import uniq from 'lodash/uniq';
 import { Request } from 'express';
 
-import Package from './model';
 import { getData, getDataArray, getDataBoolean, getDataInt } from 'utils/helpers';
-import { Architecture, Channel, PackageType, PackageRequestFilters, PackageDoc, PackageFindOneFilters } from './types';
 import { FilterQuery } from 'mongoose';
+import Package from './model';
+import { Architecture, Channel, PackageType, PackageRequestFilters, PackageDoc, PackageFindOneFilters } from './types';
 
 export default {
   parseRequestFilters(req: Request): PackageRequestFilters {
@@ -219,13 +219,13 @@ export default {
     ]);
 
     const categories: { [key: string]: number } = {};
-    categoryStats.forEach((category) => {
+    categoryStats.forEach((category: { _id: string, count: number}) => {
       categories[category._id] = category.count;
     });
 
     const types: { [key: string]: number } = {};
     typeStats.forEach((type) => {
-      type._id.forEach((t) => {
+      type._id.forEach((t: string) => {
         if (types[t]) {
           types[t] += type.count;
         }
@@ -242,7 +242,7 @@ export default {
 
     const architectures: { [key: string]: number } = {};
     archStats.forEach((stats) => {
-      stats._id.forEach((arch) => {
+      stats._id.forEach((arch: string) => {
         if (!architectures[arch]) {
           architectures[arch] = 0;
         }

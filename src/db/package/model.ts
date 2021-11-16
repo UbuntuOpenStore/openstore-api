@@ -142,7 +142,7 @@ packageSchema.methods.updateFromClick = function(data: ClickParserData) {
     changelog: data.changelog,
     description: data.description,
     framework: data.framework,
-    hooks: {},
+    hooks: <{ [key: string]: any }>{},
     maintainer: data.maintainer,
     name: data.name,
     title: data.title,
@@ -354,9 +354,11 @@ packageSchema.methods.updateFromBody = async function(body: BodyUpdate) {
     this.maintainer = body.maintainer;
   }
 
-  const user = await UserRepo.findOne(this.maintainer);
-  if (user) {
-    this.maintainer_name = user.name ? user.name : user.username;
+  if (this.maintainer) {
+    const user = await UserRepo.findOne(this.maintainer);
+    if (user) {
+      this.maintainer_name = user.name ? user.name : user.username;
+    }
   }
 };
 

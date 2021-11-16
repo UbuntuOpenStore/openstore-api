@@ -2,7 +2,7 @@ import factory from './factory';
 
 import { expect } from './helper';
 import PackageRepo from '../src/db/package/repo';
-import { Architecture, Channel } from '../src/db/package/types';
+import { Architecture, Channel, RevisionDoc } from '../src/db/package/types';
 
 describe('Revisions GET', () => {
   before(function() {
@@ -99,7 +99,7 @@ describe('Revisions GET', () => {
   });
 
   it('returns nothing when the latest revision does not have a download_url', async function() {
-    this.package.revisions = this.package.revisions.map((revision) => {
+    this.package.revisions = this.package.revisions.map((revision: RevisionDoc) => {
       return {
         ...revision.toObject(),
         download_url: null,
@@ -114,7 +114,7 @@ describe('Revisions GET', () => {
   });
 
   it('returns nothing for a different arch', async function() {
-    this.package.revisions = this.package.revisions.map((revision) => {
+    this.package.revisions = this.package.revisions.map((revision: RevisionDoc) => {
       return {
         ...revision.toObject(),
         architecture: Architecture.ARM64,
@@ -130,7 +130,7 @@ describe('Revisions GET', () => {
   });
 
   it('returns the correct arch', async function() {
-    this.package.revisions = this.package.revisions.map((revision) => {
+    this.package.revisions = this.package.revisions.map((revision: RevisionDoc) => {
       return {
         ...revision.toObject(),
         architecture: Architecture.ARM64,
@@ -202,7 +202,7 @@ describe('Revisions GET', () => {
   });
 
   it('defaults to using armhf', async function() {
-    this.package.revisions = this.package.revisions.forEach((revision) => {
+    this.package.revisions = this.package.revisions.forEach((revision: RevisionDoc) => {
       return {
         ...revision,
         architecture: Architecture.ARM64,

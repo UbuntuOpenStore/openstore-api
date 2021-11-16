@@ -19,14 +19,14 @@ before(async function() {
   this.sandbox = sinon;
   this.app = api.setup();
 
-  const generateRequest = (method) => {
-    return (route, withApiKey = true) => {
+  const generateRequest = (method: string) => {
+    return (route: string, withApiKey = true) => {
       let modifiedRoute = route;
       if (withApiKey) {
         modifiedRoute = route.includes('?') ? `${route}&apikey=${this.user.apikey}` : `${route}?apikey=${this.user.apikey}`;
       }
 
-      return request(this.app)[method](modifiedRoute);
+      return (request(this.app) as any)[method](modifiedRoute);
     };
   };
 

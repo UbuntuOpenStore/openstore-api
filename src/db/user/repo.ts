@@ -5,7 +5,7 @@ export default {
     return User.find({});
   },
 
-  findOne(id) {
+  findOne(id: string) {
     return User.findOne({ _id: id });
   },
 };
