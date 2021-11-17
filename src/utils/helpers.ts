@@ -2,7 +2,8 @@ import request from 'request';
 import sanitizeHtml from 'sanitize-html';
 import * as Sentry from '@sentry/node';
 import isString from 'lodash/isString';
-import fs from 'fs';
+import fsSync from 'fs';
+import fs from 'fs/promises';
 
 import { Request, Response } from 'express';
 import logger from './logger';
@@ -34,7 +35,7 @@ export function download(url: string, filename: string): Promise<string> {
       reject(err);
     }).on('response', (response: any) => {
       if (response.statusCode == 200) {
-        const f = fs.createWriteStream(filename);
+        const f = fsSync.createWriteStream(filename);
         f.on('error', (err) => {
           reject(err);
         }).on('finish', () => {
@@ -147,4 +148,9 @@ export function captureException(err: string | unknown | Error, route: string) {
     scope.setTag('route', route);
     Sentry.captureException(err);
   });
+}
+
+export async function moveFile(src: string, dest: string) {
+  await fs.copyFile(src, dest);
+  await fs.unlink(src);
 }

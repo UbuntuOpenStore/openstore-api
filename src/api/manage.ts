@@ -13,7 +13,7 @@ import LockRepo from 'db/lock/repo';
 import { serialize } from 'db/package/serializer';
 import config from 'utils/config';
 import logger from 'utils/logger';
-import { success, error, captureException, sanitize } from 'utils/helpers';
+import { success, error, captureException, sanitize, moveFile } from 'utils/helpers';
 import apiLinks from 'utils/api-links';
 import * as clickParser from 'utils/click-parser-async';
 import checksum from 'utils/checksum';
@@ -62,7 +62,7 @@ async function review(req: Request, file: File, filePath: string) {
     return [false, BAD_FILE];
   }
 
-  await fs.rename(file.path, filePath);
+  await moveFile(file.path, filePath);
 
   if (!req.isAdminUser && !req.isTrustedUser) {
     // Admin & trusted users can upload apps without manual review
@@ -110,7 +110,7 @@ async function updateScreenshotFiles(pkg: PackageDoc, screenshotFiles: File[]) {
       const id = v4();
       const filename = `${pkg.id}-screenshot-${id}${ext}`;
 
-      await fs.rename(
+      await moveFile(
         screenshotFiles[i].path,
         `${config.image_dir}/${filename}`,
       );
