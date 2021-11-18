@@ -3,7 +3,7 @@ import express, { Request, Response } from 'express';
 import UserRepo from 'db/user/repo';
 import { serialize } from 'db/user/serializer';
 import { error, success, captureException } from 'utils/helpers';
-import { authenticate, adminOnly } from 'utils/middleware';
+import { authenticate, adminOnly } from 'middleware';
 
 const router = express.Router();
 const USER_NOT_FOUND = 'User not found';

@@ -18,7 +18,7 @@ import apiLinks from 'utils/api-links';
 import * as clickParser from 'utils/click-parser-async';
 import checksum from 'utils/checksum';
 import * as reviewPackage from 'utils/review-package';
-import { authenticate, userRole, downloadFile, extendTimeout } from 'utils/middleware';
+import { authenticate, userRole, downloadFile, extendTimeout } from 'middleware';
 
 const mupload = multer({ dest: '/tmp' });
 const router = express.Router();

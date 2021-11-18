@@ -11,7 +11,7 @@ import Review from 'db/review/model';
 import { ReviewDoc } from 'db/review/types';
 import RatingCount from 'db/rating_count/model';
 import Package from 'db/package/model';
-import { authenticate, anonymousAuthenticate, userRole } from 'utils/middleware';
+import { authenticate, anonymousAuthenticate, userRole } from 'middleware';
 import { serialize } from 'db/review/serializer';
 import { RATINGS, REVIEW_MAX_LEN, RATING_MAP, Ratings } from 'db/review/constants';
 
