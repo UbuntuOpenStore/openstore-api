@@ -69,7 +69,7 @@ const packageSchema = new Schema<PackageDoc, PackageModel>({
   // Number of ratings in each category
   rating_counts: [{ type: Schema.Types.ObjectId, ref: 'RatingCount' }],
   calculated_rating: Number,
-}, { usePushEach: true });
+});
 
 packageSchema.virtual('architecture').get(function(this: PackageDoc) {
   return this.architectures.join(',');
