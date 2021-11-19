@@ -81,7 +81,6 @@ describe('Apps API', () => {
       expect(res.body.data.count).to.equal(2);
     });
 
-
     // TODO it seems that populating the data during the test doesn't work properly
     /*
     it('searches for apps', async function() {
