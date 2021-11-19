@@ -1,6 +1,6 @@
 import path from 'path';
 
-export const config = {
+let configuration = {
   data_dir: process.env.DATA_DIR || '/tmp',
   image_dir: process.env.IMAGE_DIR || '/tmp',
   icon_dir: process.env.ICON_DIR || '/tmp',
@@ -38,3 +38,23 @@ export const config = {
   version: process.env.VERSION || 'dev',
   telegram: process.env.TELEGRAM || '',
 };
+
+if (process.env.NODE_ENV === 'testing') {
+  configuration = {
+    ...configuration,
+    mongo: {
+      uri: 'mongodb://127.0.0.1:27017',
+      database: 'openstore-test',
+    },
+    server: {
+      ...configuration.server,
+      port: 8888,
+    },
+    elasticsearch: {
+      uri: 'http://127.0.0.1:9200/',
+      index: 'openstore_test',
+    },
+  };
+}
+
+export const config = configuration;

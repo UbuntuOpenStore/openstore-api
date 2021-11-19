@@ -6,7 +6,7 @@ export const logger = winston.createLogger({
     new winston.transports.Console({
       level: (process.env.NODE_ENV == 'production') ? 'info' : 'debug',
       format: winston.format.simple(),
-      silent: (process.env.NODE_ENV == 'testing'),
+      silent: (process.env.NODE_ENV == 'testing' || process.env.NODE_ENV == 'ci'),
     }),
   ],
 });
@@ -36,7 +36,7 @@ process.on('unhandledRejection', (err) => {
 });
 
 export function captureException(err: string | unknown | Error, route: string) {
-  if (process.env.NODE_ENV != 'testing') {
+  if (process.env.NODE_ENV != 'testing' && process.env.NODE_ENV != 'ci') {
     console.error(err);
   }
 
