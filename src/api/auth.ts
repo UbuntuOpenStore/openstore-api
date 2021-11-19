@@ -11,8 +11,7 @@ import { v4 } from 'uuid';
 import express, { Request, Response } from 'express';
 import { UserDoc } from 'db/user/types';
 
-import config from 'utils/config';
-import logger from 'utils/logger';
+import { logger, config } from 'utils';
 import User from 'db/user/model';
 
 // TODO fix type

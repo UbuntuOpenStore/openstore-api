@@ -8,3 +8,4 @@ config-file.json
 *.log
 .nyc_output/
 dist
+.env

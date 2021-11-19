@@ -2,17 +2,14 @@ import express, { Request, Response } from 'express';
 
 import { DEFAULT_CHANNEL, Channel } from 'db/package/types';
 import PackageRepo from 'db/package/repo';
-import config from 'utils/config';
-import logger from 'utils/logger';
-import { success, error, captureException, getData } from 'utils/helpers';
-import * as translations from 'utils/translations';
+import { logger, setLang, gettext, config, success, error, captureException, getData } from 'utils';
 import categoryIcons from './json/category_icons.json';
 
 const categoryNames = Object.keys(categoryIcons);
 const router = express.Router();
 
 router.get('/', async(req: Request, res: Response) => {
-  translations.setLang(getData(req, 'lang'));
+  setLang(getData(req, 'lang'));
 
   let channel = getData(req, 'channel', DEFAULT_CHANNEL);
   if (!Object.values(Channel).includes(channel)) {
@@ -40,7 +37,7 @@ router.get('/', async(req: Request, res: Response) => {
       .map((category) => {
         return {
           category: category.name,
-          translation: translations.gettext(category.name),
+          translation: gettext(category.name),
           count: category.count,
           icon: config.server.host + (categoryIcons as { [key: string]: string })[category.name],
         };

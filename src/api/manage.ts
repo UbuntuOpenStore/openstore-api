@@ -11,12 +11,8 @@ import PackageRepo from 'db/package/repo';
 import PackageSearch from 'db/package/search';
 import LockRepo from 'db/lock/repo';
 import { serialize } from 'db/package/serializer';
-import config from 'utils/config';
-import logger from 'utils/logger';
-import { success, error, captureException, sanitize, moveFile } from 'utils/helpers';
-import apiLinks from 'utils/api-links';
+import { success, error, captureException, sanitize, moveFile, apiLinks, sha512Checksum, logger, config } from 'utils';
 import * as clickParser from 'utils/click-parser-async';
-import checksum from 'utils/checksum';
 import * as reviewPackage from 'utils/review-package';
 import { authenticate, userRole, downloadFile, extendTimeout } from 'middleware';
 
@@ -66,7 +62,7 @@ async function review(req: Request, file: File, filePath: string) {
 
   if (!req.isAdminUser && !req.isTrustedUser) {
     // Admin & trusted users can upload apps without manual review
-    const needsManualReview = await reviewPackage.review(filePath);
+    const needsManualReview = await reviewPackage.reviewPackage(filePath);
     if (needsManualReview) {
       // TODO improve this feedback
       let reviewError = NEEDS_MANUAL_REVIEW;
@@ -368,7 +364,7 @@ router.post(
         return error(res, reviewError, 400);
       }
 
-      const parseData = await clickParser.parsePackage(filePath, true);
+      const parseData = await clickParser.parseClickPackage(filePath, true);
       const { version, architecture } = parseData;
       if (!parseData.name || !version || !architecture) {
         await LockRepo.release(lock, req);
@@ -419,7 +415,7 @@ router.post(
 
       // Only update the data from the parsed click if it's for the default channel or if it's the first one
       const data = (channel == DEFAULT_CHANNEL || pkg.revisions.length === 0) ? parseData : null;
-      const downloadSha512 = await checksum(filePath);
+      const downloadSha512 = await sha512Checksum(filePath);
 
       if (data) {
         pkg.updateFromClick(data);

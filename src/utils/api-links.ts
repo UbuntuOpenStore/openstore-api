@@ -1,8 +1,8 @@
 import { URL } from 'url';
 
-import config from './config';
+import { config } from './config';
 
-export default function apiLinks(originalUrl: string, count: number, limit: number = 0, skip: number = 0) {
+export function apiLinks(originalUrl: string, count: number, limit: number = 0, skip: number = 0) {
   let next: string | null = null;
   let previous: string | null = null;
 

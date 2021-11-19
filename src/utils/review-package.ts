@@ -1,7 +1,7 @@
 import childProcess from 'child_process';
 
-import config from './config';
-import logger from './logger';
+import { config } from './config';
+import { logger } from './logger';
 
 // TODO return the actual problem
 function parseReview(reviewData: { [key: string]: { [key: string]: { [key: string]: { [key: string]: string } }}}) {
@@ -26,7 +26,7 @@ function parseReview(reviewData: { [key: string]: { [key: string]: { [key: strin
   return manualReview;
 }
 
-export function review(file: string) {
+export function reviewPackage(file: string) {
   return new Promise((resolve) => {
     const command = `${config.clickreview.command} --json ${file}`;
     childProcess.exec(command, {

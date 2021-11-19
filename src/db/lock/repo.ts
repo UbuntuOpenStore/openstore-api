@@ -2,9 +2,8 @@
 import { sleep } from 'sleepjs';
 import { Request } from 'express';
 
+import { logger, captureException } from 'utils';
 import Lock from './model';
-import logger from 'utils/logger';
-import { captureException } from 'utils/helpers';
 import { LockDoc } from './types';
 
 const TIMEOUT = 30 * 1000; // 30s in ms

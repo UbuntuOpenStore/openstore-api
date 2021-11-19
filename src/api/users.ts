@@ -2,7 +2,7 @@ import express, { Request, Response } from 'express';
 
 import UserRepo from 'db/user/repo';
 import { serialize } from 'db/user/serializer';
-import { error, success, captureException } from 'utils/helpers';
+import { error, success, captureException } from 'utils';
 import { authenticate, adminOnly } from 'middleware';
 
 const router = express.Router();

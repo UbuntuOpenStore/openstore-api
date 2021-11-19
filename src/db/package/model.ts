@@ -2,11 +2,9 @@ import { Schema, model } from 'mongoose';
 import path from 'path';
 import fs from 'fs';
 
-import { sanitize } from 'utils/helpers';
-import config from 'utils/config';
-import { ClickParserData } from 'utils/types';
+import { sanitize, ClickParserData, config } from 'utils';
 import UserRepo from '../user/repo';
-import { RevisionDoc, RevisionModel, PackageDoc, PackageModel, Architecture, Channel, BodyUpdate } from './types';
+import { RevisionDoc, RevisionModel, PackageDoc, PackageModel, Architecture, BodyUpdate } from './types';
 
 const revisionSchema = new Schema<RevisionDoc, RevisionModel>({
   revision: Number,

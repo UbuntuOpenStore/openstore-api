@@ -14,17 +14,8 @@ To get setup with development, checkout the
 ## Configuration
 
 By default there are no credentials stored for the GitHub login or GitLab login.
-In order to use either GitHub or GitLab login you need to create a config.json
-file in `api/utils/` like this:
-
-```
-{
-    "GITHUB_CLIENT_ID": "INSERT_ID",
-    "GITHUB_CLIENT_SECRET": "INSERT_SECRET",
-    "GITLAB_CLIENT_ID": "INSERT_ID",
-    "GITLAB_CLIENT_SECRET": "INSERT_SECRET",
-}
-```
+In order to use either GitHub or GitLab login you need copy the `.env.example`
+file to `.env` and add your credentials there.
 
 * [Create a GitHub OAuth App](https://developer.github.com/apps/building-integrations/setting-up-and-registering-oauth-apps/)
 

@@ -3,8 +3,7 @@ import express, { Request, Response } from 'express';
 import PackageRepo from 'db/package/repo';
 import { Architecture, Channel, DEFAULT_CHANNEL } from 'db/package/types';
 import { downloadUrl } from 'db/package/serializer';
-import { getDataArray, getData, success, error, captureException } from 'utils/helpers';
-import logger from 'utils/logger';
+import { getDataArray, getData, success, error, captureException, logger } from 'utils';
 
 // TODO remove this when system settings properly sends frameworks
 import defaultFrameworks from './json/default_frameworks.json';

@@ -1,8 +1,7 @@
 import mongoose from 'mongoose';
 import bluebird from 'bluebird';
 
-import config from 'utils/config';
-import logger from 'utils/logger';
+import { logger, config } from 'utils';
 
 mongoose.Promise = bluebird;
 mongoose.set('useNewUrlParser', true);

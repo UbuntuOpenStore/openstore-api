@@ -1,6 +1,6 @@
 import path from 'path';
 
-import config from 'utils/config';
+import { config } from 'utils';
 import { Architecture, Channel, DEFAULT_CHANNEL, PackageDoc, SerializedDownload, SerializedPackage, SerializedRatings, SerializedPackageSlim } from './types';
 import { RatingCountDoc } from '../rating_count/types';
 

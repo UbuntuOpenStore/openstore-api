@@ -2,8 +2,7 @@ import cluster from 'cluster';
 import os from 'os';
 
 import { setup } from './api';
-import config from './utils/config';
-import logger from './utils/logger';
+import { logger, config } from './utils';
 
 const cpus = os.cpus().length;
 let processes = cpus;

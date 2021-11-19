@@ -1,14 +1,6 @@
-import fs from 'fs';
 import path from 'path';
 
-// Allow api key/pass to be set when testing locally
-let configFile: { [key: string]: string } = {};
-const configFilePath = path.join(__dirname, 'config-file.json');
-if (fs.existsSync(configFilePath)) {
-  configFile = JSON.parse(fs.readFileSync(configFilePath, { encoding: 'utf-8' }));
-}
-
-export default {
+export const config = {
   data_dir: process.env.DATA_DIR || '/tmp',
   image_dir: process.env.IMAGE_DIR || '/tmp',
   icon_dir: process.env.ICON_DIR || '/tmp',
@@ -35,14 +27,14 @@ export default {
     pythonpath: process.env.CLICK_REVIEW_PYTHONPATH || '',
   },
   github: {
-    clientID: configFile.GITHUB_CLIENT_ID || process.env.GITHUB_CLIENT_ID || '',
-    clientSecret: configFile.GITHUB_CLIENT_SECRET || process.env.GITHUB_CLIENT_SECRET || '',
+    clientID: process.env.GITHUB_CLIENT_ID || '',
+    clientSecret: process.env.GITHUB_CLIENT_SECRET || '',
   },
   gitlab: {
-    clientID: configFile.GITLAB_CLIENT_ID || process.env.GITLAB_CLIENT_ID || '',
-    clientSecret: configFile.GITLAB_CLIENT_SECRET || process.env.GITLAB_CLIENT_SECRET || '',
+    clientID: process.env.GITLAB_CLIENT_ID || '',
+    clientSecret: process.env.GITLAB_CLIENT_SECRET || '',
   },
-  sentry: configFile.SENTRY_URL || process.env.SENTRY_URL || '',
-  version: configFile.VERSION || process.env.VERSION || 'dev',
-  telegram: configFile.TELEGRAM || process.env.TELEGRAM || '',
+  sentry: process.env.SENTRY_URL || '',
+  version: process.env.VERSION || 'dev',
+  telegram: process.env.TELEGRAM || '',
 };

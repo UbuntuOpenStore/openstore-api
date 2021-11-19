@@ -1,7 +1,7 @@
 import uniq from 'lodash/uniq';
 import { Request } from 'express';
 
-import { getData, getDataArray, getDataBoolean, getDataInt } from 'utils/helpers';
+import { getData, getDataArray, getDataBoolean, getDataInt } from 'utils';
 import { FilterQuery } from 'mongoose';
 import Package from './model';
 import { Architecture, Channel, PackageType, PackageRequestFilters, PackageDoc, PackageFindOneFilters } from './types';

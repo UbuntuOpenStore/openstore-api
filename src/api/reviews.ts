@@ -3,9 +3,7 @@ import express, { Request, Response } from 'express';
 import { FilterQuery } from 'mongoose';
 
 import 'db/comment/model';
-import { error, success, captureException, getDataInt } from 'utils/helpers';
-import apiLinks from 'utils/api-links';
-import logger from 'utils/logger';
+import { error, success, captureException, getDataInt, apiLinks, logger } from 'utils';
 import PackageRepo from 'db/package/repo';
 import Review from 'db/review/model';
 import { ReviewDoc } from 'db/review/types';

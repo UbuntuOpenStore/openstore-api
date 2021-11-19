@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 import fs from 'fs';
 
-export default function checksum(filePath: string): Promise<string> {
+export function sha512Checksum(filePath: string): Promise<string> {
   return new Promise((resolve, reject) => {
     const hash = crypto.createHash('sha512');
     const stream = fs.createReadStream(filePath);

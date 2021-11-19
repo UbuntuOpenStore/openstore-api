@@ -1,7 +1,7 @@
 import passport from 'passport';
 import { Request, Response, NextFunction } from 'express';
 
-import { error } from 'utils/helpers';
+import { error } from 'utils';
 
 export function userRole(req: Request, res: Response, next: NextFunction) {
   req.isAdminUser = (req.isAuthenticated() && req.user && req.user.role == 'admin');

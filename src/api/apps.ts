@@ -8,9 +8,7 @@ import PackageRepo from 'db/package/repo';
 import PackageSearch from 'db/package/search';
 import { serialize } from 'db/package/serializer';
 import RatingCountRepo from 'db/rating_count/repo';
-import logger from 'utils/logger';
-import { success, error, captureException, getData } from 'utils/helpers';
-import apiLinks from 'utils/api-links';
+import { success, error, captureException, getData, apiLinks, logger } from 'utils';
 import reviews from './reviews';
 
 // TODO properly namespace these so we only need one router

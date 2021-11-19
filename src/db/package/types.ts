@@ -1,5 +1,5 @@
 import { Document, Model } from 'mongoose';
-import { ClickParserData } from 'utils/types';
+import { ClickParserData } from 'utils';
 import { RatingCountDoc } from '../rating_count/types';
 
 export enum PackageType {

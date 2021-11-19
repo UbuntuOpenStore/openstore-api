@@ -1,7 +1,7 @@
 import winston from 'winston';
 import * as Sentry from '@sentry/node';
 
-const logger = winston.createLogger({
+export const logger = winston.createLogger({
   transports: [
     new winston.transports.Console({
       level: (process.env.NODE_ENV == 'production') ? 'info' : 'debug',
@@ -35,4 +35,13 @@ process.on('unhandledRejection', (err) => {
   });
 });
 
-export default logger;
+export function captureException(err: string | unknown | Error, route: string) {
+  if (process.env.NODE_ENV != 'testing') {
+    console.error(err);
+  }
+
+  Sentry.withScope((scope) => {
+    scope.setTag('route', route);
+    Sentry.captureException(err);
+  });
+}

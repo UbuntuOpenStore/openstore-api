@@ -37,7 +37,7 @@ describe('Manage Revision POST', () => {
 
   context('admin user', () => {
     it('allows access to other packages', async function() {
-      const parseStub = this.sandbox.stub(clickParser, 'parsePackage').resolves({
+      const parseStub = this.sandbox.stub(clickParser, 'parseClickPackage').resolves({
         name: this.package2.id,
         version: '1.0.0',
         architecture: 'armhf',
@@ -56,8 +56,8 @@ describe('Manage Revision POST', () => {
     });
 
     it('does not review', async function() {
-      const reviewSpy = this.sandbox.spy(reviewPackage, 'review');
-      const parseStub = this.sandbox.stub(clickParser, 'parsePackage').resolves({
+      const reviewSpy = this.sandbox.spy(reviewPackage, 'reviewPackage');
+      const parseStub = this.sandbox.stub(clickParser, 'parseClickPackage').resolves({
         name: this.package.id,
         version: '1.0.0',
         architecture: 'armhf',
@@ -84,8 +84,8 @@ describe('Manage Revision POST', () => {
     });
 
     it('does not review', async function() {
-      const reviewSpy = this.sandbox.spy(reviewPackage, 'review');
-      const parseStub = this.sandbox.stub(clickParser, 'parsePackage').resolves({
+      const reviewSpy = this.sandbox.spy(reviewPackage, 'reviewPackage');
+      const parseStub = this.sandbox.stub(clickParser, 'parseClickPackage').resolves({
         name: this.package.id,
         version: '1.0.0',
         architecture: 'armhf',
@@ -153,7 +153,7 @@ describe('Manage Revision POST', () => {
     });
 
     it('fails review', async function() {
-      const reviewStub = this.sandbox.stub(reviewPackage, 'review').resolves("'unconfined' not allowed");
+      const reviewStub = this.sandbox.stub(reviewPackage, 'reviewPackage').resolves("'unconfined' not allowed");
 
       const res = await this.post(this.route)
         .attach('file', this.emptyClick)
@@ -168,7 +168,7 @@ describe('Manage Revision POST', () => {
     });
 
     it('fails review (general)', async function() {
-      const reviewStub = this.sandbox.stub(reviewPackage, 'review').resolves(true);
+      const reviewStub = this.sandbox.stub(reviewPackage, 'reviewPackage').resolves(true);
 
       const res = await this.post(this.route)
         .attach('file', this.emptyClick)
@@ -195,8 +195,8 @@ describe('Manage Revision POST', () => {
     });
 
     it('fails with a different package id from file', async function() {
-      const reviewStub = this.sandbox.stub(reviewPackage, 'review').resolves(false);
-      const parseStub = this.sandbox.stub(clickParser, 'parsePackage').resolves({
+      const reviewStub = this.sandbox.stub(reviewPackage, 'reviewPackage').resolves(false);
+      const parseStub = this.sandbox.stub(clickParser, 'parseClickPackage').resolves({
         name: 'foo',
         version: '1.0.0',
         architecture: 'armhf',
@@ -216,8 +216,8 @@ describe('Manage Revision POST', () => {
     });
 
     it('fails with a malformed manifest', async function() {
-      const reviewStub = this.sandbox.stub(reviewPackage, 'review').resolves(false);
-      const parseStub = this.sandbox.stub(clickParser, 'parsePackage').resolves({});
+      const reviewStub = this.sandbox.stub(reviewPackage, 'reviewPackage').resolves(false);
+      const parseStub = this.sandbox.stub(clickParser, 'parseClickPackage').resolves({});
 
       const res = await this.post(this.route)
         .attach('file', this.emptyClick)
@@ -236,8 +236,8 @@ describe('Manage Revision POST', () => {
       this.package.newRevision('1.0.0', Channel.XENIAL, Architecture.ARMHF, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
       await this.package.save();
 
-      const reviewStub = this.sandbox.stub(reviewPackage, 'review').resolves(false);
-      const parseStub = this.sandbox.stub(clickParser, 'parsePackage').resolves({
+      const reviewStub = this.sandbox.stub(reviewPackage, 'reviewPackage').resolves(false);
+      const parseStub = this.sandbox.stub(clickParser, 'parseClickPackage').resolves({
         name: this.package.id,
         version: '1.0.0',
         architecture: Architecture.ARMHF,
@@ -263,8 +263,8 @@ describe('Manage Revision POST', () => {
       this.package.architectures = [Architecture.ARM64];
       await this.package.save();
 
-      const reviewStub = this.sandbox.stub(reviewPackage, 'review').resolves(false);
-      const parseStub = this.sandbox.stub(clickParser, 'parsePackage').resolves({
+      const reviewStub = this.sandbox.stub(reviewPackage, 'reviewPackage').resolves(false);
+      const parseStub = this.sandbox.stub(clickParser, 'parseClickPackage').resolves({
         name: this.package.id,
         version: '1.0.0',
         architecture: Architecture.ARMHF,
@@ -298,8 +298,8 @@ describe('Manage Revision POST', () => {
       this.package.newRevision('1.0.0', Channel.XENIAL, Architecture.ARMHF, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
       await this.package.save();
 
-      const reviewStub = this.sandbox.stub(reviewPackage, 'review').resolves(false);
-      const parseStub = this.sandbox.stub(clickParser, 'parsePackage').resolves({
+      const reviewStub = this.sandbox.stub(reviewPackage, 'reviewPackage').resolves(false);
+      const parseStub = this.sandbox.stub(clickParser, 'parseClickPackage').resolves({
         name: this.package.id,
         version: '1.0.0',
         architecture: Architecture.ALL,
@@ -326,8 +326,8 @@ describe('Manage Revision POST', () => {
       this.package.newRevision('1.0.0', Channel.XENIAL, Architecture.ALL, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
       await this.package.save();
 
-      const reviewStub = this.sandbox.stub(reviewPackage, 'review').resolves(false);
-      const parseStub = this.sandbox.stub(clickParser, 'parsePackage').resolves({
+      const reviewStub = this.sandbox.stub(reviewPackage, 'reviewPackage').resolves(false);
+      const parseStub = this.sandbox.stub(clickParser, 'parseClickPackage').resolves({
         name: this.package.id,
         version: '1.0.0',
         architecture: Architecture.ARMHF,
@@ -354,8 +354,8 @@ describe('Manage Revision POST', () => {
       this.package.newRevision('1.0.0', Channel.XENIAL, Architecture.ARM64, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
       await this.package.save();
 
-      const reviewStub = this.sandbox.stub(reviewPackage, 'review').resolves(false);
-      const parseStub = this.sandbox.stub(clickParser, 'parsePackage').resolves({
+      const reviewStub = this.sandbox.stub(reviewPackage, 'reviewPackage').resolves(false);
+      const parseStub = this.sandbox.stub(clickParser, 'parseClickPackage').resolves({
         name: this.package.id,
         version: '1.0.0',
         architecture: Architecture.ARMHF,
@@ -395,8 +395,8 @@ describe('Manage Revision POST', () => {
       this.package.changelog = 'old changelog';
       await this.package.save();
 
-      const reviewStub = this.sandbox.stub(reviewPackage, 'review').resolves(false);
-      const parseStub = this.sandbox.stub(clickParser, 'parsePackage').resolves({
+      const reviewStub = this.sandbox.stub(reviewPackage, 'reviewPackage').resolves(false);
+      const parseStub = this.sandbox.stub(clickParser, 'parseClickPackage').resolves({
         name: this.package.id,
         version: '1.0.0',
         architecture: 'armhf',
@@ -426,7 +426,7 @@ describe('Manage Revision POST', () => {
       this.package.newRevision('0.0.1', Channel.XENIAL, Architecture.ARMHF, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
       await this.package.save();
 
-      const reviewStub = this.sandbox.stub(reviewPackage, 'review').resolves(false);
+      const reviewStub = this.sandbox.stub(reviewPackage, 'reviewPackage').resolves(false);
       const upsertStub = this.sandbox.stub(PackageSearch, 'upsert');
 
       const res = await this.post(this.route)
@@ -478,8 +478,8 @@ describe('Manage Revision POST', () => {
       this.package.architectures = [Architecture.ARM64];
       await this.package.save();
 
-      const reviewStub = this.sandbox.stub(reviewPackage, 'review').resolves(false);
-      const parseStub = this.sandbox.stub(clickParser, 'parsePackage').resolves({
+      const reviewStub = this.sandbox.stub(reviewPackage, 'reviewPackage').resolves(false);
+      const parseStub = this.sandbox.stub(clickParser, 'parseClickPackage').resolves({
         name: this.package.id,
         version: '2.0.0',
         architecture: Architecture.ALL,
@@ -510,8 +510,8 @@ describe('Manage Revision POST', () => {
       this.package.architectures = [Architecture.ALL];
       await this.package.save();
 
-      const reviewStub = this.sandbox.stub(reviewPackage, 'review').resolves(false);
-      const parseStub = this.sandbox.stub(clickParser, 'parsePackage').resolves({
+      const reviewStub = this.sandbox.stub(reviewPackage, 'reviewPackage').resolves(false);
+      const parseStub = this.sandbox.stub(clickParser, 'parseClickPackage').resolves({
         name: this.package.id,
         version: '2.0.0',
         architecture: Architecture.ARMHF,
@@ -553,7 +553,7 @@ describe('Manage Revision POST', () => {
       await lock.save();
 
       const saveSpy = this.sandbox.spy(Lock.prototype, 'save');
-      const parseStub = this.sandbox.stub(clickParser, 'parsePackage').resolves({
+      const parseStub = this.sandbox.stub(clickParser, 'parseClickPackage').resolves({
         name: this.package.id,
         version: '1.0.0',
         architecture: 'armhf',

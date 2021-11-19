@@ -1,7 +1,7 @@
-import elasticsearch, { NameList, SearchParams } from 'elasticsearch';
+import elasticsearch, { SearchParams } from 'elasticsearch';
 
-import config from 'utils/config';
-import { PackageDoc, PackageType, Architecture, Channel, PackageRequestFilters, PackageSchema } from './types';
+import { config } from 'utils';
+import { PackageDoc, PackageRequestFilters, PackageSchema } from './types';
 
 // Modified from https://github.com/bhdouglass/uappexplorer/blob/master/src/db/elasticsearch/elasticsearch.js
 export default {
