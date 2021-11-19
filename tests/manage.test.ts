@@ -4,6 +4,7 @@ import factory from './factory';
 import { expect } from './helper';
 import PackageRepo from '../src/db/package/repo';
 import PackageSearch from '../src/db/package/search';
+import * as messages from '../src/api/error-messages';
 
 describe('Manage GET', () => {
   before(function() {
@@ -242,8 +243,7 @@ describe('Manage POST', () => {
       const res = await this.post(this.route).expect(400);
 
       expect(res.body.success).to.be.false;
-      // TODO make this resiliant to change
-      expect(res.body.message).to.equal('No app name specified');
+      expect(res.body.message).to.equal(messages.NO_APP_NAME);
     });
 
     it('fails with no name', async function() {
@@ -252,7 +252,7 @@ describe('Manage POST', () => {
         .expect(400);
 
       expect(res.body.success).to.be.false;
-      expect(res.body.message).to.equal('No app title specified');
+      expect(res.body.message).to.equal(messages.NO_APP_TITLE);
     });
 
     it('fails with spaces in the id', async function() {
@@ -261,7 +261,7 @@ describe('Manage POST', () => {
         .expect(400);
 
       expect(res.body.success).to.be.false;
-      expect(res.body.message).to.equal('You cannot have spaces in your app name');
+      expect(res.body.message).to.equal(messages.NO_SPACES_NAME);
     });
 
     it('fails with a duplicate id', async function() {
@@ -270,7 +270,7 @@ describe('Manage POST', () => {
         .expect(400);
 
       expect(res.body.success).to.be.false;
-      expect(res.body.message).to.equal('A package with the same name already exists');
+      expect(res.body.message).to.equal(messages.DUPLICATE_PACKAGE);
     });
 
     it('fails with a com.ubuntu id', async function() {
@@ -279,7 +279,7 @@ describe('Manage POST', () => {
         .expect(400);
 
       expect(res.body.success).to.be.false;
-      expect(res.body.message).to.equal('You package name is for a domain that you do not have access to');
+      expect(res.body.message).to.equal(messages.BAD_NAMESPACE);
     });
 
     it('fails with a com.canonical id', async function() {
@@ -288,7 +288,7 @@ describe('Manage POST', () => {
         .expect(400);
 
       expect(res.body.success).to.be.false;
-      expect(res.body.message).to.equal('You package name is for a domain that you do not have access to');
+      expect(res.body.message).to.equal(messages.BAD_NAMESPACE);
     });
 
     it('fails with a ubports id', async function() {
@@ -297,7 +297,7 @@ describe('Manage POST', () => {
         .expect(400);
 
       expect(res.body.success).to.be.false;
-      expect(res.body.message).to.equal('You package name is for a domain that you do not have access to');
+      expect(res.body.message).to.equal(messages.BAD_NAMESPACE);
     });
 
     it('fails with a openstore id', async function() {
@@ -306,7 +306,7 @@ describe('Manage POST', () => {
         .expect(400);
 
       expect(res.body.success).to.be.false;
-      expect(res.body.message).to.equal('You package name is for a domain that you do not have access to');
+      expect(res.body.message).to.equal(messages.BAD_NAMESPACE);
     });
 
     it('succeeds with a com.ubuntu.developer id', async function() {
@@ -439,7 +439,7 @@ describe('Manage PUT', () => {
         .expect(400);
 
       expect(res.body.success).to.be.false;
-      expect(res.body.message).to.equal('You cannot publish your package until you upload a revision');
+      expect(res.body.message).to.equal(messages.NO_REVISIONS);
     });
 
     it('does not allow changing admin only fields', async function() {
@@ -501,7 +501,7 @@ describe('Manage PUT', () => {
         .expect(403);
 
       expect(res.body.success).to.be.false;
-      expect(res.body.message).to.equal('Sorry this app has been locked by an admin');
+      expect(res.body.message).to.equal(messages.APP_LOCKED);
 
       const pkg = await PackageRepo.findOne(this.package.id);
       expect(pkg?.published).to.be.false;

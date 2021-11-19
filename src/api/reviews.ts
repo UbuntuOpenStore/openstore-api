@@ -12,16 +12,17 @@ import Package from 'db/package/model';
 import { authenticate, anonymousAuthenticate, userRole } from 'middleware';
 import { serialize } from 'db/review/serializer';
 import { RATINGS, REVIEW_MAX_LEN, RATING_MAP, Ratings } from 'db/review/constants';
-
-const APP_NOT_FOUND = 'App not found';
-const PARAMETER_MISSING = 'Missing parameters for this endpoint';
-const REVIEW_TOO_LONG = 'The review is too long';
-const INVALID_RATING = 'Invalid rating';
-const VERSION_NOT_FOUND = 'Specified version is unknown';
-const CANNOT_REVIEW_OWN_APP = 'Reviewing your own app is not allowed';
-const NO_REVIEW_TO_EDIT = 'You have no review to edit';
-const REVIEW_REDACTED = 'Redacted reviews cannot be edited';
-const ALREADY_REVIEWED = 'This app was already reviewed by you';
+import {
+  APP_NOT_FOUND,
+  PARAMETER_MISSING,
+  REVIEW_TOO_LONG,
+  INVALID_RATING,
+  VERSION_NOT_FOUND,
+  CANNOT_REVIEW_OWN_APP,
+  NO_REVIEW_TO_EDIT,
+  REVIEW_REDACTED,
+  ALREADY_REVIEWED,
+} from './error-messages';
 
 const router = express.Router({ mergeParams: true });
 

@@ -3,6 +3,7 @@ import factory from './factory';
 
 import { expect } from './helper';
 import PackageRepo from '../src/db/package/repo';
+import * as messages from '../src/api/error-messages';
 
 describe('Apps API', () => {
   before(function() {
@@ -157,28 +158,28 @@ describe('Apps API', () => {
       const res = await this.get(`${this.route}somepackage/download/${DEFAULT_CHANNEL}/armhf`, false).expect(404);
 
       expect(res.body.success).to.be.false;
-      expect(res.body.message).to.equal('App not found');
+      expect(res.body.message).to.equal(messages.APP_NOT_FOUND);
     });
 
     it('throws for an invalid channel', async function() {
       const res = await this.get(`${this.route}${this.package4.id}/download/invalid/armhf`, false).expect(400);
 
       expect(res.body.success).to.be.false;
-      expect(res.body.message).to.equal('The provided channel is not valid');
+      expect(res.body.message).to.equal(messages.INVALID_CHANNEL);
     });
 
     it('throws for an invalid arch', async function() {
       const res = await this.get(`${this.route}${this.package4.id}/download/${DEFAULT_CHANNEL}/invalid`, false).expect(400);
 
       expect(res.body.success).to.be.false;
-      expect(res.body.message).to.equal('The provided architecture is not valid');
+      expect(res.body.message).to.equal(messages.INVALID_ARCH);
     });
 
     it('throws for a download not found for unknown version', async function() {
       const res = await this.get(`${this.route}${this.package4.id}/download/${DEFAULT_CHANNEL}/armhf/3`, false).expect(404);
 
       expect(res.body.success).to.be.false;
-      expect(res.body.message).to.equal('Download not available for this channel');
+      expect(res.body.message).to.equal(messages.DOWNLOAD_NOT_FOUND_FOR_CHANNEL);
     });
 
     it('fails gracefully', async function() {

@@ -10,16 +10,12 @@ import { serialize } from 'db/package/serializer';
 import RatingCountRepo from 'db/rating_count/repo';
 import { success, error, captureException, getData, apiLinks, logger } from 'utils';
 import reviews from './reviews';
+import { APP_NOT_FOUND, DOWNLOAD_NOT_FOUND_FOR_CHANNEL, INVALID_CHANNEL, INVALID_ARCH } from './error-messages';
 
 // TODO properly namespace these so we only need one router
 const router = express.Router();
 const screenshotRouter = express.Router();
 const statsRouter = express.Router();
-
-const APP_NOT_FOUND = 'App not found';
-const DOWNLOAD_NOT_FOUND_FOR_CHANNEL = 'Download not available for this channel';
-const INVALID_CHANNEL = 'The provided channel is not valid';
-const INVALID_ARCH = 'The provided architecture is not valid';
 
 async function apps(req: Request, res: Response) {
   const filters = PackageRepo.parseRequestFilters(req);

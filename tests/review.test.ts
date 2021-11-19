@@ -5,6 +5,7 @@ import { recalculateRatings } from '../src/api/reviews';
 import Package from '../src/db/package/model';
 import Review from '../src/db/review/model';
 import { Architecture, Channel } from '../src/db/package/types';
+import * as messages from '../src/api/error-messages';
 
 describe('Reviews', () => {
   before(function() {
@@ -144,7 +145,7 @@ describe('Reviews', () => {
         .expect(404);
 
       expect(res.body.success).to.be.false;
-      expect(res.body.message).to.equal('App not found');
+      expect(res.body.message).to.equal(messages.APP_NOT_FOUND);
     });
 
     it('throws a 400 when reviewing own app', async function() {
@@ -156,7 +157,7 @@ describe('Reviews', () => {
         .expect(400);
 
       expect(res.body.success).to.be.false;
-      expect(res.body.message).to.equal('Reviewing your own app is not allowed');
+      expect(res.body.message).to.equal(messages.CANNOT_REVIEW_OWN_APP);
     });
 
     it('throws a 404 when the revision cannot be found', async function() {
@@ -165,7 +166,7 @@ describe('Reviews', () => {
         .expect(404);
 
       expect(res.body.success).to.be.false;
-      expect(res.body.message).to.equal('Specified version is unknown');
+      expect(res.body.message).to.equal(messages.VERSION_NOT_FOUND);
     });
 
     it('throws a 400 when the review is long winded', async function() {
@@ -174,7 +175,7 @@ describe('Reviews', () => {
         .expect(400);
 
       expect(res.body.success).to.be.false;
-      expect(res.body.message).to.equal('The review is too long');
+      expect(res.body.message).to.equal(messages.REVIEW_TOO_LONG);
     });
 
     it('throws a 400 when the rating is invalid', async function() {
@@ -183,7 +184,7 @@ describe('Reviews', () => {
         .expect(400);
 
       expect(res.body.success).to.be.false;
-      expect(res.body.message).to.equal('Invalid rating');
+      expect(res.body.message).to.equal(messages.INVALID_RATING);
     });
 
     it('throws a 400 when missing parameters', async function() {
@@ -192,7 +193,7 @@ describe('Reviews', () => {
         .expect(400);
 
       expect(res.body.success).to.be.false;
-      expect(res.body.message).to.equal('Missing parameters for this endpoint');
+      expect(res.body.message).to.equal(messages.PARAMETER_MISSING);
     });
 
     it('throws a 400 when updating a non existent review', async function() {
@@ -201,7 +202,7 @@ describe('Reviews', () => {
         .expect(400);
 
       expect(res.body.success).to.be.false;
-      expect(res.body.message).to.equal('You have no review to edit');
+      expect(res.body.message).to.equal(messages.NO_REVIEW_TO_EDIT);
     });
 
     it('throws a 400 when updating a redacted review', async function() {
@@ -211,7 +212,7 @@ describe('Reviews', () => {
         .expect(400);
 
       expect(res.body.success).to.be.false;
-      expect(res.body.message).to.equal('Redacted reviews cannot be edited');
+      expect(res.body.message).to.equal(messages.REVIEW_REDACTED);
     });
 
     it('throws a 400 when trying to create another review', async function() {
@@ -221,7 +222,7 @@ describe('Reviews', () => {
         .expect(400);
 
       expect(res.body.success).to.be.false;
-      expect(res.body.message).to.equal('This app was already reviewed by you');
+      expect(res.body.message).to.equal(messages.ALREADY_REVIEWED);
     });
   });
 

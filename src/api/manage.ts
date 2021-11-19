@@ -15,31 +15,31 @@ import { success, error, captureException, sanitize, moveFile, apiLinks, sha512C
 import * as clickParser from 'utils/click-parser-async';
 import * as reviewPackage from 'utils/review-package';
 import { authenticate, userRole, downloadFile, extendTimeout } from 'middleware';
+import {
+  APP_NOT_FOUND,
+  NEEDS_MANUAL_REVIEW,
+  MALFORMED_MANIFEST,
+  DUPLICATE_PACKAGE,
+  PERMISSION_DENIED,
+  BAD_FILE,
+  WRONG_PACKAGE,
+  BAD_NAMESPACE,
+  EXISTING_VERSION,
+  NO_FILE,
+  INVALID_CHANNEL,
+  NO_REVISIONS,
+  NO_APP_NAME,
+  NO_SPACES_NAME,
+  NO_APP_TITLE,
+  APP_HAS_REVISIONS,
+  NO_ALL,
+  NO_NON_ALL,
+  MISMATCHED_FRAMEWORK,
+  APP_LOCKED,
+} from './error-messages';
 
 const mupload = multer({ dest: '/tmp' });
 const router = express.Router();
-
-// TODO translate these errors
-const APP_NOT_FOUND = 'App not found';
-const NEEDS_MANUAL_REVIEW = 'This app needs to be reviewed manually';
-const MALFORMED_MANIFEST = 'Your package manifest is malformed';
-const DUPLICATE_PACKAGE = 'A package with the same name already exists';
-const PERMISSION_DENIED = 'You do not have permission to update this app';
-const BAD_FILE = 'The file must be a click package';
-const WRONG_PACKAGE = 'The uploaded package does not match the name of the package you are editing';
-const BAD_NAMESPACE = 'You package name is for a domain that you do not have access to';
-const EXISTING_VERSION = 'A revision already exists with this version and architecture';
-const NO_FILE = 'No file upload specified';
-const INVALID_CHANNEL = 'The provided channel is not valid';
-const NO_REVISIONS = 'You cannot publish your package until you upload a revision';
-const NO_APP_NAME = 'No app name specified';
-const NO_SPACES_NAME = 'You cannot have spaces in your app name';
-const NO_APP_TITLE = 'No app title specified';
-const APP_HAS_REVISIONS = 'Cannot delete an app that already has revisions';
-const NO_ALL = 'You cannot upload a click with the architecture "all" for the same version as an architecture specific click';
-const NO_NON_ALL = 'You cannot upload and architecture specific click for the same version as a click with the architecture "all"';
-const MISMATCHED_FRAMEWORK = 'Framework does not match existing click of a different architecture';
-const APP_LOCKED = 'Sorry this app has been locked by an admin';
 
 export type File = {
   originalname: string;

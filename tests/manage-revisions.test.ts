@@ -9,6 +9,7 @@ import LockRepo from '../src/db/lock/repo';
 import * as reviewPackage from '../src/utils/review-package';
 import * as clickParser from '../src/utils/click-parser-async';
 import PackageSearch from '../src/db/package/search';
+import * as messages from '../src/api/error-messages';
 
 describe('Manage Revision POST', () => {
   beforeEach(async function() {
@@ -115,7 +116,7 @@ describe('Manage Revision POST', () => {
       const res = await this.post(this.route)
         .expect(400);
 
-      expect(res.body.message).to.equal('No file upload specified');
+      expect(res.body.message).to.equal(messages.NO_FILE);
       expect(this.lockAcquireSpy).to.have.not.been.called;
       expect(this.lockReleaseSpy).to.have.not.been.called;
     });
@@ -126,7 +127,7 @@ describe('Manage Revision POST', () => {
         .field('channel', 'vivid')
         .expect(400);
 
-      expect(res.body.message).to.equal('The provided channel is not valid');
+      expect(res.body.message).to.equal(messages.INVALID_CHANNEL);
       expect(this.lockAcquireSpy).to.have.not.been.called;
       expect(this.lockReleaseSpy).to.have.not.been.called;
     });
@@ -137,7 +138,7 @@ describe('Manage Revision POST', () => {
         .field('channel', Channel.XENIAL)
         .expect(404);
 
-      expect(res.body.message).to.equal('App not found');
+      expect(res.body.message).to.equal(messages.APP_NOT_FOUND);
       expect(this.lockAcquireSpy).to.have.been.calledOnce;
       expect(this.lockReleaseSpy).to.have.been.calledOnce;
     });
@@ -189,7 +190,7 @@ describe('Manage Revision POST', () => {
         .expect(400);
 
       expect(res.body.success).to.be.false;
-      expect(res.body.message).to.equal('The file must be a click package');
+      expect(res.body.message).to.equal(messages.BAD_FILE);
       expect(this.lockAcquireSpy).to.have.been.calledOnce;
       expect(this.lockReleaseSpy).to.have.been.calledOnce;
     });
@@ -208,7 +209,7 @@ describe('Manage Revision POST', () => {
         .expect(400);
 
       expect(res.body.success).to.be.false;
-      expect(res.body.message).to.equal('The uploaded package does not match the name of the package you are editing');
+      expect(res.body.message).to.equal(messages.WRONG_PACKAGE);
       expect(reviewStub).to.have.been.calledOnce;
       expect(parseStub).to.have.been.calledOnce;
       expect(this.lockAcquireSpy).to.have.been.calledOnce;
@@ -225,7 +226,7 @@ describe('Manage Revision POST', () => {
         .expect(400);
 
       expect(res.body.success).to.be.false;
-      expect(res.body.message).to.equal('Your package manifest is malformed');
+      expect(res.body.message).to.equal(messages.MALFORMED_MANIFEST);
       expect(reviewStub).to.have.been.calledOnce;
       expect(parseStub).to.have.been.calledOnce;
       expect(this.lockAcquireSpy).to.have.been.calledOnce;
@@ -251,7 +252,7 @@ describe('Manage Revision POST', () => {
         .expect(400);
 
       expect(res.body.success).to.be.false;
-      expect(res.body.message).to.equal('A revision already exists with this version and architecture');
+      expect(res.body.message).to.equal(messages.EXISTING_VERSION);
       expect(reviewStub).to.have.been.calledOnce;
       expect(parseStub).to.have.been.calledOnce;
       expect(this.lockAcquireSpy).to.have.been.calledOnce;
@@ -369,7 +370,7 @@ describe('Manage Revision POST', () => {
         .expect(400);
 
       expect(res.body.success).to.be.false;
-      expect(res.body.message).to.equal('Framework does not match existing click of a different architecture');
+      expect(res.body.message).to.equal(messages.MISMATCHED_FRAMEWORK);
       expect(reviewStub).to.have.been.calledOnce;
       expect(parseStub).to.have.been.calledOnce;
       expect(this.lockAcquireSpy).to.have.been.calledOnce;
@@ -386,7 +387,7 @@ describe('Manage Revision POST', () => {
         .expect(403);
 
       expect(res.body.success).to.be.false;
-      expect(res.body.message).to.equal('Sorry this app has been locked by an admin');
+      expect(res.body.message).to.equal(messages.APP_LOCKED);
       expect(this.lockAcquireSpy).to.have.been.calledOnce;
       expect(this.lockReleaseSpy).to.have.been.calledOnce;
     });

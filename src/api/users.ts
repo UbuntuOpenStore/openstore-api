@@ -4,9 +4,9 @@ import UserRepo from 'db/user/repo';
 import { serialize } from 'db/user/serializer';
 import { error, success, captureException } from 'utils';
 import { authenticate, adminOnly } from 'middleware';
+import { USER_NOT_FOUND } from './error-messages';
 
 const router = express.Router();
-const USER_NOT_FOUND = 'User not found';
 
 router.get('/', authenticate, adminOnly, async(req: Request, res: Response) => {
   try {
