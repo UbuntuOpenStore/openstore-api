@@ -1,18 +1,19 @@
 #!/usr/bin/env node
 
-const pLimit = require('p-limit');
+import fs from 'fs';
+import pLimit from 'p-limit';
 
-require('../db'); // Make sure the database connection gets setup
-const Package = require('db/package/model');
-const fs = require('fs');
-const clickParser = require('utils/click-parser-async');
+import 'db'; // Make sure the database connection gets setup
+import Package from 'db/package/model';
+import * as clickParser from 'utils/click-parser-async';
+import { RevisionDoc } from 'db/package/types';
 
 const limit = pLimit(10);
 
 Package.find({}).then((pkgs) => {
   return Promise.all(pkgs.map((pkg) => {
-    return limit(async () => {
-      let revisionData = null;
+    return limit(async() => {
+      let revisionData: RevisionDoc | undefined;
       pkg.revisions.forEach((data) => {
         if (!revisionData || revisionData.revision < data.revision) {
           revisionData = data;
@@ -22,12 +23,14 @@ Package.find({}).then((pkgs) => {
       if (revisionData && revisionData.download_url && fs.existsSync(revisionData.download_url)) {
         console.log(`Parsing ${pkg.id}`);
 
-        const parseData = await clickParser.parse(revisionData.download_url, false);
+        const parseData = await clickParser.parseClickPackage(revisionData.download_url, false);
         pkg.updateFromClick(parseData);
 
         console.log(`Saving ${pkg.id}`);
         return pkg.save();
       }
+
+      return pkg;
     });
   }));
 }).then(() => {
