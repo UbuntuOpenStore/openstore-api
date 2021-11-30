@@ -8,6 +8,7 @@ User.findOne({}).then((user) => {
     throw new Error('user not found');
   }
 
+  // eslint-disable-next-line no-param-reassign
   user.role = 'admin';
   return user.save();
 }).then((user) => {
