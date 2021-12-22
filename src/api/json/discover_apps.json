@@ -37,19 +37,16 @@
             ]
         },
         {
-            "name": "Tools",
-            "tagline": "Even the simplest tools can empower people to do great things",
-            "referral": "Utilities",
+            "name": "Fediverse",
+            "tagline": "To infinity and beyond!",
+            "referral": "",
             "ids": [
-                "ut-sysbench-qt-gui",
-                "wireguard.davidv.dev",
-                "keepass.davidv.dev",
-                "networkspeedtest.francesco",
-                "bincalc.piotrzpl",
-                "scooter.s710",
-                "subaybay.kugiigi",
-                "hhash.mateosalta",
-                "transmission.pavelprosto"
+                "pixelfed-web.darkeye",
+                "hubzilla-web.povoq",
+                "ulemmy.povoq",
+                "umastodon.christianpauly",
+                "udiaspora-webapp.darkeye",
+                "hyperspacedesktop.marquiskurt"
             ]
         },
         {
