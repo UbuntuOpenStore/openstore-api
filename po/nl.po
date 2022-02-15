@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2017-06-20 01:45:+0000\n"
-"PO-Revision-Date: 2020-08-31 11:14+0000\n"
-"Last-Translator: Heimen Stoffels <vistausss@outlook.com>\n"
+"PO-Revision-Date: 2022-02-15 06:07+0000\n"
+"Last-Translator: Heimen Stoffels <vistausss@fastmail.com>\n"
 "Language-Team: Dutch <https://translate.ubports.com/projects/openstore/"
 "openstore-api/nl/>\n"
 "Language: nl\n"
@@ -96,7 +96,7 @@ msgstr "Gezondheid en welzijn"
 
 # Discovery section category tagline for "Health & Wellness"
 msgid "An apple a day..."
-msgstr "Gaan met die banaan..."
+msgstr "Gaan met die banaan!"
 
 # Discovery section category name
 msgid "Cross Platform Apps"
@@ -104,7 +104,7 @@ msgstr "Platform-onafhankelijke apps"
 
 # Discovery section category tagline for "Cross Platform Apps"
 msgid "Find these apps anywhere"
-msgstr "Deze apps vind je overal terug"
+msgstr "Deze apps kom je óveral tegen"
 
 # Discovery section category name
 msgid "Essential Apps"
@@ -112,7 +112,7 @@ msgstr "Essentiële apps"
 
 # Discovery section category tagline for "Essential Apps"
 msgid "Check these out first"
-msgstr "Kijk eerst eens naar deze"
+msgstr "Kijk eerst eens naar déze apps"
 
 msgid "Dev Tools & Reference"
 msgstr "Programmeren en opzoeken"
