@@ -1,6 +1,11 @@
 {
     "highlights": [
         {
+            "id": "futify.frenchutouch",
+            "image": "/banners/futify.svg",
+            "description": "Unofficial native qml Spotify client for premium users only"
+        },
+        {
             "id": "circlejump.abmyii",
             "image": "/banners/circlejump.svg",
             "description": "How far can you get? Tap to jump from circle to circle for as long as you can."
@@ -24,6 +29,19 @@
             "ids": []
         },
         {
+            "name": "News",
+            "tagline": "News is only the first rough draft of history",
+            "referral": "",
+            "ids": [
+                "darkeye.ursses",
+                "headline.collaproductions",
+                "hnr.davidv.dev",
+                "net.gsantner.ut.ttrssreadermobile",
+                "newsie.martinferretti",
+                "quickddit"
+            ]
+        },
+        {
             "name": "Godot Games",
             "tagline": "The game engine you waited for",
             "referral": "Games",
@@ -35,19 +53,6 @@
                 "godot3dtest.pavelprosto",
                 "costumemaster.marquiskurt",
                 "3rdperson.gabriele"
-            ]
-        },
-        {
-            "name": "Fediverse",
-            "tagline": "To infinity and beyond!",
-            "referral": "",
-            "ids": [
-                "pixelfed-web.darkeye",
-                "hubzilla-web.povoq",
-                "ulemmy.povoq",
-                "umastodon.christianpauly",
-                "udiaspora-webapp.darkeye",
-                "hyperspacedesktop.marquiskurt"
             ]
         },
         {
