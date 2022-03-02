@@ -5,13 +5,10 @@ import { FilterQuery } from 'mongoose';
 import 'db/comment/model';
 import { error, success, captureException, getDataInt, apiLinks, logger } from 'utils';
 import PackageRepo from 'db/package/repo';
-import Review from 'db/review/model';
-import { ReviewDoc } from 'db/review/types';
+import { Review, ReviewDoc, RATINGS, REVIEW_MAX_LEN, RATING_MAP, Ratings } from 'db/review';
 import RatingCount from 'db/rating_count/model';
 import Package from 'db/package/model';
 import { authenticate, anonymousAuthenticate, userRole } from 'middleware';
-import { serialize } from 'db/review/serializer';
-import { RATINGS, REVIEW_MAX_LEN, RATING_MAP, Ratings } from 'db/review/constants';
 import {
   APP_NOT_FOUND,
   PARAMETER_MISSING,
@@ -114,14 +111,14 @@ async function getReviews(req: Request, res: Response) {
     }
 
     const reviewsTotalCount = await Review.countDocuments(query);
-    const reviews = serialize(await Review.find(query, null, { limit, sort: { date: -1 } }).populate('user').populate('comment'));
-    const { next, previous } = apiLinks(req.originalUrl, Array.isArray(reviews) ? reviews.length : 0, limit, skip);
+    const reviews = await Review.find(query, null, { limit, sort: { date: -1 } }).populate('user').populate('comment');
+    const { next, previous } = apiLinks(req.originalUrl, reviews.length, limit, skip);
 
     return success(res, {
       count: reviewsTotalCount,
       next,
       previous,
-      reviews,
+      reviews: reviews.map((review) => review.serialize()),
     });
   }
   catch (err) {

@@ -1,4 +1,4 @@
-import { Schema, model, Document } from 'mongoose';
+import { Schema, model } from 'mongoose';
 import { RATINGS } from './constants';
 import { ReviewDoc, ReviewModel } from './types';
 
@@ -13,4 +13,24 @@ export const reviewSchema = new Schema<ReviewDoc, ReviewModel>({
   comment: { type: Schema.Types.ObjectId, ref: 'Comment' },
 });
 
-export default model<ReviewDoc, ReviewModel>('Review', reviewSchema);
+reviewSchema.methods.serialize = function() {
+  let comment: null | { body: string, date: number } = null;
+  if (this.comment) {
+    comment = {
+      body: this.comment.body,
+      date: this.comment.date.getTime(),
+    };
+  }
+
+  return {
+    author: this.user.name || this.user.username,
+    body: this.body,
+    version: this.version,
+    rating: this.rating,
+    date: this.date.getTime(),
+    redacted: this.redacted,
+    comment,
+  };
+};
+
+export const Review = model<ReviewDoc, ReviewModel>('Review', reviewSchema);

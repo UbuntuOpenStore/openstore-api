@@ -12,6 +12,8 @@ export interface UserSchema {
   username: string,
 }
 
-export interface UserDoc extends UserSchema, Document { }
+export interface UserDoc extends UserSchema, Document {
+  serialize(): UserSchema;
+}
 
 export interface UserModel extends Model<UserDoc> { }

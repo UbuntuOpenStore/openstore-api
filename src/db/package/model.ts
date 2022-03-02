@@ -3,7 +3,7 @@ import path from 'path';
 import fs from 'fs';
 
 import { sanitize, ClickParserData, config } from 'utils';
-import UserRepo from '../user/repo';
+import { User } from '../user';
 import { RevisionDoc, RevisionModel, PackageDoc, PackageModel, Architecture, BodyUpdate } from './types';
 
 const revisionSchema = new Schema<RevisionDoc, RevisionModel>({
@@ -353,7 +353,7 @@ packageSchema.methods.updateFromBody = async function(body: BodyUpdate) {
   }
 
   if (this.maintainer) {
-    const user = await UserRepo.findOne(this.maintainer);
+    const user = await User.findById(this.maintainer);
     if (user) {
       this.maintainer_name = user.name ? user.name : user.username;
     }

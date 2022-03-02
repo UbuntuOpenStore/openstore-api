@@ -2,7 +2,7 @@ import factory from './factory';
 
 import { expect } from './helper';
 import { iconUrl, downloadUrl, serialize, serializeRatings } from '../src/db/package/serializer';
-import { Ratings } from '../src/db/review/constants';
+import { Ratings } from '../src/db/review';
 import { Architecture, Channel, DEFAULT_CHANNEL } from '../src/db/package/types';
 
 describe('PackageSerializer', () => {

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import 'db'; // Make sure the database connection gets setup
-import User from 'db/user/model';
+import { User } from 'db/user';
 
 User.findOne({}).then((user) => {
   if (!user) {

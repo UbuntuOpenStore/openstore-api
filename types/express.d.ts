@@ -1,4 +1,4 @@
-import { UserDoc } from '../src/db/user/types';
+import { UserDoc } from '../src/db/user';
 
 declare global {
   namespace Express {

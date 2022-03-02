@@ -15,6 +15,8 @@ export interface ReviewSchema {
   comment: CommentSchema;
 }
 
-export interface ReviewDoc extends ReviewSchema, Document { }
+export interface ReviewDoc extends ReviewSchema, Document {
+  serialize(): ReviewSchema;
+}
 
 export interface ReviewModel extends Model<ReviewDoc> { }

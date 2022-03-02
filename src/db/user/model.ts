@@ -13,4 +13,14 @@ const userSchema = new Schema<UserDoc, UserModel>({
   username: String,
 });
 
-export default model<UserDoc, UserModel>('User', userSchema);
+userSchema.methods.serialize = function() {
+  return {
+    _id: this._id,
+    email: this.email,
+    name: this.name ? this.name : this.username,
+    role: this.role ? this.role : 'community',
+    username: this.username,
+  };
+};
+
+export const User = model<UserDoc, UserModel>('User', userSchema);

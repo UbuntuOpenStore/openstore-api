@@ -9,10 +9,9 @@ import { Strategy as GitHubStrategy } from 'passport-github2';
 import { Strategy as GitLabStrategy } from 'passport-gitlab2';
 import { v4 } from 'uuid';
 import express, { Request, Response } from 'express';
-import { UserDoc } from 'db/user/types';
+import { UserDoc, User } from 'db/user';
 
 import { logger, config } from 'utils';
-import User from 'db/user/model';
 
 // TODO fix type
 export interface GenericCallback {
