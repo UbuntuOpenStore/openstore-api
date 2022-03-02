@@ -9,4 +9,6 @@ export interface RatingCountSchema {
 
 export interface RatingCountDoc extends RatingCountSchema, Document { }
 
-export interface RatingCountModel extends Model<RatingCountDoc> { }
+export interface RatingCountModel extends Model<RatingCountDoc> {
+  getCountsByIds(ids: string[]): { [key: string]: RatingCountDoc[] }
+}

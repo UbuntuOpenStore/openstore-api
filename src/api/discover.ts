@@ -3,7 +3,7 @@ import express, { Request, Response } from 'express';
 
 import PackageRepo from 'db/package/repo';
 import { Architecture, DEFAULT_CHANNEL, Channel, PackageType, SerializedPackage } from 'db/package/types';
-import RatingCountRepo from 'db/rating_count/repo';
+import { RatingCount } from 'db/rating_count';
 import { serialize, serializeRatings } from 'db/package/serializer';
 import { success, error, getData, getDataArray, captureException, logger, setLang, gettext, config } from 'utils';
 import discoverJSON from './json/discover_apps.json';
@@ -202,7 +202,7 @@ router.get('/', async(req: Request, res: Response) => {
       return [...accumulator, ...category.ids];
     }, []).concat(discover.highlights.map((highlight) => highlight.id));
 
-    const ratingCounts = await RatingCountRepo.findByIds(ids);
+    const ratingCounts = await RatingCount.getCountsByIds(ids);
 
     discover.highlight.app.ratings = serializeRatings(ratingCounts[discover.highlights[0].id]);
     discover.highlights = discover.highlights.map((app) => {

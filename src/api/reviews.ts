@@ -6,7 +6,7 @@ import 'db/comment/model';
 import { error, success, captureException, getDataInt, apiLinks, logger } from 'utils';
 import PackageRepo from 'db/package/repo';
 import { Review, ReviewDoc, RATINGS, REVIEW_MAX_LEN, RATING_MAP, Ratings } from 'db/review';
-import RatingCount from 'db/rating_count/model';
+import { RatingCount } from 'db/rating_count';
 import Package from 'db/package/model';
 import { authenticate, anonymousAuthenticate, userRole } from 'middleware';
 import {

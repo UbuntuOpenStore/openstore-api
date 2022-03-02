@@ -7,7 +7,7 @@ import { Architecture, Channel, DEFAULT_CHANNEL, PackageDoc } from 'db/package/t
 import PackageRepo from 'db/package/repo';
 import PackageSearch from 'db/package/search';
 import { serialize } from 'db/package/serializer';
-import RatingCountRepo from 'db/rating_count/repo';
+import { RatingCount } from 'db/rating_count';
 import { success, error, captureException, getData, apiLinks, logger } from 'utils';
 import reviews from './reviews';
 import { APP_NOT_FOUND, DOWNLOAD_NOT_FOUND_FOR_CHANNEL, INVALID_CHANNEL, INVALID_ARCH } from './error-messages';
@@ -37,7 +37,7 @@ async function apps(req: Request, res: Response) {
       }
       else {
         // Get the ratings
-        const ratingCounts = await RatingCountRepo.findByIds(ids);
+        const ratingCounts = await RatingCount.getCountsByIds(ids);
 
         pkgs = pkgs.map((pkg) => {
           return {
