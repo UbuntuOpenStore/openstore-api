@@ -10,5 +10,5 @@ export interface RatingCountSchema {
 export interface RatingCountDoc extends RatingCountSchema, Document { }
 
 export interface RatingCountModel extends Model<RatingCountDoc> {
-  getCountsByIds(ids: string[]): { [key: string]: RatingCountDoc[] }
+  getCountsByIds(ids: string[]): Promise<{ [key: string]: RatingCountDoc[] }>
 }

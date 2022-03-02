@@ -7,4 +7,4 @@ const commentSchema = new Schema<CommentDoc, CommentModel>({
   body: String,
 });
 
-export default model<CommentDoc, CommentModel>('Comment', commentSchema);
+export const Comment = model<CommentDoc, CommentModel>('Comment', commentSchema);

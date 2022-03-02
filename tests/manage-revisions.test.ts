@@ -4,8 +4,7 @@ import factory from './factory';
 import { expect } from './helper';
 import PackageRepo from '../src/db/package/repo';
 import { Architecture, Channel } from '../src/db/package/types';
-import Lock from '../src/db/lock/model';
-import LockRepo from '../src/db/lock/repo';
+import { Lock } from '../src/db/lock';
 import * as reviewPackage from '../src/utils/review-package';
 import * as clickParser from '../src/utils/click-parser-async';
 import PackageSearch from '../src/db/package/search';
@@ -28,8 +27,8 @@ describe('Manage Revision POST', () => {
     this.emptyClick = path.join(__dirname, 'fixtures/empty.click');
     this.notAClick = path.join(__dirname, 'fixtures/notaclick.txt');
 
-    this.lockAcquireSpy = this.sandbox.spy(LockRepo, 'acquire');
-    this.lockReleaseSpy = this.sandbox.spy(LockRepo, 'release');
+    this.lockAcquireSpy = this.sandbox.spy(Lock, 'acquire');
+    this.lockReleaseSpy = this.sandbox.spy(Lock, 'release');
   });
 
   it('blocks access when not logged in', async function() {

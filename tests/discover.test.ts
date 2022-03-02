@@ -59,7 +59,7 @@ describe('Discover API', () => {
   });
 
   it('returns data', async function() {
-    const findSpy = this.sandbox.spy(RatingCount, 'find');
+    const getCountsByIdsSpy = this.sandbox.spy(RatingCount, 'getCountsByIds');
 
     const res = await this.get(this.route, false).expect(200);
 
@@ -68,7 +68,7 @@ describe('Discover API', () => {
     expect(res.body.data.highlights.length).to.be.greaterThan(0);
     expect(res.body.data.categories.length).to.be.greaterThan(0);
 
-    expect(findSpy).to.not.have.been.called;
+    expect(getCountsByIdsSpy).to.not.have.been.called;
 
     // Cache hit
     const res2 = await this.get(this.route, false).expect(200);
@@ -79,6 +79,6 @@ describe('Discover API', () => {
     expect(res2.body.data.categories.length).to.be.greaterThan(0);
 
     // Verify that ratings get refreshed on a cache hit
-    expect(findSpy).to.have.been.calledOnce;
+    expect(getCountsByIdsSpy).to.have.been.calledOnce;
   });
 });

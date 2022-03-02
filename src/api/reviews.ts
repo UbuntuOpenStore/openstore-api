@@ -2,7 +2,7 @@
 import express, { Request, Response } from 'express';
 import { FilterQuery } from 'mongoose';
 
-import 'db/comment/model';
+import 'db/comment';
 import { error, success, captureException, getDataInt, apiLinks, logger } from 'utils';
 import PackageRepo from 'db/package/repo';
 import { Review, ReviewDoc, RATINGS, REVIEW_MAX_LEN, RATING_MAP, Ratings } from 'db/review';

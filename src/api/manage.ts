@@ -4,12 +4,11 @@ import { v4 } from 'uuid';
 import express, { Request, Response } from 'express';
 
 import fs from 'fs/promises';
-import { LockDoc } from 'db/lock/types';
+import { Lock, LockDoc } from 'db/lock';
 import { PackageDoc, Architecture, Channel, DEFAULT_CHANNEL, PackageFindOneFilters } from 'db/package/types';
 import Package from 'db/package/model';
 import PackageRepo from 'db/package/repo';
 import PackageSearch from 'db/package/search';
-import LockRepo from 'db/lock/repo';
 import { serialize } from 'db/package/serializer';
 import { success, error, captureException, sanitize, moveFile, apiLinks, sha512Checksum, logger, config } from 'utils';
 import * as clickParser from 'utils/click-parser-async';
@@ -339,40 +338,40 @@ router.post(
 
     let lock: LockDoc | null = null;
     try {
-      lock = await LockRepo.acquire(`revision-${req.params.id}`);
+      lock = await Lock.acquire(`revision-${req.params.id}`);
 
       let pkg = await PackageRepo.findOne(req.params.id);
       if (!pkg) {
-        await LockRepo.release(lock, req);
+        await Lock.release(lock, req);
         return error(res, APP_NOT_FOUND, 404);
       }
 
       if (!req.isAdminUser && req.user!._id != pkg.maintainer) {
-        await LockRepo.release(lock, req);
+        await Lock.release(lock, req);
         return error(res, PERMISSION_DENIED, 403);
       }
 
       if (!req.isAdminUser && pkg.locked) {
-        await LockRepo.release(lock, req);
+        await Lock.release(lock, req);
         return error(res, APP_LOCKED, 403);
       }
 
       const filePath = fileName(file);
       const [reviewSuccess, reviewError] = await review(req, file, filePath);
       if (!reviewSuccess) {
-        await LockRepo.release(lock, req);
+        await Lock.release(lock, req);
         return error(res, reviewError, 400);
       }
 
       const parseData = await clickParser.parseClickPackage(filePath, true);
       const { version, architecture } = parseData;
       if (!parseData.name || !version || !architecture) {
-        await LockRepo.release(lock, req);
+        await Lock.release(lock, req);
         return error(res, MALFORMED_MANIFEST, 400);
       }
 
       if (pkg.id && parseData.name != pkg.id) {
-        await LockRepo.release(lock, req);
+        await Lock.release(lock, req);
         return error(res, WRONG_PACKAGE, 400);
       }
 
@@ -388,7 +387,7 @@ router.post(
         });
 
         if (matches) {
-          await LockRepo.release(lock, req);
+          await Lock.release(lock, req);
           return error(res, EXISTING_VERSION, 400);
         }
 
@@ -396,16 +395,16 @@ router.post(
         if (currentRevisions.length > 0) {
           const currentArches = currentRevisions.map((rev) => rev.architecture);
           if (architecture == Architecture.ALL && !currentArches.includes(Architecture.ALL)) {
-            await LockRepo.release(lock, req);
+            await Lock.release(lock, req);
             return error(res, NO_ALL, 400);
           }
           if (architecture != Architecture.ALL && currentArches.includes(Architecture.ALL)) {
-            await LockRepo.release(lock, req);
+            await Lock.release(lock, req);
             return error(res, NO_NON_ALL, 400);
           }
 
           if (parseData.framework != currentRevisions[0].framework) {
-            await LockRepo.release(lock, req);
+            await Lock.release(lock, req);
             return error(res, MISMATCHED_FRAMEWORK, 400);
           }
 
@@ -473,12 +472,12 @@ router.post(
         await PackageSearch.upsert(pkg);
       }
 
-      await LockRepo.release(lock, req);
+      await Lock.release(lock, req);
       return success(res, serialize(pkg));
     }
     catch (err) {
       if (lock) {
-        await LockRepo.release(lock, req);
+        await Lock.release(lock, req);
       }
 
       const message = err?.message ? err.message : err;
