@@ -1,7 +1,7 @@
 import express, { Request, Response } from 'express';
 
 import { DEFAULT_CHANNEL, Channel } from 'db/package/types';
-import PackageRepo from 'db/package/repo';
+import { Package } from 'db/package';
 import { logger, setLang, gettext, config, success, error, captureException, getData } from 'utils';
 import categoryIcons from './json/category_icons.json';
 
@@ -25,7 +25,7 @@ router.get('/', async(req: Request, res: Response) => {
     });
 
     if (!req.query.all) {
-      categories = (await PackageRepo.categoryStats([channel])).map((stats) => {
+      categories = (await Package.categoryStats([channel])).map((stats) => {
         return {
           ...stats,
           name: stats._id,

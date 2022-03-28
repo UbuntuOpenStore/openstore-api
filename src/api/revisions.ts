@@ -1,8 +1,7 @@
 import express, { Request, Response } from 'express';
 
-import PackageRepo from 'db/package/repo';
+import { Package } from 'db/package';
 import { Architecture, Channel, DEFAULT_CHANNEL } from 'db/package/types';
-import { downloadUrl } from 'db/package/serializer';
 import { getDataArray, getData, success, error, captureException, logger } from 'utils';
 
 // TODO remove this when system settings properly sends frameworks
@@ -27,7 +26,7 @@ async function revisionsByVersion(req: Request, res: Response) {
   }
 
   try {
-    const pkgs = (await PackageRepo.find({ published: true, ids }))
+    const pkgs = (await Package.findByFilters({ published: true, ids }))
       .filter((pkg) => (frameworks.length === 0 || frameworks.includes(pkg.framework)))
       .filter((pkg) => (pkg.architectures.includes(architecture) || pkg.architectures.includes(Architecture.ALL)))
       .map((pkg) => {
@@ -57,7 +56,7 @@ async function revisionsByVersion(req: Request, res: Response) {
           revision,
           latest_version: latestRevisionData.version,
           latest_revision: latestRevisionData.revision,
-          download_url: downloadUrl(pkg, channel, architecture),
+          download_url: pkg.getDownloadUrl(channel, architecture),
         };
       })
       .filter(Boolean);

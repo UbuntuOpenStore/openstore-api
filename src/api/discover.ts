@@ -1,11 +1,11 @@
 import shuffle from 'shuffle-array';
 import express, { Request, Response } from 'express';
 
-import PackageRepo from 'db/package/repo';
-import { Architecture, DEFAULT_CHANNEL, Channel, PackageType, SerializedPackage } from 'db/package/types';
+import { Package } from 'db/package';
+import { Architecture, DEFAULT_CHANNEL, Channel, PackageType } from 'db/package/types';
 import { RatingCount } from 'db/rating_count';
-import { serialize, serializeRatings } from 'db/package/serializer';
 import { success, error, getData, getDataArray, captureException, logger, setLang, gettext, config } from 'utils';
+import { serializeRatings } from 'db/package/methods';
 import discoverJSON from './json/discover_apps.json';
 import { DiscoverHighlight, DiscoverData } from './types';
 
@@ -62,7 +62,7 @@ router.get('/', async(req: Request, res: Response) => {
 
     try {
       const [highlights, discoverCategoriesApps] = await Promise.all([
-        PackageRepo.find({
+        Package.findByFilters({
           ids: discover.highlights.map((highlight) => highlight.id),
           channel,
           architectures: [architecture, Architecture.ALL],
@@ -74,7 +74,7 @@ router.get('/', async(req: Request, res: Response) => {
             return [];
           }
 
-          return PackageRepo.find({
+          return Package.findByFilters({
             ids: category.ids,
             channel,
             architectures: [architecture, Architecture.ALL],
@@ -84,7 +84,7 @@ router.get('/', async(req: Request, res: Response) => {
       ]);
 
       const [newApps, updatedApps, popularApps] = await Promise.all([
-        PackageRepo.find({
+        Package.findByFilters({
           published: true,
           channel,
           architectures: [architecture, Architecture.ALL],
@@ -92,7 +92,7 @@ router.get('/', async(req: Request, res: Response) => {
           types: [PackageType.APP],
         }, '-published_date', 8),
 
-        PackageRepo.find({
+        Package.findByFilters({
           published: true,
           channel,
           architectures: [architecture, Architecture.ALL],
@@ -100,7 +100,7 @@ router.get('/', async(req: Request, res: Response) => {
           types: [PackageType.APP],
         }, '-updated_date', 8),
 
-        PackageRepo.find({
+        Package.findByFilters({
           published: true,
           channel,
           architectures: [architecture, Architecture.ALL],
@@ -119,7 +119,7 @@ router.get('/', async(req: Request, res: Response) => {
         return {
           ...highlight,
           image: config.server.host + highlight.image,
-          app: serialize(highlightedApp, false, architecture, req.apiVersion),
+          app: highlightedApp.serialize(architecture, req.apiVersion),
         };
       }).filter(Boolean) as DiscoverHighlight[];
 
@@ -127,7 +127,7 @@ router.get('/', async(req: Request, res: Response) => {
       discover.highlight = discover.highlights[0];
 
       discover.categories = discover.categories.map((category, index) => {
-        const apps = discoverCategoriesApps[index].map((app) => serialize(app, false, architecture, req.apiVersion) as SerializedPackage);
+        const apps = discoverCategoriesApps[index].map((app) => app.serialize(architecture, req.apiVersion));
 
         return {
           ...category,
@@ -158,8 +158,8 @@ router.get('/', async(req: Request, res: Response) => {
       });
 
       newAndUpdatedCategory!.apps = newAndUpdatedApps.slice(0, 10)
-        .map((app) => serialize(app, false, architecture, req.apiVersion) as SerializedPackage);
-      popularCategory!.apps = popularApps.map((app) => serialize(app, false, architecture, req.apiVersion) as SerializedPackage);
+        .map((app) => app.serialize(architecture, req.apiVersion));
+      popularCategory!.apps = popularApps.map((app) => app.serialize(architecture, req.apiVersion));
 
       discover.categories = discover.categories.filter((category) => (category.apps.length > 0));
 

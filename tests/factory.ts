@@ -1,4 +1,4 @@
-import Package from '../src/db/package/model';
+import { Package } from '../src/db/package';
 import { Review } from '../src/db/review';
 import { User } from '../src/db/user';
 

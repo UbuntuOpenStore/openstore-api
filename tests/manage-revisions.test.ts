@@ -2,7 +2,7 @@ import path from 'path';
 import factory from './factory';
 
 import { expect } from './helper';
-import PackageRepo from '../src/db/package/repo';
+import { Package } from '../src/db/package';
 import { Architecture, Channel } from '../src/db/package/types';
 import { Lock } from '../src/db/lock';
 import * as reviewPackage from '../src/utils/review-package';
@@ -415,7 +415,7 @@ describe('Manage Revision POST', () => {
       expect(this.lockAcquireSpy).to.have.been.calledOnce;
       expect(this.lockReleaseSpy).to.have.been.calledOnce;
 
-      const pkg = await PackageRepo.findOne(this.package.id);
+      const pkg = await Package.findOneByFilters(this.package.id);
       expect(pkg?.changelog).to.equal('changelog update\n\nold changelog');
     });
 
@@ -460,7 +460,7 @@ describe('Manage Revision POST', () => {
     });
 
     it('fails gracefully', async function() {
-      const findStub = this.sandbox.stub(PackageRepo, 'findOne').rejects();
+      const findStub = this.sandbox.stub(Package, 'findOneByFilters').rejects();
 
       const res = await this.post(this.route)
         .attach('file', this.emptyClick)

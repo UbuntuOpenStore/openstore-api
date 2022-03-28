@@ -1,6 +1,6 @@
 import 'db'; // Make sure the database connection gets setup
 import PackageSearch from 'db/package/search';
-import Package from 'db/package/model';
+import { Package } from 'db/package';
 import { PackageDoc } from 'db/package/types';
 import { recalculateRatings } from '../api/reviews';
 

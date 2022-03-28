@@ -2,7 +2,7 @@ import factory from './factory';
 
 import { expect } from './helper';
 import { recalculateRatings } from '../src/api/reviews';
-import Package from '../src/db/package/model';
+import { Package } from '../src/db/package';
 import { Review } from '../src/db/review';
 import { Architecture, Channel } from '../src/db/package/types';
 import * as messages from '../src/api/error-messages';
