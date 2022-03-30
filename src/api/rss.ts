@@ -7,6 +7,12 @@ import { logger, config, error, captureException } from 'utils';
 
 const router = express.Router();
 
+function titleCase(value: string) {
+  return value.replace(/_/g, ' ').replace(/\w\S*/g, (txt) => {
+    return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+  });
+}
+
 async function generateFeed(req: Request, res: Response, updates: boolean) {
   const feed = new RSS({
     title: updates ? 'Updated Apps in the OpenStore' : 'New Apps in the OpenStore',
@@ -24,16 +30,21 @@ async function generateFeed(req: Request, res: Response, updates: boolean) {
     pkgs.forEach((pkg) => {
       let changelog = '';
       let description = pkg.description ? `<br/>${pkg.description}` : '';
+      let title = `New ${titleCase(pkg.types[0])}: ${pkg.name}`;
       if (updates) {
         changelog = pkg.changelog ? `<br/><br/>Changelog:<br/>${pkg.changelog}` : '';
         changelog = changelog.replace('\n', '<br/>');
         description = pkg.description ? `<br/><br/>Description:<br/>${pkg.description}` : '';
+
+        if (pkg.published_date !== pkg.updated_date) {
+          title = `Updated ${titleCase(pkg.types[0])}: ${pkg.name}`;
+        }
       }
 
       const url = `${config.server.host}/app/${pkg.id}`;
 
       feed.item({
-        title: pkg.name,
+        title,
         url,
         description: `<a href="${url}"><img src="${iconUrl(pkg)}" /></a>${changelog}${description}`,
         author: pkg.author,
