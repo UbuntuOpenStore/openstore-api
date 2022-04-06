@@ -7,7 +7,7 @@ import express, { Request, Response, NextFunction } from 'express';
 import cluster from 'cluster';
 import * as Sentry from '@sentry/node';
 
-import { logger, config, success } from 'utils';
+import { logger, config, success, error } from 'utils';
 import * as apps from './apps';
 import manage from './manage';
 import categories from './categories';
@@ -136,7 +136,9 @@ export function setup() {
     return res.redirect('/login');
   });
 
-  // TODO proper 404 page
+  app.use((req: Request, res: Response) => {
+    return error(res, 'Route not found', 404);
+  });
 
   app.server = app.listen(config.server.port, config.server.ip);
   logger.debug(`listening on ${config.server.ip}:${config.server.port}`);
