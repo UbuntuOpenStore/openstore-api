@@ -79,9 +79,6 @@ export function setup() {
   app.use(passport.session());
   app.use(Sentry.Handlers.errorHandler());
 
-  // TODO remove this
-  app.use('/api/screenshot', apps.screenshot);
-
   app.use('/auth', auth);
   app.use('/api/users', users);
   app.use('/rss', rss);

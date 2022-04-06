@@ -14,7 +14,6 @@ import {
   Channel,
   PackageModel,
   PackageStats,
-  PackageFindOneFilters,
   PackageQueryReturn,
 } from './types';
 
@@ -167,6 +166,7 @@ export function setupStatics(packageSchema: Schema<PackageDoc, PackageModel>) {
     types,
     ids,
     frameworks,
+    architecture,
     architectures,
     category,
     author,
@@ -191,9 +191,26 @@ export function setupStatics(packageSchema: Schema<PackageDoc, PackageModel>) {
     }
 
     if (frameworks && frameworks.length > 0) {
-      query.framework = {
-        $in: frameworks,
-      };
+      if (Array.isArray(frameworks)) {
+        query.framework = {
+          $in: frameworks,
+        };
+      }
+      else {
+        query.framework = { $in: frameworks.split(',') };
+      }
+    }
+
+    if (architecture) {
+      const arches = [architecture];
+      if (architecture != Architecture.ALL) {
+        arches.push(Architecture.ALL);
+      }
+
+      query.$or = [
+        { architecture: { $in: arches } },
+        { architectures: { $in: arches } },
+      ];
     }
 
     if (architectures && architectures.length > 0) {
@@ -277,36 +294,10 @@ export function setupStatics(packageSchema: Schema<PackageDoc, PackageModel>) {
 
   packageSchema.statics.findOneByFilters = async function(
     id: string,
-    { published, frameworks, architecture, maintainer }: PackageFindOneFilters = {},
+    filters: PackageRequestFilters = {},
   ): Promise<PackageQueryReturn | null> {
-    // TODO make this use this.parseFilters()
-    const query: FilterQuery<PackageDoc> = {
-      id,
-    };
-
-    if (published) {
-      query.published = published;
-    }
-
-    if (frameworks && frameworks.length > 0) {
-      query.framework = { $in: frameworks.split(',') };
-    }
-
-    if (architecture) {
-      const architectures = [architecture];
-      if (architecture != Architecture.ALL) {
-        architectures.push(Architecture.ALL);
-      }
-
-      query.$or = [
-        { architecture: { $in: architectures } },
-        { architectures: { $in: architectures } },
-      ];
-    }
-
-    if (maintainer) {
-      query.maintainer = maintainer;
-    }
+    const query = this.parseFilters(filters);
+    query.id = id;
 
     const result = await this.findOne(query).populate('rating_counts');
     return result;

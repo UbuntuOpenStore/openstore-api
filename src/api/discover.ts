@@ -36,7 +36,6 @@ function checkFramework(discover: DiscoverData, frameworks: string[]) {
   return discover;
 }
 
-// TODO return slim version of the pkg json
 router.get('/', async(req: Request, res: Response) => {
   const frameworks = getDataArray(req, 'frameworks', defaultFrameworks);
 

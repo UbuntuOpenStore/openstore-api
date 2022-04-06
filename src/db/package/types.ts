@@ -136,7 +136,8 @@ export type PackageRequestFilters = {
   sort?: string;
   types?: PackageType[];
   ids?: string[];
-  frameworks?: string[];
+  frameworks?: string[] | string;
+  architecture?: Architecture;
   architectures?: Architecture[];
   category?: string;
   author?: string;
@@ -145,14 +146,6 @@ export type PackageRequestFilters = {
   nsfw?: (boolean | null)[];
   maintainer?: string;
   published?: boolean;
-}
-
-// TODO merge this with PackageRequestFilters
-export type PackageFindOneFilters = {
-  published?: boolean;
-  frameworks?: string;
-  architecture?: Architecture;
-  maintainer?: string;
 }
 
 export interface PackageSchema {
@@ -260,5 +253,5 @@ export interface PackageModel extends Model<PackageDoc> {
   parseFilters(filters: PackageRequestFilters): FilterQuery<PackageDoc>;
   countByFilters(filters: PackageRequestFilters): Promise<number>;
   findByFilters(filters: PackageRequestFilters, sort?: string, limit?: number, skip?: number): Promise<PackageQueryReturn[]>;
-  findOneByFilters(id: string, filters?: PackageFindOneFilters): Promise<PackageQueryReturn | null>;
+  findOneByFilters(id: string, filters?: PackageRequestFilters): Promise<PackageQueryReturn | null>;
 }
