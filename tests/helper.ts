@@ -37,19 +37,21 @@ before(async function() {
 });
 
 beforeEach(async function() {
-  // Clean out the database
-  const collections = await mongoose.connection.db.listCollections().toArray();
+  if (process.env.SNAPSHOT_TEST !== 'true') {
+    // Clean out the database
+    const collections = await mongoose.connection.db.listCollections().toArray();
 
-  await Promise.all(collections.map(({ name }) => {
-    if (name == 'system.profile') {
-      return null;
-    }
+    await Promise.all(collections.map(({ name }) => {
+      if (name == 'system.profile') {
+        return null;
+      }
 
-    const collection = mongoose.connection.db.collection(name);
-    return collection.deleteMany({});
-  }));
+      const collection = mongoose.connection.db.collection(name);
+      return collection.deleteMany({});
+    }));
 
-  this.user = await factory.user({ role: 'admin' });
+    this.user = await factory.user({ role: 'admin' });
+  }
 });
 
 after(function() {

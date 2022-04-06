@@ -44,15 +44,16 @@ if (process.env.NODE_ENV === 'testing') {
     ...configuration,
     mongo: {
       uri: 'mongodb://127.0.0.1:27017',
-      database: 'openstore-test',
+      database: process.env.SNAPSHOT_TEST === 'true' ? 'openstore' : 'openstore-test',
     },
     server: {
       ...configuration.server,
+      host: process.env.SNAPSHOT_TEST === 'true' ? 'https://open-store.io' : configuration.server.host,
       port: 8888,
     },
     elasticsearch: {
       uri: 'http://127.0.0.1:9200/',
-      index: 'openstore_test',
+      index: process.env.SNAPSHOT_TEST === 'true' ? 'openstore_packages' : 'openstore_test',
     },
   };
 }

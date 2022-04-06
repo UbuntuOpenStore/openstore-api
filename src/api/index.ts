@@ -136,6 +136,8 @@ export function setup() {
     return res.redirect('/login');
   });
 
+  // TODO proper 404 page
+
   app.server = app.listen(config.server.port, config.server.ip);
   logger.debug(`listening on ${config.server.ip}:${config.server.port}`);
 
