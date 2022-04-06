@@ -1,7 +1,7 @@
 import factory from './factory';
 
 import { expect } from './helper';
-import PackageRepo from '../src/db/package/repo';
+import { Package } from '../src/db/package';
 import { RatingCount } from '../src/db/rating_count';
 import discoverJSON from '../src/api/json/discover_apps.json';
 import { Architecture, DEFAULT_CHANNEL } from '../src/db/package/types';
@@ -51,7 +51,7 @@ describe('Discover API', () => {
   });
 
   it('returns a nice error', async function() {
-    const findStub = this.sandbox.stub(PackageRepo, 'find').rejects();
+    const findStub = this.sandbox.stub(Package, 'findByFilters').rejects();
 
     const res = await this.get(this.route, false).expect(500);
     expect(res.body.success).to.be.false;

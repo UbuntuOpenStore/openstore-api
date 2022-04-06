@@ -6,10 +6,8 @@ import express, { Request, Response } from 'express';
 import fs from 'fs/promises';
 import { Lock, LockDoc } from 'db/lock';
 import { PackageDoc, Architecture, Channel, DEFAULT_CHANNEL, PackageFindOneFilters } from 'db/package/types';
-import Package from 'db/package/model';
-import PackageRepo from 'db/package/repo';
+import { Package } from 'db/package';
 import PackageSearch from 'db/package/search';
-import { serialize } from 'db/package/serializer';
 import { success, error, captureException, sanitize, moveFile, apiLinks, sha512Checksum, logger, config } from 'utils';
 import * as clickParser from 'utils/click-parser-async';
 import * as reviewPackage from 'utils/review-package';
@@ -116,16 +114,16 @@ async function updateScreenshotFiles(pkg: PackageDoc, screenshotFiles: File[]) {
 }
 
 router.get('/', authenticate, userRole, async(req: Request, res: Response) => {
-  const filters = PackageRepo.parseRequestFilters(req);
+  const filters = Package.parseRequestFilters(req);
   if (!req.isAdminUser) {
     filters.maintainer = req.user!._id;
   }
 
   try {
-    const pkgs = await PackageRepo.find(filters, filters.sort, filters.limit, filters.skip);
-    const count = await PackageRepo.count(filters);
+    const pkgs = await Package.findByFilters(filters, filters.sort, filters.limit, filters.skip);
+    const count = await Package.countByFilters(filters);
 
-    const formatted = pkgs.map((pkg) => serialize(pkg));
+    const formatted = pkgs.map((pkg) => pkg.serialize());
     const { next, previous } = apiLinks(req.originalUrl, formatted.length, filters.limit, filters.skip);
     return success(res, { count, next, previous, packages: formatted });
   }
@@ -143,9 +141,9 @@ router.get('/:id', authenticate, userRole, async(req: Request, res: Response) =>
   }
 
   try {
-    const pkg = await PackageRepo.findOne(req.params.id, filters);
+    const pkg = await Package.findOneByFilters(req.params.id, filters);
     if (pkg) {
-      return success(res, serialize(pkg));
+      return success(res, pkg.serialize());
     }
 
     return error(res, APP_NOT_FOUND, 404);
@@ -178,7 +176,7 @@ router.post(
     }
 
     try {
-      const existing = await PackageRepo.findOne(id);
+      const existing = await Package.findOneByFilters(id);
       if (existing) {
         return error(res, DUPLICATE_PACKAGE, 400);
       }
@@ -205,7 +203,7 @@ router.post(
       pkg.maintainer_name = req.user!.name ? req.user!.name : req.user!.username;
       pkg = await pkg.save();
 
-      return success(res, serialize(pkg));
+      return success(res, pkg.serialize());
     }
     catch (err) {
       logger.error('Error parsing new package');
@@ -240,7 +238,7 @@ router.put(
         delete req.body.type_override;
       }
 
-      let pkg = await PackageRepo.findOne(req.params.id);
+      let pkg = await Package.findOneByFilters(req.params.id);
       if (!pkg) {
         return error(res, APP_NOT_FOUND, 404);
       }
@@ -273,7 +271,7 @@ router.put(
         await PackageSearch.remove(pkg);
       }
 
-      return success(res, serialize(pkg));
+      return success(res, pkg.serialize());
     }
     catch (err) {
       logger.error('Error updating package');
@@ -289,7 +287,7 @@ router.delete(
   userRole,
   async(req: Request, res: Response) => {
     try {
-      const pkg = await PackageRepo.findOne(req.params.id);
+      const pkg = await Package.findOneByFilters(req.params.id);
       if (!pkg) {
         return error(res, APP_NOT_FOUND, 404);
       }
@@ -340,7 +338,7 @@ router.post(
     try {
       lock = await Lock.acquire(`revision-${req.params.id}`);
 
-      let pkg = await PackageRepo.findOne(req.params.id);
+      let pkg = await Package.findOneByFilters(req.params.id);
       if (!pkg) {
         await Lock.release(lock, req);
         return error(res, APP_NOT_FOUND, 404);
@@ -473,7 +471,7 @@ router.post(
       }
 
       await Lock.release(lock, req);
-      return success(res, serialize(pkg));
+      return success(res, pkg.serialize());
     }
     catch (err) {
       if (lock) {

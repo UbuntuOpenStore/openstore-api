@@ -2,7 +2,7 @@ import { DEFAULT_CHANNEL } from 'db/package/types';
 import factory from './factory';
 
 import { expect } from './helper';
-import PackageRepo from '../src/db/package/repo';
+import { Package } from '../src/db/package';
 import * as messages from '../src/api/error-messages';
 
 describe('Apps API', () => {
@@ -64,7 +64,7 @@ describe('Apps API', () => {
     });
 
     it('fails gracefully', async function() {
-      const findOneStub = this.sandbox.stub(PackageRepo, 'findOne').rejects();
+      const findOneStub = this.sandbox.stub(Package, 'findOneByFilters').rejects();
 
       const res = await this.get(`${this.route}${this.package1.id}`, false).expect(500);
 
@@ -109,7 +109,7 @@ describe('Apps API', () => {
     });
 
     it('fails gracefully', async function() {
-      const findStub = this.sandbox.stub(PackageRepo, 'find').rejects();
+      const findStub = this.sandbox.stub(Package, 'findByFilters').rejects();
 
       const res = await this.get(this.route, false).expect(500);
 
@@ -183,7 +183,7 @@ describe('Apps API', () => {
     });
 
     it('fails gracefully', async function() {
-      const findStub = this.sandbox.stub(PackageRepo, 'findOne').rejects();
+      const findStub = this.sandbox.stub(Package, 'findOneByFilters').rejects();
 
       const res = await this.get(`${this.route}${this.package4.id}/download/${DEFAULT_CHANNEL}/armhf`, false).expect(500);
 

@@ -4,6 +4,8 @@ import { config } from 'utils';
 import { PackageDoc, PackageRequestFilters, PackageSchema } from './types';
 
 // Modified from https://github.com/bhdouglass/uappexplorer/blob/master/src/db/elasticsearch/elasticsearch.js
+
+// TODO make this a class & export it not as default
 export default {
   // https://stackoverflow.com/a/68631678
   client: new elasticsearch.Client({ host: config.elasticsearch.uri, apiVersion: '6.8', ssl: { rejectUnauthorized: false, pfx: [] } }),

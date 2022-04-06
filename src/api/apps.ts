@@ -4,9 +4,8 @@ import express, { Request, Response } from 'express';
 import fsPromise from 'fs/promises';
 import fs from 'fs';
 import { Architecture, Channel, DEFAULT_CHANNEL, PackageDoc } from 'db/package/types';
-import PackageRepo from 'db/package/repo';
+import { Package } from 'db/package';
 import PackageSearch from 'db/package/search';
-import { serialize } from 'db/package/serializer';
 import { RatingCount } from 'db/rating_count';
 import { success, error, captureException, getData, apiLinks, logger } from 'utils';
 import reviews from './reviews';
@@ -18,19 +17,19 @@ const screenshotRouter = express.Router();
 const statsRouter = express.Router();
 
 async function apps(req: Request, res: Response) {
-  const filters = PackageRepo.parseRequestFilters(req);
+  const filters = Package.parseRequestFilters(req);
   let count = 0;
   let pkgs: PackageDoc[] = [];
 
   try {
     if (filters.search && filters.search.indexOf('author:') !== 0) {
       const results = await PackageSearch.search(filters, filters.sort, filters.skip, filters.limit);
-      pkgs = results.hits.hits.map((hit: any) => hit._source);
+      const hits = results.hits.hits.map((hit: any) => hit._source);
       count = results.hits.total;
 
-      const ids = pkgs.map((pkg) => pkg.id);
+      const ids = hits.map((pkg: any) => pkg.id);
       if (req.query.full) {
-        pkgs = await PackageRepo.find({ ids });
+        pkgs = await Package.findByFilters({ ids });
 
         // Maintain ordering from the elastic search results
         pkgs.sort((a, b) => ids.indexOf(a.id) - ids.indexOf(b.id));
@@ -39,21 +38,29 @@ async function apps(req: Request, res: Response) {
         // Get the ratings
         const ratingCounts = await RatingCount.getCountsByIds(ids);
 
-        pkgs = pkgs.map((pkg) => {
-          return {
+        pkgs = hits.map((pkg: any) => {
+          return new Package({
             ...pkg,
             rating_counts: ratingCounts[pkg.id] || [],
-          };
+          });
         });
       }
     }
     else {
       const publishedFilters = { ...filters, published: true };
-      pkgs = await PackageRepo.find(publishedFilters, publishedFilters.sort, publishedFilters.limit, publishedFilters.skip);
-      count = await PackageRepo.count(publishedFilters);
+      pkgs = await Package.findByFilters(publishedFilters, publishedFilters.sort, publishedFilters.limit, publishedFilters.skip);
+      count = await Package.countByFilters(publishedFilters);
     }
 
-    const formatted = serialize(pkgs, !req.query.full, getData(req, 'architecture', Architecture.ARMHF), req.apiVersion);
+    const arch = getData(req, 'architecture', Architecture.ARMHF);
+    const formatted = pkgs.map((pkg) => {
+      if (req.query.full) {
+        return pkg.serialize(arch, req.apiVersion);
+      }
+
+      return pkg.serializeSlim();
+    });
+
     const { next, previous } = apiLinks(req.originalUrl, Array.isArray(formatted) ? formatted.length : 0, filters.limit, filters.skip);
     return success(res, { count, next, previous, packages: formatted });
   }
@@ -67,16 +74,16 @@ async function apps(req: Request, res: Response) {
 router.get('/', apps);
 router.post('/', apps);
 
-statsRouter.get('/', async(req: Request, res: Response) => success(res, await PackageRepo.stats()));
+statsRouter.get('/', async(req: Request, res: Response) => success(res, await Package.stats()));
 
 router.get('/:id', async(req: Request, res: Response) => {
   try {
     req.query.published = 'true';
-    const pkg = await PackageRepo.findOne(req.params.id, req.query);
+    const pkg = await Package.findOneByFilters(req.params.id, req.query);
 
     if (pkg) {
       const arch = getData(req, 'architecture', Architecture.ARMHF);
-      return success(res, serialize(pkg, false, arch, req.apiVersion));
+      return success(res, pkg.serialize(arch, req.apiVersion));
     }
 
     return error(res, APP_NOT_FOUND, 404);
@@ -90,7 +97,7 @@ router.get('/:id', async(req: Request, res: Response) => {
 
 async function download(req: Request, res: Response) {
   try {
-    const pkg = await PackageRepo.findOne(req.params.id, { published: true });
+    const pkg = await Package.findOneByFilters(req.params.id, { published: true });
     if (!pkg) {
       return error(res, APP_NOT_FOUND, 404);
     }
@@ -119,7 +126,7 @@ async function download(req: Request, res: Response) {
 
     fs.createReadStream(revisionData.download_url).pipe(res);
 
-    return await PackageRepo.incrementDownload(pkg._id, revisionIndex);
+    return await Package.incrementDownload(pkg._id, revisionIndex);
   }
   catch (err) {
     logger.error('Error downloading package');

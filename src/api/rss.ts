@@ -1,8 +1,7 @@
 import RSS from 'rss';
 import express, { Request, Response } from 'express';
 
-import PackageRepo from 'db/package/repo';
-import { iconUrl } from 'db/package/serializer';
+import { Package } from 'db/package';
 import { logger, config, error, captureException } from 'utils';
 
 const router = express.Router();
@@ -25,7 +24,7 @@ async function generateFeed(req: Request, res: Response, updates: boolean) {
 
   try {
     const sort = updates ? '-updated_date' : '-published_date';
-    const pkgs = await PackageRepo.find({ published: true }, sort, 10);
+    const pkgs = await Package.findByFilters({ published: true }, sort, 10);
 
     pkgs.forEach((pkg) => {
       let changelog = '';
@@ -46,7 +45,7 @@ async function generateFeed(req: Request, res: Response, updates: boolean) {
       feed.item({
         title,
         url,
-        description: `<a href="${url}"><img src="${iconUrl(pkg)}" /></a>${changelog}${description}`,
+        description: `<a href="${url}"><img src="${pkg.icon_url}" /></a>${changelog}${description}`,
         author: pkg.author,
         date: pkg.updated_date!,
         custom_elements: [{ tagline: pkg.tagline ? pkg.tagline : '' }],

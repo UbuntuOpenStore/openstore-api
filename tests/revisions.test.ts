@@ -1,7 +1,7 @@
 import factory from './factory';
 
 import { expect } from './helper';
-import PackageRepo from '../src/db/package/repo';
+import { Package } from '../src/db/package';
 import { Architecture, Channel, RevisionDoc } from '../src/db/package/types';
 
 describe('Revisions GET', () => {
@@ -177,7 +177,7 @@ describe('Revisions GET', () => {
   });
 
   it('fails gracefully', async function() {
-    const findStub = this.sandbox.stub(PackageRepo, 'find').rejects();
+    const findStub = this.sandbox.stub(Package, 'findByFilters').rejects();
 
     const res = await this.get(this.makeUrl()).expect(500);
 

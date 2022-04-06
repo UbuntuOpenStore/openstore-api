@@ -2,7 +2,7 @@ import path from 'path';
 import factory from './factory';
 
 import { expect } from './helper';
-import PackageRepo from '../src/db/package/repo';
+import { Package } from '../src/db/package';
 import PackageSearch from '../src/db/package/search';
 import * as messages from '../src/api/error-messages';
 
@@ -78,7 +78,7 @@ describe('Manage GET', () => {
     });
 
     it('fails gracefully', async function() {
-      const findStub = this.sandbox.stub(PackageRepo, 'find').rejects();
+      const findStub = this.sandbox.stub(Package, 'findByFilters').rejects();
 
       const res = await this.get(this.route).expect(500);
 
@@ -137,7 +137,7 @@ describe('Manage GET id', () => {
     });
 
     it('fails gracefully', async function() {
-      const findStub = this.sandbox.stub(PackageRepo, 'findOne').rejects();
+      const findStub = this.sandbox.stub(Package, 'findOneByFilters').rejects();
 
       const res = await this.get(`${this.route}/${this.package.id}`).expect(404);
 
@@ -326,7 +326,7 @@ describe('Manage POST', () => {
       expect(res.body.data.id).to.equal('app.dev');
       expect(res.body.data.name).to.equal('App Dev');
 
-      const pkg = await PackageRepo.findOne('app.dev');
+      const pkg = await Package.findOneByFilters('app.dev');
       expect(pkg).to.exist;
       expect(pkg?.id).to.equal('app.dev');
       expect(pkg?.name).to.equal('App Dev');
@@ -336,7 +336,7 @@ describe('Manage POST', () => {
     });
 
     it('fails gracefully', async function() {
-      const findStub = this.sandbox.stub(PackageRepo, 'findOne').rejects();
+      const findStub = this.sandbox.stub(Package, 'findOneByFilters').rejects();
 
       const res = await this.post(this.route)
         .send({ id: 'app.dev', name: 'App Dev' })
@@ -385,7 +385,7 @@ describe('Manage PUT', () => {
       expect(res.body.data.locked).to.be.true;
       expect(this.removeStub).to.have.been.calledOnce;
 
-      const pkg = await PackageRepo.findOne(this.package.id);
+      const pkg = await Package.findOneByFilters(this.package.id);
       expect(pkg?.maintainer).to.equal(user2._id.toString());
     });
 
@@ -398,7 +398,7 @@ describe('Manage PUT', () => {
       expect(res.body.data.name).to.equal('Foo Bar');
       expect(this.removeStub).to.have.been.calledOnce;
 
-      const pkg = await PackageRepo.findOne(this.package2.id);
+      const pkg = await Package.findOneByFilters(this.package2.id);
       expect(pkg?.name).to.equal('Foo Bar');
     });
 
@@ -414,7 +414,7 @@ describe('Manage PUT', () => {
       expect(res.body.data.name).to.equal('Foo Bar');
       expect(this.removeStub).to.have.been.calledOnce;
 
-      const pkg = await PackageRepo.findOne(this.package2.id);
+      const pkg = await Package.findOneByFilters(this.package2.id);
       expect(pkg?.name).to.equal('Foo Bar');
     });
   });
@@ -463,7 +463,7 @@ describe('Manage PUT', () => {
       expect(res.body.data.name).to.equal('Foo Bar');
       expect(this.removeStub).to.have.been.calledOnce;
 
-      const pkg = await PackageRepo.findOne(this.package.id);
+      const pkg = await Package.findOneByFilters(this.package.id);
       expect(pkg?.name).to.equal('Foo Bar');
     });
 
@@ -478,12 +478,12 @@ describe('Manage PUT', () => {
       expect(res.body.success).to.be.true;
       expect(this.upsertStub).to.have.been.calledOnce;
 
-      const pkg = await PackageRepo.findOne(this.package.id);
+      const pkg = await Package.findOneByFilters(this.package.id);
       expect(pkg?.published).to.be.true;
     });
 
     it('fails gracefully', async function() {
-      const findStub = this.sandbox.stub(PackageRepo, 'findOne').rejects();
+      const findStub = this.sandbox.stub(Package, 'findOneByFilters').rejects();
 
       const res = await this.put(`${this.route}/${this.package.id}`).expect(500);
 
@@ -503,7 +503,7 @@ describe('Manage PUT', () => {
       expect(res.body.success).to.be.false;
       expect(res.body.message).to.equal(messages.APP_LOCKED);
 
-      const pkg = await PackageRepo.findOne(this.package.id);
+      const pkg = await Package.findOneByFilters(this.package.id);
       expect(pkg?.published).to.be.false;
       expect(pkg?.locked).to.be.true;
     });
@@ -521,7 +521,7 @@ describe('Manage PUT', () => {
       expect(res.body.success).to.be.true;
       expect(res.body.data.screenshots).to.have.lengthOf(5);
 
-      const pkg = await PackageRepo.findOne(this.package.id);
+      const pkg = await Package.findOneByFilters(this.package.id);
       expect(pkg?.screenshots).to.have.lengthOf(5);
     });
 
@@ -534,7 +534,7 @@ describe('Manage PUT', () => {
       expect(res.body.success).to.be.true;
       expect(res.body.data.screenshots).to.have.lengthOf(1);
 
-      const pkg = await PackageRepo.findOne(this.package.id);
+      const pkg = await Package.findOneByFilters(this.package.id);
       expect(pkg?.screenshots).to.have.lengthOf(1);
     });
 
@@ -554,7 +554,7 @@ describe('Manage PUT', () => {
       expect(res2.body.success).to.be.true;
       expect(res2.body.data.screenshots).to.have.lengthOf(0);
 
-      const pkg = await PackageRepo.findOne(this.package.id);
+      const pkg = await Package.findOneByFilters(this.package.id);
       expect(pkg?.screenshots).to.have.lengthOf(0);
     });
 
@@ -579,7 +579,7 @@ describe('Manage PUT', () => {
       expect(res2.body.data.screenshots[0]).to.equal(res.body.data.screenshots[1]);
       expect(res2.body.data.screenshots[1]).to.equal(res.body.data.screenshots[0]);
 
-      const pkg = await PackageRepo.findOne(this.package.id);
+      const pkg = await Package.findOneByFilters(this.package.id);
       expect(pkg?.screenshots).to.have.lengthOf(2);
       expect(pkg?.screenshots[0]).to.equal(res.body.data.screenshots[1].replace('http://local.open-store.io/screenshots/', ''));
       expect(pkg?.screenshots[1]).to.equal(res.body.data.screenshots[0].replace('http://local.open-store.io/screenshots/', ''));
@@ -605,7 +605,7 @@ describe('Manage DELETE', () => {
     it('can delete any package', async function() {
       await this.delete(`${this.route}/${this.package.id}`).expect(200);
 
-      const pkg = await PackageRepo.findOne(this.package.id);
+      const pkg = await Package.findOneByFilters(this.package.id);
       expect(pkg).to.be.null;
     });
   });
@@ -634,12 +634,12 @@ describe('Manage DELETE', () => {
     it('deletes a package', async function() {
       await this.delete(`${this.route}/${this.package.id}`).expect(200);
 
-      const pkg = await PackageRepo.findOne(this.package.id);
+      const pkg = await Package.findOneByFilters(this.package.id);
       expect(pkg).to.be.null;
     });
 
     it('fails gracefully', async function() {
-      const findStub = this.sandbox.stub(PackageRepo, 'findOne').rejects();
+      const findStub = this.sandbox.stub(Package, 'findOneByFilters').rejects();
 
       const res = await this.delete(`${this.route}/${this.package.id}`).expect(500);
 

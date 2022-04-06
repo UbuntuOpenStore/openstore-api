@@ -4,10 +4,9 @@ import { FilterQuery } from 'mongoose';
 
 import 'db/comment';
 import { error, success, captureException, getDataInt, apiLinks, logger } from 'utils';
-import PackageRepo from 'db/package/repo';
 import { Review, ReviewDoc, RATINGS, REVIEW_MAX_LEN, RATING_MAP, Ratings } from 'db/review';
 import { RatingCount } from 'db/rating_count';
-import Package from 'db/package/model';
+import { Package } from 'db/package';
 import { authenticate, anonymousAuthenticate, userRole } from 'middleware';
 import {
   APP_NOT_FOUND,
@@ -80,7 +79,7 @@ export async function recalculateRatings(pkgId: string) {
 
 async function getReviews(req: Request, res: Response) {
   try {
-    const pkg = await PackageRepo.findOne(req.params.id);
+    const pkg = await Package.findOneByFilters(req.params.id);
     if (!pkg) {
       return error(res, APP_NOT_FOUND, 404);
     }
@@ -138,7 +137,7 @@ async function postReview(req: Request, res: Response) {
     const message = req.body.body ? req.body.body.trim() : '';
     const version = req.body.version;
     const rating = req.body.rating;
-    const pkg = await PackageRepo.findOne(req.params.id);
+    const pkg = await Package.findOneByFilters(req.params.id);
 
     // Sanity checks
     if (!pkg) {

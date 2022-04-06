@@ -4,7 +4,7 @@ import fs from 'fs';
 import pLimit from 'p-limit';
 
 import 'db'; // Make sure the database connection gets setup
-import Package from 'db/package/model';
+import { Package } from 'db/package';
 import * as clickParser from 'utils/click-parser-async';
 import { RevisionDoc } from 'db/package/types';
 

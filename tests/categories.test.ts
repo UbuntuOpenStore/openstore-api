@@ -1,7 +1,7 @@
 import factory from './factory';
 
 import { expect } from './helper';
-import PackageRepo from '../src/db/package/repo';
+import { Package } from '../src/db/package';
 import categoryIcons from '../src/api/json/category_icons.json';
 import { DEFAULT_CHANNEL } from '../src/db/package/types';
 
@@ -37,7 +37,7 @@ describe('Categories API', () => {
   });
 
   it('throws a nice error', async function() {
-    const categoryStatsStub = this.sandbox.stub(PackageRepo, 'categoryStats').rejects();
+    const categoryStatsStub = this.sandbox.stub(Package, 'categoryStats').rejects();
 
     const res = await this.get(this.route, false).expect(500);
     expect(res.body.success).to.be.false;
