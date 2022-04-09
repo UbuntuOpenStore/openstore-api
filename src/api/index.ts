@@ -8,7 +8,8 @@ import cluster from 'cluster';
 import * as Sentry from '@sentry/node';
 
 import { logger, config, success, error } from 'utils';
-import * as apps from './apps';
+import apps from './apps';
+import stats from './stats';
 import manage from './manage';
 import categories from './categories';
 import discover from './discover';
@@ -83,14 +84,14 @@ export function setup() {
   app.use('/api/users', users);
   app.use('/rss', rss);
 
-  app.use('/api/v3/apps', apps.main);
-  app.use('/api/v3/stats', apps.stats);
+  app.use('/api/v3/apps', apps);
+  app.use('/api/v3/stats', stats);
   app.use('/api/v3/manage', manage);
   app.use('/api/v3/discover', discover);
   app.use('/api/v3/revisions', revisions);
   app.use('/api/v3/categories', categories);
 
-  app.use('/api/v4/apps', apps.main);
+  app.use('/api/v4/apps', apps);
   app.use('/api/v4/discover', discover);
   app.use('/api/v4/revisions', revisions);
 

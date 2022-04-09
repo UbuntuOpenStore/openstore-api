@@ -11,10 +11,7 @@ import { success, error, captureException, getData, apiLinks, logger } from 'uti
 import reviews from './reviews';
 import { APP_NOT_FOUND, DOWNLOAD_NOT_FOUND_FOR_CHANNEL, INVALID_CHANNEL, INVALID_ARCH } from './error-messages';
 
-// TODO properly namespace these so we only need one router
 const router = express.Router();
-const screenshotRouter = express.Router();
-const statsRouter = express.Router();
 
 async function apps(req: Request, res: Response) {
   const filters = Package.parseRequestFilters(req);
@@ -73,8 +70,6 @@ async function apps(req: Request, res: Response) {
 
 router.get('/', apps);
 router.post('/', apps);
-
-statsRouter.get('/', async(req: Request, res: Response) => success(res, await Package.stats()));
 
 router.get('/:id', async(req: Request, res: Response) => {
   try {
@@ -140,21 +135,4 @@ router.get('/:id/download/:channel/:arch/:version', download);
 
 router.use('/:id/reviews', reviews);
 
-// can be removed in next api version
-router.get('/:id/icon/:version', (req: Request, res: Response) => {
-  const id = req.params.id.replace('.png', '').replace('.svg', '').replace('.jpg', '').replace('.jpeg', '');
-
-  res.redirect(301, `/icons/${id}/${id}-${req.params.version || '0.0.0'}`);
-});
-
-// can be removed in next api version
-function getScreenshot(req: Request, res: Response) {
-  res.redirect(301, `/screenshots/${req.params.name}`);
-}
-
-screenshotRouter.get('/:name', getScreenshot);
-router.get('/:id/screenshot/:name', getScreenshot);
-
-export const main = router;
-export const screenshot = screenshotRouter;
-export const stats = statsRouter;
+export default router;
