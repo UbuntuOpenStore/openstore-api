@@ -11,7 +11,7 @@ import PackageSearch from 'db/package/search';
 import { success, error, captureException, sanitize, moveFile, apiLinks, sha512Checksum, logger, config } from 'utils';
 import * as clickParser from 'utils/click-parser-async';
 import * as reviewPackage from 'utils/review-package';
-import { authenticate, userRole, downloadFile, extendTimeout } from 'middleware';
+import { authenticate, userRole, downloadFile, extendTimeout, fetchPackage } from 'middleware';
 import {
   APP_NOT_FOUND,
   NEEDS_MANUAL_REVIEW,
@@ -33,7 +33,7 @@ import {
   NO_NON_ALL,
   MISMATCHED_FRAMEWORK,
   APP_LOCKED,
-} from './error-messages';
+} from '../utils/error-messages';
 
 const mupload = multer({ dest: '/tmp' });
 const router = express.Router();
@@ -134,24 +134,12 @@ router.get('/', authenticate, userRole, async(req: Request, res: Response) => {
   }
 });
 
-router.get('/:id', authenticate, userRole, async(req: Request, res: Response) => {
-  const filters: PackageRequestFilters = {};
-  if (!req.isAdminUser) {
-    filters.maintainer = req.user!._id;
+router.get('/:id', authenticate, userRole, fetchPackage(), async(req: Request, res: Response) => {
+  if (!req.isAdminUser && req.user!._id != req.pkg.maintainer) {
+    return error(res, PERMISSION_DENIED, 403);
   }
 
-  try {
-    const pkg = await Package.findOneByFilters(req.params.id, filters);
-    if (pkg) {
-      return success(res, pkg.serialize());
-    }
-
-    return error(res, APP_NOT_FOUND, 404);
-  }
-  catch (err) {
-    captureException(err, req.originalUrl);
-    return error(res, APP_NOT_FOUND, 404);
-  }
+  return success(res, req.pkg.serialize());
 });
 
 router.post(
@@ -226,6 +214,7 @@ router.put(
   authenticate,
   putUpload,
   userRole,
+  fetchPackage(),
   async(req: Request, res: Response) => {
     try {
       if (req.body && (!req.body.maintainer || req.body.maintainer == 'null')) {
@@ -238,31 +227,26 @@ router.put(
         delete req.body.type_override;
       }
 
-      let pkg = await Package.findOneByFilters(req.params.id);
-      if (!pkg) {
-        return error(res, APP_NOT_FOUND, 404);
-      }
-
-      if (!req.isAdminUser && req.user!._id != pkg.maintainer) {
+      if (!req.isAdminUser && req.user!._id != req.pkg.maintainer) {
         return error(res, PERMISSION_DENIED, 403);
       }
 
-      if (!req.isAdminUser && pkg.locked) {
+      if (!req.isAdminUser && req.pkg.locked) {
         return error(res, APP_LOCKED, 403);
       }
 
       const published = (req.body.published == 'true' || req.body.published === true);
-      if (published && pkg.revisions.length == 0) {
+      if (published && req.pkg.revisions.length == 0) {
         return error(res, NO_REVISIONS, 400);
       }
 
-      await pkg.updateFromBody(req.body);
+      await req.pkg.updateFromBody(req.body);
 
       if (req.files && !Array.isArray(req.files) && req.files.screenshot_files && req.files.screenshot_files.length > 0) {
-        await updateScreenshotFiles(pkg, req.files.screenshot_files);
+        await updateScreenshotFiles(req.pkg, req.files.screenshot_files);
       }
 
-      pkg = await pkg!.save();
+      const pkg = await req.pkg!.save();
 
       if (pkg.published) {
         await PackageSearch.upsert(pkg);
@@ -285,22 +269,18 @@ router.delete(
   '/:id',
   authenticate,
   userRole,
+  fetchPackage(),
   async(req: Request, res: Response) => {
     try {
-      const pkg = await Package.findOneByFilters(req.params.id);
-      if (!pkg) {
-        return error(res, APP_NOT_FOUND, 404);
-      }
-
-      if (!req.isAdminUser && req.user!._id != pkg.maintainer) {
+      if (!req.isAdminUser && req.user!._id != req.pkg.maintainer) {
         return error(res, PERMISSION_DENIED, 403);
       }
 
-      if (pkg.revisions.length > 0) {
+      if (req.pkg.revisions.length > 0) {
         return error(res, APP_HAS_REVISIONS, 400);
       }
 
-      await pkg.remove();
+      await req.pkg.remove();
       return success(res, {});
     }
     catch (err) {
@@ -338,6 +318,7 @@ router.post(
     try {
       lock = await Lock.acquire(`revision-${req.params.id}`);
 
+      // Not using the fetchPackage middleware because we need to lock before fetching the package
       let pkg = await Package.findOneByFilters(req.params.id);
       if (!pkg) {
         await Lock.release(lock, req);

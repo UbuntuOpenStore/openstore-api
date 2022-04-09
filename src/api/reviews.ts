@@ -7,7 +7,7 @@ import { error, success, captureException, getDataInt, apiLinks, logger } from '
 import { Review, ReviewDoc, RATINGS, REVIEW_MAX_LEN, RATING_MAP, Ratings } from 'db/review';
 import { RatingCount } from 'db/rating_count';
 import { Package } from 'db/package';
-import { authenticate, anonymousAuthenticate, userRole } from 'middleware';
+import { authenticate, anonymousAuthenticate, userRole, fetchPublishedPackage } from 'middleware';
 import {
   APP_NOT_FOUND,
   PARAMETER_MISSING,
@@ -18,7 +18,7 @@ import {
   NO_REVIEW_TO_EDIT,
   REVIEW_REDACTED,
   ALREADY_REVIEWED,
-} from './error-messages';
+} from '../utils/error-messages';
 
 const router = express.Router({ mergeParams: true });
 
@@ -79,11 +79,6 @@ export async function recalculateRatings(pkgId: string) {
 
 async function getReviews(req: Request, res: Response) {
   try {
-    const pkg = await Package.findOneByFilters(req.params.id);
-    if (!pkg) {
-      return error(res, APP_NOT_FOUND, 404);
-    }
-
     const skip = getDataInt(req, 'skip');
     let limit = getDataInt(req, 'limit', 10);
     if (limit < 0) {
@@ -93,7 +88,7 @@ async function getReviews(req: Request, res: Response) {
       limit = 100;
     }
 
-    const query: FilterQuery<ReviewDoc> = { pkg: pkg._id, redacted: false };
+    const query: FilterQuery<ReviewDoc> = { pkg: req.pkg._id, redacted: false };
 
     // Add given filter criteria
     const from = getDataInt(req, 'from');
@@ -137,16 +132,12 @@ async function postReview(req: Request, res: Response) {
     const message = req.body.body ? req.body.body.trim() : '';
     const version = req.body.version;
     const rating = req.body.rating;
-    const pkg = await Package.findOneByFilters(req.params.id);
 
     // Sanity checks
-    if (!pkg) {
-      return error(res, APP_NOT_FOUND, 404);
-    }
-    if (req.user!._id == pkg.maintainer) {
+    if (req.user!._id == req.pkg.maintainer) {
       return error(res, CANNOT_REVIEW_OWN_APP, 400);
     }
-    if (!pkg.revisions || !pkg.revisions.find((revision) => revision.version == version)) {
+    if (!req.pkg.revisions || !req.pkg.revisions.find((revision) => revision.version == version)) {
       return error(res, VERSION_NOT_FOUND, 404);
     }
     if (message.length > REVIEW_MAX_LEN) {
@@ -159,7 +150,7 @@ async function postReview(req: Request, res: Response) {
     let ownReview;
     if (req.method == 'PUT') {
       // If the request method is PUT, the user is editing his existing review
-      ownReview = await Review.findOne({ pkg: pkg._id, user: req.user!._id });
+      ownReview = await Review.findOne({ pkg: req.pkg._id, user: req.user!._id });
       if (!ownReview) {
         return error(res, NO_REVIEW_TO_EDIT, 400);
       }
@@ -169,11 +160,11 @@ async function postReview(req: Request, res: Response) {
     }
     else {
       // User is creating a new review
-      if (await Review.countDocuments({ user: req.user!._id, pkg: pkg._id }) != 0) {
+      if (await Review.countDocuments({ user: req.user!._id, pkg: req.pkg._id }) != 0) {
         return error(res, ALREADY_REVIEWED, 400);
       }
       ownReview = new Review();
-      ownReview.pkg = pkg._id;
+      ownReview.pkg = req.pkg._id;
       ownReview.user = req.user!._id;
       ownReview.redacted = false;
     }
@@ -184,7 +175,7 @@ async function postReview(req: Request, res: Response) {
     ownReview.date = new Date();
     ownReview = await ownReview.save();
 
-    await recalculateRatings(pkg._id);
+    await recalculateRatings(req.pkg._id);
 
     return success(res, { review_id: ownReview._id });
   }
@@ -195,8 +186,8 @@ async function postReview(req: Request, res: Response) {
   }
 }
 
-router.get('/', anonymousAuthenticate, getReviews);
-router.post('/', authenticate, userRole, postReview);
-router.put('/', authenticate, userRole, postReview);
+router.get('/', anonymousAuthenticate, fetchPublishedPackage(), getReviews);
+router.post('/', authenticate, userRole, fetchPublishedPackage(), postReview);
+router.put('/', authenticate, userRole, fetchPublishedPackage(), postReview);
 
 export default router;

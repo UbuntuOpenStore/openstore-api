@@ -8,8 +8,9 @@ import { Package } from 'db/package';
 import PackageSearch from 'db/package/search';
 import { RatingCount } from 'db/rating_count';
 import { success, error, captureException, getData, apiLinks, logger } from 'utils';
+import { fetchPublishedPackage } from 'middleware';
 import reviews from './reviews';
-import { APP_NOT_FOUND, DOWNLOAD_NOT_FOUND_FOR_CHANNEL, INVALID_CHANNEL, INVALID_ARCH } from './error-messages';
+import { DOWNLOAD_NOT_FOUND_FOR_CHANNEL, INVALID_CHANNEL, INVALID_ARCH } from '../utils/error-messages';
 
 const router = express.Router();
 
@@ -71,32 +72,13 @@ async function apps(req: Request, res: Response) {
 router.get('/', apps);
 router.post('/', apps);
 
-router.get('/:id', async(req: Request, res: Response) => {
-  try {
-    req.query.published = 'true';
-    const pkg = await Package.findOneByFilters(req.params.id, req.query);
-
-    if (pkg) {
-      const arch = getData(req, 'architecture', Architecture.ARMHF);
-      return success(res, pkg.serialize(arch, req.apiVersion));
-    }
-
-    return error(res, APP_NOT_FOUND, 404);
-  }
-  catch (err) {
-    logger.error('Error fetching packages');
-    captureException(err, req.originalUrl);
-    return error(res, 'Could not fetch app list at this time');
-  }
+router.get('/:id', fetchPublishedPackage(true), async(req: Request, res: Response) => {
+  const arch = getData(req, 'architecture', Architecture.ARMHF);
+  return success(res, req.pkg.serialize(arch, req.apiVersion));
 });
 
 async function download(req: Request, res: Response) {
   try {
-    const pkg = await Package.findOneByFilters(req.params.id, { published: true });
-    if (!pkg) {
-      return error(res, APP_NOT_FOUND, 404);
-    }
-
     const channel = req.params.channel ? req.params.channel.toLowerCase() as Channel : DEFAULT_CHANNEL;
     if (!Object.values(Channel).includes(channel)) {
       return error(res, INVALID_CHANNEL, 400);
@@ -108,7 +90,7 @@ async function download(req: Request, res: Response) {
     }
 
     const version = req.params.version && req.params.version != 'latest' ? req.params.version : undefined;
-    const { revisionData, revisionIndex } = pkg.getLatestRevision(channel, arch, true, undefined, version);
+    const { revisionData, revisionIndex } = req.pkg.getLatestRevision(channel, arch, true, undefined, version);
 
     if (!revisionData || !revisionData.download_url) {
       return error(res, DOWNLOAD_NOT_FOUND_FOR_CHANNEL, 404);
@@ -117,11 +99,12 @@ async function download(req: Request, res: Response) {
     const stat = await fsPromise.stat(revisionData.download_url);
     res.setHeader('Content-Length', stat.size);
     res.setHeader('Content-type', mime.getType(revisionData.download_url) ?? '');
-    res.setHeader('Content-Disposition', `attachment; filename=${pkg.id}_${revisionData.version}_${arch}.click`);
+    res.setHeader('Content-Disposition', `attachment; filename=${req.pkg.id}_${revisionData.version}_${arch}.click`);
 
+    // TODO let nginx handle this, making this just a 302
     fs.createReadStream(revisionData.download_url).pipe(res);
 
-    return await Package.incrementDownload(pkg._id, revisionIndex);
+    return await Package.incrementDownload(req.pkg._id, revisionIndex);
   }
   catch (err) {
     logger.error('Error downloading package');
@@ -130,8 +113,8 @@ async function download(req: Request, res: Response) {
   }
 }
 
-router.get('/:id/download/:channel/:arch', download);
-router.get('/:id/download/:channel/:arch/:version', download);
+router.get('/:id/download/:channel/:arch', fetchPublishedPackage(), download);
+router.get('/:id/download/:channel/:arch/:version', fetchPublishedPackage(), download);
 
 router.use('/:id/reviews', reviews);
 

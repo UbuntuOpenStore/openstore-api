@@ -8,7 +8,7 @@ import { Lock } from '../src/db/lock';
 import * as reviewPackage from '../src/utils/review-package';
 import * as clickParser from '../src/utils/click-parser-async';
 import PackageSearch from '../src/db/package/search';
-import * as messages from '../src/api/error-messages';
+import * as messages from '../src/utils/error-messages';
 
 describe('Manage Revision POST', () => {
   beforeEach(async function() {

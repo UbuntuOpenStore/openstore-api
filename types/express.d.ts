@@ -1,3 +1,4 @@
+import { PackageQueryReturn } from '../src/db/package';
 import { UserDoc } from '../src/db/user';
 
 declare global {
@@ -5,6 +6,7 @@ declare global {
     interface Request {
       apiVersion?: number;
       user?: UserDoc;
+      pkg: PackageQueryReturn;
       isAuthenticated(): boolean;
       logout(): void;
       isTrustedUser?: boolean;

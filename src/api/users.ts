@@ -3,7 +3,7 @@ import express, { Request, Response } from 'express';
 import { User } from 'db/user';
 import { error, success, captureException } from 'utils';
 import { authenticate, adminOnly } from 'middleware';
-import { USER_NOT_FOUND } from './error-messages';
+import { USER_NOT_FOUND } from '../utils/error-messages';
 
 const router = express.Router();
 

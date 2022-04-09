@@ -4,7 +4,7 @@ import factory from './factory';
 import { expect } from './helper';
 import { Package } from '../src/db/package';
 import PackageSearch from '../src/db/package/search';
-import * as messages from '../src/api/error-messages';
+import * as messages from '../src/utils/error-messages';
 
 describe('Manage GET', () => {
   before(function() {
@@ -133,13 +133,13 @@ describe('Manage GET id', () => {
     });
 
     it('can not see other apps', async function() {
-      await this.get(`${this.route}/${this.package2.id}`).expect(404);
+      await this.get(`${this.route}/${this.package2.id}`).expect(403);
     });
 
     it('fails gracefully', async function() {
       const findStub = this.sandbox.stub(Package, 'findOneByFilters').rejects();
 
-      const res = await this.get(`${this.route}/${this.package.id}`).expect(404);
+      const res = await this.get(`${this.route}/${this.package.id}`).expect(500);
 
       expect(res.body.success).to.be.false;
       expect(findStub).to.have.been.calledOnce;

@@ -3,7 +3,7 @@ import factory from './factory';
 
 import { expect } from './helper';
 import { Package } from '../src/db/package';
-import * as messages from '../src/api/error-messages';
+import * as messages from '../src/utils/error-messages';
 
 describe('Apps API', () => {
   before(function() {
