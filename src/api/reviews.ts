@@ -9,7 +9,6 @@ import { RatingCount } from 'db/rating_count';
 import { Package } from 'db/package';
 import { authenticate, anonymousAuthenticate, userRole, fetchPublishedPackage } from 'middleware';
 import {
-  APP_NOT_FOUND,
   PARAMETER_MISSING,
   REVIEW_TOO_LONG,
   INVALID_RATING,

@@ -146,8 +146,16 @@ export function setupStatics(packageSchema: Schema<PackageDoc, PackageModel>) {
       }
     }
 
+    let limit = getDataInt(req, 'limit', 30);
+    if (limit > 100) {
+      limit = 100;
+    }
+    else if (limit <= 0) {
+      limit = 30;
+    }
+
     return {
-      limit: getDataInt(req, 'limit', 0),
+      limit,
       skip: getDataInt(req, 'skip', 0),
       sort: getData(req, 'sort', 'relevance'),
       types: uniq(types),

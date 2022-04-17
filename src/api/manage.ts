@@ -5,7 +5,7 @@ import express, { Request, Response } from 'express';
 
 import fs from 'fs/promises';
 import { Lock, LockDoc } from 'db/lock';
-import { PackageDoc, Architecture, Channel, DEFAULT_CHANNEL, PackageRequestFilters } from 'db/package/types';
+import { PackageDoc, Architecture, Channel, DEFAULT_CHANNEL } from 'db/package/types';
 import { Package } from 'db/package';
 import PackageSearch from 'db/package/search';
 import { success, error, captureException, sanitize, moveFile, apiLinks, sha512Checksum, logger, config } from 'utils';
