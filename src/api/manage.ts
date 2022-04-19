@@ -11,7 +11,7 @@ import PackageSearch from 'db/package/search';
 import { success, error, captureException, sanitize, moveFile, apiLinks, sha512Checksum, logger, config } from 'utils';
 import * as clickParser from 'utils/click-parser-async';
 import * as reviewPackage from 'utils/review-package';
-import { authenticate, userRole, downloadFile, extendTimeout, fetchPackage } from 'middleware';
+import { authenticate, userRole, downloadFile, extendTimeout, fetchPackage, canManage, canManageLocked } from 'middleware';
 import {
   APP_NOT_FOUND,
   NEEDS_MANUAL_REVIEW,
@@ -134,11 +134,7 @@ router.get('/', authenticate, userRole, async(req: Request, res: Response) => {
   }
 });
 
-router.get('/:id', authenticate, userRole, fetchPackage(), async(req: Request, res: Response) => {
-  if (!req.isAdminUser && req.user!._id != req.pkg.maintainer) {
-    return error(res, PERMISSION_DENIED, 403);
-  }
-
+router.get('/:id', authenticate, userRole, fetchPackage(), canManage, async(req: Request, res: Response) => {
   return success(res, req.pkg.serialize());
 });
 
@@ -215,6 +211,7 @@ router.put(
   putUpload,
   userRole,
   fetchPackage(),
+  canManageLocked,
   async(req: Request, res: Response) => {
     try {
       if (req.body && (!req.body.maintainer || req.body.maintainer == 'null')) {
@@ -225,14 +222,6 @@ router.put(
         delete req.body.maintainer;
         delete req.body.locked;
         delete req.body.type_override;
-      }
-
-      if (!req.isAdminUser && req.user!._id != req.pkg.maintainer) {
-        return error(res, PERMISSION_DENIED, 403);
-      }
-
-      if (!req.isAdminUser && req.pkg.locked) {
-        return error(res, APP_LOCKED, 403);
       }
 
       const published = (req.body.published == 'true' || req.body.published === true);
@@ -270,12 +259,9 @@ router.delete(
   authenticate,
   userRole,
   fetchPackage(),
+  canManageLocked,
   async(req: Request, res: Response) => {
     try {
-      if (!req.isAdminUser && req.user!._id != req.pkg.maintainer) {
-        return error(res, PERMISSION_DENIED, 403);
-      }
-
       if (req.pkg.revisions.length > 0) {
         return error(res, APP_HAS_REVISIONS, 400);
       }
