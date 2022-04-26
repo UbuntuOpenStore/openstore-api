@@ -8,7 +8,7 @@ import { Lock, LockDoc } from 'db/lock';
 import { PackageDoc, Architecture, Channel, DEFAULT_CHANNEL } from 'db/package/types';
 import { Package } from 'db/package';
 import PackageSearch from 'db/package/search';
-import { success, error, captureException, sanitize, moveFile, apiLinks, sha512Checksum, logger, config } from 'utils';
+import { success, error, captureException, sanitize, moveFile, apiLinks, sha512Checksum, logger, config, asyncErrorWrapper } from 'utils';
 import * as clickParser from 'utils/click-parser-async';
 import * as reviewPackage from 'utils/review-package';
 import { authenticate, userRole, downloadFile, extendTimeout, fetchPackage, canManage, canManageLocked } from 'middleware';
@@ -113,26 +113,19 @@ async function updateScreenshotFiles(pkg: PackageDoc, screenshotFiles: File[]) {
   }
 }
 
-router.get('/', authenticate, userRole, async(req: Request, res: Response) => {
+router.get('/', authenticate, userRole, asyncErrorWrapper(async(req: Request, res: Response) => {
   const filters = Package.parseRequestFilters(req);
   if (!req.isAdminUser) {
     filters.maintainer = req.user!._id;
   }
 
-  try {
-    const pkgs = await Package.findByFilters(filters, filters.sort, filters.limit, filters.skip);
-    const count = await Package.countByFilters(filters);
+  const pkgs = await Package.findByFilters(filters, filters.sort, filters.limit, filters.skip);
+  const count = await Package.countByFilters(filters);
 
-    const formatted = pkgs.map((pkg) => pkg.serialize());
-    const { next, previous } = apiLinks(req.originalUrl, formatted.length, filters.limit, filters.skip);
-    return success(res, { count, next, previous, packages: formatted });
-  }
-  catch (err) {
-    logger.error('Error fetching packages');
-    captureException(err, req.originalUrl);
-    return error(res, 'Could not fetch app list at this time');
-  }
-});
+  const formatted = pkgs.map((pkg) => pkg.serialize());
+  const { next, previous } = apiLinks(req.originalUrl, formatted.length, filters.limit, filters.skip);
+  return success(res, { count, next, previous, packages: formatted });
+}, 'Could not fetch app list at this time'));
 
 router.get('/:id', authenticate, userRole, fetchPackage(), canManage, async(req: Request, res: Response) => {
   return success(res, req.pkg.serialize());
@@ -143,7 +136,7 @@ router.post(
   authenticate,
   userRole,
   downloadFile,
-  async(req: Request, res: Response) => {
+  asyncErrorWrapper(async(req: Request, res: Response) => {
     if (!req.body.id || !req.body.id.trim()) {
       return error(res, NO_APP_NAME, 400);
     }
@@ -159,42 +152,36 @@ router.post(
       return error(res, NO_SPACES_NAME, 400);
     }
 
-    try {
-      const existing = await Package.findOneByFilters(id);
-      if (existing) {
-        return error(res, DUPLICATE_PACKAGE, 400);
-      }
-
-      if (!req.isAdminUser && !req.isTrustedUser) {
-        if (id.startsWith('com.ubuntu.') && !id.startsWith('com.ubuntu.developer.')) {
-          return error(res, BAD_NAMESPACE, 400);
-        }
-        if (id.startsWith('com.canonical.')) {
-          return error(res, BAD_NAMESPACE, 400);
-        }
-        if (id.includes('ubports')) {
-          return error(res, BAD_NAMESPACE, 400);
-        }
-        if (id.includes('openstore')) {
-          return error(res, BAD_NAMESPACE, 400);
-        }
-      }
-
-      let pkg = new Package();
-      pkg.id = id;
-      pkg.name = name;
-      pkg.maintainer = req.user!._id;
-      pkg.maintainer_name = req.user!.name ? req.user!.name : req.user!.username;
-      pkg = await pkg.save();
-
-      return success(res, pkg.serialize());
+    const existing = await Package.findOneByFilters(id);
+    if (existing) {
+      return error(res, DUPLICATE_PACKAGE, 400);
     }
-    catch (err) {
-      logger.error('Error parsing new package');
-      captureException(err, req.originalUrl);
-      return error(res, 'There was an error creating your app, please try again later');
+
+    if (!req.isAdminUser && !req.isTrustedUser) {
+      if (id.startsWith('com.ubuntu.') && !id.startsWith('com.ubuntu.developer.')) {
+        return error(res, BAD_NAMESPACE, 400);
+      }
+      if (id.startsWith('com.canonical.')) {
+        return error(res, BAD_NAMESPACE, 400);
+      }
+      if (id.includes('ubports')) {
+        return error(res, BAD_NAMESPACE, 400);
+      }
+      if (id.includes('openstore')) {
+        return error(res, BAD_NAMESPACE, 400);
+      }
     }
+
+    let pkg = new Package();
+    pkg.id = id;
+    pkg.name = name;
+    pkg.maintainer = req.user!._id;
+    pkg.maintainer_name = req.user!.name ? req.user!.name : req.user!.username;
+    pkg = await pkg.save();
+
+    return success(res, pkg.serialize());
   },
+  'There was an error creating your app, please try again later'),
 );
 
 const putUpload = mupload.fields([
@@ -212,46 +199,40 @@ router.put(
   userRole,
   fetchPackage(),
   canManageLocked,
-  async(req: Request, res: Response) => {
-    try {
-      if (req.body && (!req.body.maintainer || req.body.maintainer == 'null')) {
-        req.body.maintainer = req.user!._id;
-      }
-
-      if (!req.isAdminUser && req.body) {
-        delete req.body.maintainer;
-        delete req.body.locked;
-        delete req.body.type_override;
-      }
-
-      const published = (req.body.published == 'true' || req.body.published === true);
-      if (published && req.pkg.revisions.length == 0) {
-        return error(res, NO_REVISIONS, 400);
-      }
-
-      await req.pkg.updateFromBody(req.body);
-
-      if (req.files && !Array.isArray(req.files) && req.files.screenshot_files && req.files.screenshot_files.length > 0) {
-        await updateScreenshotFiles(req.pkg, req.files.screenshot_files);
-      }
-
-      const pkg = await req.pkg!.save();
-
-      if (pkg.published) {
-        await PackageSearch.upsert(pkg);
-      }
-      else {
-        await PackageSearch.remove(pkg);
-      }
-
-      return success(res, pkg.serialize());
+  asyncErrorWrapper(async(req: Request, res: Response) => {
+    if (req.body && (!req.body.maintainer || req.body.maintainer == 'null')) {
+      req.body.maintainer = req.user!._id;
     }
-    catch (err) {
-      logger.error('Error updating package');
-      captureException(err, req.originalUrl);
-      return error(res, 'There was an error updating your app, please try again later');
+
+    if (!req.isAdminUser && req.body) {
+      delete req.body.maintainer;
+      delete req.body.locked;
+      delete req.body.type_override;
     }
+
+    const published = (req.body.published == 'true' || req.body.published === true);
+    if (published && req.pkg.revisions.length == 0) {
+      return error(res, NO_REVISIONS, 400);
+    }
+
+    await req.pkg.updateFromBody(req.body);
+
+    if (req.files && !Array.isArray(req.files) && req.files.screenshot_files && req.files.screenshot_files.length > 0) {
+      await updateScreenshotFiles(req.pkg, req.files.screenshot_files);
+    }
+
+    const pkg = await req.pkg!.save();
+
+    if (pkg.published) {
+      await PackageSearch.upsert(pkg);
+    }
+    else {
+      await PackageSearch.remove(pkg);
+    }
+
+    return success(res, pkg.serialize());
   },
+  'There was an error updating your app, please try again later'),
 );
 
 router.delete(
@@ -260,21 +241,15 @@ router.delete(
   userRole,
   fetchPackage(),
   canManageLocked,
-  async(req: Request, res: Response) => {
-    try {
-      if (req.pkg.revisions.length > 0) {
-        return error(res, APP_HAS_REVISIONS, 400);
-      }
+  asyncErrorWrapper(async(req: Request, res: Response) => {
+    if (req.pkg.revisions.length > 0) {
+      return error(res, APP_HAS_REVISIONS, 400);
+    }
 
-      await req.pkg.remove();
-      return success(res, {});
-    }
-    catch (err) {
-      logger.error('Error deleting package');
-      captureException(err, req.originalUrl);
-      return error(res, 'There was an error deleting your app, please try again later');
-    }
+    await req.pkg.remove();
+    return success(res, {});
   },
+  'There was an error deleting your app, please try again later'),
 );
 
 const postUpload = mupload.fields([
