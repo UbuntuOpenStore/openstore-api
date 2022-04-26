@@ -44,11 +44,13 @@ export type File = {
   size: number;
 }
 
+// TODO move???
 function fileName(file: File) {
   // Rename the file so click-review doesn't freak out
   return `${file.path}.click`;
 }
 
+// TODO move
 async function review(req: Request, file: File, filePath: string) {
   if (!file.originalname.endsWith('.click')) {
     await fs.unlink(file.path);
@@ -78,6 +80,7 @@ async function review(req: Request, file: File, filePath: string) {
   return [true, null];
 }
 
+// TODO Move
 async function updateScreenshotFiles(pkg: PackageDoc, screenshotFiles: File[]) {
   // Clear out the uploaded files that are over the limit
   let screenshotLimit = 5 - pkg.screenshots.length;
@@ -144,6 +147,8 @@ router.post(
     if (!req.body.name || !req.body.name.trim()) {
       return error(res, NO_APP_TITLE, 400);
     }
+
+    // TODO refactor to use a service method
 
     const name = req.body.name.trim();
     const id = req.body.id.toLowerCase().trim();
@@ -264,6 +269,8 @@ router.post(
   userRole,
   downloadFile,
   async(req: Request, res: Response) => {
+    // TODO refactor this into service method(s)
+
     if (!req.files || Array.isArray(req.files) || !req.files.file || req.files.file.length === 0) {
       return error(res, NO_FILE, 400);
     }

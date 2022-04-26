@@ -209,6 +209,8 @@ export interface BodyUpdate {
 }
 
 export interface PackageDoc extends PackageSchema {
+  _id: any; // PackageDoc can't extend Document because the `id` params are incompatible
+
   getLatestRevision(
     channel: Channel,
     arch?: Architecture,

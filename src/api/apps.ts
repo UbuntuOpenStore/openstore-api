@@ -20,6 +20,8 @@ async function apps(req: Request, res: Response) {
   let pkgs: PackageDoc[] = [];
 
   if (filters.search && filters.search.indexOf('author:') !== 0) {
+    // TODO move this into a service method
+
     const results = await PackageSearch.search(filters, filters.sort, filters.skip, filters.limit);
     const hits = results.hits.hits.map((hit: any) => hit._source);
     count = results.hits.total;

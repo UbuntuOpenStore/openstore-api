@@ -196,13 +196,21 @@ describe('Reviews', () => {
       expect(res.body.message).to.equal(messages.PARAMETER_MISSING);
     });
 
-    it('throws a 400 when updating a non existent review', async function() {
+    it('creates a new review when trying to update a nonexistent review', async function() {
       const res = await this.put(this.route)
         .send({ body: 'great app', version: '1.0.0', rating: 'THUMBS_UP' })
-        .expect(400);
+        .expect(200);
 
-      expect(res.body.success).to.be.false;
-      expect(res.body.message).to.equal(messages.NO_REVIEW_TO_EDIT);
+      expect(res.body.success).to.be.true;
+
+      const review = await Review.findOne({ user: this.user._id });
+      expect(review?.body).to.equal('great app');
+      expect(review?.version).to.equal('1.0.0');
+      expect(review?.rating).to.equal('THUMBS_UP');
+      expect(review?.date).to.exist;
+      expect(review?.redacted).to.be.false;
+      expect(review?.pkg.toString()).to.equal(this.package._id.toString());
+      expect(review?.user.toString()).to.equal(this.user._id.toString());
     });
 
     it('throws a 400 when updating a redacted review', async function() {
@@ -215,14 +223,25 @@ describe('Reviews', () => {
       expect(res.body.message).to.equal(messages.REVIEW_REDACTED);
     });
 
-    it('throws a 400 when trying to create another review', async function() {
+    it('updates existing review when to create another review', async function() {
       await factory.review({ pkg: this.package._id, user: this.user._id });
       const res = await this.post(this.route)
-        .send({ body: 'great app', version: '1.0.0', rating: 'THUMBS_UP' })
-        .expect(400);
+        .send({ body: 'really great app', version: '1.0.0', rating: 'THUMBS_UP' })
+        .expect(200);
 
-      expect(res.body.success).to.be.false;
-      expect(res.body.message).to.equal(messages.ALREADY_REVIEWED);
+      expect(res.body.success).to.be.true;
+
+      const reviews = await Review.find({ user: this.user._id });
+      expect(reviews).to.be.lengthOf(1);
+
+      const review = reviews[0];
+      expect(review?.body).to.equal('really great app');
+      expect(review?.version).to.equal('1.0.0');
+      expect(review?.rating).to.equal('THUMBS_UP');
+      expect(review?.date).to.exist;
+      expect(review?.redacted).to.be.false;
+      expect(review?.pkg.toString()).to.equal(this.package._id.toString());
+      expect(review?.user.toString()).to.equal(this.user._id.toString());
     });
   });
 

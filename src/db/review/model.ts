@@ -1,5 +1,6 @@
 import { Schema, model } from 'mongoose';
 import { RATINGS } from './constants';
+import { setupStatics } from './statics';
 import { ReviewDoc, ReviewModel } from './types';
 
 export const reviewSchema = new Schema<ReviewDoc, ReviewModel>({
@@ -32,5 +33,7 @@ reviewSchema.methods.serialize = function() {
     comment,
   };
 };
+
+setupStatics(reviewSchema);
 
 export const Review = model<ReviewDoc, ReviewModel>('Review', reviewSchema);
