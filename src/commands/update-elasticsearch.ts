@@ -2,11 +2,11 @@ import 'db'; // Make sure the database connection gets setup
 import PackageSearch from 'db/package/search';
 import { Package } from 'db/package';
 import { PackageDoc } from 'db/package/types';
-import { recalculateRatings } from '../api/reviews';
+import { recalculatePackageRatings } from 'db/rating_count/utils';
 
 Package.find({ published: true }).then((pkgs) => {
   return Promise.all(pkgs.map((pkg) => {
-    return recalculateRatings(pkg._id);
+    return recalculatePackageRatings(pkg._id);
   }).filter((pkg) => !!pkg));
 }).then((pkgs) => {
   return PackageSearch.bulk(pkgs as PackageDoc[]);

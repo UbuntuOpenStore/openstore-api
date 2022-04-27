@@ -1,9 +1,9 @@
 import factory from './factory';
 
 import { expect } from './helper';
-import { recalculateRatings } from '../src/api/reviews';
 import { Package } from '../src/db/package';
 import { Review } from '../src/db/review';
+import { recalculatePackageRatings } from '../src/db/rating_count/utils';
 import { Architecture, Channel } from '../src/db/package/types';
 import * as messages from '../src/utils/error-messages';
 
@@ -40,7 +40,7 @@ describe('Reviews', () => {
       factory.review({ pkg: this.package._id, user: user4._id, rating: 'NEUTRAL' }),
     ]);
 
-    await recalculateRatings(this.package._id);
+    await recalculatePackageRatings(this.package._id);
   });
 
   context('GET', () => {
@@ -100,7 +100,7 @@ describe('Reviews', () => {
 
     it('updates own review', async function() {
       await factory.review({ pkg: this.package._id, user: this.user._id, rating: 'THUMBS_DOWN' });
-      await recalculateRatings(this.package._id);
+      await recalculatePackageRatings(this.package._id);
 
       let pkg = await Package.findOne({ id: this.package.id }).populate('rating_counts');
       let checkRatings = pkg!.rating_counts.reduce((accumulator, count) => {
