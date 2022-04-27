@@ -4,6 +4,7 @@ import { setupVirtuals } from './virtuals';
 import { setupStatics } from './statics';
 
 import { RevisionDoc, RevisionModel, PackageDoc, PackageModel } from './types';
+import { setupManageStatics } from './statics-manage';
 
 const revisionSchema = new Schema<RevisionDoc, RevisionModel>({
   revision: Number,
@@ -91,5 +92,6 @@ packageSchema.index(
 setupMethods(packageSchema);
 setupVirtuals(packageSchema);
 setupStatics(packageSchema);
+setupManageStatics(packageSchema);
 
 export const Package = model<PackageDoc, PackageModel>('Package', packageSchema);

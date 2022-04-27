@@ -24,6 +24,12 @@ export enum Architecture {
   ARM64 = 'arm64',
 }
 
+export type File = {
+  originalname: string;
+  path: string;
+  size: number;
+};
+
 export interface RevisionSchema {
   revision: number,
   version: string,
@@ -235,6 +241,7 @@ export interface PackageDoc extends PackageSchema {
   serializeRatings(): SerializedRatings;
   serializeSlim(): SerializedPackageSlim;
   serialize(architecture?: Architecture, apiVersion?: number): SerializedPackage;
+  updateScreenshotFiles(screenshotFiles: File[]): Promise<void>;
 
   // Virtuals
   architecture: string;

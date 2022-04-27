@@ -80,42 +80,6 @@ async function review(req: Request, file: File, filePath: string) {
   return [true, null];
 }
 
-// TODO Move
-async function updateScreenshotFiles(pkg: PackageDoc, screenshotFiles: File[]) {
-  // Clear out the uploaded files that are over the limit
-  let screenshotLimit = 5 - pkg.screenshots.length;
-  if (screenshotFiles.length < screenshotLimit) {
-    screenshotLimit = screenshotFiles.length;
-  }
-
-  if (screenshotFiles.length > screenshotLimit) {
-    for (let i = screenshotLimit; i < screenshotFiles.length; i++) {
-      await fs.unlink(screenshotFiles[i].path);
-    }
-  }
-
-  for (let i = 0; i < screenshotLimit; i++) {
-    const file = screenshotFiles[i];
-
-    const ext = path.extname(file.originalname);
-    if (['.png', '.jpg', '.jpeg'].indexOf(ext) == -1) {
-      // Reject anything not an image we support
-      await fs.unlink(file.path);
-    }
-    else {
-      const id = v4();
-      const filename = `${pkg.id}-screenshot-${id}${ext}`;
-
-      await moveFile(
-        screenshotFiles[i].path,
-        `${config.image_dir}/${filename}`,
-      );
-
-      pkg.screenshots.push(filename);
-    }
-  }
-}
-
 router.get('/', authenticate, userRole, asyncErrorWrapper(async(req: Request, res: Response) => {
   const filters = Package.parseRequestFilters(req);
   if (!req.isAdminUser) {
@@ -223,7 +187,7 @@ router.put(
     await req.pkg.updateFromBody(req.body);
 
     if (req.files && !Array.isArray(req.files) && req.files.screenshot_files && req.files.screenshot_files.length > 0) {
-      await updateScreenshotFiles(req.pkg, req.files.screenshot_files);
+      await req.pkg.updateScreenshotFiles(req.files.screenshot_files);
     }
 
     const pkg = await req.pkg!.save();
