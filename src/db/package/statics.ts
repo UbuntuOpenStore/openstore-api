@@ -16,6 +16,8 @@ import {
   PackageStats,
   PackageQueryReturn,
 } from './types';
+import PackageSearch from './search';
+import { RatingCount } from '../rating_count/model';
 
 export function setupStatics(packageSchema: Schema<PackageDoc, PackageModel>) {
   packageSchema.statics.incrementDownload = async function(id: string, revisionIndex: number) {
@@ -309,5 +311,38 @@ export function setupStatics(packageSchema: Schema<PackageDoc, PackageModel>) {
 
     const result = await this.findOne(query).populate('rating_counts');
     return result;
+  };
+
+  packageSchema.statics.searchByFilters = async function(
+    filters: PackageRequestFilters,
+    full = false,
+  ): Promise<{ pkgs: PackageQueryReturn[], count: number }> {
+    const results = await PackageSearch.search(filters, filters.sort, filters.skip, filters.limit);
+    const hits = results.hits.hits.map((hit: any) => hit._source);
+
+    const ids = hits.map((pkg: any) => pkg.id);
+    let pkgs = [];
+    if (full) {
+      pkgs = await this.findByFilters({ ids });
+
+      // Maintain ordering from the elastic search results
+      pkgs.sort((a, b) => ids.indexOf(a.id) - ids.indexOf(b.id));
+    }
+    else {
+      // Get the ratings
+      const ratingCounts = await RatingCount.getCountsByIds(ids);
+
+      pkgs = hits.map((pkg: any) => {
+        return new this({
+          ...pkg,
+          rating_counts: ratingCounts[pkg.id] || [],
+        });
+      });
+    }
+
+    return {
+      pkgs,
+      count: results.hits.total,
+    };
   };
 }

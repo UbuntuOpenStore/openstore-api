@@ -5,9 +5,7 @@ import fsPromise from 'fs/promises';
 import fs from 'fs';
 import { Architecture, Channel, DEFAULT_CHANNEL, PackageDoc } from 'db/package/types';
 import { Package } from 'db/package';
-import PackageSearch from 'db/package/search';
-import { RatingCount } from 'db/rating_count';
-import { success, error, getData, apiLinks, asyncErrorWrapper } from 'utils';
+import { success, error, getData, apiLinks, asyncErrorWrapper, getDataBoolean } from 'utils';
 import { fetchPublishedPackage } from 'middleware';
 import reviews from './reviews';
 import { DOWNLOAD_NOT_FOUND_FOR_CHANNEL, INVALID_CHANNEL, INVALID_ARCH } from '../utils/error-messages';
@@ -20,30 +18,9 @@ async function apps(req: Request, res: Response) {
   let pkgs: PackageDoc[] = [];
 
   if (filters.search && filters.search.indexOf('author:') !== 0) {
-    // TODO move this into a service method
-
-    const results = await PackageSearch.search(filters, filters.sort, filters.skip, filters.limit);
-    const hits = results.hits.hits.map((hit: any) => hit._source);
-    count = results.hits.total;
-
-    const ids = hits.map((pkg: any) => pkg.id);
-    if (req.query.full) {
-      pkgs = await Package.findByFilters({ ids });
-
-      // Maintain ordering from the elastic search results
-      pkgs.sort((a, b) => ids.indexOf(a.id) - ids.indexOf(b.id));
-    }
-    else {
-      // Get the ratings
-      const ratingCounts = await RatingCount.getCountsByIds(ids);
-
-      pkgs = hits.map((pkg: any) => {
-        return new Package({
-          ...pkg,
-          rating_counts: ratingCounts[pkg.id] || [],
-        });
-      });
-    }
+    const results = await Package.searchByFilters(filters, getDataBoolean(req, 'full', false));
+    pkgs = results.pkgs;
+    count = results.count;
   }
   else {
     const publishedFilters = { ...filters, published: true };

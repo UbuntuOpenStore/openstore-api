@@ -256,4 +256,5 @@ export interface PackageModel extends Model<PackageDoc> {
   countByFilters(filters: PackageRequestFilters): Promise<number>;
   findByFilters(filters: PackageRequestFilters, sort?: string, limit?: number, skip?: number): Promise<PackageQueryReturn[]>;
   findOneByFilters(id: string, filters?: PackageRequestFilters): Promise<PackageQueryReturn | null>;
+  searchByFilters(filters: PackageRequestFilters, full: boolean): Promise<{ pkgs: PackageQueryReturn[], count: number }>;
 }
