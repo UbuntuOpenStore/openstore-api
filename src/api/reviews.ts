@@ -1,12 +1,9 @@
 /* eslint-disable no-restricted-syntax */
 import express, { Request, Response } from 'express';
-import { FilterQuery } from 'mongoose';
 
 import 'db/comment';
-import { error, success, getDataInt, apiLinks, logger, asyncErrorWrapper } from 'utils';
-import { Review, ReviewDoc, RATINGS, REVIEW_MAX_LEN, RATING_MAP, Ratings } from 'db/review';
-import { RatingCount } from 'db/rating_count';
-import { Package } from 'db/package';
+import { error, success, apiLinks, asyncErrorWrapper } from 'utils';
+import { Review, RATINGS, REVIEW_MAX_LEN } from 'db/review';
 import { authenticate, anonymousAuthenticate, userRole, fetchPublishedPackage } from 'middleware';
 import { recalculatePackageRatings } from 'db/rating_count/utils';
 import {

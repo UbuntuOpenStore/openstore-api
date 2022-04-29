@@ -1,20 +1,18 @@
 import multer from 'multer';
 import path from 'path';
-import { v4 } from 'uuid';
 import express, { Request, Response } from 'express';
 
 import fs from 'fs/promises';
 import { Lock, LockDoc } from 'db/lock';
-import { PackageDoc, Architecture, Channel, DEFAULT_CHANNEL } from 'db/package/types';
+import { Architecture, Channel, DEFAULT_CHANNEL } from 'db/package/types';
 import { Package } from 'db/package';
 import PackageSearch from 'db/package/search';
-import { success, error, captureException, sanitize, moveFile, apiLinks, sha512Checksum, logger, config, asyncErrorWrapper } from 'utils';
+import { success, error, captureException, sanitize, moveFile, apiLinks, sha512Checksum, logger, asyncErrorWrapper } from 'utils';
 import * as clickParser from 'utils/click-parser-async';
-import * as reviewPackage from 'utils/review-package';
 import { authenticate, userRole, downloadFile, extendTimeout, fetchPackage, canManage, canManageLocked } from 'middleware';
+import { clickReview } from 'db/package/utils';
 import {
   APP_NOT_FOUND,
-  NEEDS_MANUAL_REVIEW,
   MALFORMED_MANIFEST,
   DUPLICATE_PACKAGE,
   PERMISSION_DENIED,
@@ -33,52 +31,11 @@ import {
   NO_NON_ALL,
   MISMATCHED_FRAMEWORK,
   APP_LOCKED,
-} from '../utils/error-messages';
+} from 'utils/error-messages';
+import { UserError } from 'exceptions';
 
 const mupload = multer({ dest: '/tmp' });
 const router = express.Router();
-
-export type File = {
-  originalname: string;
-  path: string;
-  size: number;
-}
-
-// TODO move???
-function fileName(file: File) {
-  // Rename the file so click-review doesn't freak out
-  return `${file.path}.click`;
-}
-
-// TODO move
-async function review(req: Request, file: File, filePath: string) {
-  if (!file.originalname.endsWith('.click')) {
-    await fs.unlink(file.path);
-    return [false, BAD_FILE];
-  }
-
-  await moveFile(file.path, filePath);
-
-  if (!req.isAdminUser && !req.isTrustedUser) {
-    // Admin & trusted users can upload apps without manual review
-    const needsManualReview = await reviewPackage.reviewPackage(filePath);
-    if (needsManualReview) {
-      // TODO improve this feedback
-      let reviewError = NEEDS_MANUAL_REVIEW;
-      if (needsManualReview === true) {
-        reviewError = `${NEEDS_MANUAL_REVIEW}, please check your app using the click-review command`;
-      }
-      else {
-        reviewError = `${NEEDS_MANUAL_REVIEW} (Error: ${needsManualReview})`;
-      }
-
-      await fs.unlink(filePath);
-      return [false, reviewError];
-    }
-  }
-
-  return [true, null];
-}
 
 router.get('/', authenticate, userRole, asyncErrorWrapper(async(req: Request, res: Response) => {
   const filters = Package.parseRequestFilters(req);
@@ -267,21 +224,38 @@ router.post(
         return error(res, APP_LOCKED, 403);
       }
 
-      const filePath = fileName(file);
-      const [reviewSuccess, reviewError] = await review(req, file, filePath);
-      if (!reviewSuccess) {
+      if (!file.originalname.endsWith('.click')) {
+        await fs.unlink(file.path);
         await Lock.release(lock, req);
-        return error(res, reviewError, 400);
+        return error(res, BAD_FILE, 400);
+      }
+
+      const filePath = `${file.path}.click`;
+      await moveFile(file.path, filePath);
+
+      if (!req.isAdminUser && !req.isTrustedUser) {
+        // Admin & trusted users can upload apps without manual review
+
+        try {
+          await clickReview(filePath);
+        }
+        catch (err) {
+          await fs.unlink(filePath);
+
+          throw err;
+        }
       }
 
       const parseData = await clickParser.parseClickPackage(filePath, true);
       const { version, architecture } = parseData;
       if (!parseData.name || !version || !architecture) {
+        await fs.unlink(filePath);
         await Lock.release(lock, req);
         return error(res, MALFORMED_MANIFEST, 400);
       }
 
       if (pkg.id && parseData.name != pkg.id) {
+        await fs.unlink(filePath);
         await Lock.release(lock, req);
         return error(res, WRONG_PACKAGE, 400);
       }
@@ -298,6 +272,7 @@ router.post(
         });
 
         if (matches) {
+          await fs.unlink(filePath);
           await Lock.release(lock, req);
           return error(res, EXISTING_VERSION, 400);
         }
@@ -306,15 +281,18 @@ router.post(
         if (currentRevisions.length > 0) {
           const currentArches = currentRevisions.map((rev) => rev.architecture);
           if (architecture == Architecture.ALL && !currentArches.includes(Architecture.ALL)) {
+            await fs.unlink(filePath);
             await Lock.release(lock, req);
             return error(res, NO_ALL, 400);
           }
           if (architecture != Architecture.ALL && currentArches.includes(Architecture.ALL)) {
+            await fs.unlink(filePath);
             await Lock.release(lock, req);
             return error(res, NO_NON_ALL, 400);
           }
 
           if (parseData.framework != currentRevisions[0].framework) {
+            await fs.unlink(filePath);
             await Lock.release(lock, req);
             return error(res, MISMATCHED_FRAMEWORK, 400);
           }
@@ -389,6 +367,10 @@ router.post(
     catch (err) {
       if (lock) {
         await Lock.release(lock, req);
+      }
+
+      if (err instanceof UserError) {
+        return error(res, err.message, 400);
       }
 
       const message = err?.message ? err.message : err;
