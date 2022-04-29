@@ -5,6 +5,8 @@ import uniq from 'lodash/uniq';
 import { Request } from 'express';
 
 import { getData, getDataArray, getDataBoolean, getDataInt } from 'utils';
+import { UserError } from 'exceptions';
+import { DUPLICATE_PACKAGE, NO_SPACES_NAME, BAD_NAMESPACE } from 'utils/error-messages';
 import {
   Architecture,
   PackageType,
@@ -344,5 +346,31 @@ export function setupStatics(packageSchema: Schema<PackageDoc, PackageModel>) {
       pkgs,
       count: results.hits.total,
     };
+  };
+
+  packageSchema.statics.checkId = async function(id: string): Promise<void> {
+    if (id.includes(' ')) {
+      throw new UserError(NO_SPACES_NAME);
+    }
+
+    const existing = await this.findOneByFilters(id);
+    if (existing) {
+      throw new UserError(DUPLICATE_PACKAGE);
+    }
+  };
+
+  packageSchema.statics.checkRestrictedId = function(id: string): void {
+    if (id.startsWith('com.ubuntu.') && !id.startsWith('com.ubuntu.developer.')) {
+      throw new UserError(BAD_NAMESPACE);
+    }
+    if (id.startsWith('com.canonical.')) {
+      throw new UserError(BAD_NAMESPACE);
+    }
+    if (id.includes('ubports')) {
+      throw new UserError(BAD_NAMESPACE);
+    }
+    if (id.includes('openstore')) {
+      throw new UserError(BAD_NAMESPACE);
+    }
   };
 }

@@ -264,4 +264,6 @@ export interface PackageModel extends Model<PackageDoc> {
   findByFilters(filters: PackageRequestFilters, sort?: string, limit?: number, skip?: number): Promise<PackageQueryReturn[]>;
   findOneByFilters(id: string, filters?: PackageRequestFilters): Promise<PackageQueryReturn | null>;
   searchByFilters(filters: PackageRequestFilters, full: boolean): Promise<{ pkgs: PackageQueryReturn[], count: number }>;
+  checkId(id: string): Promise<void>;
+  checkRestrictedId(id: string): void;
 }

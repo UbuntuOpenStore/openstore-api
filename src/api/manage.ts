@@ -14,17 +14,14 @@ import { clickReview } from 'db/package/utils';
 import {
   APP_NOT_FOUND,
   MALFORMED_MANIFEST,
-  DUPLICATE_PACKAGE,
   PERMISSION_DENIED,
   BAD_FILE,
   WRONG_PACKAGE,
-  BAD_NAMESPACE,
   EXISTING_VERSION,
   NO_FILE,
   INVALID_CHANNEL,
   NO_REVISIONS,
   NO_APP_NAME,
-  NO_SPACES_NAME,
   NO_APP_TITLE,
   APP_HAS_REVISIONS,
   NO_ALL,
@@ -69,33 +66,12 @@ router.post(
       return error(res, NO_APP_TITLE, 400);
     }
 
-    // TODO refactor to use a service method
-
     const name = req.body.name.trim();
     const id = req.body.id.toLowerCase().trim();
 
-    if (id.includes(' ')) {
-      return error(res, NO_SPACES_NAME, 400);
-    }
-
-    const existing = await Package.findOneByFilters(id);
-    if (existing) {
-      return error(res, DUPLICATE_PACKAGE, 400);
-    }
-
+    await Package.checkId(id);
     if (!req.isAdminUser && !req.isTrustedUser) {
-      if (id.startsWith('com.ubuntu.') && !id.startsWith('com.ubuntu.developer.')) {
-        return error(res, BAD_NAMESPACE, 400);
-      }
-      if (id.startsWith('com.canonical.')) {
-        return error(res, BAD_NAMESPACE, 400);
-      }
-      if (id.includes('ubports')) {
-        return error(res, BAD_NAMESPACE, 400);
-      }
-      if (id.includes('openstore')) {
-        return error(res, BAD_NAMESPACE, 400);
-      }
+      Package.checkRestrictedId(id);
     }
 
     let pkg = new Package();
