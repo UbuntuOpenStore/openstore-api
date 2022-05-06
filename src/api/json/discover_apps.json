@@ -1,6 +1,11 @@
 {
     "highlights": [
         {
+            "id": "cinny.nitanmarcel",
+            "image": "/banners/cinny.svg",
+            "description": "A Matrix client focusing primarily on a simple, elegant, and secure interface."
+        },
+        {
             "id": "futify.frenchutouch",
             "image": "/banners/futify.svg",
             "description": "Unofficial native qml Spotify client for premium users only"
@@ -14,11 +19,6 @@
             "id": "me.lduboeuf.stellarium",
             "image": "/banners/stellarium.svg",
             "description": "A realistic night sky map in 3D in the palm of your hand."
-        },
-        {
-            "id": "fluffychat.christianpauly",
-            "image": "/banners/fluffychat.svg",
-            "description": "A cute and open source matrix client to chat with all your friends!"
         }
     ],
     "categories": [
