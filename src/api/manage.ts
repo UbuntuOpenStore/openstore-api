@@ -1,144 +1,54 @@
 import multer from 'multer';
 import path from 'path';
-import { v4 } from 'uuid';
 import express, { Request, Response } from 'express';
 
 import fs from 'fs/promises';
 import { Lock, LockDoc } from 'db/lock';
-import { PackageDoc, Architecture, Channel, DEFAULT_CHANNEL } from 'db/package/types';
+import { Architecture, Channel, DEFAULT_CHANNEL } from 'db/package/types';
 import { Package } from 'db/package';
 import PackageSearch from 'db/package/search';
-import { success, error, captureException, sanitize, moveFile, apiLinks, sha512Checksum, logger, config } from 'utils';
+import { success, error, captureException, sanitize, moveFile, apiLinks, sha512Checksum, logger, asyncErrorWrapper } from 'utils';
 import * as clickParser from 'utils/click-parser-async';
-import * as reviewPackage from 'utils/review-package';
-import { authenticate, userRole, downloadFile, extendTimeout, fetchPackage } from 'middleware';
+import { authenticate, userRole, downloadFile, extendTimeout, fetchPackage, canManage, canManageLocked } from 'middleware';
+import { clickReview } from 'db/package/utils';
 import {
   APP_NOT_FOUND,
-  NEEDS_MANUAL_REVIEW,
   MALFORMED_MANIFEST,
-  DUPLICATE_PACKAGE,
   PERMISSION_DENIED,
   BAD_FILE,
   WRONG_PACKAGE,
-  BAD_NAMESPACE,
   EXISTING_VERSION,
   NO_FILE,
   INVALID_CHANNEL,
   NO_REVISIONS,
   NO_APP_NAME,
-  NO_SPACES_NAME,
   NO_APP_TITLE,
   APP_HAS_REVISIONS,
   NO_ALL,
   NO_NON_ALL,
   MISMATCHED_FRAMEWORK,
   APP_LOCKED,
-} from '../utils/error-messages';
+} from 'utils/error-messages';
+import { UserError } from 'exceptions';
 
 const mupload = multer({ dest: '/tmp' });
 const router = express.Router();
 
-export type File = {
-  originalname: string;
-  path: string;
-  size: number;
-}
-
-function fileName(file: File) {
-  // Rename the file so click-review doesn't freak out
-  return `${file.path}.click`;
-}
-
-async function review(req: Request, file: File, filePath: string) {
-  if (!file.originalname.endsWith('.click')) {
-    await fs.unlink(file.path);
-    return [false, BAD_FILE];
-  }
-
-  await moveFile(file.path, filePath);
-
-  if (!req.isAdminUser && !req.isTrustedUser) {
-    // Admin & trusted users can upload apps without manual review
-    const needsManualReview = await reviewPackage.reviewPackage(filePath);
-    if (needsManualReview) {
-      // TODO improve this feedback
-      let reviewError = NEEDS_MANUAL_REVIEW;
-      if (needsManualReview === true) {
-        reviewError = `${NEEDS_MANUAL_REVIEW}, please check your app using the click-review command`;
-      }
-      else {
-        reviewError = `${NEEDS_MANUAL_REVIEW} (Error: ${needsManualReview})`;
-      }
-
-      await fs.unlink(filePath);
-      return [false, reviewError];
-    }
-  }
-
-  return [true, null];
-}
-
-async function updateScreenshotFiles(pkg: PackageDoc, screenshotFiles: File[]) {
-  // Clear out the uploaded files that are over the limit
-  let screenshotLimit = 5 - pkg.screenshots.length;
-  if (screenshotFiles.length < screenshotLimit) {
-    screenshotLimit = screenshotFiles.length;
-  }
-
-  if (screenshotFiles.length > screenshotLimit) {
-    for (let i = screenshotLimit; i < screenshotFiles.length; i++) {
-      await fs.unlink(screenshotFiles[i].path);
-    }
-  }
-
-  for (let i = 0; i < screenshotLimit; i++) {
-    const file = screenshotFiles[i];
-
-    const ext = path.extname(file.originalname);
-    if (['.png', '.jpg', '.jpeg'].indexOf(ext) == -1) {
-      // Reject anything not an image we support
-      await fs.unlink(file.path);
-    }
-    else {
-      const id = v4();
-      const filename = `${pkg.id}-screenshot-${id}${ext}`;
-
-      await moveFile(
-        screenshotFiles[i].path,
-        `${config.image_dir}/${filename}`,
-      );
-
-      pkg.screenshots.push(filename);
-    }
-  }
-}
-
-router.get('/', authenticate, userRole, async(req: Request, res: Response) => {
+router.get('/', authenticate, userRole, asyncErrorWrapper(async(req: Request, res: Response) => {
   const filters = Package.parseRequestFilters(req);
   if (!req.isAdminUser) {
     filters.maintainer = req.user!._id;
   }
 
-  try {
-    const pkgs = await Package.findByFilters(filters, filters.sort, filters.limit, filters.skip);
-    const count = await Package.countByFilters(filters);
+  const pkgs = await Package.findByFilters(filters, filters.sort, filters.limit, filters.skip);
+  const count = await Package.countByFilters(filters);
 
-    const formatted = pkgs.map((pkg) => pkg.serialize());
-    const { next, previous } = apiLinks(req.originalUrl, formatted.length, filters.limit, filters.skip);
-    return success(res, { count, next, previous, packages: formatted });
-  }
-  catch (err) {
-    logger.error('Error fetching packages');
-    captureException(err, req.originalUrl);
-    return error(res, 'Could not fetch app list at this time');
-  }
-});
+  const formatted = pkgs.map((pkg) => pkg.serialize());
+  const { next, previous } = apiLinks(req.originalUrl, formatted.length, filters.limit, filters.skip);
+  return success(res, { count, next, previous, packages: formatted });
+}, 'Could not fetch app list at this time'));
 
-router.get('/:id', authenticate, userRole, fetchPackage(), async(req: Request, res: Response) => {
-  if (!req.isAdminUser && req.user!._id != req.pkg.maintainer) {
-    return error(res, PERMISSION_DENIED, 403);
-  }
-
+router.get('/:id', authenticate, userRole, fetchPackage(), canManage, async(req: Request, res: Response) => {
   return success(res, req.pkg.serialize());
 });
 
@@ -147,7 +57,7 @@ router.post(
   authenticate,
   userRole,
   downloadFile,
-  async(req: Request, res: Response) => {
+  asyncErrorWrapper(async(req: Request, res: Response) => {
     if (!req.body.id || !req.body.id.trim()) {
       return error(res, NO_APP_NAME, 400);
     }
@@ -159,46 +69,21 @@ router.post(
     const name = req.body.name.trim();
     const id = req.body.id.toLowerCase().trim();
 
-    if (id.includes(' ')) {
-      return error(res, NO_SPACES_NAME, 400);
+    await Package.checkId(id);
+    if (!req.isAdminUser && !req.isTrustedUser) {
+      Package.checkRestrictedId(id);
     }
 
-    try {
-      const existing = await Package.findOneByFilters(id);
-      if (existing) {
-        return error(res, DUPLICATE_PACKAGE, 400);
-      }
+    let pkg = new Package();
+    pkg.id = id;
+    pkg.name = name;
+    pkg.maintainer = req.user!._id;
+    pkg.maintainer_name = req.user!.name ? req.user!.name : req.user!.username;
+    pkg = await pkg.save();
 
-      if (!req.isAdminUser && !req.isTrustedUser) {
-        if (id.startsWith('com.ubuntu.') && !id.startsWith('com.ubuntu.developer.')) {
-          return error(res, BAD_NAMESPACE, 400);
-        }
-        if (id.startsWith('com.canonical.')) {
-          return error(res, BAD_NAMESPACE, 400);
-        }
-        if (id.includes('ubports')) {
-          return error(res, BAD_NAMESPACE, 400);
-        }
-        if (id.includes('openstore')) {
-          return error(res, BAD_NAMESPACE, 400);
-        }
-      }
-
-      let pkg = new Package();
-      pkg.id = id;
-      pkg.name = name;
-      pkg.maintainer = req.user!._id;
-      pkg.maintainer_name = req.user!.name ? req.user!.name : req.user!.username;
-      pkg = await pkg.save();
-
-      return success(res, pkg.serialize());
-    }
-    catch (err) {
-      logger.error('Error parsing new package');
-      captureException(err, req.originalUrl);
-      return error(res, 'There was an error creating your app, please try again later');
-    }
+    return success(res, pkg.serialize());
   },
+  'There was an error creating your app, please try again later'),
 );
 
 const putUpload = mupload.fields([
@@ -215,54 +100,41 @@ router.put(
   putUpload,
   userRole,
   fetchPackage(),
-  async(req: Request, res: Response) => {
-    try {
-      if (req.body && (!req.body.maintainer || req.body.maintainer == 'null')) {
-        req.body.maintainer = req.user!._id;
-      }
-
-      if (!req.isAdminUser && req.body) {
-        delete req.body.maintainer;
-        delete req.body.locked;
-        delete req.body.type_override;
-      }
-
-      if (!req.isAdminUser && req.user!._id != req.pkg.maintainer) {
-        return error(res, PERMISSION_DENIED, 403);
-      }
-
-      if (!req.isAdminUser && req.pkg.locked) {
-        return error(res, APP_LOCKED, 403);
-      }
-
-      const published = (req.body.published == 'true' || req.body.published === true);
-      if (published && req.pkg.revisions.length == 0) {
-        return error(res, NO_REVISIONS, 400);
-      }
-
-      await req.pkg.updateFromBody(req.body);
-
-      if (req.files && !Array.isArray(req.files) && req.files.screenshot_files && req.files.screenshot_files.length > 0) {
-        await updateScreenshotFiles(req.pkg, req.files.screenshot_files);
-      }
-
-      const pkg = await req.pkg!.save();
-
-      if (pkg.published) {
-        await PackageSearch.upsert(pkg);
-      }
-      else {
-        await PackageSearch.remove(pkg);
-      }
-
-      return success(res, pkg.serialize());
+  canManageLocked,
+  asyncErrorWrapper(async(req: Request, res: Response) => {
+    if (req.body && (!req.body.maintainer || req.body.maintainer == 'null')) {
+      req.body.maintainer = req.user!._id;
     }
-    catch (err) {
-      logger.error('Error updating package');
-      captureException(err, req.originalUrl);
-      return error(res, 'There was an error updating your app, please try again later');
+
+    if (!req.isAdminUser && req.body) {
+      delete req.body.maintainer;
+      delete req.body.locked;
+      delete req.body.type_override;
     }
+
+    const published = (req.body.published == 'true' || req.body.published === true);
+    if (published && req.pkg.revisions.length == 0) {
+      return error(res, NO_REVISIONS, 400);
+    }
+
+    await req.pkg.updateFromBody(req.body);
+
+    if (req.files && !Array.isArray(req.files) && req.files.screenshot_files && req.files.screenshot_files.length > 0) {
+      await req.pkg.updateScreenshotFiles(req.files.screenshot_files);
+    }
+
+    const pkg = await req.pkg!.save();
+
+    if (pkg.published) {
+      await PackageSearch.upsert(pkg);
+    }
+    else {
+      await PackageSearch.remove(pkg);
+    }
+
+    return success(res, pkg.serialize());
   },
+  'There was an error updating your app, please try again later'),
 );
 
 router.delete(
@@ -270,25 +142,16 @@ router.delete(
   authenticate,
   userRole,
   fetchPackage(),
-  async(req: Request, res: Response) => {
-    try {
-      if (!req.isAdminUser && req.user!._id != req.pkg.maintainer) {
-        return error(res, PERMISSION_DENIED, 403);
-      }
-
-      if (req.pkg.revisions.length > 0) {
-        return error(res, APP_HAS_REVISIONS, 400);
-      }
-
-      await req.pkg.remove();
-      return success(res, {});
+  canManageLocked,
+  asyncErrorWrapper(async(req: Request, res: Response) => {
+    if (req.pkg.revisions.length > 0) {
+      return error(res, APP_HAS_REVISIONS, 400);
     }
-    catch (err) {
-      logger.error('Error deleting package');
-      captureException(err, req.originalUrl);
-      return error(res, 'There was an error deleting your app, please try again later');
-    }
+
+    await req.pkg.remove();
+    return success(res, {});
   },
+  'There was an error deleting your app, please try again later'),
 );
 
 const postUpload = mupload.fields([
@@ -303,6 +166,8 @@ router.post(
   userRole,
   downloadFile,
   async(req: Request, res: Response) => {
+    // TODO refactor this into service method(s)
+
     if (!req.files || Array.isArray(req.files) || !req.files.file || req.files.file.length === 0) {
       return error(res, NO_FILE, 400);
     }
@@ -335,21 +200,38 @@ router.post(
         return error(res, APP_LOCKED, 403);
       }
 
-      const filePath = fileName(file);
-      const [reviewSuccess, reviewError] = await review(req, file, filePath);
-      if (!reviewSuccess) {
+      if (!file.originalname.endsWith('.click')) {
+        await fs.unlink(file.path);
         await Lock.release(lock, req);
-        return error(res, reviewError, 400);
+        return error(res, BAD_FILE, 400);
+      }
+
+      const filePath = `${file.path}.click`;
+      await moveFile(file.path, filePath);
+
+      if (!req.isAdminUser && !req.isTrustedUser) {
+        // Admin & trusted users can upload apps without manual review
+
+        try {
+          await clickReview(filePath);
+        }
+        catch (err) {
+          await fs.unlink(filePath);
+
+          throw err;
+        }
       }
 
       const parseData = await clickParser.parseClickPackage(filePath, true);
       const { version, architecture } = parseData;
       if (!parseData.name || !version || !architecture) {
+        await fs.unlink(filePath);
         await Lock.release(lock, req);
         return error(res, MALFORMED_MANIFEST, 400);
       }
 
       if (pkg.id && parseData.name != pkg.id) {
+        await fs.unlink(filePath);
         await Lock.release(lock, req);
         return error(res, WRONG_PACKAGE, 400);
       }
@@ -366,6 +248,7 @@ router.post(
         });
 
         if (matches) {
+          await fs.unlink(filePath);
           await Lock.release(lock, req);
           return error(res, EXISTING_VERSION, 400);
         }
@@ -374,15 +257,18 @@ router.post(
         if (currentRevisions.length > 0) {
           const currentArches = currentRevisions.map((rev) => rev.architecture);
           if (architecture == Architecture.ALL && !currentArches.includes(Architecture.ALL)) {
+            await fs.unlink(filePath);
             await Lock.release(lock, req);
             return error(res, NO_ALL, 400);
           }
           if (architecture != Architecture.ALL && currentArches.includes(Architecture.ALL)) {
+            await fs.unlink(filePath);
             await Lock.release(lock, req);
             return error(res, NO_NON_ALL, 400);
           }
 
           if (parseData.framework != currentRevisions[0].framework) {
+            await fs.unlink(filePath);
             await Lock.release(lock, req);
             return error(res, MISMATCHED_FRAMEWORK, 400);
           }
@@ -457,6 +343,10 @@ router.post(
     catch (err) {
       if (lock) {
         await Lock.release(lock, req);
+      }
+
+      if (err instanceof UserError) {
+        return error(res, err.message, 400);
       }
 
       const message = err?.message ? err.message : err;

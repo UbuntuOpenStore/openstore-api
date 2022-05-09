@@ -4,7 +4,7 @@ import express, { Request, Response } from 'express';
 import { Package } from 'db/package';
 import { Architecture, DEFAULT_CHANNEL, Channel, PackageType } from 'db/package/types';
 import { RatingCount } from 'db/rating_count';
-import { success, error, getData, getDataArray, captureException, logger, setLang, gettext, config } from 'utils';
+import { success, getData, getDataArray, setLang, gettext, config, asyncErrorWrapper } from 'utils';
 import { serializeRatings } from 'db/package/methods';
 import discoverJSON from './json/discover_apps.json';
 import { DiscoverHighlight, DiscoverData } from './types';
@@ -36,7 +36,7 @@ function checkFramework(discover: DiscoverData, frameworks: string[]) {
   return discover;
 }
 
-router.get('/', async(req: Request, res: Response) => {
+router.get('/', asyncErrorWrapper(async(req: Request, res: Response) => {
   const frameworks = getDataArray(req, 'frameworks', defaultFrameworks);
 
   let channel = getData(req, 'channel', DEFAULT_CHANNEL).toLowerCase();
@@ -59,139 +59,132 @@ router.get('/', async(req: Request, res: Response) => {
   ) { // Cache miss (10 minutes)
     const discover: DiscoverData = JSON.parse(JSON.stringify(discoverJSON));
 
-    try {
-      const [highlights, discoverCategoriesApps] = await Promise.all([
-        Package.findByFilters({
-          ids: discover.highlights.map((highlight) => highlight.id),
-          channel,
-          architectures: [architecture, Architecture.ALL],
-          published: true,
-        }),
+    const [highlights, discoverCategoriesApps] = await Promise.all([
+      Package.findByFilters({
+        ids: discover.highlights.map((highlight) => highlight.id),
+        channel,
+        architectures: [architecture, Architecture.ALL],
+        published: true,
+      }),
 
-        Promise.all(discover.categories.map((category) => {
-          if (category.ids.length === 0) {
-            return [];
-          }
-
-          return Package.findByFilters({
-            ids: category.ids,
-            channel,
-            architectures: [architecture, Architecture.ALL],
-            published: true,
-          });
-        })),
-      ]);
-
-      const [newApps, updatedApps, popularApps] = await Promise.all([
-        Package.findByFilters({
-          published: true,
-          channel,
-          architectures: [architecture, Architecture.ALL],
-          nsfw: [null, false],
-          types: [PackageType.APP],
-        }, '-published_date', 8),
-
-        Package.findByFilters({
-          published: true,
-          channel,
-          architectures: [architecture, Architecture.ALL],
-          nsfw: [null, false],
-          types: [PackageType.APP],
-        }, '-updated_date', 8),
-
-        Package.findByFilters({
-          published: true,
-          channel,
-          architectures: [architecture, Architecture.ALL],
-          nsfw: [null, false],
-          types: [PackageType.APP],
-        }, '-calculated_rating', 8),
-      ]);
-
-      discover.highlights = discover.highlights.map((highlight) => {
-        const highlightedApp = highlights.find((app) => app.id == highlight.id);
-
-        if (!highlightedApp) {
-          return null;
+      Promise.all(discover.categories.map((category) => {
+        if (category.ids.length === 0) {
+          return [];
         }
 
-        return {
-          ...highlight,
-          image: config.server.host + highlight.image,
-          app: highlightedApp.serialize(architecture, req.apiVersion),
-        };
-      }).filter(Boolean) as DiscoverHighlight[];
+        return Package.findByFilters({
+          ids: category.ids,
+          channel,
+          architectures: [architecture, Architecture.ALL],
+          published: true,
+        });
+      })),
+    ]);
 
-      // Deprecated, for backwards compatibility
-      discover.highlight = discover.highlights[0];
+    const [newApps, updatedApps, popularApps] = await Promise.all([
+      Package.findByFilters({
+        published: true,
+        channel,
+        architectures: [architecture, Architecture.ALL],
+        nsfw: [null, false],
+        types: [PackageType.APP],
+      }, '-published_date', 8),
 
-      discover.categories = discover.categories.map((category, index) => {
-        const apps = discoverCategoriesApps[index].map((app) => app.serialize(architecture, req.apiVersion));
+      Package.findByFilters({
+        published: true,
+        channel,
+        architectures: [architecture, Architecture.ALL],
+        nsfw: [null, false],
+        types: [PackageType.APP],
+      }, '-updated_date', 8),
 
-        return {
-          ...category,
-          ids: shuffle(category.ids),
-          apps: shuffle(apps),
-        };
-      });
+      Package.findByFilters({
+        published: true,
+        channel,
+        architectures: [architecture, Architecture.ALL],
+        nsfw: [null, false],
+        types: [PackageType.APP],
+      }, '-calculated_rating', 8),
+    ]);
 
-      const newAndUpdatedCategory = discover.categories.find((category) => (category.name == NEW_AND_UPDATED));
-      const popularCategory = discover.categories.find((category) => (category.name == POPULAR));
+    discover.highlights = discover.highlights.map((highlight) => {
+      const highlightedApp = highlights.find((app) => app.id == highlight.id);
 
-      // Get the 10 latest updated or published apps
-      let newAndUpdatedApps = newApps.concat(updatedApps);
-      newAndUpdatedApps = newAndUpdatedApps.filter((app, pos) => {
-        return newAndUpdatedApps.findIndex((a) => a.id == app.id) == pos;
-      });
+      if (!highlightedApp) {
+        return null;
+      }
 
-      newAndUpdatedApps.sort((a, b) => {
-        if (a.updated_date! > b.updated_date!) {
-          return -1;
-        }
+      return {
+        ...highlight,
+        image: config.server.host + highlight.image,
+        app: highlightedApp.serialize(architecture, req.apiVersion),
+      };
+    }).filter(Boolean) as DiscoverHighlight[];
 
-        if (a.updated_date! < b.updated_date!) {
-          return 1;
-        }
+    // Deprecated, for backwards compatibility
+    discover.highlight = discover.highlights[0];
 
-        return 0;
-      });
+    discover.categories = discover.categories.map((category, index) => {
+      const apps = discoverCategoriesApps[index].map((app) => app.serialize(architecture, req.apiVersion));
 
-      newAndUpdatedCategory!.apps = newAndUpdatedApps.slice(0, 10)
-        .map((app) => app.serialize(architecture, req.apiVersion));
-      popularCategory!.apps = popularApps.map((app) => app.serialize(architecture, req.apiVersion));
+      return {
+        ...category,
+        ids: shuffle(category.ids),
+        apps: shuffle(apps),
+      };
+    });
 
-      discover.categories = discover.categories.filter((category) => (category.apps.length > 0));
+    const newAndUpdatedCategory = discover.categories.find((category) => (category.name == NEW_AND_UPDATED));
+    const popularCategory = discover.categories.find((category) => (category.name == POPULAR));
 
-      discover.categories = discover.categories.map((category) => {
-        return {
-          ...category,
-          ids: category.apps.map((app) => app.id),
-        };
-      });
+    // Get the 10 latest updated or published apps
+    let newAndUpdatedApps = newApps.concat(updatedApps);
+    newAndUpdatedApps = newAndUpdatedApps.filter((app, pos) => {
+      return newAndUpdatedApps.findIndex((a) => a.id == app.id) == pos;
+    });
 
-      discoverCache[cacheKey] = discover;
-      discoverDate[cacheKey] = now;
+    newAndUpdatedApps.sort((a, b) => {
+      if (a.updated_date! > b.updated_date!) {
+        return -1;
+      }
 
-      const lang = getData(req, 'lang');
-      setLang(lang);
+      if (a.updated_date! < b.updated_date!) {
+        return 1;
+      }
 
-      let cloneDiscover: DiscoverData = JSON.parse(JSON.stringify(discover));
-      cloneDiscover = checkFramework(cloneDiscover, frameworks);
-      cloneDiscover.categories = cloneDiscover.categories.map((category) => {
-        return {
-          ...category,
-          name: gettext(category.name),
-          tagline: category.tagline ? gettext(category.tagline) : '',
-        };
-      });
+      return 0;
+    });
 
-      success(res, cloneDiscover);
-    }
-    catch (err) {
-      logger.error('Error processing discovery');
-      captureException(err, req.originalUrl);
-      error(res, 'Unable to fetch discovery data at this time');
-    }
+    newAndUpdatedCategory!.apps = newAndUpdatedApps.slice(0, 10)
+      .map((app) => app.serialize(architecture, req.apiVersion));
+    popularCategory!.apps = popularApps.map((app) => app.serialize(architecture, req.apiVersion));
+
+    discover.categories = discover.categories.filter((category) => (category.apps.length > 0));
+
+    discover.categories = discover.categories.map((category) => {
+      return {
+        ...category,
+        ids: category.apps.map((app) => app.id),
+      };
+    });
+
+    discoverCache[cacheKey] = discover;
+    discoverDate[cacheKey] = now;
+
+    const lang = getData(req, 'lang');
+    setLang(lang);
+
+    let cloneDiscover: DiscoverData = JSON.parse(JSON.stringify(discover));
+    cloneDiscover = checkFramework(cloneDiscover, frameworks);
+    cloneDiscover.categories = cloneDiscover.categories.map((category) => {
+      return {
+        ...category,
+        name: gettext(category.name),
+        tagline: category.tagline ? gettext(category.tagline) : '',
+      };
+    });
+
+    success(res, cloneDiscover);
   }
   else { // Cache hit
     let discover: DiscoverData = JSON.parse(JSON.stringify(discoverCache[cacheKey]));
@@ -225,6 +218,6 @@ router.get('/', async(req: Request, res: Response) => {
 
     success(res, discover);
   }
-});
+}, 'Unable to fetch discovery data at this time'));
 
 export default router;

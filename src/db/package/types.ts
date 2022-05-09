@@ -24,6 +24,12 @@ export enum Architecture {
   ARM64 = 'arm64',
 }
 
+export type File = {
+  originalname: string;
+  path: string;
+  size: number;
+};
+
 export interface RevisionSchema {
   revision: number,
   version: string,
@@ -209,6 +215,8 @@ export interface BodyUpdate {
 }
 
 export interface PackageDoc extends PackageSchema {
+  _id: any; // PackageDoc can't extend Document because the `id` params are incompatible
+
   getLatestRevision(
     channel: Channel,
     arch?: Architecture,
@@ -233,6 +241,7 @@ export interface PackageDoc extends PackageSchema {
   serializeRatings(): SerializedRatings;
   serializeSlim(): SerializedPackageSlim;
   serialize(architecture?: Architecture, apiVersion?: number): SerializedPackage;
+  updateScreenshotFiles(screenshotFiles: File[]): Promise<void>;
 
   // Virtuals
   architecture: string;
@@ -254,4 +263,7 @@ export interface PackageModel extends Model<PackageDoc> {
   countByFilters(filters: PackageRequestFilters): Promise<number>;
   findByFilters(filters: PackageRequestFilters, sort?: string, limit?: number, skip?: number): Promise<PackageQueryReturn[]>;
   findOneByFilters(id: string, filters?: PackageRequestFilters): Promise<PackageQueryReturn | null>;
+  searchByFilters(filters: PackageRequestFilters, full: boolean): Promise<{ pkgs: PackageQueryReturn[], count: number }>;
+  checkId(id: string): Promise<void>;
+  checkRestrictedId(id: string): void;
 }

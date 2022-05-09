@@ -2,7 +2,6 @@ import { Schema, model } from 'mongoose';
 import { setupMethods } from './methods';
 import { setupVirtuals } from './virtuals';
 import { setupStatics } from './statics';
-
 import { RevisionDoc, RevisionModel, PackageDoc, PackageModel } from './types';
 
 const revisionSchema = new Schema<RevisionDoc, RevisionModel>({

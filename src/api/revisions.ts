@@ -2,7 +2,7 @@ import express, { Request, Response } from 'express';
 
 import { Package } from 'db/package';
 import { Architecture, Channel, DEFAULT_CHANNEL } from 'db/package/types';
-import { getDataArray, getData, success, error, captureException, logger } from 'utils';
+import { getDataArray, getData, success, asyncErrorWrapper } from 'utils';
 
 // TODO remove this when system settings properly sends frameworks
 import defaultFrameworks from './json/default_frameworks.json';
@@ -25,52 +25,45 @@ async function revisionsByVersion(req: Request, res: Response) {
     architecture = Architecture.ARMHF;
   }
 
-  try {
-    const pkgs = (await Package.findByFilters({ published: true, ids }))
-      .filter((pkg) => (frameworks.length === 0 || frameworks.includes(pkg.framework)))
-      .filter((pkg) => (pkg.architectures.includes(architecture) || pkg.architectures.includes(Architecture.ALL)))
-      .map((pkg) => {
-        let version = versions.filter((v: string) => (v.split('@')[0] == pkg.id))[0];
-        const parts = version.split('@');
-        const channel = (parts.length > 2) ? parts[2] : defaultChannel;
-        version = parts[1];
+  const pkgs = (await Package.findByFilters({ published: true, ids }))
+    .filter((pkg) => (frameworks.length === 0 || frameworks.includes(pkg.framework)))
+    .filter((pkg) => (pkg.architectures.includes(architecture) || pkg.architectures.includes(Architecture.ALL)))
+    .map((pkg) => {
+      let version = versions.filter((v: string) => (v.split('@')[0] == pkg.id))[0];
+      const parts = version.split('@');
+      const channel = (parts.length > 2) ? parts[2] : defaultChannel;
+      version = parts[1];
 
-        const revisionData = pkg.revisions.filter((rev) => (
-          rev.version == version &&
-                    rev.channel == channel &&
-                    (rev.architecture == architecture || rev.architecture == Architecture.ALL)
-        ))[0];
-        const revision = revisionData ? revisionData.revision : 0;
+      const revisionData = pkg.revisions.filter((rev) => (
+        rev.version == version &&
+                  rev.channel == channel &&
+                  (rev.architecture == architecture || rev.architecture == Architecture.ALL)
+      ))[0];
+      const revision = revisionData ? revisionData.revision : 0;
 
-        // TODO return the latest revision for the given frameworks
-        // (also account for this most places pkg.getLatestRevision is used)
-        const { revisionData: latestRevisionData } = pkg.getLatestRevision(channel, architecture);
+      // TODO return the latest revision for the given frameworks
+      // (also account for this most places pkg.getLatestRevision is used)
+      const { revisionData: latestRevisionData } = pkg.getLatestRevision(channel, architecture);
 
-        if (!latestRevisionData || !latestRevisionData.download_url) {
-          return null;
-        }
+      if (!latestRevisionData || !latestRevisionData.download_url) {
+        return null;
+      }
 
-        return {
-          id: pkg.id,
-          version,
-          revision,
-          latest_version: latestRevisionData.version,
-          latest_revision: latestRevisionData.revision,
-          download_url: pkg.getDownloadUrl(channel, architecture),
-        };
-      })
-      .filter(Boolean);
+      return {
+        id: pkg.id,
+        version,
+        revision,
+        latest_version: latestRevisionData.version,
+        latest_revision: latestRevisionData.revision,
+        download_url: pkg.getDownloadUrl(channel, architecture),
+      };
+    })
+    .filter(Boolean);
 
-    success(res, pkgs);
-  }
-  catch (err) {
-    logger.error('Error finding packages for revision:', err);
-    captureException(err, req.originalUrl);
-    error(res, 'Could not fetch app revisions at this time');
-  }
+  success(res, pkgs);
 }
 
-router.get('/', revisionsByVersion);
-router.post('/', revisionsByVersion);
+router.get('/', asyncErrorWrapper(revisionsByVersion, 'Could not fetch app revisions at this time'));
+router.post('/', asyncErrorWrapper(revisionsByVersion, 'Could not fetch app revisions at this time'));
 
 export default router;

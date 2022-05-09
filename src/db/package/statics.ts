@@ -5,6 +5,8 @@ import uniq from 'lodash/uniq';
 import { Request } from 'express';
 
 import { getData, getDataArray, getDataBoolean, getDataInt } from 'utils';
+import { UserError } from 'exceptions';
+import { DUPLICATE_PACKAGE, NO_SPACES_NAME, BAD_NAMESPACE } from 'utils/error-messages';
 import {
   Architecture,
   PackageType,
@@ -16,6 +18,8 @@ import {
   PackageStats,
   PackageQueryReturn,
 } from './types';
+import PackageSearch from './search';
+import { RatingCount } from '../rating_count/model';
 
 export function setupStatics(packageSchema: Schema<PackageDoc, PackageModel>) {
   packageSchema.statics.incrementDownload = async function(id: string, revisionIndex: number) {
@@ -309,5 +313,64 @@ export function setupStatics(packageSchema: Schema<PackageDoc, PackageModel>) {
 
     const result = await this.findOne(query).populate('rating_counts');
     return result;
+  };
+
+  packageSchema.statics.searchByFilters = async function(
+    filters: PackageRequestFilters,
+    full = false,
+  ): Promise<{ pkgs: PackageQueryReturn[], count: number }> {
+    const results = await PackageSearch.search(filters, filters.sort, filters.skip, filters.limit);
+    const hits = results.hits.hits.map((hit: any) => hit._source);
+
+    const ids = hits.map((pkg: any) => pkg.id);
+    let pkgs = [];
+    if (full) {
+      pkgs = await this.findByFilters({ ids });
+
+      // Maintain ordering from the elastic search results
+      pkgs.sort((a, b) => ids.indexOf(a.id) - ids.indexOf(b.id));
+    }
+    else {
+      // Get the ratings
+      const ratingCounts = await RatingCount.getCountsByIds(ids);
+
+      pkgs = hits.map((pkg: any) => {
+        return new this({
+          ...pkg,
+          rating_counts: ratingCounts[pkg.id] || [],
+        });
+      });
+    }
+
+    return {
+      pkgs,
+      count: results.hits.total,
+    };
+  };
+
+  packageSchema.statics.checkId = async function(id: string): Promise<void> {
+    if (id.includes(' ')) {
+      throw new UserError(NO_SPACES_NAME);
+    }
+
+    const existing = await this.findOneByFilters(id);
+    if (existing) {
+      throw new UserError(DUPLICATE_PACKAGE);
+    }
+  };
+
+  packageSchema.statics.checkRestrictedId = function(id: string): void {
+    if (id.startsWith('com.ubuntu.') && !id.startsWith('com.ubuntu.developer.')) {
+      throw new UserError(BAD_NAMESPACE);
+    }
+    if (id.startsWith('com.canonical.')) {
+      throw new UserError(BAD_NAMESPACE);
+    }
+    if (id.includes('ubports')) {
+      throw new UserError(BAD_NAMESPACE);
+    }
+    if (id.includes('openstore')) {
+      throw new UserError(BAD_NAMESPACE);
+    }
   };
 }

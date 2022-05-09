@@ -27,8 +27,6 @@ export const REVIEW_TOO_LONG = 'The review is too long';
 export const INVALID_RATING = 'Invalid rating';
 export const VERSION_NOT_FOUND = 'Specified version is unknown';
 export const CANNOT_REVIEW_OWN_APP = 'Reviewing your own app is not allowed';
-export const NO_REVIEW_TO_EDIT = 'You have no review to edit';
 export const REVIEW_REDACTED = 'Redacted reviews cannot be edited';
-export const ALREADY_REVIEWED = 'This app was already reviewed by you';
 
 export const USER_NOT_FOUND = 'User not found';

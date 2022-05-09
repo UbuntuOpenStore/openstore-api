@@ -2,12 +2,26 @@
 
 import { Schema } from 'mongoose';
 import path from 'path';
-import fs from 'fs';
+import fs from 'fs/promises';
 
-import { sanitize, ClickParserData, config } from 'utils';
+import { sanitize, ClickParserData, config, moveFile } from 'utils';
 import { RatingCountDoc } from 'db/rating_count/types';
+import { v4 } from 'uuid';
 import { User } from '../user';
-import { RevisionDoc, PackageDoc, PackageModel, Architecture, BodyUpdate, Channel, SerializedRatings, SerializedPackageSlim, SerializedDownload, DEFAULT_CHANNEL, SerializedPackage } from './types';
+import {
+  RevisionDoc,
+  PackageDoc,
+  PackageModel,
+  Architecture,
+  BodyUpdate,
+  Channel,
+  SerializedRatings,
+  SerializedPackageSlim,
+  SerializedDownload,
+  DEFAULT_CHANNEL,
+  SerializedPackage,
+  File,
+} from './types';
 
 function toBytes(filesize: number) {
   return filesize * 1024;
@@ -237,12 +251,13 @@ export function setupMethods(packageSchema: Schema<PackageDoc, PackageModel>) {
     });
 
     // Unlink the screenshot file if it gets removed
-    this.screenshots.forEach((screenshot) => {
+    // eslint-disable-next-line no-restricted-syntax
+    for (const screenshot of this.screenshots) {
       const filename = screenshot.replace(regex, '');
       if (updatedScreenshots.indexOf(filename) == -1) {
-        fs.unlinkSync(`${config.image_dir}/${filename}`);
+        await fs.unlink(`${config.image_dir}/${filename}`);
       }
-    });
+    }
     this.screenshots = updatedScreenshots;
 
     if (body.keywords) {
@@ -488,5 +503,40 @@ export function setupMethods(packageSchema: Schema<PackageDoc, PackageModel>) {
     }
 
     return json;
+  };
+
+  packageSchema.methods.updateScreenshotFiles = async function(screenshotFiles: File[]) {
+    // Clear out the uploaded files that are over the limit
+    let screenshotLimit = 5 - this.screenshots.length;
+    if (screenshotFiles.length < screenshotLimit) {
+      screenshotLimit = screenshotFiles.length;
+    }
+
+    if (screenshotFiles.length > screenshotLimit) {
+      for (let i = screenshotLimit; i < screenshotFiles.length; i++) {
+        await fs.unlink(screenshotFiles[i].path);
+      }
+    }
+
+    for (let i = 0; i < screenshotLimit; i++) {
+      const file = screenshotFiles[i];
+
+      const ext = path.extname(file.originalname);
+      if (['.png', '.jpg', '.jpeg'].indexOf(ext) == -1) {
+        // Reject anything not an image we support
+        await fs.unlink(file.path);
+      }
+      else {
+        const id = v4();
+        const filename = `${this.id}-screenshot-${id}${ext}`;
+
+        await moveFile(
+          screenshotFiles[i].path,
+          `${config.image_dir}/${filename}`,
+        );
+
+        this.screenshots.push(filename);
+      }
+    }
   };
 }

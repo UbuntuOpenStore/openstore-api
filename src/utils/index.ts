@@ -10,3 +10,4 @@ export * from './get-data';
 export * from './file-utils';
 export * from './sanitize';
 export * from './responses';
+export * from './async-error-wrapper';
