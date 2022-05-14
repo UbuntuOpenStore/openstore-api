@@ -1,35 +1,27 @@
 import multer from 'multer';
-import path from 'path';
 import express, { Request, Response } from 'express';
 
 import fs from 'fs/promises';
 import { Lock, LockDoc } from 'db/lock';
-import { Architecture, Channel, DEFAULT_CHANNEL } from 'db/package/types';
+import { Channel } from 'db/package/types';
 import { Package } from 'db/package';
 import PackageSearch from 'db/package/search';
-import { success, error, captureException, sanitize, moveFile, apiLinks, sha512Checksum, logger, asyncErrorWrapper } from 'utils';
-import * as clickParser from 'utils/click-parser-async';
+import { success, error, captureException, moveFile, apiLinks, logger, asyncErrorWrapper } from 'utils';
 import { authenticate, userRole, downloadFile, extendTimeout, fetchPackage, canManage, canManageLocked } from 'middleware';
 import { clickReview } from 'db/package/utils';
 import {
   APP_NOT_FOUND,
-  MALFORMED_MANIFEST,
   PERMISSION_DENIED,
   BAD_FILE,
-  WRONG_PACKAGE,
-  EXISTING_VERSION,
   NO_FILE,
   INVALID_CHANNEL,
   NO_REVISIONS,
   NO_APP_NAME,
   NO_APP_TITLE,
   APP_HAS_REVISIONS,
-  NO_ALL,
-  NO_NON_ALL,
-  MISMATCHED_FRAMEWORK,
   APP_LOCKED,
 } from 'utils/error-messages';
-import { UserError } from 'exceptions';
+import { HttpError, UserError, AuthorizationError, NotFoundError } from 'exceptions';
 
 const mupload = multer({ dest: '/tmp' });
 const router = express.Router();
@@ -166,8 +158,6 @@ router.post(
   userRole,
   downloadFile,
   async(req: Request, res: Response) => {
-    // TODO refactor this into service method(s)
-
     if (!req.files || Array.isArray(req.files) || !req.files.file || req.files.file.length === 0) {
       return error(res, NO_FILE, 400);
     }
@@ -180,156 +170,36 @@ router.post(
     }
 
     let lock: LockDoc | null = null;
+    const filePath = `${file.path}.click`;
     try {
       lock = await Lock.acquire(`revision-${req.params.id}`);
+      await moveFile(file.path, filePath);
 
       // Not using the fetchPackage middleware because we need to lock before fetching the package
       let pkg = await Package.findOneByFilters(req.params.id);
       if (!pkg) {
-        await Lock.release(lock, req);
-        return error(res, APP_NOT_FOUND, 404);
+        throw new NotFoundError(APP_NOT_FOUND);
       }
 
       if (!req.isAdminUser && req.user!._id != pkg.maintainer) {
-        await Lock.release(lock, req);
-        return error(res, PERMISSION_DENIED, 403);
+        throw new AuthorizationError(PERMISSION_DENIED);
       }
 
       if (!req.isAdminUser && pkg.locked) {
-        await Lock.release(lock, req);
-        return error(res, APP_LOCKED, 403);
+        throw new AuthorizationError(APP_LOCKED);
       }
 
       if (!file.originalname.endsWith('.click')) {
-        await fs.unlink(file.path);
-        await Lock.release(lock, req);
-        return error(res, BAD_FILE, 400);
+        throw new UserError(BAD_FILE);
       }
-
-      const filePath = `${file.path}.click`;
-      await moveFile(file.path, filePath);
 
       if (!req.isAdminUser && !req.isTrustedUser) {
         // Admin & trusted users can upload apps without manual review
 
-        try {
-          await clickReview(filePath);
-        }
-        catch (err) {
-          await fs.unlink(filePath);
-
-          throw err;
-        }
+        await clickReview(filePath);
       }
 
-      const parseData = await clickParser.parseClickPackage(filePath, true);
-      const { version, architecture } = parseData;
-      if (!parseData.name || !version || !architecture) {
-        await fs.unlink(filePath);
-        await Lock.release(lock, req);
-        return error(res, MALFORMED_MANIFEST, 400);
-      }
-
-      if (pkg.id && parseData.name != pkg.id) {
-        await fs.unlink(filePath);
-        await Lock.release(lock, req);
-        return error(res, WRONG_PACKAGE, 400);
-      }
-
-      if (pkg.id && pkg.revisions) {
-        // Check for existing revisions (for this channel) with the same version string
-
-        const matches = pkg.revisions.find((revision) => {
-          return (
-            revision.version == version &&
-            revision.channel == channel &&
-            revision.architecture == architecture
-          );
-        });
-
-        if (matches) {
-          await fs.unlink(filePath);
-          await Lock.release(lock, req);
-          return error(res, EXISTING_VERSION, 400);
-        }
-
-        const currentRevisions = pkg.revisions.filter((rev) => rev.version === version);
-        if (currentRevisions.length > 0) {
-          const currentArches = currentRevisions.map((rev) => rev.architecture);
-          if (architecture == Architecture.ALL && !currentArches.includes(Architecture.ALL)) {
-            await fs.unlink(filePath);
-            await Lock.release(lock, req);
-            return error(res, NO_ALL, 400);
-          }
-          if (architecture != Architecture.ALL && currentArches.includes(Architecture.ALL)) {
-            await fs.unlink(filePath);
-            await Lock.release(lock, req);
-            return error(res, NO_NON_ALL, 400);
-          }
-
-          if (parseData.framework != currentRevisions[0].framework) {
-            await fs.unlink(filePath);
-            await Lock.release(lock, req);
-            return error(res, MISMATCHED_FRAMEWORK, 400);
-          }
-
-          // TODO check if permissions are the same with the current list of permissions
-        }
-      }
-
-      // Only update the data from the parsed click if it's for the default channel or if it's the first one
-      const data = (channel == DEFAULT_CHANNEL || pkg.revisions.length === 0) ? parseData : null;
-      const downloadSha512 = await sha512Checksum(filePath);
-
-      if (data) {
-        pkg.updateFromClick(data);
-      }
-
-      const localFilePath = pkg.getClickFilePath(channel, architecture, version);
-      await fs.copyFile(filePath, localFilePath);
-      await fs.unlink(filePath);
-
-      pkg.newRevision(
-        version,
-        channel,
-        architecture,
-        parseData.framework,
-        localFilePath,
-        downloadSha512,
-        parseData.installedSize,
-      );
-
-      const updateIcon = (channel == DEFAULT_CHANNEL || !pkg.icon);
-      if (updateIcon && parseData.icon) {
-        const ext = path.extname(parseData.icon).toLowerCase();
-        if (['.png', '.jpg', '.jpeg', '.svg'].includes(ext)) {
-          const localIconPath = pkg.getIconFilePath(ext);
-          await fs.copyFile(parseData.icon, localIconPath);
-
-          pkg.icon = localIconPath;
-        }
-
-        await fs.unlink(parseData.icon);
-      }
-
-      if (req.body.changelog) {
-        const changelog = pkg.changelog ? `${req.body.changelog.trim()}\n\n${pkg.changelog}` : req.body.changelog.trim();
-        pkg.changelog = sanitize(changelog);
-      }
-
-      if (!pkg.channels.includes(channel)) {
-        pkg.channels.push(channel);
-      }
-
-      if (pkg.architectures.includes(Architecture.ALL) && architecture != Architecture.ALL) {
-        pkg.architectures = [architecture];
-      }
-      else if (!pkg.architectures.includes(Architecture.ALL) && architecture == Architecture.ALL) {
-        pkg.architectures = [Architecture.ALL];
-      }
-      else if (!pkg.architectures.includes(architecture)) {
-        pkg.architectures.push(architecture);
-      }
+      await pkg.createRevisionFromClick(filePath, channel, req.body.changelog);
 
       pkg = await pkg.save();
 
@@ -345,8 +215,16 @@ router.post(
         await Lock.release(lock, req);
       }
 
-      if (err instanceof UserError) {
-        return error(res, err.message, 400);
+      try {
+        await fs.unlink(file.path);
+      }
+      catch (fileError) {
+        logger.error('Error deleting file');
+        captureException(fileError, req.originalUrl);
+      }
+
+      if (err instanceof HttpError) {
+        return error(res, err.message, err.httpCode);
       }
 
       const message = err?.message ? err.message : err;

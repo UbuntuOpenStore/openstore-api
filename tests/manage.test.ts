@@ -584,8 +584,6 @@ describe('Manage PUT', () => {
       expect(pkg?.screenshots[0]).to.equal(res.body.data.screenshots[1].replace('http://local.open-store.io/screenshots/', ''));
       expect(pkg?.screenshots[1]).to.equal(res.body.data.screenshots[0].replace('http://local.open-store.io/screenshots/', ''));
     });
-
-    // TODO test pkg.updateFromBody()
   });
 });
 

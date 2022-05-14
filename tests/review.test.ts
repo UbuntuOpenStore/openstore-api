@@ -244,6 +244,4 @@ describe('Reviews', () => {
       expect(review?.user.toString()).to.equal(this.user._id.toString());
     });
   });
-
-  // TODO more tests
 });

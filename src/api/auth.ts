@@ -13,7 +13,7 @@ import { UserDoc, User } from 'db/user';
 
 import { logger, config } from 'utils';
 
-// TODO fix type
+// Passport doesn't seem to have nice types for the `done` callback
 export interface GenericCallback {
   // eslint-disable-next-line no-unused-vars
   (err: any, arg1?: any, arg2?: any): void;

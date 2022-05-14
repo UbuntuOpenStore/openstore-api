@@ -136,7 +136,7 @@ describe('Package', () => {
 
     context('iconUrl', () => {
       it('generates an icon url', function() {
-        this.package.newRevision('1.0.0', Channel.XENIAL, Architecture.ARMHF, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
+        this.package.createNextRevision('1.0.0', Channel.XENIAL, Architecture.ARMHF, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
         expect(this.package.icon_url).to.equal('http://local.open-store.io/icons/app.id/app.id-1.0.0.png');
       });
 
@@ -191,8 +191,8 @@ describe('Package', () => {
       });
 
       it('serializes fully', function() {
-        this.package.newRevision('1.0.0', Channel.XENIAL, Architecture.ARMHF, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
-        this.package.newRevision('1.0.0', Channel.XENIAL, Architecture.ARM64, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
+        this.package.createNextRevision('1.0.0', Channel.XENIAL, Architecture.ARMHF, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
+        this.package.createNextRevision('1.0.0', Channel.XENIAL, Architecture.ARM64, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
 
         this.package.revisions[0].created_date = this.now;
         this.package.revisions[1].created_date = this.now;

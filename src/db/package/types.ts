@@ -226,7 +226,7 @@ export interface PackageDoc extends PackageSchema {
   ): { revisionData?: RevisionDoc | null, revisionIndex: number }
   updateFromClick(data: ClickParserData): void;
   updateFromBody(body: BodyUpdate): void;
-  newRevision(
+  createNextRevision(
     version: string,
     channel: Channel,
     architecture: Architecture,
@@ -242,6 +242,7 @@ export interface PackageDoc extends PackageSchema {
   serializeSlim(): SerializedPackageSlim;
   serialize(architecture?: Architecture, apiVersion?: number): SerializedPackage;
   updateScreenshotFiles(screenshotFiles: File[]): Promise<void>;
+  createRevisionFromClick(filePath: string, channel: Channel, changelog?: string): Promise<void>;
 
   // Virtuals
   architecture: string;

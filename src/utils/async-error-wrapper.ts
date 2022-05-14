@@ -1,5 +1,6 @@
-import { UserError } from 'exceptions';
 import { NextFunction, Request, RequestHandler, Response } from 'express';
+
+import { HttpError } from 'exceptions';
 import { captureException, error } from 'utils';
 
 export function asyncErrorWrapper(fn: RequestHandler, errorMessage: string) {
@@ -8,8 +9,8 @@ export function asyncErrorWrapper(fn: RequestHandler, errorMessage: string) {
       return await fn(req, res, next);
     }
     catch (err) {
-      if (err instanceof UserError) {
-        return error(res, err.message, 400);
+      if (err instanceof HttpError) {
+        return error(res, err.message, err.httpCode);
       }
 
       captureException(err, req.originalUrl);

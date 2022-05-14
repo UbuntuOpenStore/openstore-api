@@ -4,10 +4,12 @@ import { Schema } from 'mongoose';
 import path from 'path';
 import fs from 'fs/promises';
 
-import { sanitize, ClickParserData, config, moveFile } from 'utils';
+import { sanitize, ClickParserData, config, moveFile, sha512Checksum } from 'utils';
 import { RatingCountDoc } from 'db/rating_count/types';
 import { v4 } from 'uuid';
-import { User } from '../user';
+import { EXISTING_VERSION, MALFORMED_MANIFEST, MISMATCHED_FRAMEWORK, NO_ALL, NO_NON_ALL, WRONG_PACKAGE } from 'utils/error-messages';
+import { UserError } from 'exceptions';
+import * as clickParser from 'utils/click-parser-async';
 import {
   RevisionDoc,
   PackageDoc,
@@ -22,6 +24,7 @@ import {
   SerializedPackage,
   File,
 } from './types';
+import { User } from '../user';
 
 function toBytes(filesize: number) {
   return filesize * 1024;
@@ -304,7 +307,7 @@ export function setupMethods(packageSchema: Schema<PackageDoc, PackageModel>) {
     }
   };
 
-  packageSchema.methods.newRevision = function(version, channel, architecture, framework, url, downloadSha512, filesize) {
+  packageSchema.methods.createNextRevision = function(version, channel, architecture, framework, url, downloadSha512, filesize) {
     this.revisions.push({
       revision: this.next_revision,
       version,
@@ -537,6 +540,105 @@ export function setupMethods(packageSchema: Schema<PackageDoc, PackageModel>) {
 
         this.screenshots.push(filename);
       }
+    }
+  };
+
+  packageSchema.methods.createRevisionFromClick = async function(filePath: string, channel: Channel, changelog?: string) {
+    const parseData = await clickParser.parseClickPackage(filePath, true);
+    const { version, architecture } = parseData;
+    if (!parseData.name || !version || !architecture) {
+      throw new UserError(MALFORMED_MANIFEST);
+    }
+
+    if (parseData.name != this.id) {
+      throw new UserError(WRONG_PACKAGE);
+    }
+
+    if (this.revisions) {
+      // Check for existing revisions (for this channel) with the same version string
+
+      const matches = this.revisions.find((revision) => {
+        return (
+          revision.version == version &&
+          revision.channel == channel &&
+          revision.architecture == architecture
+        );
+      });
+
+      if (matches) {
+        throw new UserError(EXISTING_VERSION);
+      }
+
+      const currentRevisions = this.revisions.filter((rev) => rev.version === version);
+      if (currentRevisions.length > 0) {
+        const currentArches = currentRevisions.map((rev) => rev.architecture);
+        if (architecture == Architecture.ALL && !currentArches.includes(Architecture.ALL)) {
+          throw new UserError(NO_ALL);
+        }
+        if (architecture != Architecture.ALL && currentArches.includes(Architecture.ALL)) {
+          throw new UserError(NO_NON_ALL);
+        }
+
+        if (parseData.framework != currentRevisions[0].framework) {
+          throw new UserError(MISMATCHED_FRAMEWORK);
+        }
+
+        // TODO check if permissions are the same with the current list of permissions
+      }
+    }
+
+    // Only update the data from the parsed click if it's for the default channel or if it's the first one
+    const data = (channel == DEFAULT_CHANNEL || this.revisions.length === 0) ? parseData : null;
+    const downloadSha512 = await sha512Checksum(filePath);
+
+    if (data) {
+      this.updateFromClick(data);
+    }
+
+    const localFilePath = this.getClickFilePath(channel, architecture, version);
+    await fs.copyFile(filePath, localFilePath);
+    await fs.unlink(filePath);
+
+    this.createNextRevision(
+      version,
+      channel,
+      architecture,
+      parseData.framework,
+      localFilePath,
+      downloadSha512,
+      parseData.installedSize,
+    );
+
+    const updateIcon = (channel == DEFAULT_CHANNEL || !this.icon);
+    if (updateIcon && parseData.icon) {
+      const ext = path.extname(parseData.icon).toLowerCase();
+      if (['.png', '.jpg', '.jpeg', '.svg'].includes(ext)) {
+        const localIconPath = this.getIconFilePath(ext);
+        await fs.copyFile(parseData.icon, localIconPath);
+
+        this.icon = localIconPath;
+      }
+
+      await fs.unlink(parseData.icon);
+    }
+
+    if (changelog) {
+      const updatedChangelog = this.changelog ? `${changelog.trim()}\n\n${this.changelog}` : changelog.trim();
+      this.changelog = sanitize(updatedChangelog);
+    }
+
+    if (!this.channels.includes(channel)) {
+      this.channels.push(channel);
+    }
+
+    if (this.architectures.includes(Architecture.ALL) && architecture != Architecture.ALL) {
+      this.architectures = [architecture];
+    }
+    else if (!this.architectures.includes(Architecture.ALL) && architecture == Architecture.ALL) {
+      this.architectures = [Architecture.ALL];
+    }
+    else if (!this.architectures.includes(architecture)) {
+      this.architectures.push(architecture);
     }
   };
 }

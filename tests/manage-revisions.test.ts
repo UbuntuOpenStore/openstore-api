@@ -233,7 +233,7 @@ describe('Manage Revision POST', () => {
     });
 
     it('fails with an existing version of the same arch', async function() {
-      this.package.newRevision('1.0.0', Channel.XENIAL, Architecture.ARMHF, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
+      this.package.createNextRevision('1.0.0', Channel.XENIAL, Architecture.ARMHF, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
       await this.package.save();
 
       const reviewStub = this.sandbox.stub(reviewPackage, 'reviewPackage').resolves(false);
@@ -259,7 +259,7 @@ describe('Manage Revision POST', () => {
     });
 
     it('does not fail with an existing version of a different arch', async function() {
-      this.package.newRevision('1.0.0', Channel.XENIAL, Architecture.ARM64, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
+      this.package.createNextRevision('1.0.0', Channel.XENIAL, Architecture.ARM64, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
       this.package.architectures = [Architecture.ARM64];
       await this.package.save();
 
@@ -295,7 +295,7 @@ describe('Manage Revision POST', () => {
     });
 
     it('fails when uploading all with existing armhf', async function() {
-      this.package.newRevision('1.0.0', Channel.XENIAL, Architecture.ARMHF, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
+      this.package.createNextRevision('1.0.0', Channel.XENIAL, Architecture.ARMHF, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
       await this.package.save();
 
       const reviewStub = this.sandbox.stub(reviewPackage, 'reviewPackage').resolves(false);
@@ -323,7 +323,7 @@ describe('Manage Revision POST', () => {
     });
 
     it('fails when uploading armhf with existing all', async function() {
-      this.package.newRevision('1.0.0', Channel.XENIAL, Architecture.ALL, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
+      this.package.createNextRevision('1.0.0', Channel.XENIAL, Architecture.ALL, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
       await this.package.save();
 
       const reviewStub = this.sandbox.stub(reviewPackage, 'reviewPackage').resolves(false);
@@ -351,7 +351,7 @@ describe('Manage Revision POST', () => {
     });
 
     it('fails when the same version but different arch and framework', async function() {
-      this.package.newRevision('1.0.0', Channel.XENIAL, Architecture.ARM64, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
+      this.package.createNextRevision('1.0.0', Channel.XENIAL, Architecture.ARM64, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
       await this.package.save();
 
       const reviewStub = this.sandbox.stub(reviewPackage, 'reviewPackage').resolves(false);
@@ -423,7 +423,7 @@ describe('Manage Revision POST', () => {
       this.timeout(5000);
 
       this.package.published = true;
-      this.package.newRevision('0.0.1', Channel.XENIAL, Architecture.ARMHF, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
+      this.package.createNextRevision('0.0.1', Channel.XENIAL, Architecture.ARMHF, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
       await this.package.save();
 
       const reviewStub = this.sandbox.stub(reviewPackage, 'reviewPackage').resolves(false);
@@ -474,7 +474,7 @@ describe('Manage Revision POST', () => {
     });
 
     it('sets the arch to "all" only when switching to a new version (from "arm64")', async function() {
-      this.package.newRevision('1.0.0', Channel.XENIAL, Architecture.ARM64, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
+      this.package.createNextRevision('1.0.0', Channel.XENIAL, Architecture.ARM64, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
       this.package.architectures = [Architecture.ARM64];
       await this.package.save();
 
@@ -506,7 +506,7 @@ describe('Manage Revision POST', () => {
     });
 
     it('sets the arch to "armhf" only when switching to a new version (from "all")', async function() {
-      this.package.newRevision('1.0.0', Channel.XENIAL, Architecture.ALL, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
+      this.package.createNextRevision('1.0.0', Channel.XENIAL, Architecture.ALL, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
       this.package.architectures = [Architecture.ALL];
       await this.package.save();
 
@@ -536,8 +536,6 @@ describe('Manage Revision POST', () => {
       expect(this.lockAcquireSpy).to.have.been.calledOnce;
       expect(this.lockReleaseSpy).to.have.been.calledOnce;
     });
-
-    // TODO test pkg.updateFromClick
   });
 
   context('locks', () => {
