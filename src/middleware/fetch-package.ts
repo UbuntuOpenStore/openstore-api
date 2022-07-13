@@ -9,7 +9,7 @@ export function fetchPackage(published = false, useQuery = false) {
     try {
       let filters: PackageRequestFilters = {};
       if (useQuery) {
-        filters = { ...req.query };
+        filters = Package.parseRequestFilters(req);
         delete filters.published;
       }
 
