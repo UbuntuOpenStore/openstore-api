@@ -76,3 +76,24 @@ export function getDataBoolean(req: Request, name: string, defaultData = false) 
 
   return Boolean(defaultData);
 }
+
+export function getDataBooleanOrUndefined(req: Request, name: string) {
+  if (req.query && req.query[name] !== undefined) {
+    const value = req.query[name];
+    if (isString(value)) {
+      return value.toLowerCase() == 'true';
+    }
+
+    return Boolean(value);
+  }
+
+  if (req.body && req.body[name] !== undefined) {
+    if (isString(req.body[name])) {
+      return req.body[name].toLowerCase() == 'true';
+    }
+
+    return Boolean(req.body[name]);
+  }
+
+  return undefined;
+}

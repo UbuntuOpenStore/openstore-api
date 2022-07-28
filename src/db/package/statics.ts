@@ -4,7 +4,7 @@ import { FilterQuery, Schema } from 'mongoose';
 import uniq from 'lodash/uniq';
 import { Request } from 'express';
 
-import { getData, getDataArray, getDataBoolean, getDataInt } from 'utils';
+import { getData, getDataArray, getDataBoolean, getDataBooleanOrUndefined, getDataInt } from 'utils';
 import { UserError } from 'exceptions';
 import { DUPLICATE_PACKAGE, NO_SPACES_NAME, BAD_NAMESPACE } from 'utils/error-messages';
 import {
@@ -158,6 +158,15 @@ export function setupStatics(packageSchema: Schema<PackageDoc, PackageModel>) {
       limit = 30;
     }
 
+    const queryNsfw = getDataBooleanOrUndefined(req, 'nsfw');
+    let nsfw: (null|boolean)[] = [];
+    if (queryNsfw === true) {
+      nsfw = [true];
+    }
+    else if (queryNsfw === false) {
+      nsfw = [null, false];
+    }
+
     return {
       limit,
       skip: getDataInt(req, 'skip', 0),
@@ -170,7 +179,7 @@ export function setupStatics(packageSchema: Schema<PackageDoc, PackageModel>) {
       author: getData(req, 'author'),
       search: getData(req, 'search'),
       channel: getData(req, 'channel').toLowerCase(),
-      nsfw: getDataBoolean(req, 'nsfw') ? [true] : [null, false],
+      nsfw,
     };
   };
 
@@ -247,7 +256,7 @@ export function setupStatics(packageSchema: Schema<PackageDoc, PackageModel>) {
       query.$text = { $search: search };
     }
 
-    if (nsfw) {
+    if (nsfw && nsfw.length > 0) {
       query.nsfw = { $in: nsfw };
     }
 

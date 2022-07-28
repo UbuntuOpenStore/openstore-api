@@ -1,5 +1,5 @@
 import { expect } from './helper';
-import { getData, getDataArray, getDataBoolean } from '../src/utils';
+import { getData, getDataArray, getDataBoolean, getDataBooleanOrUndefined } from '../src/utils';
 
 describe('Helpers', () => {
   context('getData', () => {
@@ -59,6 +59,30 @@ describe('Helpers', () => {
 
     it('returns the default', () => {
       expect(getDataBoolean({} as any, 'foo', true)).to.be.true;
+    });
+  });
+
+  context('getDataBooleanOrUndefined', () => {
+    it('gets boolean string data from the query', () => {
+      expect(getDataBooleanOrUndefined({ query: { foo: 'true' } } as any, 'foo')).to.be.true;
+      expect(getDataBooleanOrUndefined({ query: { foo: 'false' } } as any, 'foo')).to.be.false;
+    });
+
+    it('gets boolean data from the query', () => {
+      expect(getDataBooleanOrUndefined({ query: { foo: true } } as any, 'foo')).to.be.true;
+    });
+
+    it('gets boolean string data from the body', () => {
+      expect(getDataBooleanOrUndefined({ body: { foo: 'true' } } as any, 'foo')).to.be.true;
+      expect(getDataBooleanOrUndefined({ body: { foo: 'false' } } as any, 'foo')).to.be.false;
+    });
+
+    it('gets boolean data from the body', () => {
+      expect(getDataBooleanOrUndefined({ body: { foo: true } } as any, 'foo')).to.be.true;
+    });
+
+    it('returns undefined', () => {
+      expect(getDataBooleanOrUndefined({} as any, 'foo')).to.be.undefined;
     });
   });
 });

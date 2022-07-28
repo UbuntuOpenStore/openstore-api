@@ -3,14 +3,19 @@ import { Request, Response, NextFunction } from 'express';
 import { Package, PackageRequestFilters } from 'db/package';
 import { captureException, error, logger } from 'utils';
 import { APP_NOT_FOUND } from 'utils/error-messages';
+import { pick } from 'lodash';
 
 export function fetchPackage(published = false, useQuery = false) {
   return async function(req: Request, res: Response, next: NextFunction) {
     try {
       let filters: PackageRequestFilters = {};
       if (useQuery) {
-        filters = Package.parseRequestFilters(req);
-        delete filters.published;
+        filters = pick(
+          Package.parseRequestFilters(req),
+          'frameworks',
+          'architectures',
+          'channel',
+        );
       }
 
       if (published) {
