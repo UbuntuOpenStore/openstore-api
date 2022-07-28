@@ -83,6 +83,8 @@ describe('Helpers', () => {
 
     it('returns undefined', () => {
       expect(getDataBooleanOrUndefined({} as any, 'foo')).to.be.undefined;
+      expect(getDataBooleanOrUndefined({ query: { foo: '' } } as any, 'foo')).to.be.undefined;
+      expect(getDataBooleanOrUndefined({ body: { foo: '' } } as any, 'foo')).to.be.undefined;
     });
   });
 });
