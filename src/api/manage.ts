@@ -2,6 +2,7 @@ import multer from 'multer';
 import express, { Request, Response } from 'express';
 
 import fs from 'fs/promises';
+import { existsSync } from 'fs';
 import { Lock, LockDoc } from 'db/lock';
 import { Channel } from 'db/package/types';
 import { Package } from 'db/package';
@@ -215,12 +216,24 @@ router.post(
         await Lock.release(lock, req);
       }
 
-      try {
-        await fs.unlink(file.path);
+      if (existsSync(file.path)) {
+        try {
+          await fs.unlink(file.path);
+        }
+        catch (fileError) {
+          logger.error(`Error deleting file: ${file.path}`);
+          captureException(fileError, req.originalUrl);
+        }
       }
-      catch (fileError) {
-        logger.error('Error deleting file');
-        captureException(fileError, req.originalUrl);
+
+      if (existsSync(filePath)) {
+        try {
+          await fs.unlink(filePath);
+        }
+        catch (fileError) {
+          logger.error(`Error deleting file: ${filePath}`);
+          captureException(fileError, req.originalUrl);
+        }
       }
 
       if (err instanceof HttpError) {
