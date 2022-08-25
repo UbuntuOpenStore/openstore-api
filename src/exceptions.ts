@@ -19,3 +19,13 @@ export class AuthorizationError extends HttpError {
 export class NotFoundError extends HttpError {
   httpCode = 404;
 }
+
+export class ClickReviewError extends UserError {
+  reasons: string[];
+
+  constructor(message: string, reasons: string[]) {
+    super(message);
+
+    this.reasons = reasons;
+  }
+}

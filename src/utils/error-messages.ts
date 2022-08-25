@@ -4,6 +4,7 @@ export const INVALID_CHANNEL = 'The provided channel is not valid';
 export const INVALID_ARCH = 'The provided architecture is not valid';
 
 export const NEEDS_MANUAL_REVIEW = 'This app needs to be reviewed manually';
+export const CLICK_REVIEW_ERROR = 'The uploaded click did not pass automated review. Please fix the issues and upload again.';
 export const MALFORMED_MANIFEST = 'Your package manifest is malformed';
 export const DUPLICATE_PACKAGE = 'A package with the same name already exists';
 export const PERMISSION_DENIED = 'You do not have permission to update this app';

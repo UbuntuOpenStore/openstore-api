@@ -10,6 +10,16 @@ import * as clickParser from '../src/utils/click-parser-async';
 import PackageSearch from '../src/db/package/search';
 import * as messages from '../src/utils/error-messages';
 
+const GOOD_REVIEW = { manualReviewMessages: [], errorMessages: [], warningMessages: [] };
+const MANUAL_REVIEW = {
+  ...GOOD_REVIEW,
+  manualReviewMessages: ["'unconfined' not allowed"],
+};
+const ERROR_REVIEW = {
+  ...GOOD_REVIEW,
+  errorMessages: ['Something is very wrong with your click file'],
+};
+
 describe('Manage Revision POST', () => {
   beforeEach(async function() {
     [this.package, this.package2] = await Promise.all([
@@ -37,6 +47,7 @@ describe('Manage Revision POST', () => {
 
   context('admin user', () => {
     it('allows access to other packages', async function() {
+      const reviewStub = this.sandbox.stub(reviewPackage, 'clickReview').resolves(GOOD_REVIEW);
       const parseStub = this.sandbox.stub(clickParser, 'parseClickPackage').resolves({
         name: this.package2.id,
         version: '1.0.0',
@@ -51,12 +62,13 @@ describe('Manage Revision POST', () => {
 
       expect(res.body.success).to.be.true;
       expect(parseStub).to.have.been.calledOnce;
+      expect(reviewStub).to.have.been.calledOnce;
       expect(this.lockAcquireSpy).to.have.been.calledOnce;
       expect(this.lockReleaseSpy).to.have.been.calledOnce;
     });
 
-    it('does not review', async function() {
-      const reviewSpy = this.sandbox.spy(reviewPackage, 'reviewPackage');
+    it('does not fail for manual review', async function() {
+      const reviewStub = this.sandbox.stub(reviewPackage, 'clickReview').resolves(MANUAL_REVIEW);
       const parseStub = this.sandbox.stub(clickParser, 'parseClickPackage').resolves({
         name: this.package.id,
         version: '1.0.0',
@@ -70,7 +82,7 @@ describe('Manage Revision POST', () => {
         .expect(200);
 
       expect(res.body.success).to.be.true;
-      expect(reviewSpy).to.have.not.been.calledOnce;
+      expect(reviewStub).to.have.been.calledOnce;
       expect(parseStub).to.have.been.calledOnce;
       expect(this.lockAcquireSpy).to.have.been.calledOnce;
       expect(this.lockReleaseSpy).to.have.been.calledOnce;
@@ -83,8 +95,8 @@ describe('Manage Revision POST', () => {
       await this.user.save();
     });
 
-    it('does not review', async function() {
-      const reviewSpy = this.sandbox.spy(reviewPackage, 'reviewPackage');
+    it('does not fail for manual review', async function() {
+      const reviewStub = this.sandbox.stub(reviewPackage, 'clickReview').resolves(MANUAL_REVIEW);
       const parseStub = this.sandbox.stub(clickParser, 'parseClickPackage').resolves({
         name: this.package.id,
         version: '1.0.0',
@@ -98,7 +110,7 @@ describe('Manage Revision POST', () => {
         .expect(200);
 
       expect(res.body.success).to.be.true;
-      expect(reviewSpy).to.have.not.been.calledOnce;
+      expect(reviewStub).to.have.been.calledOnce;
       expect(parseStub).to.have.been.calledOnce;
       expect(this.lockAcquireSpy).to.have.been.calledOnce;
       expect(this.lockReleaseSpy).to.have.been.calledOnce;
@@ -152,8 +164,8 @@ describe('Manage Revision POST', () => {
       expect(this.lockReleaseSpy).to.have.been.calledOnce;
     });
 
-    it('fails review', async function() {
-      const reviewStub = this.sandbox.stub(reviewPackage, 'reviewPackage').resolves("'unconfined' not allowed");
+    it('needs manual review', async function() {
+      const reviewStub = this.sandbox.stub(reviewPackage, 'clickReview').resolves(MANUAL_REVIEW);
 
       const res = await this.post(this.route)
         .attach('file', this.emptyClick)
@@ -161,14 +173,16 @@ describe('Manage Revision POST', () => {
         .expect(400);
 
       expect(res.body.success).to.be.false;
-      expect(res.body.message).to.equal("This app needs to be reviewed manually (Error: 'unconfined' not allowed)");
+      expect(res.body.message).to.equal(messages.NEEDS_MANUAL_REVIEW);
+      expect(res.body.data?.reasons).to.have.lengthOf(MANUAL_REVIEW.manualReviewMessages.length);
+      expect(res.body.data?.reasons[0]).to.equal(MANUAL_REVIEW.manualReviewMessages[0]);
       expect(reviewStub).to.have.been.calledOnce;
       expect(this.lockAcquireSpy).to.have.been.calledOnce;
       expect(this.lockReleaseSpy).to.have.been.calledOnce;
     });
 
-    it('fails review (general)', async function() {
-      const reviewStub = this.sandbox.stub(reviewPackage, 'reviewPackage').resolves(true);
+    it('fail review because of other errors', async function() {
+      const reviewStub = this.sandbox.stub(reviewPackage, 'clickReview').resolves(ERROR_REVIEW);
 
       const res = await this.post(this.route)
         .attach('file', this.emptyClick)
@@ -176,7 +190,9 @@ describe('Manage Revision POST', () => {
         .expect(400);
 
       expect(res.body.success).to.be.false;
-      expect(res.body.message).to.equal('This app needs to be reviewed manually, please check your app using the click-review command');
+      expect(res.body.message).to.equal(messages.CLICK_REVIEW_ERROR);
+      expect(res.body.data?.reasons).to.have.lengthOf(ERROR_REVIEW.errorMessages.length);
+      expect(res.body.data?.reasons[0]).to.equal(ERROR_REVIEW.errorMessages[0]);
       expect(reviewStub).to.have.been.calledOnce;
       expect(this.lockAcquireSpy).to.have.been.calledOnce;
       expect(this.lockReleaseSpy).to.have.been.calledOnce;
@@ -195,7 +211,7 @@ describe('Manage Revision POST', () => {
     });
 
     it('fails with a different package id from file', async function() {
-      const reviewStub = this.sandbox.stub(reviewPackage, 'reviewPackage').resolves(false);
+      const reviewStub = this.sandbox.stub(reviewPackage, 'clickReview').resolves(GOOD_REVIEW);
       const parseStub = this.sandbox.stub(clickParser, 'parseClickPackage').resolves({
         name: 'foo',
         version: '1.0.0',
@@ -216,7 +232,7 @@ describe('Manage Revision POST', () => {
     });
 
     it('fails with a malformed manifest', async function() {
-      const reviewStub = this.sandbox.stub(reviewPackage, 'reviewPackage').resolves(false);
+      const reviewStub = this.sandbox.stub(reviewPackage, 'clickReview').resolves(GOOD_REVIEW);
       const parseStub = this.sandbox.stub(clickParser, 'parseClickPackage').resolves({});
 
       const res = await this.post(this.route)
@@ -236,7 +252,7 @@ describe('Manage Revision POST', () => {
       this.package.createNextRevision('1.0.0', Channel.XENIAL, Architecture.ARMHF, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
       await this.package.save();
 
-      const reviewStub = this.sandbox.stub(reviewPackage, 'reviewPackage').resolves(false);
+      const reviewStub = this.sandbox.stub(reviewPackage, 'clickReview').resolves(GOOD_REVIEW);
       const parseStub = this.sandbox.stub(clickParser, 'parseClickPackage').resolves({
         name: this.package.id,
         version: '1.0.0',
@@ -263,7 +279,7 @@ describe('Manage Revision POST', () => {
       this.package.architectures = [Architecture.ARM64];
       await this.package.save();
 
-      const reviewStub = this.sandbox.stub(reviewPackage, 'reviewPackage').resolves(false);
+      const reviewStub = this.sandbox.stub(reviewPackage, 'clickReview').resolves(GOOD_REVIEW);
       const parseStub = this.sandbox.stub(clickParser, 'parseClickPackage').resolves({
         name: this.package.id,
         version: '1.0.0',
@@ -298,7 +314,7 @@ describe('Manage Revision POST', () => {
       this.package.createNextRevision('1.0.0', Channel.XENIAL, Architecture.ARMHF, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
       await this.package.save();
 
-      const reviewStub = this.sandbox.stub(reviewPackage, 'reviewPackage').resolves(false);
+      const reviewStub = this.sandbox.stub(reviewPackage, 'clickReview').resolves(GOOD_REVIEW);
       const parseStub = this.sandbox.stub(clickParser, 'parseClickPackage').resolves({
         name: this.package.id,
         version: '1.0.0',
@@ -326,7 +342,7 @@ describe('Manage Revision POST', () => {
       this.package.createNextRevision('1.0.0', Channel.XENIAL, Architecture.ALL, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
       await this.package.save();
 
-      const reviewStub = this.sandbox.stub(reviewPackage, 'reviewPackage').resolves(false);
+      const reviewStub = this.sandbox.stub(reviewPackage, 'clickReview').resolves(GOOD_REVIEW);
       const parseStub = this.sandbox.stub(clickParser, 'parseClickPackage').resolves({
         name: this.package.id,
         version: '1.0.0',
@@ -354,7 +370,7 @@ describe('Manage Revision POST', () => {
       this.package.createNextRevision('1.0.0', Channel.XENIAL, Architecture.ARM64, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
       await this.package.save();
 
-      const reviewStub = this.sandbox.stub(reviewPackage, 'reviewPackage').resolves(false);
+      const reviewStub = this.sandbox.stub(reviewPackage, 'clickReview').resolves(GOOD_REVIEW);
       const parseStub = this.sandbox.stub(clickParser, 'parseClickPackage').resolves({
         name: this.package.id,
         version: '1.0.0',
@@ -395,7 +411,7 @@ describe('Manage Revision POST', () => {
       this.package.changelog = 'old changelog';
       await this.package.save();
 
-      const reviewStub = this.sandbox.stub(reviewPackage, 'reviewPackage').resolves(false);
+      const reviewStub = this.sandbox.stub(reviewPackage, 'clickReview').resolves(GOOD_REVIEW);
       const parseStub = this.sandbox.stub(clickParser, 'parseClickPackage').resolves({
         name: this.package.id,
         version: '1.0.0',
@@ -426,7 +442,7 @@ describe('Manage Revision POST', () => {
       this.package.createNextRevision('0.0.1', Channel.XENIAL, Architecture.ARMHF, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
       await this.package.save();
 
-      const reviewStub = this.sandbox.stub(reviewPackage, 'reviewPackage').resolves(false);
+      const reviewStub = this.sandbox.stub(reviewPackage, 'clickReview').resolves(GOOD_REVIEW);
       const upsertStub = this.sandbox.stub(PackageSearch, 'upsert');
 
       const res = await this.post(this.route)
@@ -478,7 +494,7 @@ describe('Manage Revision POST', () => {
       this.package.architectures = [Architecture.ARM64];
       await this.package.save();
 
-      const reviewStub = this.sandbox.stub(reviewPackage, 'reviewPackage').resolves(false);
+      const reviewStub = this.sandbox.stub(reviewPackage, 'clickReview').resolves(GOOD_REVIEW);
       const parseStub = this.sandbox.stub(clickParser, 'parseClickPackage').resolves({
         name: this.package.id,
         version: '2.0.0',
@@ -510,7 +526,7 @@ describe('Manage Revision POST', () => {
       this.package.architectures = [Architecture.ALL];
       await this.package.save();
 
-      const reviewStub = this.sandbox.stub(reviewPackage, 'reviewPackage').resolves(false);
+      const reviewStub = this.sandbox.stub(reviewPackage, 'clickReview').resolves(GOOD_REVIEW);
       const parseStub = this.sandbox.stub(clickParser, 'parseClickPackage').resolves({
         name: this.package.id,
         version: '2.0.0',
@@ -551,6 +567,7 @@ describe('Manage Revision POST', () => {
       await lock.save();
 
       const saveSpy = this.sandbox.spy(Lock.prototype, 'save');
+      const reviewStub = this.sandbox.stub(reviewPackage, 'clickReview').resolves(GOOD_REVIEW);
       const parseStub = this.sandbox.stub(clickParser, 'parseClickPackage').resolves({
         name: this.package.id,
         version: '1.0.0',
@@ -566,6 +583,7 @@ describe('Manage Revision POST', () => {
 
       expect(res.body.success).to.be.true;
       expect(parseStub).to.have.been.calledOnce;
+      expect(reviewStub).to.have.been.calledOnce;
       expect(this.lockAcquireSpy).to.have.been.calledOnce;
       expect(this.lockReleaseSpy).to.have.been.calledOnce;
 

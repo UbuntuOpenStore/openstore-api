@@ -9,7 +9,6 @@ import { Package } from 'db/package';
 import PackageSearch from 'db/package/search';
 import { success, error, captureException, moveFile, apiLinks, logger, asyncErrorWrapper } from 'utils';
 import { authenticate, userRole, downloadFile, extendTimeout, fetchPackage, canManage, canManageLocked } from 'middleware';
-import { clickReview } from 'db/package/utils';
 import {
   APP_NOT_FOUND,
   PERMISSION_DENIED,
@@ -21,8 +20,11 @@ import {
   NO_APP_TITLE,
   APP_HAS_REVISIONS,
   APP_LOCKED,
+  NEEDS_MANUAL_REVIEW,
+  CLICK_REVIEW_ERROR,
 } from 'utils/error-messages';
-import { HttpError, UserError, AuthorizationError, NotFoundError } from 'exceptions';
+import { HttpError, UserError, AuthorizationError, NotFoundError, ClickReviewError } from 'exceptions';
+import { clickReview } from 'utils/review-package';
 
 const mupload = multer({ dest: '/tmp' });
 const router = express.Router();
@@ -194,10 +196,20 @@ router.post(
         throw new UserError(BAD_FILE);
       }
 
+      const reviewSummary = await clickReview(filePath);
       if (!req.isAdminUser && !req.isTrustedUser) {
         // Admin & trusted users can upload apps without manual review
 
-        await clickReview(filePath);
+        if (reviewSummary.manualReviewMessages.length > 0) {
+          throw new ClickReviewError(NEEDS_MANUAL_REVIEW, reviewSummary.manualReviewMessages);
+        }
+      }
+
+      if (reviewSummary.errorMessages.length > 0 || reviewSummary.warningMessages.length > 0) {
+        throw new ClickReviewError(
+          CLICK_REVIEW_ERROR,
+          reviewSummary.errorMessages.concat(reviewSummary.warningMessages),
+        );
       }
 
       await pkg.createRevisionFromClick(filePath, channel, req.body.changelog);
@@ -236,6 +248,11 @@ router.post(
         }
       }
 
+      if (err instanceof ClickReviewError) {
+        return error(res, err.message, err.httpCode, {
+          reasons: err.reasons,
+        });
+      }
       if (err instanceof HttpError) {
         return error(res, err.message, err.httpCode);
       }

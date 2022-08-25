@@ -1,71 +1,86 @@
 import childProcess from 'child_process';
+import { UserError } from 'exceptions';
 
 import { config } from './config';
-import { logger } from './logger';
+import { captureException } from './logger';
 
-// TODO return the actual problem
-function parseReview(reviewData: { [key: string]: { [key: string]: { [key: string]: { [key: string]: string } }}}) {
-  let manualReview: string | boolean = false;
-
-  Object.values(reviewData).forEach((rev) => {
-    Object.values(rev).forEach((level) => {
-      Object.values(level).forEach((label) => {
-        if (label.manual_review) {
-          if (label.text.indexOf('OK') == -1) {
-            manualReview = label.text;
-            manualReview = manualReview.replace('(NEEDS REVIEW)', '').trim();
-          }
-          else {
-            manualReview = true;
-          }
-        }
-      });
-    });
-  });
-
-  return manualReview;
+export type ReviewData = {
+  [group: string]: {
+    error: {
+      [check: string]: {
+        manual_review: boolean;
+        text: string;
+      };
+    };
+    warn: {
+      [check: string]: {
+        manual_review: boolean;
+        text: string;
+      };
+    };
+    info: {
+      [check: string]: {
+        manual_review: boolean;
+        text: string;
+      };
+    };
+  }
 }
 
-export function reviewPackage(file: string) {
-  return new Promise((resolve) => {
+export type ReviewSummary = {
+  manualReviewMessages: string[];
+  errorMessages: string[];
+  warningMessages: string[];
+}
+
+export function clickReview(file: string): Promise<ReviewSummary> {
+  return new Promise((resolve, reject) => {
     const command = `${config.clickreview.command} --json ${file}`;
     childProcess.exec(command, {
       env: {
         PYTHONPATH: config.clickreview.pythonpath,
       },
     }, (err, stdout, stderr) => {
-      if (err) {
-        logger.error(`Error processing package for review: ${err}`);
-        if (stderr) {
-          logger.error(stderr);
-        }
+      let reviewData: ReviewData;
+      try {
+        reviewData = JSON.parse(stdout);
+      }
+      catch (e) {
+        console.error(e, stdout, stderr, err);
+        captureException(e, '');
+        reject(new UserError('Unable to process the click for review'));
+        return;
+      }
 
-        // logger.error(stdout);
+      const manualReviewMessages: string[] = [];
+      const errorMessages: string[] = [];
+      const warningMessages: string[] = [];
 
-        let error = true;
-        try {
-          const reviewData = JSON.parse(stdout);
-          error = parseReview(reviewData);
-          if (!error) {
-            /*
-                        If we don't find a manual review flag, but this still
-                        failed (for example, "Could not find compiled binaries
-                        or architecture 'armhf'")
-                        */
-            error = true;
+      Object.values(reviewData).forEach((groupData) => {
+        Object.values(groupData.error).forEach((error) => {
+          if (error.manual_review) {
+            manualReviewMessages.push(error.text.replace('(NEEDS REVIEW)', '').trim());
           }
-        }
-        catch (e) {
-          error = true;
-        }
+          else {
+            errorMessages.push(error.text.trim());
+          }
+        });
 
-        resolve(error);
-      }
-      else {
-        const reviewData = JSON.parse(stdout);
+        Object.values(groupData.warn).forEach((warn) => {
+          if (warn.manual_review) {
+            manualReviewMessages.push(warn.text.replace('(NEEDS REVIEW)', '').trim());
+          }
+          else {
+            warningMessages.push(warn.text.trim());
+          }
+        });
+      });
 
-        resolve(parseReview(reviewData));
-      }
+      resolve({
+        manualReviewMessages,
+        errorMessages,
+        warningMessages,
+      });
     });
   });
 }

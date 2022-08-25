@@ -9,13 +9,13 @@ export function success(res: Response, data: any, message?: string) {
   });
 }
 
-export function error(res: Response, message: string | unknown | Error, code = 500) {
+export function error(res: Response, message: string | unknown | Error, code = 500, data: any = null) {
   logger.debug(`server: ${message}`);
 
   res.status(code);
   res.send({
     success: false,
-    data: null,
+    data,
     message,
   });
 }
