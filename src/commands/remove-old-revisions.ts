@@ -40,7 +40,6 @@ Package.find({ id: { $in: limitedApps } }).then((pkgs) => {
           }
           else if (fs.existsSync(revision.download_url)) {
             keepFiles.push(revision.download_url);
-            console.log(`[${pkg.id}] not removing ${revision.download_url}`);
           }
           else {
             console.log(`[${pkg.id}] missing ${revision.download_url}`);
@@ -48,6 +47,8 @@ Package.find({ id: { $in: limitedApps } }).then((pkgs) => {
           }
         }
       }
+
+      console.log(`[${pkg.id}] keeping ${keepFiles.length} clicks`);
 
       const allFiles = fs.readdirSync(config.data_dir);
       const extraFiles = allFiles.filter((file) => {
