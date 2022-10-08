@@ -196,7 +196,10 @@ router.get('/', asyncErrorWrapper(async(req: Request, res: Response) => {
 
     const ratingCounts = await RatingCount.getCountsByIds(ids);
 
-    discover.highlight.app.ratings = serializeRatings(ratingCounts[discover.highlights[0].id]);
+    if (discover.highlights[0]) {
+      discover.highlight.app.ratings = serializeRatings(ratingCounts[discover.highlights[0].id]);
+    }
+
     discover.highlights = discover.highlights.map((app) => {
       return {
         ...app,
