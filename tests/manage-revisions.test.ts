@@ -392,6 +392,31 @@ describe('Manage Revision POST', () => {
       expect(this.lockReleaseSpy).to.have.been.calledOnce;
     });
 
+    it('passes when the same version but different framework and channel', async function() {
+      this.package.createNextRevision('1.0.0', Channel.XENIAL, Architecture.ARM64, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
+      await this.package.save();
+
+      const reviewStub = this.sandbox.stub(reviewPackage, 'clickReview').resolves(GOOD_REVIEW);
+      const parseStub = this.sandbox.stub(clickParser, 'parseClickPackage').resolves({
+        name: this.package.id,
+        version: '1.0.0',
+        architecture: Architecture.ARM64,
+        framework: 'ubuntu-sdk-20.04',
+        apps: [],
+      });
+
+      const res = await this.post(this.route)
+        .attach('file', this.emptyClick)
+        .field('channel', Channel.FOCAL)
+        .expect(200);
+
+      expect(res.body.success).to.be.true;
+      expect(reviewStub).to.have.been.calledOnce;
+      expect(parseStub).to.have.been.calledOnce;
+      expect(this.lockAcquireSpy).to.have.been.calledOnce;
+      expect(this.lockReleaseSpy).to.have.been.calledOnce;
+    });
+
     it('fails when the app is locked', async function() {
       this.package.locked = true;
       await this.package.save();

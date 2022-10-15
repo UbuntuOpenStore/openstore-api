@@ -569,7 +569,7 @@ export function setupMethods(packageSchema: Schema<PackageDoc, PackageModel>) {
         throw new UserError(EXISTING_VERSION);
       }
 
-      const currentRevisions = this.revisions.filter((rev) => rev.version === version);
+      const currentRevisions = this.revisions.filter((rev) => rev.version === version && rev.channel === channel);
       if (currentRevisions.length > 0) {
         const currentArches = currentRevisions.map((rev) => rev.architecture);
         if (architecture == Architecture.ALL && !currentArches.includes(Architecture.ALL)) {
