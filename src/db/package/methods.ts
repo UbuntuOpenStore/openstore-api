@@ -475,8 +475,18 @@ export function setupMethods(packageSchema: Schema<PackageDoc, PackageModel>) {
           })];
         }, []).filter((revision) => (revision?.download_url)) as SerializedDownload[];
 
-      // Make sure the current architecture is last to not break old versions of the app
       jsonDownloads.sort((a, b) => {
+        // Sort xenial to the bottom
+        if (a.channel !== b.channel) {
+          if (b.channel === Channel.XENIAL) {
+            return -1;
+          }
+
+          return 1;
+        }
+
+        // TODO is this hack still needed?
+        // Make sure the current architecture is last to not break old versions of the app
         if (a.architecture == architecture) {
           return 1;
         }
