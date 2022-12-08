@@ -1,6 +1,11 @@
 {
     "highlights": [
         {
+          "id": "io.guh.nymeaapp",
+          "image": "/banners/nymea.svg",
+          "description": "nymea transforms your regular smart devices into a harmoniously connected ecosystem."
+        },
+        {
             "id": "cinny.nitanmarcel",
             "image": "/banners/cinny.svg",
             "description": "A Matrix client focusing primarily on a simple, elegant, and secure interface."
@@ -14,11 +19,6 @@
             "id": "circlejump.abmyii",
             "image": "/banners/circlejump.svg",
             "description": "How far can you get? Tap to jump from circle to circle for as long as you can."
-        },
-        {
-            "id": "me.lduboeuf.stellarium",
-            "image": "/banners/stellarium.svg",
-            "description": "A realistic night sky map in 3D in the palm of your hand."
         }
     ],
     "categories": [
@@ -29,30 +29,42 @@
             "ids": []
         },
         {
-            "name": "News",
-            "tagline": "News is only the first rough draft of history",
+            "name": "Focal Support",
+            "tagline": "These apps already support the next version of Ubuntu Touch!",
             "referral": "",
             "ids": [
-                "darkeye.ursses",
-                "headline.collaproductions",
-                "hnr.davidv.dev",
-                "net.gsantner.ut.ttrssreadermobile",
-                "newsie.martinferretti",
-                "quickddit"
+                "turntable.lduboeuf",
+                "me.fredl.ghostcloud",
+                "me.lduboeuf.aircraftwar",
+                "pvms.me.fredl",
+                "putaside.comiryu",
+                "audio-recorder.luksus",
+                "me.lduboeuf.sfxr",
+                "navigator.costales"
             ]
         },
         {
-            "name": "Godot Games",
-            "tagline": "The game engine you waited for",
-            "referral": "Games",
+            "name": "Utilities",
+            "tagline": "It is essential to have good tools, but it is also essential that the tools should be used in the right way.",
+            "referral": "Utilities",
             "ids": [
-                "tanks.arc676",
-                "circlejump.abmyii",
-                "liner.abmyii",
-                "package-resolved.marquiskurt",
-                "godot3dtest.pavelprosto",
-                "costumemaster.marquiskurt",
-                "3rdperson.gabriele"
+                "dict.walking-octopus",
+                "timetracker.matdahl",
+                "kellypool.red",
+                "opensesame.red",
+                "fastburgers.collaproductions",
+                "kaltracker.ivoxavier",
+                "me.fredl.ghostcloudphotobackup"
+            ]
+        },
+        {
+            "name": "Game Helpers",
+            "tagline": "No matter what the game, there is one thing everyone can agree on: games are fun.",
+            "referral": "",
+            "ids": [
+                "scorekeeper.red",
+                "com.jchrtech.coinflip",
+                "dice-roller.bhdouglass"
             ]
         },
         {
@@ -63,7 +75,6 @@
                 "tfamanager.cibersheep",
                 "teleports.ubports",
                 "com.ubuntu.docviewer",
-                "fluffychat.christianpauly",
                 "navigator.costales",
                 "dekko2.dekkoproject",
                 "com.ubuntu.docviewer"
