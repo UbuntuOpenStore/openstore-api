@@ -381,5 +381,8 @@ export function setupStatics(packageSchema: Schema<PackageDoc, PackageModel>) {
     if (id.includes('openstore')) {
       throw new UserError(BAD_NAMESPACE);
     }
+    if (id.includes('lomiri')) {
+      throw new UserError(BAD_NAMESPACE);
+    }
   };
 }

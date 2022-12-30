@@ -192,6 +192,14 @@ describe('Manage POST', () => {
 
       expect(res.body.success).to.be.true;
     });
+
+    it('succeeds with a lomiri id', async function() {
+      const res = await this.post(this.route)
+        .send({ id: 'lomiri.app', name: 'App Dev' })
+        .expect(200);
+
+      expect(res.body.success).to.be.true;
+    });
   });
 
   context('truested user', () => {
@@ -227,6 +235,14 @@ describe('Manage POST', () => {
     it('succeeds with a openstore id', async function() {
       const res = await this.post(this.route)
         .send({ id: 'OpenStore.app', name: 'App Dev' })
+        .expect(200);
+
+      expect(res.body.success).to.be.true;
+    });
+
+    it('succeeds with a lomiri id', async function() {
+      const res = await this.post(this.route)
+        .send({ id: 'lomiri.app', name: 'App Dev' })
         .expect(200);
 
       expect(res.body.success).to.be.true;
@@ -303,6 +319,15 @@ describe('Manage POST', () => {
     it('fails with a openstore id', async function() {
       const res = await this.post(this.route)
         .send({ id: 'OpenStore.app', name: 'App Dev' })
+        .expect(400);
+
+      expect(res.body.success).to.be.false;
+      expect(res.body.message).to.equal(messages.BAD_NAMESPACE);
+    });
+
+    it('fails with a lomiri id', async function() {
+      const res = await this.post(this.route)
+        .send({ id: 'lomiri.app', name: 'App Dev' })
         .expect(400);
 
       expect(res.body.success).to.be.false;
