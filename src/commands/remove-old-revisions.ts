@@ -1,8 +1,9 @@
+/* eslint-disable no-restricted-syntax */
 import fs from 'fs';
 import path from 'path';
 
 import 'db'; // Make sure the database connection gets setup
-import { Architecture } from 'db/package/types';
+import { Architecture, Channel } from 'db/package/types';
 import { Package } from 'db/package';
 import { config } from 'utils';
 import limitedApps from './limited-apps.json';
@@ -10,19 +11,29 @@ import limitedApps from './limited-apps.json';
 const MAX_REVISIONS = 3;
 const MIN_FILES_CHECK = 20;
 
+const architectures = Object.values(Architecture);
+const channels = Object.values(Channel);
+const keys: string[] = [];
+for (const arch of architectures) {
+  for (const channel of channels) {
+    keys.push(`${channel}-${arch}`);
+  }
+}
+
 Package.find({ id: { $in: limitedApps } }).then((pkgs) => {
   return Promise.all(pkgs.map((pkg) => {
     if (pkg.revisions) {
-      const fileCounts = Object.values(Architecture).reduce<{ [key: string]: number }>((acc, current) => {
+      const fileCounts = keys.reduce<{ [key: string]: number }>((acc, current) => {
         return { ...acc, [current]: 0 };
       }, {});
 
       const keepFiles: string[] = [];
       for (let i = (pkg.revisions.length - 1); i >= 0; i--) {
         const revision = pkg.revisions[i];
+        const key = `${revision.channel}-${revision.architecture}`;
         if (revision.download_url && revision.channel as string != 'vivid') {
-          fileCounts[revision.architecture]++;
-          if (fileCounts[revision.architecture] > MAX_REVISIONS) {
+          fileCounts[key]++;
+          if (fileCounts[key] > MAX_REVISIONS) {
             console.log(`[${pkg.id}] removing ${revision.download_url}`);
 
             try {
