@@ -64,7 +64,7 @@ Package.find({ id: { $in: limitedApps } }).then((pkgs) => {
       const allFiles = fs.readdirSync(config.data_dir);
       const extraFiles = allFiles.filter((file) => {
         const fullFile = path.join(config.data_dir, file);
-        return file.startsWith(`${pkg.id}-xenial`) && !keepFiles.includes(fullFile);
+        return file.startsWith(`${pkg.id}`) && !file.startsWith(`${pkg.id}-vivid`) && !keepFiles.includes(fullFile);
       });
 
       for (let i = 0; i < extraFiles.length; i++) {
