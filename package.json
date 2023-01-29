@@ -14,8 +14,8 @@
     "test:ci": "NODE_ENV=ci nyc mocha -r tsconfig-paths/register -r ts-node/register --reporter dot tests/**/*.ts",
     "test:snapshot": "SNAPSHOT_TEST=true NODE_ENV=testing mocha -r tsconfig-paths/register -r ts-node/register --reporter dot tests/snapshots.test.ts",
     "update-pot-file": "npm run ts-command update-pot-file",
-    "command": "bash -c 'NODE_PATH=./dist node -r dotenv/config ./dist/commands/\"$0\".js'",
-    "ts-command": "bash -c 'NODE_PATH=./src ts-node ./src/commands/\"$0\".ts'"
+    "command": "bash -c 'NODE_PATH=./dist node -r dotenv/config ./dist/commands/\"$0\".js $1'",
+    "ts-command": "bash -c 'NODE_PATH=./src ts-node ./src/commands/\"$0\".ts $1'"
   },
   "repository": {
     "type": "git",
