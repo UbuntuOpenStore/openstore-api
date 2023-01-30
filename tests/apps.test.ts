@@ -1,8 +1,8 @@
-import { DEFAULT_CHANNEL } from 'db/package/types';
+import { DEFAULT_CHANNEL } from '../src/db/package/types';
 import factory from './factory';
 
 import { expect } from './helper';
-import { Package } from '../src/db/package';
+import { Architecture, Package } from '../src/db/package';
 import * as messages from '../src/utils/error-messages';
 
 describe('Apps API', () => {
@@ -115,6 +115,24 @@ describe('Apps API', () => {
 
       expect(res.body.success).to.be.false;
       expect(findStub).to.have.been.calledOnce;
+    });
+
+    it('gets apps for a specific architecture', async function() {
+      this.package1.architectures = [Architecture.ARMHF];
+      this.package2.architectures = [Architecture.ALL];
+      this.package3.architectures = [Architecture.ARM64];
+      await Promise.all([
+        this.package1.save(),
+        this.package2.save(),
+        this.package3.save(),
+      ]);
+
+      const res = await this.get(`${this.route}?architecture=armhf`, false).expect(200);
+      expect(res.body.success).to.be.true;
+      expect(res.body.data.packages).to.have.lengthOf(2);
+      expect(res.body.data.count).to.equal(2);
+      expect(res.body.data.packages[0].id).to.equal(this.package1.id);
+      expect(res.body.data.packages[1].id).to.equal(this.package2.id);
     });
   });
 

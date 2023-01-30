@@ -36,6 +36,8 @@ function checkFramework(discover: DiscoverData, frameworks: string[]) {
   return discover;
 }
 
+// TODO cleanup - split into smaller functions
+
 router.get('/', asyncErrorWrapper(async(req: Request, res: Response) => {
   const frameworks = getDataArray(req, 'frameworks', defaultFrameworks);
 

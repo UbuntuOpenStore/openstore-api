@@ -2,7 +2,7 @@ import factory from './factory';
 
 import { expect } from './helper';
 import { Package } from '../src/db/package';
-import { Architecture, Channel, PackageType, DEFAULT_CHANNEL } from '../src/db/package/types';
+import { Architecture, Channel, PackageType, DEFAULT_CHANNEL, ChannelArchitecture } from '../src/db/package/types';
 import { Ratings } from '../src/db/review';
 import { serializeRatings } from '../src/db/package/methods';
 
@@ -61,7 +61,7 @@ describe('Package', () => {
   });
 
   context('parseFilters', () => {
-    it('parses filters', () => {
+    it('parses filters, with arch and channel specified', () => {
       const parsed = Package.parseFilters({
         types: [PackageType.APP, PackageType.WEBAPP],
         ids: ['foo.bar'],
@@ -80,14 +80,33 @@ describe('Package', () => {
         types: { $in: [PackageType.APP, PackageType.WEBAPP] },
         id: { $in: ['foo.bar'] },
         framework: { $in: ['ubuntu-16.04'] },
-        architectures: { $in: [Architecture.ARMHF, Architecture.ALL] },
+        channel_architectures: { $in: [ChannelArchitecture.XENIAL_ARMHF, ChannelArchitecture.XENIAL_ALL] },
         category: 'Category',
         author: 'Author',
-        channels: Channel.XENIAL,
         $text: { $search: 'term' },
         nsfw: { $in: [true] },
         maintainer: 'foobar',
         published: true,
+      });
+    });
+
+    it('parses filters, with only arch specified', () => {
+      const parsed = Package.parseFilters({
+        architectures: [Architecture.ARMHF, Architecture.ALL],
+      });
+
+      expect(parsed).to.deep.equal({
+        architectures: { $in: [Architecture.ARMHF, Architecture.ALL] },
+      });
+    });
+
+    it('parses filters, with only channel specified', () => {
+      const parsed = Package.parseFilters({
+        channel: Channel.XENIAL,
+      });
+
+      expect(parsed).to.deep.equal({
+        channels: Channel.XENIAL,
       });
     });
 
@@ -191,6 +210,7 @@ describe('Package', () => {
       });
 
       it('serializes fully', function() {
+        this.package.channel_architectures = [ChannelArchitecture.XENIAL_ARMHF, ChannelArchitecture.XENIAL_ARM64];
         this.package.createNextRevision('1.0.0', Channel.XENIAL, Architecture.ARMHF, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
         this.package.createNextRevision('1.0.0', Channel.XENIAL, Architecture.ARM64, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
 
@@ -207,6 +227,7 @@ describe('Package', () => {
           channels: [DEFAULT_CHANNEL],
           architecture: `${Architecture.ARMHF},${Architecture.ARM64}`,
           architectures: [Architecture.ARMHF, Architecture.ARM64],
+          channel_architectures: [ChannelArchitecture.XENIAL_ARMHF, ChannelArchitecture.XENIAL_ARM64],
           author: 'Jill',
           category: 'Category',
           description: 'A good app',

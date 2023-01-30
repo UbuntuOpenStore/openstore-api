@@ -24,6 +24,17 @@ export enum Architecture {
   ARM64 = 'arm64',
 }
 
+export enum ChannelArchitecture {
+  FOCAL_ALL = 'focal:all',
+  FOCAL_ARMHF = 'focal:armhf',
+  FOCAL_AMD64 = 'focal:amd64',
+  FOCAL_ARM64 = 'focal:arm64',
+  XENIAL_ALL = 'xenial:all',
+  XENIAL_ARMHF = 'xenial:armhf',
+  XENIAL_AMD64 = 'xenial:amd64',
+  XENIAL_ARM64 = 'xenial:arm64',
+}
+
 export type File = {
   originalname: string;
   path: string;
@@ -179,6 +190,7 @@ export interface PackageSchema {
   type_override?: PackageType,
   languages: string[],
   architectures: Architecture[],
+  channel_architectures: ChannelArchitecture[],
   locked?: boolean,
   qml_imports: {
     module: string;
@@ -243,6 +255,7 @@ export interface PackageDoc extends PackageSchema {
   serialize(architecture?: Architecture, apiVersion?: number): SerializedPackage;
   updateScreenshotFiles(screenshotFiles: File[]): Promise<void>;
   createRevisionFromClick(filePath: string, channel: Channel, changelog?: string): Promise<void>;
+  updateChannelArchitectures(): void;
 
   // Virtuals
   architecture: string;

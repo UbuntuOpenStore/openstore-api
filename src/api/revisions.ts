@@ -9,6 +9,8 @@ import defaultFrameworks from './json/default_frameworks.json';
 
 const router = express.Router();
 
+// TODO cleanup
+
 async function revisionsByVersion(req: Request, res: Response) {
   const versions = getDataArray(req, 'apps');
   const ids = versions.map((version: string) => version.split('@')[0]);

@@ -2,16 +2,13 @@ import RSS from 'rss';
 import express, { Request, Response } from 'express';
 
 import { Package } from 'db/package';
-import { logger, config, error, captureException } from 'utils';
+import { logger, config, error, captureException, titleCase } from 'utils';
 
 const router = express.Router();
 
-function titleCase(value: string) {
-  return value.replace(/_/g, ' ').replace(/\w\S*/g, (txt) => {
-    return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
-  });
-}
-
+/**
+ * Generate RSS feeds for new an updated apps
+ */
 async function generateFeed(req: Request, res: Response, updates: boolean) {
   const feed = new RSS({
     title: updates ? 'Updated Apps in the OpenStore' : 'New Apps in the OpenStore',

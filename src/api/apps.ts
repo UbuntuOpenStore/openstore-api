@@ -5,18 +5,25 @@ import fsPromise from 'fs/promises';
 import fs from 'fs';
 import { Architecture, Channel, DEFAULT_CHANNEL, PackageDoc } from 'db/package/types';
 import { Package } from 'db/package';
-import { success, error, getData, apiLinks, asyncErrorWrapper, getDataBoolean } from 'utils';
+import { success, getData, apiLinks, asyncErrorWrapper, getDataBoolean } from 'utils';
 import { fetchPublishedPackage } from 'middleware';
+import { NotFoundError, UserError } from 'exceptions';
 import reviews from './reviews';
 import { DOWNLOAD_NOT_FOUND_FOR_CHANNEL, INVALID_CHANNEL, INVALID_ARCH } from '../utils/error-messages';
 
 const router = express.Router();
 
+/**
+ * Fetch a list of apps based on the given filters. If the `full` parameter is passed
+ * then the full serialized object will be returned, otherwise the 'slim' version will be used.
+ */
 async function apps(req: Request, res: Response) {
   const filters = Package.parseRequestFilters(req);
   let count = 0;
   let pkgs: PackageDoc[] = [];
 
+  // Send search queries to elastic search
+  // TODO move author searches to a different request parameter
   if (filters.search && filters.search.indexOf('author:') !== 0) {
     const results = await Package.searchByFilters(filters, getDataBoolean(req, 'full', false));
     pkgs = results.pkgs;
@@ -37,34 +44,41 @@ async function apps(req: Request, res: Response) {
     return pkg.serializeSlim();
   });
 
-  const { next, previous } = apiLinks(req.originalUrl, Array.isArray(formatted) ? formatted.length : 0, filters.limit, filters.skip);
+  const { next, previous } = apiLinks(req.originalUrl, formatted.length, filters.limit, filters.skip);
   return success(res, { count, next, previous, packages: formatted });
 }
 
+// Available also as a POST to avoid issues with the GET request params being to large
 router.get('/', asyncErrorWrapper(apps, 'Could not fetch app list at this time'));
 router.post('/', asyncErrorWrapper(apps, 'Could not fetch app list at this time'));
 
+/**
+ * Get one app and return a serialized version.
+ */
 router.get('/:id', fetchPublishedPackage(true), async(req: Request, res: Response) => {
   const arch = getData(req, 'architecture', Architecture.ARMHF);
   return success(res, req.pkg.serialize(arch, req.apiVersion));
 });
 
+/**
+ * Gets the download for a given package for the given channel and architecture.
+ */
 async function download(req: Request, res: Response) {
   const channel = req.params.channel ? req.params.channel.toLowerCase() as Channel : DEFAULT_CHANNEL;
   if (!Object.values(Channel).includes(channel)) {
-    return error(res, INVALID_CHANNEL, 400);
+    throw new UserError(INVALID_CHANNEL);
   }
 
   const arch = req.params.arch ? req.params.arch.toLowerCase() as Architecture : Architecture.ARMHF;
   if (!Object.values(Architecture).includes(arch)) {
-    return error(res, INVALID_ARCH, 400);
+    throw new UserError(INVALID_ARCH);
   }
 
-  const version = req.params.version && req.params.version != 'latest' ? req.params.version : undefined;
+  const version = req.params.version && req.params.version !== 'latest' ? req.params.version : undefined;
   const { revisionData, revisionIndex } = req.pkg.getLatestRevision(channel, arch, true, undefined, version);
 
   if (!revisionData || !revisionData.download_url) {
-    return error(res, DOWNLOAD_NOT_FOUND_FOR_CHANNEL, 404);
+    throw new NotFoundError(DOWNLOAD_NOT_FOUND_FOR_CHANNEL);
   }
 
   const stat = await fsPromise.stat(revisionData.download_url);
@@ -75,10 +89,12 @@ async function download(req: Request, res: Response) {
   // TODO let nginx handle this, making this just a 302
   fs.createReadStream(revisionData.download_url).pipe(res);
 
-  return Package.incrementDownload(req.pkg._id, revisionIndex);
+  await Package.incrementDownload(req.pkg._id, revisionIndex);
 }
 
+// The route gets the latest version
 router.get('/:id/download/:channel/:arch', fetchPublishedPackage(), asyncErrorWrapper(download, 'Could not download package at this time'));
+// This route is for getting historical versions
 router.get(
   '/:id/download/:channel/:arch/:version',
   fetchPublishedPackage(),

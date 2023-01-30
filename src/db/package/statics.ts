@@ -14,6 +14,7 @@ import {
   PackageDoc,
   CategoryStat,
   Channel,
+  ChannelArchitecture,
   PackageModel,
   PackageStats,
   PackageQueryReturn,
@@ -187,7 +188,7 @@ export function setupStatics(packageSchema: Schema<PackageDoc, PackageModel>) {
     types,
     ids,
     frameworks,
-    architecture,
+    architecture, // TODO can this be removed?
     architectures,
     category,
     author,
@@ -222,22 +223,31 @@ export function setupStatics(packageSchema: Schema<PackageDoc, PackageModel>) {
       }
     }
 
+    const arches: Architecture[] = architectures ?? [];
     if (architecture) {
-      const arches = [architecture];
+      arches.push(architecture);
       if (architecture != Architecture.ALL) {
         arches.push(Architecture.ALL);
       }
-
-      query.$or = [
-        { architecture: { $in: arches } },
-        { architectures: { $in: arches } },
-      ];
     }
 
-    if (architectures && architectures.length > 0) {
-      query.architectures = {
-        $in: architectures,
-      };
+    if (arches.length > 0 && channel) {
+      const channelArchitectures = arches.map((arch) => {
+        return `${channel}:${arch}`;
+      }) as ChannelArchitecture[];
+
+      query.channel_architectures = { $in: channelArchitectures };
+    }
+    else {
+      if (arches.length > 0) {
+        query.architectures = {
+          $in: arches,
+        };
+      }
+
+      if (channel) {
+        query.channels = channel;
+      }
     }
 
     if (category) {
@@ -246,10 +256,6 @@ export function setupStatics(packageSchema: Schema<PackageDoc, PackageModel>) {
 
     if (author) {
       query.author = author;
-    }
-
-    if (channel) {
-      query.channels = channel;
     }
 
     if (search) {

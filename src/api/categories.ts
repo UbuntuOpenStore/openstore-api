@@ -8,6 +8,9 @@ import categoryIcons from './json/category_icons.json';
 const categoryNames = Object.keys(categoryIcons);
 const router = express.Router();
 
+/**
+ * Returns a list of available categories that apps can belong to.
+ */
 router.get('/', asyncErrorWrapper(async(req: Request, res: Response) => {
   setLang(getData(req, 'lang'));
 
@@ -24,6 +27,8 @@ router.get('/', asyncErrorWrapper(async(req: Request, res: Response) => {
   });
 
   if (!req.query.all) {
+    // By default we only return categories that have apps. The `all` flag tells us to return everything.
+
     categories = (await Package.categoryStats([channel])).map((stats) => {
       return {
         ...stats,

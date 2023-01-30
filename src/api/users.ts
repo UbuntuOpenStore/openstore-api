@@ -7,6 +7,7 @@ import { USER_NOT_FOUND } from '../utils/error-messages';
 
 const router = express.Router();
 
+// TODO use exception wrapper
 router.get('/', authenticate, adminOnly, async(req: Request, res: Response) => {
   try {
     const users = await User.find({});

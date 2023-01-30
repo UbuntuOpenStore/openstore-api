@@ -14,9 +14,9 @@ module.exports = {
     'import/resolver': {
       node: {
         extensions: ['.js', '.ts'],
-        moduleDirectory: ['node_modules', 'src']
-      }
-    }
+        moduleDirectory: ['node_modules', 'src'],
+      },
+    },
   },
   env: {
     browser: false,
@@ -39,6 +39,12 @@ module.exports = {
     ],
     'import/prefer-default-export': 'off', // TODO turn this back on later
     'no-await-in-loop': 'off',
+
+    'no-shadow': 'off',
+    '@typescript-eslint/no-shadow': ['error'],
+
+    'no-unused-vars': 'off',
+    '@typescript-eslint/no-unused-vars': ['error'],
   },
   overrides: [
     {

@@ -16,6 +16,9 @@ import {
 
 const router = express.Router({ mergeParams: true });
 
+/**
+ * Get a list of reviews for a given app.
+ */
 async function getReviews(req: Request, res: Response) {
   const filters = Review.parseRequestFilters(req);
   const reviewsTotalCount = await Review.countByFilters(filters);
@@ -30,7 +33,17 @@ async function getReviews(req: Request, res: Response) {
   });
 }
 
-async function postReview(req: Request, res: Response) {
+router.get(
+  '/',
+  anonymousAuthenticate,
+  fetchPublishedPackage(),
+  asyncErrorWrapper(getReviews, 'There was an error getting the review list, please try again later'),
+);
+
+/**
+ * Update or create a review
+ */
+async function upsertReview(req: Request, res: Response) {
   if (!req.body.version || !req.body.rating) {
     return error(res, PARAMETER_MISSING, 400);
   }
@@ -39,7 +52,7 @@ async function postReview(req: Request, res: Response) {
   const version = req.body.version;
   const rating = req.body.rating;
 
-  // Sanity checks
+  // Users cannot upload a review for their own app
   if (req.user!._id == req.pkg.maintainer) {
     return error(res, CANNOT_REVIEW_OWN_APP, 400);
   }
@@ -59,25 +72,19 @@ async function postReview(req: Request, res: Response) {
   return success(res, { review_id: review._id });
 }
 
-router.get(
-  '/',
-  anonymousAuthenticate,
-  fetchPublishedPackage(),
-  asyncErrorWrapper(getReviews, 'There was an error getting the review list, please try again later'),
-);
 router.post(
   '/',
   authenticate,
   userRole,
   fetchPublishedPackage(),
-  asyncErrorWrapper(postReview, 'There was an error posting your review, please try again later'),
+  asyncErrorWrapper(upsertReview, 'There was an error posting your review, please try again later'),
 );
 router.put(
   '/',
   authenticate,
   userRole,
   fetchPublishedPackage(),
-  asyncErrorWrapper(postReview, 'There was an error posting your review, please try again later'),
+  asyncErrorWrapper(upsertReview, 'There was an error posting your review, please try again later'),
 );
 
 export default router;

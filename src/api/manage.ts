@@ -29,6 +29,10 @@ import { clickReview } from 'utils/review-package';
 const mupload = multer({ dest: '/tmp' });
 const router = express.Router();
 
+/**
+ * Get a list of apps belonging to the logged in user.
+ * If the user is an admin, return all apps.
+ */
 router.get('/', authenticate, userRole, asyncErrorWrapper(async(req: Request, res: Response) => {
   const filters = Package.parseRequestFilters(req);
   if (!req.isAdminUser) {
@@ -43,10 +47,16 @@ router.get('/', authenticate, userRole, asyncErrorWrapper(async(req: Request, re
   return success(res, { count, next, previous, packages: formatted });
 }, 'Could not fetch app list at this time'));
 
+/**
+ * Get one app belonging to the logged in user.
+ */
 router.get('/:id', authenticate, userRole, fetchPackage(), canManage, async(req: Request, res: Response) => {
   return success(res, req.pkg.serialize());
 });
 
+/**
+ * Create a new app from the provided name and id.
+ */
 router.post(
   '/',
   authenticate,
@@ -89,6 +99,10 @@ const putUpload = mupload.fields([
   { name: 'screenshot_files' },
 ]);
 
+/**
+ * Update an app. This includes stuff like the description, changelog, screenshots, etc.
+ * This does not include updating the revisions.
+ */
 router.put(
   '/:id',
   authenticate,
@@ -101,6 +115,7 @@ router.put(
       req.body.maintainer = req.user!._id;
     }
 
+    // Ensure non-admins cannot update admin only fields
     if (!req.isAdminUser && req.body) {
       delete req.body.maintainer;
       delete req.body.locked;
@@ -132,6 +147,9 @@ router.put(
   'There was an error updating your app, please try again later'),
 );
 
+/**
+ * Delete an app. This can only be done before the app has revisions attached.
+ */
 router.delete(
   '/:id',
   authenticate,
@@ -153,6 +171,10 @@ const postUpload = mupload.fields([
   { name: 'file', maxCount: 1 },
 ]);
 
+/**
+ * Create a new revision for an app via the uploaded file. A revision is specific to a channel and an
+ * architecture.
+ */
 router.post(
   '/:id/revision',
   authenticate,
@@ -205,6 +227,7 @@ router.post(
         }
       }
 
+      // Everyone needs to upload apps without issues
       if (reviewSummary.errorMessages.length > 0 || reviewSummary.warningMessages.length > 0) {
         throw new ClickReviewError(
           CLICK_REVIEW_ERROR,
@@ -213,6 +236,7 @@ router.post(
       }
 
       await pkg.createRevisionFromClick(filePath, channel, req.body.changelog);
+      pkg.updateChannelArchitectures();
 
       pkg = await pkg.save();
 
@@ -228,6 +252,7 @@ router.post(
         await Lock.release(lock, req);
       }
 
+      // Clean up the uploaded file
       if (existsSync(file.path)) {
         try {
           await fs.unlink(file.path);
@@ -238,6 +263,7 @@ router.post(
         }
       }
 
+      // Clean up the file in the final destination
       if (existsSync(filePath)) {
         try {
           await fs.unlink(filePath);

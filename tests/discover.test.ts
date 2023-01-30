@@ -4,7 +4,7 @@ import { expect } from './helper';
 import { Package } from '../src/db/package';
 import { RatingCount } from '../src/db/rating_count';
 import discoverJSON from '../src/api/json/discover_apps.json';
-import { Architecture, DEFAULT_CHANNEL } from '../src/db/package/types';
+import { Architecture, Channel, ChannelArchitecture } from '../src/db/package/types';
 
 describe('Discover API', () => {
   before(function() {
@@ -17,7 +17,8 @@ describe('Discover API', () => {
         published: true,
         id: discoverJSON.highlights[0].id,
         architectures: [Architecture.ALL],
-        channels: [DEFAULT_CHANNEL],
+        channels: [Channel.XENIAL],
+        channel_architectures: [ChannelArchitecture.XENIAL_ALL],
         published_date: (new Date()).toISOString(),
         types: ['app'],
       }),
@@ -25,7 +26,8 @@ describe('Discover API', () => {
         published: true,
         id: discoverJSON.categories[1].ids[0],
         architectures: [Architecture.ALL],
-        channels: [DEFAULT_CHANNEL],
+        channels: [Channel.XENIAL],
+        channel_architectures: [ChannelArchitecture.XENIAL_ALL],
         published_date: '2021-01-01T13:35:16.095Z',
         updated_date: '2021-01-01T13:35:16.095Z',
         types: ['app'],
@@ -34,7 +36,8 @@ describe('Discover API', () => {
         published: true,
         id: discoverJSON.categories[1].ids[1],
         architectures: [Architecture.ALL],
-        channels: [DEFAULT_CHANNEL],
+        channels: [Channel.XENIAL],
+        channel_architectures: [ChannelArchitecture.XENIAL_ALL],
         published_date: '2021-01-01T13:35:16.095Z',
         updated_date: '2021-01-01T13:35:16.095Z',
         types: ['app'],
@@ -43,7 +46,8 @@ describe('Discover API', () => {
         published: true,
         id: discoverJSON.categories[1].ids[2],
         architectures: [Architecture.ALL],
-        channels: [DEFAULT_CHANNEL],
+        channels: [Channel.XENIAL],
+        channel_architectures: [ChannelArchitecture.XENIAL_ALL],
         published_date: (new Date()).toISOString(),
         types: ['app'],
       }),

@@ -101,6 +101,7 @@ export function setup() {
     success(res, { id: cluster.worker ? cluster.worker.id : null });
   });
 
+  // TODO move redirects to nginx
   app.get('/telegram', (req: Request, res: Response) => {
     // Short link
     res.redirect(301, config.telegram);

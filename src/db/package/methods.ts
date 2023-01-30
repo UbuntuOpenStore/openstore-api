@@ -10,6 +10,7 @@ import { v4 } from 'uuid';
 import { EXISTING_VERSION, MALFORMED_MANIFEST, MISMATCHED_FRAMEWORK, NO_ALL, NO_NON_ALL, WRONG_PACKAGE } from 'utils/error-messages';
 import { UserError } from 'exceptions';
 import * as clickParser from 'utils/click-parser-async';
+import { isURL } from 'class-validator';
 import {
   RevisionDoc,
   PackageDoc,
@@ -23,6 +24,7 @@ import {
   DEFAULT_CHANNEL,
   SerializedPackage,
   File,
+  ChannelArchitecture,
 } from './types';
 import { User } from '../user';
 
@@ -161,8 +163,8 @@ export function setupMethods(packageSchema: Schema<PackageDoc, PackageModel>) {
   };
 
   packageSchema.methods.updateFromBody = async function(body: BodyUpdate) {
-    if (body.name) {
-      this.name = body.name;
+    if (body.locked !== undefined) {
+      this.locked = (body.locked == 'true' || body.locked === true);
     }
 
     if (body.published !== undefined) {
@@ -174,54 +176,18 @@ export function setupMethods(packageSchema: Schema<PackageDoc, PackageModel>) {
       this.updated_date = (new Date()).toISOString();
     }
 
-    if (body.locked !== undefined) {
-      this.locked = (body.locked == 'true' || body.locked === true);
-    }
+    this.name = body.name ? body.name : this.name;
+    this.category = body.category ?? this.category;
+    this.license = body.license ?? this.license;
+    this.changelog = sanitize(body.changelog ?? this.changelog ?? '');
+    this.description = sanitize(body.description ?? this.description ?? '');
+    this.tagline = sanitize(body.tagline ?? this.tagline ?? '');
 
-    if (body.category || body.category === '') {
-      this.category = body.category;
-    }
+    this.source = isURL(body.source ?? '') ? body.source : (this.source ?? '');
+    this.support_url = isURL(body.support_url ?? '') ? body.support_url : (this.support_url ?? '');
+    this.donate_url = isURL(body.donate_url ?? '') ? body.donate_url : (this.donate_url ?? '');
 
-    if (body.changelog || body.changelog === '') {
-      this.changelog = body.changelog;
-    }
-
-    if (body.description || body.description === '') {
-      this.description = body.description;
-    }
-
-    if (body.license || body.license === '') {
-      this.license = body.license;
-    }
-
-    if (body.source || body.source === '') {
-      if (body.source.indexOf('https://') === 0 || body.source.indexOf('http://') === 0) {
-        this.source = body.source;
-      }
-      else {
-        this.source = '';
-      }
-    }
-
-    if ((body.support_url || body.support_url === '')) {
-      if (body.support_url.indexOf('https://') === 0 || body.support_url.indexOf('http://') === 0) {
-        this.support_url = body.support_url;
-      }
-      else {
-        this.support_url = '';
-      }
-    }
-
-    if (body.donate_url || body.donate_url === '') {
-      if (body.donate_url.indexOf('https://') === 0 || body.donate_url.indexOf('http://') === 0) {
-        this.donate_url = body.donate_url;
-      }
-      else {
-        this.donate_url = '';
-      }
-    }
-
-    if (body.video_url || body.video_url === '') {
+    if (body.video_url && isURL(body.video_url)) {
       // TODO support regular urls and transform them into embedded urls
       if (
         body.video_url.indexOf('https://www.youtube.com/embed/') === 0 ||
@@ -232,10 +198,6 @@ export function setupMethods(packageSchema: Schema<PackageDoc, PackageModel>) {
       else {
         this.video_url = '';
       }
-    }
-
-    if (body.tagline || body.tagline === '') {
-      this.tagline = body.tagline;
     }
 
     let updatedScreenshots: string[] = [];
@@ -263,29 +225,16 @@ export function setupMethods(packageSchema: Schema<PackageDoc, PackageModel>) {
     }
     this.screenshots = updatedScreenshots;
 
-    if (body.keywords) {
-      let keywords = body.keywords;
-      if (!Array.isArray(keywords)) {
-        keywords = keywords.split(',');
-      }
+    let keywords = body.keywords ?? [];
+    if (!Array.isArray(keywords)) {
+      keywords = keywords.split(',');
+    }
 
-      this.keywords = keywords.map((keyword) => keyword.trim());
-    }
-    else {
-      this.keywords = [];
-    }
+    this.keywords = keywords.map((keyword) => keyword.trim());
 
     if (body.nsfw !== undefined) {
       this.nsfw = body.nsfw;
     }
-
-    this.description = this.description ? this.description : '';
-    this.changelog = this.changelog ? this.changelog : '';
-    this.tagline = this.tagline ? this.tagline : '';
-
-    this.description = sanitize(this.description);
-    this.changelog = sanitize(this.changelog);
-    this.tagline = sanitize(this.tagline);
 
     if (body.type_override !== undefined) {
       this.type_override = body.type_override;
@@ -401,12 +350,12 @@ export function setupMethods(packageSchema: Schema<PackageDoc, PackageModel>) {
     });
 
     const json = {
-      architecture: this.architecture || '',
       architectures: this.architectures || [],
       author: this.author || '',
       category: this.category || '',
       changelog: this.changelog || '',
       channels: this.channels || [DEFAULT_CHANNEL],
+      channel_architectures: this.channel_architectures || [],
       description: this.description || '',
       downloads: <SerializedDownload[]>[],
       framework: this.framework || '',
@@ -441,7 +390,8 @@ export function setupMethods(packageSchema: Schema<PackageDoc, PackageModel>) {
       type_override: this.type_override || '',
       calculated_rating: this.calculated_rating || 0,
 
-      // TODO deprecate these
+      // TODO deprecate these, issue an update to the app
+      architecture: this.architecture || '',
       revision: -1,
       download: null,
       download_sha512: '',
@@ -650,5 +600,15 @@ export function setupMethods(packageSchema: Schema<PackageDoc, PackageModel>) {
     else if (!this.architectures.includes(architecture)) {
       this.architectures.push(architecture);
     }
+  };
+
+  packageSchema.methods.updateChannelArchitectures = async function() {
+    this.channel_architectures = this.channels.flatMap((channel) => {
+      return this.architectures.map((arch) => {
+        const { revisionData } = this.getLatestRevision(channel, arch, false);
+
+        return revisionData ? `${channel}:${arch}` : undefined;
+      });
+    }).filter(Boolean) as ChannelArchitecture[];
   };
 }

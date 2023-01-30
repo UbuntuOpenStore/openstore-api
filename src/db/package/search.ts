@@ -19,6 +19,7 @@ export default {
     'author',
     'category',
     'channels',
+    'channel_architectures',
     'description',
     'framework',
     'icon',
@@ -157,12 +158,31 @@ export default {
       });
     }
 
-    if (architectures && architectures.length > 0) {
-      query.and.push({
-        in: {
-          architectures,
-        },
+    if (architectures && architectures.length > 0 && channel) {
+      const channelArchitectures = architectures.map((arch) => {
+        return `${channel}:${arch}`;
       });
+
+      query.and.push({
+        in: { channel_architectures: channelArchitectures },
+      });
+    }
+    else {
+      if (architectures && architectures.length > 0) {
+        query.and.push({
+          in: {
+            architectures,
+          },
+        });
+      }
+
+      if (channel) {
+        query.and.push({
+          in: {
+            channels: [channel],
+          },
+        });
+      }
     }
 
     if (category) {
@@ -177,14 +197,6 @@ export default {
       query.and.push({
         term: {
           author,
-        },
-      });
-    }
-
-    if (channel) {
-      query.and.push({
-        in: {
-          channels: [channel],
         },
       });
     }

@@ -45,11 +45,12 @@ const packageSchema = new Schema<PackageDoc, PackageModel>({
   // Metadata
   author: String,
   version: String, // TODO deprecate
-  manifest: {}, // TODO deprecate
+  manifest: {}, // TODO deprecate, put what is needed from the manifest into the revision data
   types: [String],
   type_override: String,
   languages: [String],
-  architectures: [String],
+  architectures: [String], // TODO deprecate
+  channel_architectures: [String], // A list of channel:architecture that the app supports
   locked: Boolean,
   qml_imports: [],
 
