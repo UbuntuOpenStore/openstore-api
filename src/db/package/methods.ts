@@ -52,7 +52,13 @@ export function serializeRatings(ratingCounts: RatingCountDoc[]) {
 }
 
 export function setupMethods(packageSchema: Schema<PackageDoc, PackageModel>) {
-  packageSchema.methods.getLatestRevision = function(channel, arch, detectAll = true, frameworks = null, version = null) {
+  packageSchema.methods.getLatestRevision = function(
+    channel: Channel,
+    arch: Architecture,
+    detectAll = true,
+    frameworks?: string[],
+    version?: string,
+  ) {
     let architecture = arch;
     if (this.architectures.includes(Architecture.ALL) && detectAll) {
       architecture = Architecture.ALL;
@@ -71,8 +77,8 @@ export function setupMethods(packageSchema: Schema<PackageDoc, PackageModel>) {
         (!revisionData || revisionData.revision < data.revision) &&
         data.channel == channel &&
         (!arch || archCheck) &&
-        (!frameworks || frameworks.includes(data.framework)) &&
-        (!version || version == data.version)
+        (!frameworks || frameworks.length === 0 || frameworks.includes(data.framework)) &&
+        (!version || version === data.version)
       ) {
         revisionData = data;
         revisionIndex = index;
@@ -151,9 +157,7 @@ export function setupMethods(packageSchema: Schema<PackageDoc, PackageModel>) {
     this.id = data.name;
     this.manifest = manifest;
     this.types = this.type_override ? [this.type_override] : data.types;
-    this.version = data.version;
     this.languages = data.languages;
-    this.framework = data.framework;
     this.qml_imports = qmlImports;
 
     // Don't overwrite the these if they already exists
@@ -296,6 +300,16 @@ export function setupMethods(packageSchema: Schema<PackageDoc, PackageModel>) {
   };
 
   packageSchema.methods.serializeSlim = function(): SerializedPackageSlim {
+    /*
+      Data used by the app:
+      - id
+      - name
+      - tagline
+      - icon
+      - types
+      - ratings
+    */
+
     return {
       architectures: this.architectures || [],
       author: this.author || '',
@@ -304,7 +318,6 @@ export function setupMethods(packageSchema: Schema<PackageDoc, PackageModel>) {
       category: this.category || '',
       channels: this.channels || [],
       description: this.description || '',
-      framework: this.framework || '',
       icon: this.icon_url,
       keywords: this.keywords || [],
       license: this.license || 'Proprietary',
@@ -314,10 +327,17 @@ export function setupMethods(packageSchema: Schema<PackageDoc, PackageModel>) {
       types: this.types || [],
       updated_date: this.updated_date || '',
       ratings: this.serializeRatings(),
+
+      // Deprecated, remove in the next major version
+      framework: '',
     };
   };
 
-  packageSchema.methods.serialize = function(architecture: Architecture = Architecture.ARMHF, apiVersion = 4): SerializedPackage {
+  packageSchema.methods.serialize = function(
+    architecture: Architecture = Architecture.ARMHF,
+    frameworks: string[] = [],
+    apiVersion = 4,
+  ): SerializedPackage {
     // Clean up languages that got screwed up by click-parser
     let languages = this.languages ? this.languages.sort() : [];
     languages = languages.map((language) => {
@@ -356,9 +376,9 @@ export function setupMethods(packageSchema: Schema<PackageDoc, PackageModel>) {
       changelog: this.changelog || '',
       channels: this.channels || [DEFAULT_CHANNEL],
       channel_architectures: this.channel_architectures || [],
+      device_compatibilities: this.device_compatibilities || [],
       description: this.description || '',
       downloads: <SerializedDownload[]>[],
-      framework: this.framework || '',
       icon: this.icon_url,
       id: this.id || '',
       keywords: this.keywords || [],
@@ -392,6 +412,7 @@ export function setupMethods(packageSchema: Schema<PackageDoc, PackageModel>) {
 
       // TODO deprecate these, issue an update to the app
       architecture: this.architecture || '',
+      framework: revisionData?.framework ?? '',
       revision: -1,
       download: null,
       download_sha512: '',
@@ -407,13 +428,13 @@ export function setupMethods(packageSchema: Schema<PackageDoc, PackageModel>) {
               return null; // Filter out unsupported arches like i386 (legacy apps)
             }
 
-            const { revisionData: downloadRevisionData } = this.getLatestRevision(channel, arch, false);
+            const { revisionData: downloadRevisionData } = this.getLatestRevision(channel, arch, false, frameworks);
 
             if (downloadRevisionData) {
               const download = {
                 ...downloadRevisionData.toObject(),
                 architecture: downloadRevisionData.architecture.includes(',') ? arch : downloadRevisionData.architecture,
-                download_url: this.getDownloadUrl(channel, arch),
+                download_url: this.getDownloadUrl(channel, arch, downloadRevisionData.version),
                 filesize: toBytes(downloadRevisionData.filesize),
               };
 
@@ -602,7 +623,7 @@ export function setupMethods(packageSchema: Schema<PackageDoc, PackageModel>) {
     }
   };
 
-  packageSchema.methods.updateChannelArchitectures = async function() {
+  packageSchema.methods.updateCalculatedProperties = async function() {
     this.channel_architectures = this.channels.flatMap((channel) => {
       return this.architectures.map((arch) => {
         const { revisionData } = this.getLatestRevision(channel, arch, false);
@@ -610,5 +631,15 @@ export function setupMethods(packageSchema: Schema<PackageDoc, PackageModel>) {
         return revisionData ? `${channel}:${arch}` : undefined;
       });
     }).filter(Boolean) as ChannelArchitecture[];
+
+    const deviceCompatibilities = new Set<string>();
+    this.revisions.forEach((revision) => {
+      // Only include clicks where the file is still present
+      if (revision.download_url) {
+        deviceCompatibilities.add(`${revision.channel}:${revision.architecture}:${revision.framework}`);
+      }
+    });
+
+    this.device_compatibilities = Array.from(deviceCompatibilities);
   };
 }

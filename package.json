@@ -8,7 +8,7 @@
     "dev": "nodemon ./src/index.ts",
     "build": "tsc",
     "lint": "eslint ./src/**/*.ts ./tests/**/*.ts --fix",
-    "lint:json": "jsonlint -q ./src/api/json/category_icons.json && jsonlint -q ./src/api/json/default_frameworks.json && jsonlint -q ./src/api/json/discover_apps.json",
+    "lint:json": "jsonlint -q ./src/api/json/category_icons.json && jsonlint -q ./src/api/json/discover_apps.json",
     "test": "NODE_ENV=testing mocha -r tsconfig-paths/register -r ts-node/register --reporter dot tests/**/*.ts",
     "coverage": "NODE_ENV=testing nyc mocha -r tsconfig-paths/register -r ts-node/register --reporter dot tests/**/*.ts",
     "test:ci": "NODE_ENV=ci nyc mocha -r tsconfig-paths/register -r ts-node/register --reporter dot tests/**/*.ts",

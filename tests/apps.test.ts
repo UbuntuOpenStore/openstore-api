@@ -1,8 +1,8 @@
-import { DEFAULT_CHANNEL } from '../src/db/package/types';
+import { Channel, ChannelArchitecture, DEFAULT_CHANNEL } from '../src/db/package/types';
 import factory from './factory';
 
 import { expect } from './helper';
-import { Architecture, Package } from '../src/db/package';
+import { Package } from '../src/db/package';
 import * as messages from '../src/utils/error-messages';
 
 describe('Apps API', () => {
@@ -117,17 +117,55 @@ describe('Apps API', () => {
       expect(findStub).to.have.been.calledOnce;
     });
 
-    it('gets apps for a specific architecture', async function() {
-      this.package1.architectures = [Architecture.ARMHF];
-      this.package2.architectures = [Architecture.ALL];
-      this.package3.architectures = [Architecture.ARM64];
+    it('gets apps for a specific architecture/channel (including ALL)', async function() {
+      this.package1.channel_architectures = [ChannelArchitecture.FOCAL_ARMHF];
+      this.package2.channel_architectures = [ChannelArchitecture.FOCAL_ALL];
+      this.package3.channel_architectures = [ChannelArchitecture.FOCAL_ARM64];
       await Promise.all([
         this.package1.save(),
         this.package2.save(),
         this.package3.save(),
       ]);
 
-      const res = await this.get(`${this.route}?architecture=armhf`, false).expect(200);
+      const res = await this.get(`${this.route}?architecture=armhf&channel=${Channel.FOCAL}`, false).expect(200);
+      expect(res.body.success).to.be.true;
+      expect(res.body.data.packages).to.have.lengthOf(2);
+      expect(res.body.data.count).to.equal(2);
+      expect(res.body.data.packages[0].id).to.equal(this.package1.id);
+      expect(res.body.data.packages[1].id).to.equal(this.package2.id);
+    });
+
+    it('gets apps for a specific architecture/channel (excluding other channels)', async function() {
+      this.package1.channel_architectures = [ChannelArchitecture.FOCAL_ARMHF];
+      this.package2.channel_architectures = [ChannelArchitecture.XENIAL_ALL];
+      this.package3.channel_architectures = [ChannelArchitecture.XENIAL_ARM64];
+      await Promise.all([
+        this.package1.save(),
+        this.package2.save(),
+        this.package3.save(),
+      ]);
+
+      const res = await this.get(`${this.route}?architecture=armhf&channel=${Channel.FOCAL}`, false).expect(200);
+      expect(res.body.success).to.be.true;
+      expect(res.body.data.packages).to.have.lengthOf(1);
+      expect(res.body.data.count).to.equal(1);
+      expect(res.body.data.packages[0].id).to.equal(this.package1.id);
+    });
+
+    it('gets apps for a specific arch/channel/framework', async function() {
+      this.package1.device_compatibilities = [`${ChannelArchitecture.FOCAL_ARMHF}:ubuntu-sdk-16.04`];
+      this.package2.device_compatibilities = [`${ChannelArchitecture.FOCAL_ALL}:ubuntu-sdk-16.04`];
+      this.package3.device_compatibilities = [`${ChannelArchitecture.FOCAL_ARMHF}:ubuntu-sdk-15.04`];
+      await Promise.all([
+        this.package1.save(),
+        this.package2.save(),
+        this.package3.save(),
+      ]);
+
+      const res = await this.get(
+        `${this.route}?architecture=armhf&channel=${Channel.FOCAL}&frameworks=ubuntu-sdk-16.04,ubuntu-sdk-20.04`,
+        false,
+      ).expect(200);
       expect(res.body.success).to.be.true;
       expect(res.body.data.packages).to.have.lengthOf(2);
       expect(res.body.data.count).to.equal(2);

@@ -1,34 +1,30 @@
 import express, { Request, Response } from 'express';
 
 import { Package } from 'db/package';
-import { Architecture, Channel, DEFAULT_CHANNEL } from 'db/package/types';
+import { Architecture, Channel } from 'db/package/types';
 import { getDataArray, getData, success, asyncErrorWrapper } from 'utils';
-
-// TODO remove this when system settings properly sends frameworks
-import defaultFrameworks from './json/default_frameworks.json';
+import { INVALID_ARCH, INVALID_CHANNEL } from 'utils/error-messages';
+import { UserError } from 'exceptions';
 
 const router = express.Router();
-
-// TODO cleanup
 
 async function revisionsByVersion(req: Request, res: Response) {
   const versions = getDataArray(req, 'apps');
   const ids = versions.map((version: string) => version.split('@')[0]);
 
-  let defaultChannel = getData(req, 'channel').toLowerCase();
-  const frameworks = getDataArray(req, 'frameworks', defaultFrameworks);
-  let architecture = getData(req, 'architecture', Architecture.ARMHF).toLowerCase();
+  const defaultChannel = getData(req, 'channel').toLowerCase();
+  const frameworks = getDataArray(req, 'frameworks', []);
+  const architecture = getData(req, 'architecture').toLowerCase();
 
-  if (!Object.values(Channel).includes(defaultChannel)) {
-    defaultChannel = DEFAULT_CHANNEL;
+  if (!Object.values(Channel).includes(defaultChannel) || !defaultChannel) {
+    throw new UserError(INVALID_CHANNEL);
   }
 
-  if (!Object.values(Architecture).includes(architecture)) {
-    architecture = Architecture.ARMHF;
+  if (!Object.values(Architecture).includes(architecture) || !architecture) {
+    throw new UserError(INVALID_ARCH);
   }
 
   const pkgs = (await Package.findByFilters({ published: true, ids }))
-    .filter((pkg) => (frameworks.length === 0 || frameworks.includes(pkg.framework)))
     .filter((pkg) => (pkg.architectures.includes(architecture) || pkg.architectures.includes(Architecture.ALL)))
     .map((pkg) => {
       let version = versions.filter((v: string) => (v.split('@')[0] == pkg.id))[0];
@@ -43,10 +39,7 @@ async function revisionsByVersion(req: Request, res: Response) {
       ))[0];
       const revision = revisionData ? revisionData.revision : 0;
 
-      // TODO return the latest revision for the given frameworks
-      // (also account for this most places pkg.getLatestRevision is used)
-      const { revisionData: latestRevisionData } = pkg.getLatestRevision(channel, architecture);
-
+      const { revisionData: latestRevisionData } = pkg.getLatestRevision(channel, architecture, undefined, frameworks);
       if (!latestRevisionData || !latestRevisionData.download_url) {
         return null;
       }
@@ -57,7 +50,7 @@ async function revisionsByVersion(req: Request, res: Response) {
         revision,
         latest_version: latestRevisionData.version,
         latest_revision: latestRevisionData.revision,
-        download_url: pkg.getDownloadUrl(channel, architecture),
+        download_url: pkg.getDownloadUrl(channel, architecture, latestRevisionData.version),
       };
     })
     .filter(Boolean);

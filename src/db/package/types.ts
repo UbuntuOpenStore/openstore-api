@@ -75,6 +75,8 @@ export type SerializedPackage = {
   category: string;
   changelog: string;
   channels: Channel[];
+  channel_architectures: ChannelArchitecture[],
+  device_compatibilities: string[],
   description: string;
   downloads: SerializedDownload[];
   framework: string;
@@ -182,15 +184,14 @@ export interface PackageSchema {
   video_url?: string,
   maintainer?: string,
   maintainer_name?: string,
-  framework?: string,
   author?: string,
-  version?: string,
   manifest?: { [key: string]: any },
   types: PackageType[],
   type_override?: PackageType,
   languages: string[],
   architectures: Architecture[],
   channel_architectures: ChannelArchitecture[],
+  device_compatibilities: string[],
   locked?: boolean,
   qml_imports: {
     module: string;
@@ -233,7 +234,7 @@ export interface PackageDoc extends PackageSchema {
     channel: Channel,
     arch?: Architecture,
     detectAll?: boolean,
-    frameworks?: string,
+    frameworks?: string[],
     version?: string
   ): { revisionData?: RevisionDoc | null, revisionIndex: number }
   updateFromClick(data: ClickParserData): void;
@@ -252,10 +253,10 @@ export interface PackageDoc extends PackageSchema {
   getDownloadUrl(channel: Channel, arch: Architecture, version?: string): string;
   serializeRatings(): SerializedRatings;
   serializeSlim(): SerializedPackageSlim;
-  serialize(architecture?: Architecture, apiVersion?: number): SerializedPackage;
+  serialize(architecture?: Architecture, frameworks?: string[], apiVersion?: number): SerializedPackage;
   updateScreenshotFiles(screenshotFiles: File[]): Promise<void>;
   createRevisionFromClick(filePath: string, channel: Channel, changelog?: string): Promise<void>;
-  updateChannelArchitectures(): void;
+  updateCalculatedProperties(): void;
 
   // Virtuals
   architecture: string;

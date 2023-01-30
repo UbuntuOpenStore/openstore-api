@@ -5,6 +5,7 @@ import { Package } from '../src/db/package';
 import { Architecture, Channel, PackageType, DEFAULT_CHANNEL, ChannelArchitecture } from '../src/db/package/types';
 import { Ratings } from '../src/db/review';
 import { serializeRatings } from '../src/db/package/methods';
+import { UserError } from '../src/exceptions';
 
 describe('Package', () => {
   context('parseRequestFilters', () => {
@@ -53,15 +54,27 @@ describe('Package', () => {
 
     it('adds arch all when the arch is not all', () => {
       expect(Package.parseRequestFilters({
-        query: { architecture: Architecture.ARMHF },
+        query: { architecture: Architecture.ARMHF, channel: Channel.FOCAL },
       } as any)).to.deep.include({
         architectures: [Architecture.ARMHF, Architecture.ALL],
       });
     });
+
+    it('throws an error when arch is not specified but channel is', () => {
+      expect(() => Package.parseRequestFilters({
+        query: { channel: Channel.FOCAL },
+      } as any)).to.throw(UserError);
+    });
+
+    it('throws an error when channel is not specified but arch is', () => {
+      expect(() => Package.parseRequestFilters({
+        query: { architecture: Architecture.ARMHF },
+      } as any)).to.throw(UserError);
+    });
   });
 
   context('parseFilters', () => {
-    it('parses filters, with arch and channel specified', () => {
+    it('parses filters, with arch/channel/frameworks specified', () => {
       const parsed = Package.parseFilters({
         types: [PackageType.APP, PackageType.WEBAPP],
         ids: ['foo.bar'],
@@ -79,8 +92,10 @@ describe('Package', () => {
       expect(parsed).to.deep.equal({
         types: { $in: [PackageType.APP, PackageType.WEBAPP] },
         id: { $in: ['foo.bar'] },
-        framework: { $in: ['ubuntu-16.04'] },
-        channel_architectures: { $in: [ChannelArchitecture.XENIAL_ARMHF, ChannelArchitecture.XENIAL_ALL] },
+        device_compatibilities: { $in: [
+          `${Channel.XENIAL}:${Architecture.ARMHF}:ubuntu-16.04`,
+          `${Channel.XENIAL}:${Architecture.ALL}:ubuntu-16.04`,
+        ] },
         category: 'Category',
         author: 'Author',
         $text: { $search: 'term' },
@@ -90,34 +105,14 @@ describe('Package', () => {
       });
     });
 
-    it('parses filters, with only arch specified', () => {
+    it('parses filters, with arch/channel specified', () => {
       const parsed = Package.parseFilters({
         architectures: [Architecture.ARMHF, Architecture.ALL],
-      });
-
-      expect(parsed).to.deep.equal({
-        architectures: { $in: [Architecture.ARMHF, Architecture.ALL] },
-      });
-    });
-
-    it('parses filters, with only channel specified', () => {
-      const parsed = Package.parseFilters({
         channel: Channel.XENIAL,
       });
 
       expect(parsed).to.deep.equal({
-        channels: Channel.XENIAL,
-      });
-    });
-
-    it('parses filters, ignoring missing elements', () => {
-      const parsed = Package.parseFilters({
-        frameworks: [],
-        search: 'term',
-      });
-
-      expect(parsed).to.deep.equal({
-        $text: { $search: 'term' },
+        channel_architectures: { $in: [ChannelArchitecture.XENIAL_ARMHF, ChannelArchitecture.XENIAL_ALL] },
       });
     });
   });
@@ -134,7 +129,6 @@ describe('Package', () => {
         author: 'Jill',
         category: 'Category',
         description: 'A good app',
-        framework: 'ubuntu-16.04',
         keywords: ['best', 'good'],
         license: 'GNU LGPL v3',
         nsfw: false,
@@ -191,7 +185,7 @@ describe('Package', () => {
           author: 'Jill',
           category: 'Category',
           description: 'A good app',
-          framework: 'ubuntu-16.04',
+          framework: '',
           keywords: ['best', 'good'],
           license: 'GNU LGPL v3',
           nsfw: false,
@@ -211,6 +205,10 @@ describe('Package', () => {
 
       it('serializes fully', function() {
         this.package.channel_architectures = [ChannelArchitecture.XENIAL_ARMHF, ChannelArchitecture.XENIAL_ARM64];
+        this.package.device_compatibilities = [
+          `${ChannelArchitecture.XENIAL_ARMHF}:ubuntu-sdk-16.04`,
+          `${ChannelArchitecture.XENIAL_ARM64}:ubuntu-sdk-16.04`,
+        ];
         this.package.createNextRevision('1.0.0', Channel.XENIAL, Architecture.ARMHF, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
         this.package.createNextRevision('1.0.0', Channel.XENIAL, Architecture.ARM64, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
 
@@ -218,7 +216,7 @@ describe('Package', () => {
         this.package.revisions[1].created_date = this.now;
         this.package.updated_date = this.now;
 
-        const serialized = this.package.serialize(Architecture.ARMHF, 4);
+        const serialized = this.package.serialize(Architecture.ARMHF, [], 4);
 
         expect(serialized).to.deep.equal({
           id: 'app.id',
@@ -228,10 +226,14 @@ describe('Package', () => {
           architecture: `${Architecture.ARMHF},${Architecture.ARM64}`,
           architectures: [Architecture.ARMHF, Architecture.ARM64],
           channel_architectures: [ChannelArchitecture.XENIAL_ARMHF, ChannelArchitecture.XENIAL_ARM64],
+          device_compatibilities: [
+            `${ChannelArchitecture.XENIAL_ARMHF}:ubuntu-sdk-16.04`,
+            `${ChannelArchitecture.XENIAL_ARM64}:ubuntu-sdk-16.04`,
+          ],
           author: 'Jill',
           category: 'Category',
           description: 'A good app',
-          framework: 'ubuntu-16.04',
+          framework: 'ubuntu-sdk-16.04',
           keywords: ['best', 'good'],
           license: 'GNU LGPL v3',
           nsfw: false,
@@ -255,7 +257,7 @@ describe('Package', () => {
               channel: Channel.XENIAL,
               created_date: this.now,
               download_sha512: 'shasum',
-              download_url: 'http://local.open-store.io/api/v3/apps/app.id/download/xenial/arm64',
+              download_url: 'http://local.open-store.io/api/v3/apps/app.id/download/xenial/arm64/1.0.0',
               downloads: 0,
               filesize: 10240,
               framework: 'ubuntu-sdk-16.04',
@@ -267,7 +269,7 @@ describe('Package', () => {
               channel: Channel.XENIAL,
               created_date: this.now,
               download_sha512: 'shasum',
-              download_url: 'http://local.open-store.io/api/v3/apps/app.id/download/xenial/armhf',
+              download_url: 'http://local.open-store.io/api/v3/apps/app.id/download/xenial/armhf/1.0.0',
               downloads: 0,
               filesize: 10240,
               framework: 'ubuntu-sdk-16.04',

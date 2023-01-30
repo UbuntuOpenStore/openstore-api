@@ -6,7 +6,7 @@ import { Request } from 'express';
 
 import { getData, getDataArray, getDataBoolean, getDataBooleanOrUndefined, getDataInt } from 'utils';
 import { UserError } from 'exceptions';
-import { DUPLICATE_PACKAGE, NO_SPACES_NAME, BAD_NAMESPACE } from 'utils/error-messages';
+import { DUPLICATE_PACKAGE, NO_SPACES_NAME, BAD_NAMESPACE, MISSING_CHANNEL_ARCH } from 'utils/error-messages';
 import {
   Architecture,
   PackageType,
@@ -168,6 +168,12 @@ export function setupStatics(packageSchema: Schema<PackageDoc, PackageModel>) {
       nsfw = [null, false];
     }
 
+    // TODO tests
+    const channel = getData(req, 'channel').toLowerCase();
+    if ((!channel && architectures.length > 0) || (channel && architectures.length === 0)) {
+      throw new UserError(MISSING_CHANNEL_ARCH);
+    }
+
     return {
       limit,
       skip: getDataInt(req, 'skip', 0),
@@ -179,7 +185,7 @@ export function setupStatics(packageSchema: Schema<PackageDoc, PackageModel>) {
       category: getData(req, 'category'),
       author: getData(req, 'author'),
       search: getData(req, 'search'),
-      channel: getData(req, 'channel').toLowerCase(),
+      channel,
       nsfw,
     };
   };
@@ -212,17 +218,7 @@ export function setupStatics(packageSchema: Schema<PackageDoc, PackageModel>) {
       };
     }
 
-    if (frameworks && frameworks.length > 0) {
-      if (Array.isArray(frameworks)) {
-        query.framework = {
-          $in: frameworks,
-        };
-      }
-      else {
-        query.framework = { $in: frameworks.split(',') };
-      }
-    }
-
+    const parsedFrameworks = Array.isArray(frameworks) ? frameworks : (frameworks?.split(',') ?? []);
     const arches: Architecture[] = architectures ?? [];
     if (architecture) {
       arches.push(architecture);
@@ -231,23 +227,23 @@ export function setupStatics(packageSchema: Schema<PackageDoc, PackageModel>) {
       }
     }
 
-    if (arches.length > 0 && channel) {
+    // If framework is specified, both arch and channel will also be specified
+    // If arch or channel is specified, then the other will also be specified
+    if (arches.length > 0 && channel && parsedFrameworks.length > 0) {
+      const deviceCompatibilities = arches.flatMap((arch) => {
+        return parsedFrameworks.map((framework) => {
+          return `${channel}:${arch}:${framework}`;
+        });
+      });
+
+      query.device_compatibilities = { $in: deviceCompatibilities };
+    }
+    else if (arches.length > 0 && channel && parsedFrameworks.length === 0) {
       const channelArchitectures = arches.map((arch) => {
         return `${channel}:${arch}`;
       }) as ChannelArchitecture[];
 
       query.channel_architectures = { $in: channelArchitectures };
-    }
-    else {
-      if (arches.length > 0) {
-        query.architectures = {
-          $in: arches,
-        };
-      }
-
-      if (channel) {
-        query.channels = channel;
-      }
     }
 
     if (category) {

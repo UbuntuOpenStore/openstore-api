@@ -73,6 +73,7 @@ Package.find({ id: { $in: limitedApps } }).then((pkgs) => {
         fs.unlinkSync(file);
       }
 
+      pkg.updateCalculatedProperties();
       return pkg.save();
     }
 

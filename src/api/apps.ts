@@ -5,7 +5,7 @@ import fsPromise from 'fs/promises';
 import fs from 'fs';
 import { Architecture, Channel, DEFAULT_CHANNEL, PackageDoc } from 'db/package/types';
 import { Package } from 'db/package';
-import { success, getData, apiLinks, asyncErrorWrapper, getDataBoolean } from 'utils';
+import { success, getData, apiLinks, asyncErrorWrapper, getDataBoolean, getDataArray } from 'utils';
 import { fetchPublishedPackage } from 'middleware';
 import { NotFoundError, UserError } from 'exceptions';
 import reviews from './reviews';
@@ -36,9 +36,10 @@ async function apps(req: Request, res: Response) {
   }
 
   const arch = getData(req, 'architecture', Architecture.ARMHF);
+  const frameworks = getDataArray(req, 'frameworks', []);
   const formatted = pkgs.map((pkg) => {
     if (req.query.full) {
-      return pkg.serialize(arch, req.apiVersion);
+      return pkg.serialize(arch, frameworks, req.apiVersion);
     }
 
     return pkg.serializeSlim();
@@ -57,7 +58,8 @@ router.post('/', asyncErrorWrapper(apps, 'Could not fetch app list at this time'
  */
 router.get('/:id', fetchPublishedPackage(true), async(req: Request, res: Response) => {
   const arch = getData(req, 'architecture', Architecture.ARMHF);
-  return success(res, req.pkg.serialize(arch, req.apiVersion));
+  const frameworks = getDataArray(req, 'frameworks', []);
+  return success(res, req.pkg.serialize(arch, frameworks, req.apiVersion));
 });
 
 /**

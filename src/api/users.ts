@@ -1,54 +1,37 @@
 import express, { Request, Response } from 'express';
 
 import { User } from 'db/user';
-import { error, success, captureException } from 'utils';
+import { success, asyncErrorWrapper } from 'utils';
 import { authenticate, adminOnly } from 'middleware';
+import { NotFoundError } from 'exceptions';
 import { USER_NOT_FOUND } from '../utils/error-messages';
 
 const router = express.Router();
 
-// TODO use exception wrapper
-router.get('/', authenticate, adminOnly, async(req: Request, res: Response) => {
-  try {
-    const users = await User.find({});
-    return success(res, users.map((user) => user.serialize()));
-  }
-  catch (err) {
-    captureException(err, req.originalUrl);
-    return error(res, err);
-  }
-});
+router.get('/', authenticate, adminOnly, asyncErrorWrapper(async(req: Request, res: Response) => {
+  const users = await User.find({});
+  return success(res, users.map((user) => user.serialize()));
+}, 'Could not fetch user list at this time'));
 
-router.get('/:id', authenticate, adminOnly, async(req: Request, res: Response) => {
-  try {
-    const user = await User.findById(req.params.id);
-    if (!user) {
-      return error(res, USER_NOT_FOUND, 404);
-    }
-
-    return success(res, user.serialize());
+router.get('/:id', authenticate, adminOnly, asyncErrorWrapper(async(req: Request, res: Response) => {
+  const user = await User.findById(req.params.id);
+  if (!user) {
+    throw new NotFoundError(USER_NOT_FOUND);
   }
-  catch (err) {
-    captureException(err, req.originalUrl);
-    return error(res, err);
-  }
-});
 
-router.put('/:id', authenticate, adminOnly, async(req: Request, res: Response) => {
-  try {
-    const user = await User.findById(req.params.id);
-    if (!user) {
-      return error(res, USER_NOT_FOUND, 404);
-    }
+  return success(res, user.serialize());
+}, 'Could not fetch user at this time'));
 
-    user.role = req.body.role;
-    await user.save();
+router.put('/:id', authenticate, adminOnly, asyncErrorWrapper(async(req: Request, res: Response) => {
+  const user = await User.findById(req.params.id);
+  if (!user) {
+    throw new NotFoundError(USER_NOT_FOUND);
+  }
 
-    return success(res, user.serialize());
-  }
-  catch (err) {
-    return error(res, err);
-  }
-});
+  user.role = req.body.role;
+  await user.save();
+
+  return success(res, user.serialize());
+}, 'Could not update user at this time'));
 
 export default router;

@@ -18,7 +18,7 @@ Package.find(query).then((pkgs) => {
   return Promise.all(pkgs.map((pkg) => {
     return limit(async() => {
       console.log(pkg.id);
-      pkg.updateChannelArchitectures();
+      pkg.updateCalculatedProperties();
 
       return pkg.save();
     });

@@ -40,17 +40,16 @@ const packageSchema = new Schema<PackageDoc, PackageModel>({
   video_url: String,
   maintainer: String,
   maintainer_name: String,
-  framework: String, // TODO deprecate
 
   // Metadata
   author: String,
-  version: String, // TODO deprecate
   manifest: {}, // TODO deprecate, put what is needed from the manifest into the revision data
   types: [String],
   type_override: String,
   languages: [String],
-  architectures: [String], // TODO deprecate
+  architectures: [String], // TODO deprecate, get from the revisions where appropriate
   channel_architectures: [String], // A list of channel:architecture that the app supports
+  device_compatibilities: [String], // A list of channel:arch:framework that the app supports
   locked: Boolean,
   qml_imports: [],
 

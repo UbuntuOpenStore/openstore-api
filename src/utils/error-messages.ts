@@ -2,6 +2,7 @@ export const APP_NOT_FOUND = 'App not found';
 export const DOWNLOAD_NOT_FOUND_FOR_CHANNEL = 'Download not available for this channel';
 export const INVALID_CHANNEL = 'The provided channel is not valid';
 export const INVALID_ARCH = 'The provided architecture is not valid';
+export const MISSING_CHANNEL_ARCH = 'Both architecture and channel must be specified';
 
 export const NEEDS_MANUAL_REVIEW = 'This app needs to be reviewed manually';
 export const CLICK_REVIEW_ERROR = 'The uploaded click did not pass automated review. Please fix the issues and upload again.';

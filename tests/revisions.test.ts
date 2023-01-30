@@ -161,19 +161,9 @@ describe('Revisions GET', () => {
     expect(data.download_url).to.exist;
   });
 
-  it('defaults to XENIAL for the channel', async function() {
-    const { body } = await this.get(this.makeUrl({ channel: 'foo' })).expect(200);
-
-    expect(body.success).to.be.true;
-    expect(body.data).to.have.lengthOf(1);
-
-    const data = body.data[0];
-    expect(data.id).to.equal(this.package.id);
-    expect(data.version).to.equal('1.0.0');
-    expect(data.revision).to.equal(1);
-    expect(data.latest_version).to.equal('2.0.0');
-    expect(data.latest_revision).to.equal(3);
-    expect(data.download_url).to.exist;
+  it('fails if the channel is missing or invalid', async function() {
+    await this.get(this.makeUrl({ channel: 'foo', architecture: Architecture.ARMHF })).expect(400);
+    await this.get(this.makeUrl({ channel: '', architecture: Architecture.ARMHF })).expect(400);
   });
 
   it('fails gracefully', async function() {
@@ -186,7 +176,7 @@ describe('Revisions GET', () => {
   });
 
   it('gets the channel from the version', async function() {
-    const url = `${this.route}?apps=${this.package.id}@1.0.0@${Channel.XENIAL}&architecture=${Architecture.ARMHF}`;
+    const url = `${this.route}?apps=${this.package.id}@1.0.0@${Channel.XENIAL}&channel=${Channel.FOCAL}&architecture=${Architecture.ARMHF}`;
     const { body } = await this.get(url).expect(200);
 
     expect(body.success).to.be.true;
@@ -201,7 +191,7 @@ describe('Revisions GET', () => {
     expect(data.download_url).to.exist;
   });
 
-  it('defaults to using armhf', async function() {
+  it('fails if arch is not specified or is invalid', async function() {
     this.package.revisions = this.package.revisions.forEach((revision: RevisionDoc) => {
       return {
         ...revision,
@@ -211,38 +201,32 @@ describe('Revisions GET', () => {
     this.package.architectures = [Architecture.ARM64];
     await this.package.save();
 
-    const { body } = await this.get(this.makeUrl({ architecture: 'foo' })).expect(200);
+    await this.get(this.makeUrl({ channel: Channel.FOCAL, architecture: 'foo' })).expect(400);
+    await this.get(this.makeUrl({ channel: Channel.FOCAL, architecture: '' })).expect(400);
+  });
+
+  it('returns the most recent for the given frameworks', async function() {
+    this.package.revisions[0].framework = 'ubuntu-sdk-15.04';
+    this.package.revisions[1].framework = 'ubuntu-sdk-15.04';
+    await this.package.save();
+
+    const { body } = await this.get(`${this.makeUrl()}&frameworks=ubuntu-sdk-15.04`).expect(200);
+
+    expect(body.success).to.be.true;
+    expect(body.data).to.have.lengthOf(1);
+    expect(body.data[0].latest_revision).to.equal(2);
+
+    const { body: body2 } = await this.get(`${this.makeUrl()}&frameworks=ubuntu-sdk-15.04,ubuntu-sdk-16.04`).expect(200);
+
+    expect(body2.success).to.be.true;
+    expect(body2.data).to.have.lengthOf(1);
+    expect(body2.data[0].latest_revision).to.equal(3);
+  });
+
+  it('returns nothing when the updates are different than the given framework', async function() {
+    const { body } = await this.get(`${this.makeUrl()}&frameworks=ubuntu-sdk-15.04`).expect(200);
 
     expect(body.success).to.be.true;
     expect(body.data).to.have.lengthOf(0);
   });
-
-  /*
-    // TODO revive these when the support returns
-
-    it('returns the most recent for the given frameworks', async function() {
-        this.package.revisions[0].framework = 'ubuntu-sdk-15.04';
-        this.package.revisions[1].framework = 'ubuntu-sdk-15.04';
-        await this.package.save();
-
-        let { body } = await this.get(`${this.makeUrl()}&frameworks=ubuntu-sdk-15.04`).expect(200);
-
-        expect(body.success).to.be.true;
-        expect(body.data).to.have.lengthOf(1);
-        expect(body.data[0].latest_revision).to.equal(2);
-
-        let { body: body2 } = await this.get(`${this.makeUrl()}&frameworks=ubuntu-sdk-15.04,ubuntu-sdk-16.04`).expect(200);
-
-        expect(body2.success).to.be.true;
-        expect(body2.data).to.have.lengthOf(1);
-        expect(body2.data[0].latest_revision).to.equal(3);
-    });
-
-    it('returns nothing when the updates are different than the given framework', async function() {
-        let { body } = await this.get(`${this.makeUrl()}&frameworks=ubuntu-sdk-15.04`).expect(200);
-
-        expect(body.success).to.be.true;
-        expect(body.data).to.have.lengthOf(0);
-    });
-    */
 });

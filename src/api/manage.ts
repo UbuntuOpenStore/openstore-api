@@ -236,7 +236,7 @@ router.post(
       }
 
       await pkg.createRevisionFromClick(filePath, channel, req.body.changelog);
-      pkg.updateChannelArchitectures();
+      pkg.updateCalculatedProperties();
 
       pkg = await pkg.save();
 

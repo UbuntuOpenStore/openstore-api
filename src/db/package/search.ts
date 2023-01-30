@@ -20,6 +20,7 @@ export default {
     'category',
     'channels',
     'channel_architectures',
+    'device_compatibilities',
     'description',
     'framework',
     'icon',
@@ -150,15 +151,21 @@ export default {
       });
     }
 
-    if (frameworks && frameworks.length > 0) {
+    // If framework is specified, both arch and channel will also be specified
+    // If arch or channel is specified, then the other will also be specified
+    const parsedFrameworks = Array.isArray(frameworks) ? frameworks : (frameworks?.split(',') ?? []);
+    if (architectures && architectures.length > 0 && channel && parsedFrameworks.length > 0) {
+      const deviceCompatibilities = architectures.flatMap((arch) => {
+        return parsedFrameworks.map((framework) => {
+          return `${channel}:${arch}:${framework}`;
+        });
+      });
+
       query.and.push({
-        in: {
-          framework: frameworks,
-        },
+        in: { device_compatibilities: deviceCompatibilities },
       });
     }
-
-    if (architectures && architectures.length > 0 && channel) {
+    else if (architectures && architectures.length > 0 && channel) {
       const channelArchitectures = architectures.map((arch) => {
         return `${channel}:${arch}`;
       });
@@ -166,23 +173,6 @@ export default {
       query.and.push({
         in: { channel_architectures: channelArchitectures },
       });
-    }
-    else {
-      if (architectures && architectures.length > 0) {
-        query.and.push({
-          in: {
-            architectures,
-          },
-        });
-      }
-
-      if (channel) {
-        query.and.push({
-          in: {
-            channels: [channel],
-          },
-        });
-      }
     }
 
     if (category) {

@@ -38,10 +38,6 @@ export function setupVirtuals(packageSchema: Schema<PackageDoc, PackageModel>) {
       version = revisionData.version;
     }
 
-    if (version == DEFAULT_VERSION && this.version) {
-      version = this.version;
-    }
-
     return `${config.server.host}/icons/${this.id}/${this.id}-${version}${ext}`;
   });
 }
