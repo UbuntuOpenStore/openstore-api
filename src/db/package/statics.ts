@@ -168,9 +168,8 @@ export function setupStatics(packageSchema: Schema<PackageDoc, PackageModel>) {
       nsfw = [null, false];
     }
 
-    // TODO tests
     const channel = getData(req, 'channel').toLowerCase();
-    if ((!channel && architectures.length > 0) || (channel && architectures.length === 0)) {
+    if (!channel && architectures.length > 0) {
       throw new UserError(MISSING_CHANNEL_ARCH);
     }
 
@@ -228,7 +227,7 @@ export function setupStatics(packageSchema: Schema<PackageDoc, PackageModel>) {
     }
 
     // If framework is specified, both arch and channel will also be specified
-    // If arch or channel is specified, then the other will also be specified
+    // If arch is specified then channel must be specified
     if (arches.length > 0 && channel && parsedFrameworks.length > 0) {
       const deviceCompatibilities = arches.flatMap((arch) => {
         return parsedFrameworks.map((framework) => {
@@ -244,6 +243,9 @@ export function setupStatics(packageSchema: Schema<PackageDoc, PackageModel>) {
       }) as ChannelArchitecture[];
 
       query.channel_architectures = { $in: channelArchitectures };
+    }
+    else if (channel) {
+      query.channels = channel;
     }
 
     if (category) {

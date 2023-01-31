@@ -152,7 +152,7 @@ export default {
     }
 
     // If framework is specified, both arch and channel will also be specified
-    // If arch or channel is specified, then the other will also be specified
+    // If arch is specified then channel must be specified
     const parsedFrameworks = Array.isArray(frameworks) ? frameworks : (frameworks?.split(',') ?? []);
     if (architectures && architectures.length > 0 && channel && parsedFrameworks.length > 0) {
       const deviceCompatibilities = architectures.flatMap((arch) => {
@@ -172,6 +172,13 @@ export default {
 
       query.and.push({
         in: { channel_architectures: channelArchitectures },
+      });
+    }
+    else if (channel) {
+      query.and.push({
+        in: {
+          channels: [channel],
+        },
       });
     }
 

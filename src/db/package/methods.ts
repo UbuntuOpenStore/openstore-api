@@ -302,12 +302,23 @@ export function setupMethods(packageSchema: Schema<PackageDoc, PackageModel>) {
   packageSchema.methods.serializeSlim = function(): SerializedPackageSlim {
     /*
       Data used by the app:
+      - https://gitlab.com/theopenstore/openstore-app/-/blob/master/src/models/searchmodel.cpp#L158-163
       - id
       - name
       - tagline
       - icon
       - types
       - ratings
+
+      Data used by the web:
+      - https://gitlab.com/theopenstore/openstore-web/-/blob/master/src/views/Browse.vue
+      - icon
+      - name
+      - ratings
+      - id
+      - nsfw
+      - tagline
+      - types
     */
 
     return {
@@ -333,6 +344,13 @@ export function setupMethods(packageSchema: Schema<PackageDoc, PackageModel>) {
     };
   };
 
+  /*
+    Fields used by the app:
+    - https://gitlab.com/theopenstore/openstore-app/-/blob/master/src/package.cpp#L112-188
+    Fields used by the web:
+    - https://gitlab.com/theopenstore/openstore-web/-/blob/master/src/views/ManagePackage.vue
+    - https://gitlab.com/theopenstore/openstore-web/-/blob/master/src/views/Package.vue
+  */
   packageSchema.methods.serialize = function(
     architecture: Architecture = Architecture.ARMHF,
     frameworks: string[] = [],
@@ -410,13 +428,13 @@ export function setupMethods(packageSchema: Schema<PackageDoc, PackageModel>) {
       type_override: this.type_override || '',
       calculated_rating: this.calculated_rating || 0,
 
-      // TODO deprecate these, issue an update to the app
-      architecture: this.architecture || '',
-      framework: revisionData?.framework ?? '',
+      // Deprecated, remove in the next major version
+      architecture: '',
+      framework: '',
       revision: -1,
       download: null,
       download_sha512: '',
-      filesize: toBytes(filesize), // Have the app get this from the download data
+      filesize: -1,
       permissions: [],
     };
 
