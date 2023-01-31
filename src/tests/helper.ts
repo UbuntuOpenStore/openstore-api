@@ -1,11 +1,13 @@
+/* eslint-disable import/no-extraneous-dependencies */
+
 import chai from 'chai';
 import mongoose from 'mongoose';
 import request from 'supertest';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 
+import * as api from 'api';
 import factory from './factory';
-import * as api from '../src/api';
 
 chai.use(sinonChai);
 chai.config.includeStack = true;

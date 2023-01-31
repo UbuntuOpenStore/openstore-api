@@ -1,8 +1,7 @@
-import factory from './factory';
-
-import { expect } from './helper';
-import { Package } from '../src/db/package';
-import { Architecture, Channel, RevisionDoc } from '../src/db/package/types';
+import { Package } from 'db/package';
+import { Architecture, Channel, RevisionDoc } from 'db/package/types';
+import factory from 'tests/factory';
+import { expect } from 'tests/helper';
 
 describe('Revisions GET', () => {
   before(function() {

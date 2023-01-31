@@ -1,9 +1,8 @@
-import factory from './factory';
-
-import { expect } from './helper';
-import { Package } from '../src/db/package';
-import categoryIcons from '../src/api/json/category_icons.json';
-import { DEFAULT_CHANNEL } from '../src/db/package/types';
+import { Package } from 'db/package';
+import { DEFAULT_CHANNEL } from 'db/package/types';
+import factory from 'tests/factory';
+import { expect } from 'tests/helper';
+import categoryIcons from './json/category_icons.json';
 
 describe('Categories API', () => {
   before(function() {

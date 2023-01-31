@@ -1,10 +1,9 @@
 import path from 'path';
-import factory from './factory';
-
-import { expect } from './helper';
-import { Package } from '../src/db/package';
-import PackageSearch from '../src/db/package/search';
-import * as messages from '../src/utils/error-messages';
+import { Package } from 'db/package';
+import PackageSearch from 'db/package/search';
+import * as messages from 'utils/error-messages';
+import { expect } from 'tests/helper';
+import factory from 'tests/factory';
 
 describe('Manage GET', () => {
   before(function() {
@@ -377,9 +376,9 @@ describe('Manage PUT', () => {
   before(function() {
     this.route = '/api/v3/manage/';
 
-    this.screenshot1 = path.join(__dirname, 'fixtures/empty1.png');
-    this.screenshot2 = path.join(__dirname, 'fixtures/empty2.png');
-    this.notAScreenshot = path.join(__dirname, 'fixtures/empty.click');
+    this.screenshot1 = path.join(__dirname, '../tests/fixtures/empty1.png');
+    this.screenshot2 = path.join(__dirname, '../tests/fixtures/empty2.png');
+    this.notAScreenshot = path.join(__dirname, '../tests/fixtures/empty.click');
   });
 
   beforeEach(async function() {

@@ -1,5 +1,5 @@
-import { expect } from './helper';
-import { getData, getDataArray, getDataBoolean, getDataBooleanOrUndefined } from '../src/utils';
+import { expect } from 'tests/helper';
+import { getData, getDataArray, getDataBoolean, getDataBooleanOrUndefined } from '.';
 
 describe('Helpers', () => {
   context('getData', () => {

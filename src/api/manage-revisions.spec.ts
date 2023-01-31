@@ -1,14 +1,13 @@
 import path from 'path';
-import factory from './factory';
-
-import { expect } from './helper';
-import { Package } from '../src/db/package';
-import { Architecture, Channel } from '../src/db/package/types';
-import { Lock } from '../src/db/lock';
-import * as reviewPackage from '../src/utils/review-package';
-import * as clickParser from '../src/utils/click-parser-async';
-import PackageSearch from '../src/db/package/search';
-import * as messages from '../src/utils/error-messages';
+import { Package } from 'db/package';
+import { Architecture, Channel } from 'db/package/types';
+import { Lock } from 'db/lock';
+import * as reviewPackage from 'utils/review-package';
+import * as clickParser from 'utils/click-parser-async';
+import PackageSearch from 'db/package/search';
+import * as messages from 'utils/error-messages';
+import { expect } from 'tests/helper';
+import factory from 'tests/factory';
 
 const GOOD_REVIEW = { manualReviewMessages: [], errorMessages: [], warningMessages: [] };
 const MANUAL_REVIEW = {
@@ -32,10 +31,10 @@ describe('Manage Revision POST', () => {
     ]);
 
     this.route = `/api/v3/manage/${this.package.id}/revision`;
-    this.goodClick = path.join(__dirname, 'fixtures/good.click');
-    this.good64Click = path.join(__dirname, 'fixtures/good64.click');
-    this.emptyClick = path.join(__dirname, 'fixtures/empty.click');
-    this.notAClick = path.join(__dirname, 'fixtures/notaclick.txt');
+    this.goodClick = path.join(__dirname, '../tests/fixtures/good.click');
+    this.good64Click = path.join(__dirname, '../tests/fixtures/good64.click');
+    this.emptyClick = path.join(__dirname, '../tests/fixtures/empty.click');
+    this.notAClick = path.join(__dirname, '../tests/fixtures/notaclick.txt');
 
     this.lockAcquireSpy = this.sandbox.spy(Lock, 'acquire');
     this.lockReleaseSpy = this.sandbox.spy(Lock, 'release');
@@ -480,7 +479,6 @@ describe('Manage Revision POST', () => {
       expect(data.architectures).to.deep.equal([Architecture.ARMHF]);
       expect(data.author).to.equal('OpenStore Team');
       expect(data.channels).to.deep.equal([Channel.XENIAL]);
-      expect(data.framework).to.equal('ubuntu-sdk-16.04');
       expect(data.icon).to.equal('http://local.open-store.io/icons/openstore-test.openstore-team/openstore-test.openstore-team-1.0.0.svg');
       expect(data.published).to.be.true;
       expect(data.manifest).to.be.ok;

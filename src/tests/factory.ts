@@ -1,6 +1,6 @@
-import { Package } from '../src/db/package';
-import { Review } from '../src/db/review';
-import { User } from '../src/db/user';
+import { Package } from 'db/package';
+import { Review } from 'db/review';
+import { User } from 'db/user';
 
 export default {
   package(data = {}) {

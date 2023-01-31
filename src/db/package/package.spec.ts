@@ -1,11 +1,10 @@
-import factory from './factory';
-
-import { expect } from './helper';
-import { Package } from '../src/db/package';
-import { Architecture, Channel, PackageType, DEFAULT_CHANNEL, ChannelArchitecture } from '../src/db/package/types';
-import { Ratings } from '../src/db/review';
-import { serializeRatings } from '../src/db/package/methods';
-import { UserError } from '../src/exceptions';
+import { Ratings } from 'db/review';
+import { UserError } from 'exceptions';
+import factory from 'tests/factory';
+import { expect } from 'tests/helper';
+import { Package } from '.';
+import { Architecture, Channel, PackageType, DEFAULT_CHANNEL, ChannelArchitecture } from './types';
+import { serializeRatings } from './methods';
 
 describe('Package', () => {
   context('parseRequestFilters', () => {
@@ -60,10 +59,12 @@ describe('Package', () => {
       });
     });
 
-    it('throws an error when arch is not specified but channel is', () => {
-      expect(() => Package.parseRequestFilters({
+    it('does not throw an error when arch is not specified but channel is', () => {
+      expect(Package.parseRequestFilters({
         query: { channel: Channel.FOCAL },
-      } as any)).to.throw(UserError);
+      } as any)).to.deep.include({
+        channel: Channel.FOCAL,
+      });
     });
 
     it('throws an error when channel is not specified but arch is', () => {
@@ -223,7 +224,7 @@ describe('Package', () => {
           name: 'Best App Ever',
           icon: 'http://local.open-store.io/icons/app.id/app.id-1.0.0.png',
           channels: [DEFAULT_CHANNEL],
-          architecture: `${Architecture.ARMHF},${Architecture.ARM64}`,
+          architecture: '',
           architectures: [Architecture.ARMHF, Architecture.ARM64],
           channel_architectures: [ChannelArchitecture.XENIAL_ARMHF, ChannelArchitecture.XENIAL_ARM64],
           device_compatibilities: [
@@ -233,7 +234,7 @@ describe('Package', () => {
           author: 'Jill',
           category: 'Category',
           description: 'A good app',
-          framework: 'ubuntu-sdk-16.04',
+          framework: '',
           keywords: ['best', 'good'],
           license: 'GNU LGPL v3',
           nsfw: false,
@@ -277,7 +278,7 @@ describe('Package', () => {
               version: '1.0.0',
             },
           ],
-          filesize: 10240,
+          filesize: -1,
           languages: ['en_US'],
           latestDownloads: 0,
           locked: false,

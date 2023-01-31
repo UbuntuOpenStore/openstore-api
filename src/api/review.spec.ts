@@ -1,11 +1,10 @@
-import factory from './factory';
-
-import { expect } from './helper';
-import { Package } from '../src/db/package';
-import { Review } from '../src/db/review';
-import { recalculatePackageRatings } from '../src/db/rating_count/utils';
-import { Architecture, Channel } from '../src/db/package/types';
-import * as messages from '../src/utils/error-messages';
+import { Package } from 'db/package';
+import { Review } from 'db/review';
+import { recalculatePackageRatings } from 'db/rating_count/utils';
+import { Architecture, Channel } from 'db/package/types';
+import * as messages from 'utils/error-messages';
+import { expect } from 'tests/helper';
+import factory from 'tests/factory';
 
 describe('Reviews', () => {
   before(function() {

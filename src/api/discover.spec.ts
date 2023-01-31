@@ -1,10 +1,9 @@
-import factory from './factory';
-
-import { expect } from './helper';
-import { Package } from '../src/db/package';
-import { RatingCount } from '../src/db/rating_count';
-import discoverJSON from '../src/api/json/discover_apps.json';
-import { Architecture, Channel, ChannelArchitecture } from '../src/db/package/types';
+import { Package } from 'db/package';
+import { RatingCount } from 'db/rating_count';
+import { Architecture, Channel, ChannelArchitecture } from 'db/package/types';
+import factory from 'tests/factory';
+import { expect } from 'tests/helper';
+import discoverJSON from './json/discover_apps.json';
 
 describe('Discover API', () => {
   before(function() {
