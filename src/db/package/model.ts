@@ -38,6 +38,7 @@ const packageSchema = new Schema<PackageDoc, PackageModel>({
   support_url: String,
   donate_url: String,
   video_url: String,
+  translation_url: String,
   maintainer: String,
   maintainer_name: String,
 

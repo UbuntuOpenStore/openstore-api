@@ -190,6 +190,7 @@ export function setupMethods(packageSchema: Schema<PackageDoc, PackageModel>) {
     this.source = isURL(body.source ?? '') ? body.source : (this.source ?? '');
     this.support_url = isURL(body.support_url ?? '') ? body.support_url : (this.support_url ?? '');
     this.donate_url = isURL(body.donate_url ?? '') ? body.donate_url : (this.donate_url ?? '');
+    this.translation_url = isURL(body.translation_url ?? '') ? body.translation_url : (this.translation_url ?? '');
 
     if (body.video_url && isURL(body.video_url)) {
       // TODO support regular urls and transform them into embedded urls
@@ -416,6 +417,7 @@ export function setupMethods(packageSchema: Schema<PackageDoc, PackageModel>) {
       support_url: this.support_url || '',
       donate_url: this.donate_url || '',
       video_url: this.video_url || '',
+      translation_url: this.translation_url || '',
       tagline: this.tagline || '',
       types: this.types || [],
       updated_date: this.updated_date || '',

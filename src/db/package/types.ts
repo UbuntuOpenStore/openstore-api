@@ -99,6 +99,7 @@ export type SerializedPackage = {
   support_url: string;
   donate_url: string;
   video_url: string;
+  translation_url: string;
   tagline: string;
   types: PackageType[];
   updated_date: string;
@@ -182,6 +183,7 @@ export interface PackageSchema {
   support_url?: string,
   donate_url?: string,
   video_url?: string,
+  translation_url?: string,
   maintainer?: string,
   maintainer_name?: string,
   author?: string,
@@ -219,6 +221,7 @@ export interface BodyUpdate {
   support_url?: string;
   donate_url?: string;
   video_url?: string;
+  translation_url?: string;
   tagline?: string;
   screenshots?: string[] | string;
   keywords?: string[] | string;

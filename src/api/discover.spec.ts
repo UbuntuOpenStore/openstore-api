@@ -1,6 +1,6 @@
 import { Package } from 'db/package';
 import { RatingCount } from 'db/rating_count';
-import { Architecture, Channel, ChannelArchitecture } from 'db/package/types';
+import { Architecture, Channel, ChannelArchitecture, PackageType } from 'db/package/types';
 import factory from 'tests/factory';
 import { expect } from 'tests/helper';
 import discoverJSON from './json/discover_apps.json';
@@ -19,7 +19,7 @@ describe('Discover API', () => {
         channels: [Channel.XENIAL],
         channel_architectures: [ChannelArchitecture.XENIAL_ALL],
         published_date: (new Date()).toISOString(),
-        types: ['app'],
+        types: [PackageType.APP],
       }),
       factory.package({
         published: true,
@@ -29,7 +29,7 @@ describe('Discover API', () => {
         channel_architectures: [ChannelArchitecture.XENIAL_ALL],
         published_date: '2021-01-01T13:35:16.095Z',
         updated_date: '2021-01-01T13:35:16.095Z',
-        types: ['app'],
+        types: [PackageType.APP],
       }),
       factory.package({
         published: true,
@@ -39,7 +39,7 @@ describe('Discover API', () => {
         channel_architectures: [ChannelArchitecture.XENIAL_ALL],
         published_date: '2021-01-01T13:35:16.095Z',
         updated_date: '2021-01-01T13:35:16.095Z',
-        types: ['app'],
+        types: [PackageType.APP],
       }),
       factory.package({
         published: true,
@@ -48,7 +48,7 @@ describe('Discover API', () => {
         channels: [Channel.XENIAL],
         channel_architectures: [ChannelArchitecture.XENIAL_ALL],
         published_date: (new Date()).toISOString(),
-        types: ['app'],
+        types: [PackageType.APP],
       }),
     ]);
   });

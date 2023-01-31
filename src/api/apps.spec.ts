@@ -1,6 +1,6 @@
 import { Package } from 'db/package';
 import * as messages from 'utils/error-messages';
-import { Channel, ChannelArchitecture, DEFAULT_CHANNEL } from 'db/package/types';
+import { Architecture, Channel, ChannelArchitecture, DEFAULT_CHANNEL } from 'db/package/types';
 import factory from 'tests/factory';
 import { expect } from 'tests/helper';
 
@@ -187,7 +187,7 @@ describe('Apps API', () => {
             downloads: 10,
             channel: DEFAULT_CHANNEL,
             download_url: `${__dirname}/../tests/fixtures/empty.click`,
-            architecture: 'armhf',
+            architecture: Architecture.ARMHF,
             framework: 'ubuntu-sdk-16.04',
             filesize: 100,
           },
@@ -197,7 +197,7 @@ describe('Apps API', () => {
             downloads: 10,
             channel: DEFAULT_CHANNEL,
             download_url: `${__dirname}/../tests/fixtures/empty.click`,
-            architecture: 'armhf',
+            architecture: Architecture.ARMHF,
             framework: 'ubuntu-sdk-16.04',
             filesize: 100,
           },

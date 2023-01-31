@@ -14,7 +14,6 @@ describe('Revisions GET', () => {
   beforeEach(async function() {
     this.package = await factory.package({
       published: true,
-      framework: 'ubuntu-sdk-16.04',
       architectures: [Architecture.ALL],
       revisions: [
         {

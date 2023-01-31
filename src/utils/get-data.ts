@@ -1,6 +1,8 @@
 import { Request } from 'express';
 import isString from 'lodash/isString';
 
+// TODO return types
+
 export function getData(req: Request, name: string, defaultData = '') {
   if (req.query && req.query[name]) {
     const value = req.query[name];

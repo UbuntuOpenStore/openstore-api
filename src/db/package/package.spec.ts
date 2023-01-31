@@ -145,6 +145,7 @@ describe('Package', () => {
         source: 'https://example.com/source',
         support_url: 'https://example.com/support',
         video_url: 'https://example.com/video',
+        translation_url: 'https://example.com/translations',
       });
     });
 
@@ -290,6 +291,7 @@ describe('Package', () => {
           source: 'https://example.com/source',
           support_url: 'https://example.com/support',
           video_url: 'https://example.com/video',
+          translation_url: 'https://example.com/translations',
           totalDownloads: 0,
           type_override: '',
           revision: -1,
