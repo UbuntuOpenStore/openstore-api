@@ -46,7 +46,7 @@ export function clickReview(file: string): Promise<ReviewSummary> {
         reviewData = JSON.parse(stdout);
       }
       catch (e) {
-        console.error(e, stdout, stderr, err);
+        console.error(stdout, stderr, err);
         captureException(e, '');
         reject(new UserError('Unable to process the click for review'));
         return;

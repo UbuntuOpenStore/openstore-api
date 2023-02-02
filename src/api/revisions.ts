@@ -24,6 +24,10 @@ async function revisionsByVersion(req: Request, res: Response) {
     throw new UserError(INVALID_ARCH);
   }
 
+  if (ids.length === 0) {
+    return success(res, []);
+  }
+
   const pkgs = (await Package.findByFilters({ published: true, ids }))
     .filter((pkg) => (pkg.architectures.includes(architecture) || pkg.architectures.includes(Architecture.ALL)))
     .map((pkg) => {
