@@ -59,7 +59,7 @@ async function revisionsByVersion(req: Request, res: Response) {
     })
     .filter(Boolean);
 
-  success(res, pkgs);
+  return success(res, pkgs);
 }
 
 router.get('/', asyncErrorWrapper(revisionsByVersion, 'Could not fetch app revisions at this time'));
