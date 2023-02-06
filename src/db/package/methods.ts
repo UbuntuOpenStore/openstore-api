@@ -436,7 +436,7 @@ export function setupMethods(packageSchema: Schema<PackageDoc, PackageModel>) {
       revision: -1,
       download: null,
       download_sha512: '',
-      filesize: -1,
+      filesize,
       permissions: [],
     };
 
