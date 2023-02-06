@@ -304,7 +304,7 @@ export default {
                 type: 'string',
                 index: 'not_analyzed',
               },
-              architecture: {
+              architectures: {
                 type: 'string',
                 index: 'not_analyzed',
               },
@@ -321,6 +321,18 @@ export default {
                 index: 'not_analyzed',
               },
               version: {
+                type: 'string',
+                index: 'not_analyzed',
+              },
+              channels: {
+                type: 'string',
+                index: 'not_analyzed',
+              },
+              channel_architectures: {
+                type: 'string',
+                index: 'not_analyzed',
+              },
+              device_compatibilities: {
                 type: 'string',
                 index: 'not_analyzed',
               },
