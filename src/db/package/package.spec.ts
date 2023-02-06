@@ -135,7 +135,7 @@ describe('Package', () => {
         nsfw: false,
         published_date: this.now,
         tagline: 'such wow',
-        types: ['app'],
+        types: [PackageType.APP],
         updated_date: this.now,
         changelog: 'some changes',
         donate_url: 'https://example.com/donate',
