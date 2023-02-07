@@ -28,8 +28,12 @@ import {
 } from './types';
 import { User } from '../user';
 
-function toBytes(filesize: number) {
-  return filesize * 1024;
+/*
+  The filesize is stored in kilobytes (from the click package
+  https://gitlab.com/ubports/development/core/click/-/blob/main/click_package/build.py#L241
+*/
+function toBytes(filesizeKb: number) {
+  return filesizeKb * 1024;
 }
 
 export function serializeRatings(ratingCounts: RatingCountDoc[]) {
@@ -375,7 +379,7 @@ export function setupMethods(packageSchema: Schema<PackageDoc, PackageModel>) {
     }
 
     const { revisionData } = this.getLatestRevision(defaultChannel, this.architectures.includes(architecture) ? architecture : undefined);
-    const filesize = revisionData ? revisionData.filesize : 0;
+    const filesize = revisionData ? toBytes(revisionData.filesize) : 0;
 
     const revisions = (this.revisions || []).map((rData) => {
       const revision = {
