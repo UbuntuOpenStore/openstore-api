@@ -4,7 +4,7 @@ import { FilterQuery, Schema } from 'mongoose';
 import uniq from 'lodash/uniq';
 import { Request } from 'express';
 
-import { getData, getDataArray, getDataBoolean, getDataBooleanOrUndefined, getDataInt } from 'utils';
+import { getData, getDataArray, getDataBooleanOrUndefined, getDataInt } from 'utils';
 import { UserError } from 'exceptions';
 import { DUPLICATE_PACKAGE, NO_SPACES_NAME, BAD_NAMESPACE, MISSING_CHANNEL_ARCH } from 'utils/error-messages';
 import {
