@@ -19,17 +19,18 @@ file to `.env` and add your credentials there.
 
 * [Create a GitHub OAuth App](https://developer.github.com/apps/building-integrations/setting-up-and-registering-oauth-apps/)
 
-## Contributors
+## Donations
 
-* [Brian Douglass](http://bhdouglass.com/)
-* [Michael Zanetti](http://notyetthere.org/)
-* [Marius Gripsgård](http://mariogrip.com/)
-* [Michał Prędotka](http://mivoligo.com/)
-* Joan CiberSheep
+We rely on donations from generous individuals like you to continue our mission
+of supporting the Ubuntu Touch community. Your contribution can help us improve
+the quality of the OpenStore website & app, add new features, and make them more
+accessible to users around the world. We appreciate any donation, big or small,
+and thank you for your support in helping us to build a better future for mobile
+technology! Donate on [Liberapay](https://liberapay.com/OpenStore/).
 
 ## License
 
-Copyright (C) 2020 [Brian Douglass](http://bhdouglass.com/)
+Copyright (C) 2023 [Brian Douglass](http://bhdouglass.com/)
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License version 3, as published
 by the Free Software Foundation.
