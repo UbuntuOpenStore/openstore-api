@@ -4,7 +4,7 @@ import { Architecture, Channel } from 'db/package/types';
 import { Lock } from 'db/lock';
 import * as reviewPackage from 'utils/review-package';
 import * as clickParser from 'utils/click-parser-async';
-import PackageSearch from 'db/package/search';
+import { packageSearchInstance } from 'db/package/search';
 import * as messages from 'utils/error-messages';
 import { expect } from 'tests/helper';
 import factory from 'tests/factory';
@@ -548,7 +548,7 @@ describe('Manage Revision POST', () => {
       await this.package.save();
 
       const reviewStub = this.sandbox.stub(reviewPackage, 'clickReview').resolves(GOOD_REVIEW);
-      const upsertStub = this.sandbox.stub(PackageSearch, 'upsert');
+      const upsertStub = this.sandbox.stub(packageSearchInstance, 'upsert');
 
       const res = await this.post(this.route)
         .attach('file', this.goodClick)

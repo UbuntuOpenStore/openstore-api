@@ -84,7 +84,7 @@ describe('Apps API', () => {
     // TODO it seems that populating the data during the test doesn't work properly
     /*
     it('searches for apps', async function() {
-      await PackageSearch.bulk([
+      await packageSearchInstance.bulk([
         this.package1,
         this.package2,
       ]);

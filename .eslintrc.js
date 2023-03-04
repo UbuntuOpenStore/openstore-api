@@ -37,8 +37,9 @@ module.exports = {
         ts: 'never',
       },
     ],
-    'import/prefer-default-export': 'off', // TODO turn this back on later
+    'import/prefer-default-export': 'off',
     'no-await-in-loop': 'off',
+    'class-methods-use-this': 'off',
 
     'no-shadow': 'off',
     '@typescript-eslint/no-shadow': ['error'],

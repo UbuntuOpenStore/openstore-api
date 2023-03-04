@@ -1,5 +1,5 @@
 import 'db'; // Make sure the database connection gets setup
-import PackageSearch from 'db/package/search';
+import { packageSearchInstance } from 'db/package/search';
 import { Package } from 'db/package';
 import { PackageDoc } from 'db/package/types';
 import { recalculatePackageRatings } from 'db/rating_count/utils';
@@ -9,7 +9,7 @@ Package.find({ published: true }).then((pkgs) => {
     return recalculatePackageRatings(pkg._id);
   }).filter((pkg) => !!pkg));
 }).then((pkgs) => {
-  return PackageSearch.bulk(pkgs as PackageDoc[]);
+  return packageSearchInstance.bulk(pkgs as PackageDoc[]);
 }).then(() => {
   console.log('done');
   process.exit(0);

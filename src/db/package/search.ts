@@ -5,46 +5,53 @@ import { PackageDoc, PackageRequestFilters, PackageSchema } from './types';
 
 // Modified from https://github.com/bhdouglass/uappexplorer/blob/master/src/db/elasticsearch/elasticsearch.js
 
-// TODO make this a class & export it not as default
-export default {
+const INDEX = config.elasticsearch.index;
+const TYPE = 'openstore_package';
+const PROPERTIES = [
+  'id',
+  'name',
+  'architectures',
+  'author',
+  'category',
+  'channels',
+  'channel_architectures',
+  'device_compatibilities',
+  'description',
+  'framework',
+  'icon',
+  'keywords',
+  'license',
+  'nsfw',
+  'published_date',
+  'tagline',
+  'types',
+  'updated_date',
+  'version',
+  'calculated_rating',
+];
+
+const SEARCH_FIELDS = [
+  'search_name^3',
+  'description^2',
+  'keywords^2',
+  'author',
+];
+
+export class PackageSearch {
   // https://stackoverflow.com/a/68631678
-  client: new elasticsearch.Client({ host: config.elasticsearch.uri, apiVersion: '6.8', ssl: { rejectUnauthorized: false, pfx: [] } }),
-  index: config.elasticsearch.index,
-  type: 'openstore_package',
+  private client: elasticsearch.Client;
 
-  properties: [
-    'id',
-    'name',
-    'architectures',
-    'author',
-    'category',
-    'channels',
-    'channel_architectures',
-    'device_compatibilities',
-    'description',
-    'framework',
-    'icon',
-    'keywords',
-    'license',
-    'nsfw',
-    'published_date',
-    'tagline',
-    'types',
-    'updated_date',
-    'version',
-    'calculated_rating',
-  ],
-
-  search_fields: [
-    'search_name^3',
-    'description^2',
-    'keywords^2',
-    'author',
-  ],
+  constructor() {
+    this.client = new elasticsearch.Client({
+      host: config.elasticsearch.uri,
+      apiVersion: '6.8',
+      ssl: { rejectUnauthorized: false, pfx: [] },
+    });
+  }
 
   convert(item: PackageDoc) {
     const doc: Partial<PackageSchema> & { search_name?: string } = {};
-    this.properties.forEach((prop: string) => {
+    PROPERTIES.forEach((prop: string) => {
       (doc as any)[prop] = (item as any)[prop] ? (item as any)[prop] : null;
     });
     doc.search_name = item.name;
@@ -59,12 +66,12 @@ export default {
     }
 
     return doc;
-  },
+  }
 
   async upsert(item: PackageDoc) {
     await this.client.update({
-      index: this.index,
-      type: this.type,
+      index: INDEX,
+      type: TYPE,
       id: item.id,
       retryOnConflict: 3,
       body: {
@@ -74,16 +81,16 @@ export default {
     });
 
     return item;
-  },
+  }
 
   async remove(item: PackageDoc) {
     try {
       await this.client.delete({
-        index: this.index,
-        type: this.type,
+        index: INDEX,
+        type: TYPE,
         id: item.id,
         retryOnConflict: 3,
-      });
+      } as any);
     }
     catch (err) {
       if (err?.status == 404) {
@@ -94,7 +101,7 @@ export default {
     }
 
     return item;
-  },
+  }
 
   bulk(upserts: PackageDoc[], removals?: PackageDoc[]) {
     let body: { [key: string]: any }[] = [];
@@ -102,8 +109,8 @@ export default {
       body.push({
         update: {
           _id: item.id,
-          _index: this.index,
-          _type: this.type,
+          _index: INDEX,
+          _type: TYPE,
           _retry_on_conflict: 3,
         },
       });
@@ -119,8 +126,8 @@ export default {
         return {
           delete: {
             _id: id,
-            _index: this.index,
-            _type: this.type,
+            _index: INDEX,
+            _type: TYPE,
             _retry_on_conflict: 3,
           },
         };
@@ -128,7 +135,7 @@ export default {
     }
 
     return this.client.bulk({ body });
-  },
+  }
 
   parseFilters({ types, ids, frameworks, architectures, category, author, channel, nsfw }: PackageRequestFilters) {
     const query: { [key: string]: any } = {
@@ -207,7 +214,7 @@ export default {
     }
 
     return query;
-  },
+  }
 
   search(filters: PackageRequestFilters, sort: string = 'relevance', skip: number = 0, limit: number = 30) {
     let sortTerm = '';
@@ -223,15 +230,15 @@ export default {
     }
 
     const request: SearchParams = {
-      index: this.index,
-      type: this.type,
+      index: INDEX,
+      type: TYPE,
       body: {
         from: skip || 0,
         size: limit || 30,
         query: {
           multi_match: {
             query: filters.search?.toLowerCase() || '',
-            fields: this.search_fields,
+            fields: SEARCH_FIELDS,
             slop: 10,
             max_expansions: 50,
             type: 'phrase_prefix',
@@ -255,17 +262,17 @@ export default {
     }
 
     return this.client.search(request);
-  },
+  }
 
   removeIndex() {
-    return this.client.indices.delete({ index: this.index });
-  },
+    return this.client.indices.delete({ index: INDEX });
+  }
 
   createIndex() {
     return this.client.indices.create({
-      index: this.index,
+      index: INDEX,
       body: {
-        packages: this.index,
+        packages: INDEX,
         settings: {
           analysis: {
             analyzer: {
@@ -341,5 +348,7 @@ export default {
         },
       },
     });
-  },
-};
+  }
+}
+
+export const packageSearchInstance = new PackageSearch();

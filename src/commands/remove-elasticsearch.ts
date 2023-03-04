@@ -1,6 +1,6 @@
-import PackageSearch from 'db/package/search';
+import { packageSearchInstance } from 'db/package/search';
 
-PackageSearch.removeIndex().then(() => {
+packageSearchInstance.removeIndex().then(() => {
   console.log('done');
   process.exit(0);
 }).catch((err: Error) => {

@@ -19,7 +19,7 @@ import {
   PackageStats,
   PackageQueryReturn,
 } from './types';
-import PackageSearch from './search';
+import { packageSearchInstance } from './search';
 import { RatingCount } from '../rating_count/model';
 
 export function setupStatics(packageSchema: Schema<PackageDoc, PackageModel>) {
@@ -332,7 +332,7 @@ export function setupStatics(packageSchema: Schema<PackageDoc, PackageModel>) {
     filters: PackageRequestFilters,
     full = false,
   ): Promise<{ pkgs: PackageQueryReturn[], count: number }> {
-    const results = await PackageSearch.search(filters, filters.sort, filters.skip, filters.limit);
+    const results = await packageSearchInstance.search(filters, filters.sort, filters.skip, filters.limit);
     const hits = results.hits.hits.map((hit: any) => hit._source);
 
     const ids = hits.map((pkg: any) => pkg.id);

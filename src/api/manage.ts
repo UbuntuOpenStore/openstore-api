@@ -6,7 +6,7 @@ import { existsSync } from 'fs';
 import { Lock, LockDoc } from 'db/lock';
 import { Channel } from 'db/package/types';
 import { Package } from 'db/package';
-import PackageSearch from 'db/package/search';
+import { packageSearchInstance } from 'db/package/search';
 import { success, error, captureException, moveFile, apiLinks, logger, asyncErrorWrapper } from 'utils';
 import { authenticate, userRole, downloadFile, extendTimeout, fetchPackage, canManage, canManageLocked } from 'middleware';
 import {
@@ -136,10 +136,10 @@ router.put(
     const pkg = await req.pkg!.save();
 
     if (pkg.published) {
-      await PackageSearch.upsert(pkg);
+      await packageSearchInstance.upsert(pkg);
     }
     else {
-      await PackageSearch.remove(pkg);
+      await packageSearchInstance.remove(pkg);
     }
 
     return success(res, pkg.serialize());
@@ -241,7 +241,7 @@ router.post(
       pkg = await pkg.save();
 
       if (pkg.published) {
-        await PackageSearch.upsert(pkg);
+        await packageSearchInstance.upsert(pkg);
       }
 
       await Lock.release(lock, req);

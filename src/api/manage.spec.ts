@@ -1,6 +1,6 @@
 import path from 'path';
 import { Package } from 'db/package';
-import PackageSearch from 'db/package/search';
+import { packageSearchInstance } from 'db/package/search';
 import * as messages from 'utils/error-messages';
 import { expect } from 'tests/helper';
 import factory from 'tests/factory';
@@ -382,8 +382,8 @@ describe('Manage PUT', () => {
   });
 
   beforeEach(async function() {
-    this.removeStub = this.sandbox.stub(PackageSearch, 'remove');
-    this.upsertStub = this.sandbox.stub(PackageSearch, 'upsert');
+    this.removeStub = this.sandbox.stub(packageSearchInstance, 'remove');
+    this.upsertStub = this.sandbox.stub(packageSearchInstance, 'upsert');
 
     [this.package, this.package2] = await Promise.all([
       factory.package({ maintainer: this.user._id, name: 'User app' }),
