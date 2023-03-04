@@ -8,7 +8,7 @@ import { Channel } from 'db/package/types';
 import { Package } from 'db/package';
 import { packageSearchInstance } from 'db/package/search';
 import { success, error, captureException, moveFile, apiLinks, logger, asyncErrorWrapper } from 'utils';
-import { authenticate, userRole, downloadFile, extendTimeout, fetchPackage, canManage, canManageLocked } from 'middleware';
+import { authenticate, userRole, downloadFile, extendTimeout, fetchPackage, canManage, canManageLocked, maintenanceMode } from 'middleware';
 import {
   APP_NOT_FOUND,
   PERMISSION_DENIED,
@@ -59,6 +59,7 @@ router.get('/:id', authenticate, userRole, fetchPackage(), canManage, async(req:
  */
 router.post(
   '/',
+  maintenanceMode,
   authenticate,
   userRole,
   downloadFile,
@@ -105,6 +106,7 @@ const putUpload = mupload.fields([
  */
 router.put(
   '/:id',
+  maintenanceMode,
   authenticate,
   putUpload,
   userRole,
@@ -152,6 +154,7 @@ router.put(
  */
 router.delete(
   '/:id',
+  maintenanceMode,
   authenticate,
   userRole,
   fetchPackage(),
@@ -177,6 +180,7 @@ const postUpload = mupload.fields([
  */
 router.post(
   '/:id/revision',
+  maintenanceMode,
   authenticate,
   extendTimeout,
   postUpload,
