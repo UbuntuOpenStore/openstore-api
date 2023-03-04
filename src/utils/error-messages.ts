@@ -22,6 +22,7 @@ export const APP_HAS_REVISIONS = 'Cannot delete an app that already has revision
 export const NO_ALL = 'You cannot upload a click with the architecture "all" for the same version as an architecture specific click';
 export const NO_NON_ALL = 'You cannot upload and architecture specific click for the same version as a click with the architecture "all"';
 export const MISMATCHED_FRAMEWORK = 'Framework does not match existing click of a different architecture';
+export const MISMATCHED_PERMISSIONS = 'Permissions do not match existing click of a different architecture';
 export const APP_LOCKED = 'Sorry this app has been locked by an admin';
 
 export const PARAMETER_MISSING = 'Missing parameters for this endpoint';

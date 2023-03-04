@@ -15,6 +15,7 @@ const revisionSchema = new Schema<RevisionDoc, RevisionModel>({
   framework: String,
   filesize: Number,
   created_date: String,
+  permissions: [String],
 });
 
 const packageSchema = new Schema<PackageDoc, PackageModel>({

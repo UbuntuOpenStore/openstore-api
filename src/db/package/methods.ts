@@ -7,10 +7,11 @@ import fs from 'fs/promises';
 import { sanitize, ClickParserData, config, moveFile, sha512Checksum } from 'utils';
 import { RatingCountDoc } from 'db/rating_count/types';
 import { v4 } from 'uuid';
-import { EXISTING_VERSION, MALFORMED_MANIFEST, MISMATCHED_FRAMEWORK, NO_ALL, NO_NON_ALL, WRONG_PACKAGE } from 'utils/error-messages';
+import { EXISTING_VERSION, MALFORMED_MANIFEST, MISMATCHED_FRAMEWORK, MISMATCHED_PERMISSIONS, NO_ALL, NO_NON_ALL, WRONG_PACKAGE } from 'utils/error-messages';
 import { UserError } from 'exceptions';
 import * as clickParser from 'utils/click-parser-async';
 import { isURL } from 'class-validator';
+import { difference } from 'lodash';
 import {
   RevisionDoc,
   PackageDoc,
@@ -265,7 +266,16 @@ export function setupMethods(packageSchema: Schema<PackageDoc, PackageModel>) {
     }
   };
 
-  packageSchema.methods.createNextRevision = function(version, channel, architecture, framework, url, downloadSha512, filesize) {
+  packageSchema.methods.createNextRevision = function(
+    version: string,
+    channel: Channel,
+    architecture: Architecture,
+    framework: string,
+    url: string,
+    downloadSha512: string,
+    filesize: number,
+    permissions: string[] = [],
+  ) {
     this.revisions.push({
       revision: this.next_revision,
       version,
@@ -277,6 +287,7 @@ export function setupMethods(packageSchema: Schema<PackageDoc, PackageModel>) {
       framework,
       filesize,
       created_date: (new Date()).toISOString(),
+      permissions,
     } as RevisionDoc);
 
     this.updated_date = (new Date()).toISOString();
@@ -588,7 +599,10 @@ export function setupMethods(packageSchema: Schema<PackageDoc, PackageModel>) {
           throw new UserError(MISMATCHED_FRAMEWORK);
         }
 
-        // TODO check if permissions are the same with the current list of permissions
+        const permissions = currentRevisions[0].permissions ?? [];
+        if (permissions.length > 0 && difference(parseData.permissions, permissions).length > 0) {
+          throw new UserError(MISMATCHED_PERMISSIONS);
+        }
       }
     }
 
@@ -612,6 +626,7 @@ export function setupMethods(packageSchema: Schema<PackageDoc, PackageModel>) {
       localFilePath,
       downloadSha512,
       parseData.installedSize,
+      parseData.permissions,
     );
 
     const updateIcon = (channel == DEFAULT_CHANNEL || !this.icon);

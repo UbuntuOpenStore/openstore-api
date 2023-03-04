@@ -52,6 +52,7 @@ export interface RevisionSchema {
   framework: string,
   filesize: number,
   created_date: string,
+  permissions: string[],
 }
 
 export interface RevisionDoc extends RevisionSchema, Document {}
@@ -249,7 +250,8 @@ export interface PackageDoc extends PackageSchema {
     framework: string,
     url: string,
     downloadSha512: string,
-    filesize: number
+    filesize: number,
+    permissions?: string[],
   ): void;
   getClickFilePath(channel: Channel, arch: Architecture, version: string): string;
   getIconFilePath(ext: string): string;

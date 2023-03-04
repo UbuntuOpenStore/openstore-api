@@ -391,8 +391,53 @@ describe('Manage Revision POST', () => {
       expect(this.lockReleaseSpy).to.have.been.calledOnce;
     });
 
+    it('fails when the same version but different arch and permissions', async function() {
+      this.package.createNextRevision(
+        '1.0.0',
+        Channel.XENIAL,
+        Architecture.ARM64,
+        'ubuntu-sdk-16.04',
+        'url',
+        'shasum',
+        10,
+        ['permission1', 'permission2'],
+      );
+      await this.package.save();
+
+      const reviewStub = this.sandbox.stub(reviewPackage, 'clickReview').resolves(GOOD_REVIEW);
+      const parseStub = this.sandbox.stub(clickParser, 'parseClickPackage').resolves({
+        name: this.package.id,
+        version: '1.0.0',
+        architecture: Architecture.ARMHF,
+        framework: 'ubuntu-sdk-16.04',
+        apps: [],
+        permissions: ['permission1', 'permission3'],
+      });
+
+      const res = await this.post(this.route)
+        .attach('file', this.emptyClick)
+        .field('channel', Channel.XENIAL)
+        .expect(400);
+
+      expect(res.body.success).to.be.false;
+      expect(res.body.message).to.equal(messages.MISMATCHED_PERMISSIONS);
+      expect(reviewStub).to.have.been.calledOnce;
+      expect(parseStub).to.have.been.calledOnce;
+      expect(this.lockAcquireSpy).to.have.been.calledOnce;
+      expect(this.lockReleaseSpy).to.have.been.calledOnce;
+    });
+
     it('passes when the same version but different framework and channel', async function() {
-      this.package.createNextRevision('1.0.0', Channel.XENIAL, Architecture.ARM64, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
+      this.package.createNextRevision(
+        '1.0.0',
+        Channel.XENIAL,
+        Architecture.ARM64,
+        'ubuntu-sdk-16.04',
+        'url',
+        'shasum',
+        10,
+        ['permission1', 'permission2'],
+      );
       await this.package.save();
 
       const reviewStub = this.sandbox.stub(reviewPackage, 'clickReview').resolves(GOOD_REVIEW);
@@ -402,6 +447,7 @@ describe('Manage Revision POST', () => {
         architecture: Architecture.ARM64,
         framework: 'ubuntu-sdk-20.04',
         apps: [],
+        permissions: ['permission1', 'permission2'],
       });
 
       const res = await this.post(this.route)
