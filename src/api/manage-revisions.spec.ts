@@ -558,7 +558,7 @@ describe('Manage Revision POST', () => {
       const data = res.body.data;
 
       expect(data.architectures).to.deep.equal([Architecture.ARMHF]);
-      expect(data.author).to.equal('OpenStore Team');
+      expect(data.author).not.to.equal('OpenStore Team'); // The click no longer updates the author name
       expect(data.channels).to.deep.equal([Channel.XENIAL]);
       expect(data.icon).to.equal('http://local.open-store.io/icons/openstore-test.openstore-team/openstore-test.openstore-team-1.0.0.svg');
       expect(data.published).to.be.true;

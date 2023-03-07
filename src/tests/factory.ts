@@ -7,6 +7,7 @@ export default {
     const pkg = new Package({
       id: `foo.${Math.random()}`,
       name: `Package ${Math.random()}`,
+      author: `Author ${Math.random()}`,
       updated_date: (new Date()).toISOString(),
       ...data,
     });

@@ -158,7 +158,7 @@ export function setupMethods(packageSchema: Schema<PackageDoc, PackageModel>) {
     });
 
     this.architecture = data.architecture;
-    this.author = data.maintainer;
+    // this.author = data.maintainer; < No longer updating the author from the click because that can be faked
     this.id = data.name;
     this.manifest = manifest;
     this.types = this.type_override ? [this.type_override] : data.types;
@@ -262,6 +262,7 @@ export function setupMethods(packageSchema: Schema<PackageDoc, PackageModel>) {
       const user = await User.findById(this.maintainer);
       if (user) {
         this.maintainer_name = user.name ? user.name : user.username;
+        this.author = this.maintainer_name;
       }
     }
   };
