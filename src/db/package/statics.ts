@@ -138,10 +138,6 @@ export function setupStatics(packageSchema: Schema<PackageDoc, PackageModel>) {
       ...getDataArray(req, 'type'),
     ];
 
-    if (types.includes(PackageType.WEBAPP)) {
-      types.push(PackageType.WEBAPP_PLUS);
-    }
-
     const architecture = getData(req, 'architecture').toLowerCase();
     let architectures: Architecture[] = [];
     if (architecture) {

@@ -43,11 +43,11 @@ describe('Package', () => {
       });
     });
 
-    it('handles types and type and webapp+', () => {
+    it('handles types and type', () => {
       expect(Package.parseRequestFilters({
         query: { type: PackageType.APP, types: PackageType.WEBAPP },
       } as any)).to.deep.include({
-        types: [PackageType.WEBAPP, PackageType.APP, PackageType.WEBAPP_PLUS],
+        types: [PackageType.WEBAPP, PackageType.APP],
       });
     });
 
