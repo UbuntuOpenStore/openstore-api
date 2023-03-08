@@ -73,6 +73,7 @@ export type SerializedPackage = {
   architecture: string;
   architectures: Architecture[];
   author: string;
+  publisher: string;
   category: string;
   changelog: string;
   channels: Channel[];
@@ -122,6 +123,7 @@ export type SerializedPackage = {
 export type SerializedPackageSlim = {
   architectures?: Architecture[];
   author?: string;
+  publisher?: string;
   name?: string;
   id?: string;
   category?: string;

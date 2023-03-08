@@ -340,7 +340,7 @@ export function setupMethods(packageSchema: Schema<PackageDoc, PackageModel>) {
 
     return {
       architectures: this.architectures || [],
-      author: this.author || '',
+      publisher: this.author || '',
       name: this.name || '',
       id: this.id || '',
       category: this.category || '',
@@ -358,6 +358,7 @@ export function setupMethods(packageSchema: Schema<PackageDoc, PackageModel>) {
 
       // Deprecated, remove in the next major version
       framework: '',
+      author: this.author || '',
     };
   };
 
@@ -406,7 +407,6 @@ export function setupMethods(packageSchema: Schema<PackageDoc, PackageModel>) {
 
     const json = {
       architectures: this.architectures || [],
-      author: this.author || '',
       category: this.category || '',
       changelog: this.changelog || '',
       channels: this.channels || [DEFAULT_CHANNEL],
@@ -445,8 +445,10 @@ export function setupMethods(packageSchema: Schema<PackageDoc, PackageModel>) {
       ratings: this.serializeRatings(),
       type_override: this.type_override || '',
       calculated_rating: this.calculated_rating || 0,
+      publisher: this.author || '',
 
       // Deprecated, remove in the next major version
+      author: this.author || '',
       architecture: '',
       framework: '',
       revision: -1,

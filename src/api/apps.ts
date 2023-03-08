@@ -24,7 +24,7 @@ async function apps(req: Request, res: Response) {
 
   // Send search queries to elastic search
   // TODO move author searches to a different request parameter
-  if (filters.search && filters.search.indexOf('author:') !== 0) {
+  if (filters.search && !filters.search.startsWith('author:') && !filters.search.startsWith('publisher:')) {
     const results = await Package.searchByFilters(filters, getDataBoolean(req, 'full', false));
     pkgs = results.pkgs;
     count = results.count;

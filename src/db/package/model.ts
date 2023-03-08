@@ -41,10 +41,10 @@ const packageSchema = new Schema<PackageDoc, PackageModel>({
   video_url: String,
   translation_url: String,
   maintainer: String,
-  maintainer_name: String,
+  maintainer_name: String, // TODO deprecate
 
   // Metadata
-  author: String,
+  author: String, // TODO rename to publisher
   manifest: {}, // TODO deprecate, put what is needed from the manifest into the revision data
   types: [String],
   type_override: String,
