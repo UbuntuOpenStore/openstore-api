@@ -6,6 +6,8 @@ export function sanitize(html: string) {
     allowedAttributes: {},
   }).replace(/&amp;/g, '&')
     .replace(/&quot;/g, '"')
+    .replace(/&gt;/g, '>')
+    .replace(/&lt;/g, '<')
     .replace(/\r/g, '')
     .trim();
 }
