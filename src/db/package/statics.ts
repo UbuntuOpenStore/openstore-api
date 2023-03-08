@@ -178,7 +178,7 @@ export function setupStatics(packageSchema: Schema<PackageDoc, PackageModel>) {
       frameworks: getDataArray(req, 'frameworks'),
       architectures,
       category: getData(req, 'category'),
-      author: getData(req, 'author'),
+      author: getData(req, 'author') ? getData(req, 'author') : getData(req, 'publisher'),
       search: getData(req, 'search'),
       channel,
       nsfw,
