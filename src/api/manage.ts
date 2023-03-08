@@ -222,7 +222,7 @@ router.post(
         throw new UserError(BAD_FILE);
       }
 
-      const reviewSummary = await clickReview(filePath);
+      const reviewSummary = await clickReview(filePath, pkg.review_exceptions ?? []);
       if (!req.isAdminUser && !req.isTrustedUser) {
         // Admin & trusted users can upload apps without manual review
 

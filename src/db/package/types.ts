@@ -118,6 +118,7 @@ export type SerializedPackage = {
   download_sha512: string;
   filesize: number;
   permissions: string[];
+  review_exceptions: string[];
 };
 
 export type SerializedPackageSlim = {
@@ -202,6 +203,7 @@ export interface PackageSchema {
     module: string;
     version: string;
   }[],
+  review_exceptions?: string[];
   published?: boolean,
   published_date?: string,
   updated_date?: string,

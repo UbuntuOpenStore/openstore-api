@@ -446,6 +446,7 @@ export function setupMethods(packageSchema: Schema<PackageDoc, PackageModel>) {
       type_override: this.type_override || '',
       calculated_rating: this.calculated_rating || 0,
       publisher: this.author || '',
+      review_exceptions: this.review_exceptions ?? [],
 
       // Deprecated, remove in the next major version
       author: this.author || '',

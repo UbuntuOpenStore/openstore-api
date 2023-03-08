@@ -54,6 +54,7 @@ const packageSchema = new Schema<PackageDoc, PackageModel>({
   device_compatibilities: [String], // A list of channel:arch:framework that the app supports
   locked: Boolean,
   qml_imports: [],
+  review_exceptions: [String],
 
   // Publication metadata
   published: Boolean,

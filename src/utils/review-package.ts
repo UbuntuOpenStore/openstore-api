@@ -33,7 +33,7 @@ export type ReviewSummary = {
   warningMessages: string[];
 }
 
-export function clickReview(file: string): Promise<ReviewSummary> {
+export function clickReview(file: string, exceptions: string[]): Promise<ReviewSummary> {
   return new Promise((resolve, reject) => {
     const command = `${config.clickreview.command} --json ${file}`;
     childProcess.exec(command, {
@@ -57,7 +57,12 @@ export function clickReview(file: string): Promise<ReviewSummary> {
       const warningMessages: string[] = [];
 
       Object.values(reviewData).forEach((groupData) => {
-        Object.values(groupData.error).forEach((error) => {
+        Object.entries(groupData.error).forEach(([name, error]) => {
+          console.log(name);
+          if (exceptions.includes(name)) {
+            return;
+          }
+
           if (error.manual_review) {
             manualReviewMessages.push(error.text.replace('(NEEDS REVIEW)', '').trim());
           }
@@ -66,7 +71,11 @@ export function clickReview(file: string): Promise<ReviewSummary> {
           }
         });
 
-        Object.values(groupData.warn).forEach((warn) => {
+        Object.entries(groupData.warn).forEach(([name, warn]) => {
+          if (exceptions.includes(name)) {
+            return;
+          }
+
           if (warn.manual_review) {
             manualReviewMessages.push(warn.text.replace('(NEEDS REVIEW)', '').trim());
           }
