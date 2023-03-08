@@ -198,7 +198,7 @@ export function setupStatics(packageSchema: Schema<PackageDoc, PackageModel>) {
     nsfw,
     maintainer,
     published,
-  }: PackageRequestFilters): FilterQuery<PackageDoc> {
+  }: PackageRequestFilters, textSearch = true): FilterQuery<PackageDoc> {
     const query: FilterQuery<PackageDoc> = {};
 
     if (types && types.length > 0) {
@@ -253,7 +253,12 @@ export function setupStatics(packageSchema: Schema<PackageDoc, PackageModel>) {
     }
 
     if (search) {
-      query.$text = { $search: search };
+      if (textSearch) {
+        query.$text = { $search: search };
+      }
+      else {
+        query.name = { $regex: search, $options: 'i' };
+      }
     }
 
     if (nsfw && nsfw.length > 0) {
@@ -271,8 +276,8 @@ export function setupStatics(packageSchema: Schema<PackageDoc, PackageModel>) {
     return query;
   };
 
-  packageSchema.statics.countByFilters = async function(filters: PackageRequestFilters): Promise<number> {
-    const query = this.parseFilters(filters);
+  packageSchema.statics.countByFilters = async function(filters: PackageRequestFilters, textSearch = true): Promise<number> {
+    const query = this.parseFilters(filters, textSearch);
 
     const result = await this.countDocuments(query);
     return result;
@@ -283,8 +288,9 @@ export function setupStatics(packageSchema: Schema<PackageDoc, PackageModel>) {
     sort: string = 'relevance',
     limit?: number,
     skip?: number,
+    textSearch = true,
   ): Promise<PackageQueryReturn[]> {
-    const query = this.parseFilters(filters);
+    const query = this.parseFilters(filters, textSearch);
 
     const findQuery = this.find(query).populate('rating_counts');
 

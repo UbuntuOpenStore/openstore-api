@@ -39,8 +39,8 @@ router.get('/', authenticate, userRole, asyncErrorWrapper(async(req: Request, re
     filters.maintainer = req.user!._id;
   }
 
-  const pkgs = await Package.findByFilters(filters, filters.sort, filters.limit, filters.skip);
-  const count = await Package.countByFilters(filters);
+  const pkgs = await Package.findByFilters(filters, filters.sort, filters.limit, filters.skip, false);
+  const count = await Package.countByFilters(filters, false);
 
   const formatted = pkgs.map((pkg) => pkg.serialize());
   const { next, previous } = apiLinks(req.originalUrl, formatted.length, filters.limit, filters.skip);

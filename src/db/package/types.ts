@@ -283,9 +283,15 @@ export interface PackageModel extends Model<PackageDoc> {
   stats(): Promise<PackageStats>;
   categoryStats(channels: Channel[]): Promise<CategoryStat[]>;
   parseRequestFilters(req: Request): PackageRequestFilters;
-  parseFilters(filters: PackageRequestFilters): FilterQuery<PackageDoc>;
-  countByFilters(filters: PackageRequestFilters): Promise<number>;
-  findByFilters(filters: PackageRequestFilters, sort?: string, limit?: number, skip?: number): Promise<PackageQueryReturn[]>;
+  parseFilters(filters: PackageRequestFilters, textSearch?: boolean): FilterQuery<PackageDoc>;
+  countByFilters(filters: PackageRequestFilters, textSearch?: boolean): Promise<number>;
+  findByFilters(
+    filters: PackageRequestFilters,
+    sort?: string,
+    limit?: number,
+    skip?: number,
+    textSearch?: boolean
+  ): Promise<PackageQueryReturn[]>;
   findOneByFilters(id: string, filters?: PackageRequestFilters): Promise<PackageQueryReturn | null>;
   searchByFilters(filters: PackageRequestFilters, full: boolean): Promise<{ pkgs: PackageQueryReturn[], count: number }>;
   checkId(id: string): Promise<void>;
