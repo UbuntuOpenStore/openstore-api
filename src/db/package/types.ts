@@ -204,6 +204,7 @@ export interface PackageSchema {
     version: string;
   }[],
   review_exceptions?: string[];
+  skip_review?: boolean,
   published?: boolean,
   published_date?: string,
   updated_date?: string,

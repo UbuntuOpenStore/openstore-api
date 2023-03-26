@@ -55,6 +55,7 @@ const packageSchema = new Schema<PackageDoc, PackageModel>({
   locked: Boolean,
   qml_imports: [],
   review_exceptions: [String],
+  skip_review: Boolean,
 
   // Publication metadata
   published: Boolean,

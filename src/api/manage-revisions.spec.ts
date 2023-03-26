@@ -86,6 +86,30 @@ describe('Manage Revision POST', () => {
       expect(this.lockAcquireSpy).to.have.been.calledOnce;
       expect(this.lockReleaseSpy).to.have.been.calledOnce;
     });
+
+    it('skips review if configured', async function() {
+      this.package.skip_review = true;
+      await this.package.save();
+
+      const reviewSpy = this.sandbox.spy(reviewPackage, 'clickReview');
+      const parseStub = this.sandbox.stub(clickParser, 'parseClickPackage').resolves({
+        name: this.package.id,
+        version: '1.0.0',
+        architecture: 'armhf',
+        apps: [],
+      });
+
+      const res = await this.post(this.route)
+        .attach('file', this.emptyClick)
+        .field('channel', Channel.XENIAL)
+        .expect(200);
+
+      expect(res.body.success).to.be.true;
+      expect(reviewSpy).not.to.have.been.calledOnce;
+      expect(parseStub).to.have.been.calledOnce;
+      expect(this.lockAcquireSpy).to.have.been.calledOnce;
+      expect(this.lockReleaseSpy).to.have.been.calledOnce;
+    });
   });
 
   context('trusted user', () => {
@@ -651,6 +675,30 @@ describe('Manage Revision POST', () => {
       expect(data.architectures[0]).to.equal(Architecture.ARMHF);
       expect(data.downloads).to.be.lengthOf(1);
       expect(data.downloads[0].architecture).to.equal(Architecture.ARMHF);
+      expect(reviewStub).to.have.been.calledOnce;
+      expect(parseStub).to.have.been.calledOnce;
+      expect(this.lockAcquireSpy).to.have.been.calledOnce;
+      expect(this.lockReleaseSpy).to.have.been.calledOnce;
+    });
+
+    it('does not skip review for a non-admin user', async function() {
+      this.package.skip_review = true;
+      this.package.save();
+
+      const reviewStub = this.sandbox.stub(reviewPackage, 'clickReview').resolves(GOOD_REVIEW);
+      const parseStub = this.sandbox.stub(clickParser, 'parseClickPackage').resolves({
+        name: this.package.id,
+        version: '1.0.0',
+        architecture: 'armhf',
+        apps: [],
+      });
+
+      const res = await this.post(this.route)
+        .attach('file', this.emptyClick)
+        .field('channel', Channel.XENIAL)
+        .expect(200);
+
+      expect(res.body.success).to.be.true;
       expect(reviewStub).to.have.been.calledOnce;
       expect(parseStub).to.have.been.calledOnce;
       expect(this.lockAcquireSpy).to.have.been.calledOnce;

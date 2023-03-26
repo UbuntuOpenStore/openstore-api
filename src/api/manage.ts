@@ -222,21 +222,26 @@ router.post(
         throw new UserError(BAD_FILE);
       }
 
-      const reviewSummary = await clickReview(filePath, pkg.review_exceptions ?? []);
-      if (!req.isAdminUser && !req.isTrustedUser) {
-        // Admin & trusted users can upload apps without manual review
-
-        if (reviewSummary.manualReviewMessages.length > 0) {
-          throw new ClickReviewError(NEEDS_MANUAL_REVIEW, reviewSummary.manualReviewMessages);
-        }
+      if (req.isAdminUser && pkg.skip_review) {
+        logger.info(`Skipping review for ${pkg.id}`);
       }
+      else {
+        const reviewSummary = await clickReview(filePath, pkg.review_exceptions ?? []);
+        if (!req.isAdminUser && !req.isTrustedUser) {
+          // Admin & trusted users can upload apps without manual review
 
-      // Everyone needs to upload apps without issues
-      if (reviewSummary.errorMessages.length > 0 || reviewSummary.warningMessages.length > 0) {
-        throw new ClickReviewError(
-          CLICK_REVIEW_ERROR,
-          reviewSummary.errorMessages.concat(reviewSummary.warningMessages),
-        );
+          if (reviewSummary.manualReviewMessages.length > 0) {
+            throw new ClickReviewError(NEEDS_MANUAL_REVIEW, reviewSummary.manualReviewMessages);
+          }
+        }
+
+        // Everyone needs to upload apps without issues
+        if (reviewSummary.errorMessages.length > 0 || reviewSummary.warningMessages.length > 0) {
+          throw new ClickReviewError(
+            CLICK_REVIEW_ERROR,
+            reviewSummary.errorMessages.concat(reviewSummary.warningMessages),
+          );
+        }
       }
 
       await pkg.createRevisionFromClick(filePath, channel, req.body.changelog);
