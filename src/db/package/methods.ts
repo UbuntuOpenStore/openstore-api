@@ -274,7 +274,8 @@ export function setupMethods(packageSchema: Schema<PackageDoc, PackageModel>) {
     framework: string,
     url: string,
     downloadSha512: string,
-    filesize: number,
+    installedSize: number,
+    downloadSize: number,
     permissions: string[] = [],
   ) {
     this.revisions.push({
@@ -286,7 +287,8 @@ export function setupMethods(packageSchema: Schema<PackageDoc, PackageModel>) {
       download_sha512: downloadSha512,
       architecture,
       framework,
-      filesize,
+      filesize: installedSize,
+      downloadSize,
       created_date: (new Date()).toISOString(),
       permissions,
     } as RevisionDoc);
@@ -392,12 +394,16 @@ export function setupMethods(packageSchema: Schema<PackageDoc, PackageModel>) {
     }
 
     const { revisionData } = this.getLatestRevision(defaultChannel, this.architectures.includes(architecture) ? architecture : undefined);
-    const filesize = revisionData ? toBytes(revisionData.filesize) : 0;
+    const installedSize = revisionData ? toBytes(revisionData.filesize) : 0;
 
     const revisions = (this.revisions || []).map((rData) => {
       const revision = {
         ...rData.toObject(),
         download_url: rData.download_url ? this.getDownloadUrl(rData.channel, rData.architecture, rData.version) : null,
+        installedSize: toBytes(rData.filesize),
+        downloadSize: rData.downloadSize ?? 0,
+
+        // TODO deprecate
         filesize: toBytes(rData.filesize),
       };
 
@@ -455,7 +461,7 @@ export function setupMethods(packageSchema: Schema<PackageDoc, PackageModel>) {
       revision: -1,
       download: null,
       download_sha512: '',
-      filesize,
+      filesize: installedSize,
       permissions: [],
     };
 
@@ -474,6 +480,10 @@ export function setupMethods(packageSchema: Schema<PackageDoc, PackageModel>) {
                 ...downloadRevisionData.toObject(),
                 architecture: downloadRevisionData.architecture.includes(',') ? arch : downloadRevisionData.architecture,
                 download_url: this.getDownloadUrl(channel, arch, downloadRevisionData.version),
+                installedSize: toBytes(downloadRevisionData.filesize),
+                downloadSize: downloadRevisionData.downloadSize ?? 0,
+
+                // TODO deprecate
                 filesize: toBytes(downloadRevisionData.filesize),
               };
 
@@ -613,6 +623,7 @@ export function setupMethods(packageSchema: Schema<PackageDoc, PackageModel>) {
     // Only update the data from the parsed click if it's for the default channel or if it's the first one
     const data = (channel == DEFAULT_CHANNEL || this.revisions.length === 0) ? parseData : null;
     const downloadSha512 = await sha512Checksum(filePath);
+    const downloadSize = (await fs.stat(filePath)).size;
 
     if (data) {
       this.updateFromClick(data);
@@ -630,6 +641,7 @@ export function setupMethods(packageSchema: Schema<PackageDoc, PackageModel>) {
       localFilePath,
       downloadSha512,
       parseData.installedSize,
+      downloadSize,
       parseData.permissions,
     );
 

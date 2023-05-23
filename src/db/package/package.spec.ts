@@ -151,7 +151,7 @@ describe('Package', () => {
 
     context('iconUrl', () => {
       it('generates an icon url', function() {
-        this.package.createNextRevision('1.0.0', Channel.XENIAL, Architecture.ARMHF, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
+        this.package.createNextRevision('1.0.0', Channel.XENIAL, Architecture.ARMHF, 'ubuntu-sdk-16.04', 'url', 'shasum', 10, 8);
         expect(this.package.icon_url).to.equal('http://local.open-store.io/icons/app.id/app.id-1.0.0.png');
       });
 
@@ -185,6 +185,7 @@ describe('Package', () => {
           channels: [DEFAULT_CHANNEL],
           architectures: [Architecture.ARMHF, Architecture.ARM64],
           author: 'Jill',
+          publisher: 'Jill',
           category: 'Category',
           description: 'A good app',
           framework: '',
@@ -211,8 +212,8 @@ describe('Package', () => {
           `${ChannelArchitecture.XENIAL_ARMHF}:ubuntu-sdk-16.04`,
           `${ChannelArchitecture.XENIAL_ARM64}:ubuntu-sdk-16.04`,
         ];
-        this.package.createNextRevision('1.0.0', Channel.XENIAL, Architecture.ARMHF, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
-        this.package.createNextRevision('1.0.0', Channel.XENIAL, Architecture.ARM64, 'ubuntu-sdk-16.04', 'url', 'shasum', 10);
+        this.package.createNextRevision('1.0.0', Channel.XENIAL, Architecture.ARMHF, 'ubuntu-sdk-16.04', 'url', 'shasum', 10, 8);
+        this.package.createNextRevision('1.0.0', Channel.XENIAL, Architecture.ARM64, 'ubuntu-sdk-16.04', 'url', 'shasum', 10, 8);
 
         this.package.revisions[0].created_date = this.now;
         this.package.revisions[1].created_date = this.now;
@@ -233,6 +234,7 @@ describe('Package', () => {
             `${ChannelArchitecture.XENIAL_ARM64}:ubuntu-sdk-16.04`,
           ],
           author: 'Jill',
+          publisher: 'Jill',
           category: 'Category',
           description: 'A good app',
           framework: '',
@@ -253,6 +255,7 @@ describe('Package', () => {
           },
           changelog: 'some changes',
           donate_url: 'https://example.com/donate',
+          review_exceptions: [],
           downloads: [
             {
               architecture: Architecture.ARM64,
@@ -261,10 +264,13 @@ describe('Package', () => {
               download_sha512: 'shasum',
               download_url: 'http://local.open-store.io/api/v3/apps/app.id/download/xenial/arm64/1.0.0',
               downloads: 0,
+              downloadSize: 8,
+              installedSize: 10240,
               filesize: 10240,
               framework: 'ubuntu-sdk-16.04',
               revision: 2,
               version: '1.0.0',
+              permissions: [],
             },
             {
               architecture: Architecture.ARMHF,
@@ -273,13 +279,16 @@ describe('Package', () => {
               download_sha512: 'shasum',
               download_url: 'http://local.open-store.io/api/v3/apps/app.id/download/xenial/armhf/1.0.0',
               downloads: 0,
+              downloadSize: 8,
+              installedSize: 10240,
               filesize: 10240,
               framework: 'ubuntu-sdk-16.04',
               revision: 1,
               version: '1.0.0',
+              permissions: [],
             },
           ],
-          filesize: -1,
+          filesize: 10240,
           languages: ['en_US'],
           latestDownloads: 0,
           locked: false,
@@ -307,10 +316,13 @@ describe('Package', () => {
               download_sha512: 'shasum',
               download_url: 'http://local.open-store.io/api/v3/apps/app.id/download/xenial/armhf/1.0.0',
               downloads: 0,
+              downloadSize: 8,
+              installedSize: 10240,
               filesize: 10240,
               framework: 'ubuntu-sdk-16.04',
               revision: 1,
               version: '1.0.0',
+              permissions: [],
             },
             {
               architecture: Architecture.ARM64,
@@ -319,10 +331,13 @@ describe('Package', () => {
               download_sha512: 'shasum',
               download_url: 'http://local.open-store.io/api/v3/apps/app.id/download/xenial/arm64/1.0.0',
               downloads: 0,
+              downloadSize: 8,
+              installedSize: 10240,
               filesize: 10240,
               framework: 'ubuntu-sdk-16.04',
               revision: 2,
               version: '1.0.0',
+              permissions: [],
             },
           ],
         });

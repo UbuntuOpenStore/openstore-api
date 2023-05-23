@@ -13,7 +13,10 @@ const revisionSchema = new Schema<RevisionDoc, RevisionModel>({
   download_sha512: String,
   architecture: String,
   framework: String,
-  filesize: Number,
+  // Size in kB (TODO migrate this to bytes)
+  filesize: Number, // TODO rename to installedSize
+  // Size in bytes
+  downloadSize: Number,
   created_date: String,
   permissions: [String],
 });

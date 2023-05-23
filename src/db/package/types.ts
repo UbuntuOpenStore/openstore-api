@@ -51,6 +51,7 @@ export interface RevisionSchema {
   architecture: Architecture,
   framework: string,
   filesize: number,
+  downloadSize: number,
   created_date: string,
   permissions: string[],
 }
@@ -255,7 +256,8 @@ export interface PackageDoc extends PackageSchema {
     framework: string,
     url: string,
     downloadSha512: string,
-    filesize: number,
+    installedSize: number,
+    downloadSize: number,
     permissions?: string[],
   ): void;
   getClickFilePath(channel: Channel, arch: Architecture, version: string): string;
