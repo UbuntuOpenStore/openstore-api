@@ -31,7 +31,7 @@ Package.find({ id: { $in: limitedApps } }).then((pkgs) => {
       for (let i = (pkg.revisions.length - 1); i >= 0; i--) {
         const revision = pkg.revisions[i];
         const key = `${revision.channel}-${revision.architecture}`;
-        if (revision.download_url && revision.channel as string != 'vivid') {
+        if (revision.download_url) {
           fileCounts[key]++;
           if (fileCounts[key] > MAX_REVISIONS) {
             console.log(`[${pkg.id}] removing ${revision.download_url}`);
@@ -64,7 +64,10 @@ Package.find({ id: { $in: limitedApps } }).then((pkgs) => {
       const allFiles = fs.readdirSync(config.data_dir);
       const extraFiles = allFiles.filter((file) => {
         const fullFile = path.join(config.data_dir, file);
-        return file.startsWith(`${pkg.id}`) && !file.startsWith(`${pkg.id}-vivid`) && !keepFiles.includes(fullFile);
+
+        // TODO make a script to update everything to the new path
+        // /srv/openstore-data is a symlink to /srv/data/openstore-data
+        return file.startsWith(`${pkg.id}`) && !keepFiles.includes(fullFile) && !keepFiles.includes(fullFile.replace('/data/', '/'));
       });
 
       for (let i = 0; i < extraFiles.length; i++) {
