@@ -1,15 +1,15 @@
-import { Document, Model } from 'mongoose';
+import { HydratedDocument, Model } from 'mongoose';
 import { Request } from 'express';
 
-export interface LockSchema {
+export interface ILock {
   name: string,
   expire: Date,
   inserted: Date,
 }
 
-export interface LockDoc extends LockSchema, Document { }
+export type HydratedLock = HydratedDocument<ILock>;
 
-export interface LockModel extends Model<LockDoc> {
-  acquire(name: string): Promise<LockDoc>
-  release(lock: LockDoc | null, req: Request): void
+export interface LockModel extends Model<ILock> {
+  acquire(name: string): Promise<HydratedLock>
+  release(lock: HydratedLock | null, req: Request): void
 }

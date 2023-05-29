@@ -1,6 +1,6 @@
-import { Document, Model } from 'mongoose';
+import { HydratedDocument, Model } from 'mongoose';
 
-export interface UserSchema {
+export interface IUser {
   apikey: string,
   email: string,
   language?: string,
@@ -12,8 +12,10 @@ export interface UserSchema {
   username: string,
 }
 
-export interface UserDoc extends UserSchema, Document {
-  serialize(): UserSchema;
+export interface IUserMethods {
+  serialize(): IUser;
 }
 
-export interface UserModel extends Model<UserDoc> { }
+export type HydratedUser = HydratedDocument<IUser, IUserMethods>;
+
+export interface UserModel extends Model<IUser, {}, IUserMethods> { }

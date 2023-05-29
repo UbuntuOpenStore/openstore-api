@@ -1,10 +1,10 @@
 import { Schema, model } from 'mongoose';
-import { CommentDoc, CommentModel } from './types';
+import { CommentModel, IComment } from './types';
 
-const commentSchema = new Schema<CommentDoc, CommentModel>({
+const schema = new Schema<IComment, CommentModel>({
   user: { type: Schema.Types.ObjectId, ref: 'User' },
   date: Date,
   body: String,
 });
 
-export const Comment = model<CommentDoc, CommentModel>('Comment', commentSchema);
+export const Comment = model<IComment, CommentModel>('Comment', schema);

@@ -4,16 +4,16 @@ import { Schema } from 'mongoose';
 import path from 'path';
 
 import { config } from 'utils';
-import { DEFAULT_CHANNEL, PackageDoc, PackageModel } from './types';
+import { DEFAULT_CHANNEL, HydratedPackage, IPackage, IPackageMethods, PackageModel } from './types';
 
 const DEFAULT_VERSION = '0.0.0';
 
-export function setupVirtuals(packageSchema: Schema<PackageDoc, PackageModel>) {
-  packageSchema.virtual('architecture').get(function(this: PackageDoc): string {
+export function setupVirtuals(packageSchema: Schema<IPackage, PackageModel, IPackageMethods>) {
+  packageSchema.virtual<HydratedPackage>('architecture').get(function(): string {
     return this.architectures.join(',');
   });
 
-  packageSchema.virtual('next_revision').get(function(this: PackageDoc): number {
+  packageSchema.virtual<HydratedPackage>('next_revision').get(function(): number {
     let revision = 0;
     const revisions = this.revisions.map((data) => data.revision);
 
@@ -24,7 +24,7 @@ export function setupVirtuals(packageSchema: Schema<PackageDoc, PackageModel>) {
     return revision + 1;
   });
 
-  packageSchema.virtual('icon_url').get(function(this: PackageDoc): string {
+  packageSchema.virtual<HydratedPackage>('icon_url').get(function(): string {
     const ext = this.icon ? path.extname(this.icon) : '.png';
     let version = DEFAULT_VERSION;
 

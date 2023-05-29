@@ -1,9 +1,9 @@
-import { Package, PackageSchema, RevisionSchema } from 'db/package';
+import { IPackage, IRevision, Package } from 'db/package';
 import { Review } from 'db/review';
 import { User } from 'db/user';
 
 export default {
-  package(data: Omit<Partial<PackageSchema>, 'revisions'> & { revisions?: Partial<RevisionSchema>[] } = {}) {
+  package(data: Omit<Partial<IPackage>, 'revisions'> & { revisions?: Partial<IRevision>[] } = {}) {
     const pkg = new Package({
       id: `foo.${Math.random()}`,
       name: `Package ${Math.random()}`,

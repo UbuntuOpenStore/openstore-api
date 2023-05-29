@@ -2,9 +2,9 @@ import { Schema, model } from 'mongoose';
 import { setupMethods } from './methods';
 import { setupVirtuals } from './virtuals';
 import { setupStatics } from './statics';
-import { RevisionDoc, RevisionModel, PackageDoc, PackageModel } from './types';
+import { RevisionModel, PackageModel, IRevision, IPackageMethods, IPackage } from './types';
 
-const revisionSchema = new Schema<RevisionDoc, RevisionModel>({
+const revisionSchema = new Schema<IRevision, RevisionModel>({
   revision: Number,
   version: String, // Unique among revisions with this arch
   downloads: Number,
@@ -21,7 +21,7 @@ const revisionSchema = new Schema<RevisionDoc, RevisionModel>({
   permissions: [String],
 });
 
-const packageSchema = new Schema<PackageDoc, PackageModel>({
+const packageSchema = new Schema<IPackage, PackageModel, IPackageMethods>({
   id: { type: String, index: true },
 
   // Presentation
@@ -98,4 +98,4 @@ setupMethods(packageSchema);
 setupVirtuals(packageSchema);
 setupStatics(packageSchema);
 
-export const Package = model<PackageDoc, PackageModel>('Package', packageSchema);
+export const Package = model<IPackage, PackageModel>('Package', packageSchema);

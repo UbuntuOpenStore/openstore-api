@@ -5,16 +5,22 @@ import path from 'path';
 import fs from 'fs/promises';
 
 import { sanitize, ClickParserData, config, moveFile, sha512Checksum } from 'utils';
-import { RatingCountDoc } from 'db/rating_count/types';
+import { HydratedRatingCount } from 'db/rating_count/types';
 import { v4 } from 'uuid';
-import { EXISTING_VERSION, MALFORMED_MANIFEST, MISMATCHED_FRAMEWORK, MISMATCHED_PERMISSIONS, NO_ALL, NO_NON_ALL, WRONG_PACKAGE } from 'utils/error-messages';
+import {
+  EXISTING_VERSION,
+  MALFORMED_MANIFEST,
+  MISMATCHED_FRAMEWORK,
+  MISMATCHED_PERMISSIONS,
+  NO_ALL,
+  NO_NON_ALL,
+  WRONG_PACKAGE,
+} from 'utils/error-messages';
 import { UserError } from 'exceptions';
 import * as clickParser from 'utils/click-parser-async';
 import { isURL } from 'class-validator';
 import { difference } from 'lodash';
 import {
-  RevisionDoc,
-  PackageDoc,
   PackageModel,
   Architecture,
   BodyUpdate,
@@ -26,6 +32,10 @@ import {
   SerializedPackage,
   File,
   ChannelArchitecture,
+  IPackage,
+  IPackageMethods,
+  HydratedPackage,
+  HydratedRevision,
 } from './types';
 import { User } from '../user';
 
@@ -37,7 +47,7 @@ function toBytes(filesizeKb: number) {
   return filesizeKb * 1024;
 }
 
-export function serializeRatings(ratingCounts: RatingCountDoc[]) {
+export function serializeRatings(ratingCounts: HydratedRatingCount[]) {
   const ratings = {
     THUMBS_UP: 0,
     THUMBS_DOWN: 0,
@@ -56,8 +66,8 @@ export function serializeRatings(ratingCounts: RatingCountDoc[]) {
   return ratings;
 }
 
-export function setupMethods(packageSchema: Schema<PackageDoc, PackageModel>) {
-  packageSchema.methods.getLatestRevision = function(
+export function setupMethods(packageSchema: Schema<IPackage, PackageModel, IPackageMethods>) {
+  packageSchema.method<HydratedPackage>('getLatestRevision', function(
     channel: Channel,
     arch: Architecture,
     detectAll = true,
@@ -69,7 +79,7 @@ export function setupMethods(packageSchema: Schema<PackageDoc, PackageModel>) {
       architecture = Architecture.ALL;
     }
 
-    let revisionData: RevisionDoc | null = null;
+    let revisionData: HydratedRevision | null = null;
     let revisionIndex = -1;
     this.revisions.forEach((data, index) => {
       let archCheck = data.architecture == architecture;
@@ -91,9 +101,9 @@ export function setupMethods(packageSchema: Schema<PackageDoc, PackageModel>) {
     });
 
     return { revisionData, revisionIndex };
-  };
+  });
 
-  packageSchema.methods.updateFromClick = function(data: ClickParserData) {
+  packageSchema.method<HydratedPackage>('updateFromClick', function(data: ClickParserData) {
     const manifest = {
       architecture: data.architecture,
       changelog: data.changelog,
@@ -169,9 +179,9 @@ export function setupMethods(packageSchema: Schema<PackageDoc, PackageModel>) {
     this.name = this.name ? this.name : data.title;
     this.description = this.description ? this.description : sanitize(data.description);
     this.tagline = this.tagline ? this.tagline : sanitize(data.description);
-  };
+  });
 
-  packageSchema.methods.updateFromBody = async function(body: BodyUpdate) {
+  packageSchema.method<HydratedPackage>('updateFromBody', async function(body: BodyUpdate) {
     if (body.locked !== undefined) {
       this.locked = (body.locked == 'true' || body.locked === true);
     }
@@ -265,9 +275,9 @@ export function setupMethods(packageSchema: Schema<PackageDoc, PackageModel>) {
         this.author = this.maintainer_name;
       }
     }
-  };
+  });
 
-  packageSchema.methods.createNextRevision = function(
+  packageSchema.method<HydratedPackage>('createNextRevision', function(
     version: string,
     channel: Channel,
     architecture: Architecture,
@@ -291,34 +301,34 @@ export function setupMethods(packageSchema: Schema<PackageDoc, PackageModel>) {
       downloadSize,
       created_date: (new Date()).toISOString(),
       permissions,
-    } as RevisionDoc);
+    });
 
     this.updated_date = (new Date()).toISOString();
-  };
+  });
 
-  packageSchema.methods.getClickFilePath = function(channel, arch, version) {
+  packageSchema.method<HydratedPackage>('getClickFilePath', function(channel, arch, version) {
     return path.join(config.data_dir, `${this.id}-${channel}-${arch}-${version}.click`);
-  };
+  });
 
-  packageSchema.methods.getIconFilePath = function(ext) {
+  packageSchema.method<HydratedPackage>('getIconFilePath', function(ext) {
     return path.join(config.icon_dir, `${this.id}${ext}`);
-  };
+  });
 
-  packageSchema.methods.getDownloadUrl = function(channel: Channel, arch: Architecture, version?: string) {
-    let url = `${config.server.host}/api/v3/apps/${this.id}/download/${channel}/${arch}`;
+  packageSchema.method<HydratedPackage>('getDownloadUrl', function(channel: Channel, arch: Architecture, version?: string) {
+    let url: string = `${config.server.host}/api/v3/apps/${this.id}/download/${channel}/${arch}`;
     if (version) {
       url = `${url}/${version}`;
     }
 
     return url;
-  };
+  });
 
   /* eslint-disable no-restricted-syntax */
-  packageSchema.methods.serializeRatings = function(): SerializedRatings {
+  packageSchema.method<HydratedPackage>('serializeRatings', function(): SerializedRatings {
     return serializeRatings(this.rating_counts);
-  };
+  });
 
-  packageSchema.methods.serializeSlim = function(): SerializedPackageSlim {
+  packageSchema.method<HydratedPackage>('serializeSlim', function(): SerializedPackageSlim {
     /*
       Data used by the app:
       - https://gitlab.com/theopenstore/openstore-app/-/blob/master/src/models/searchmodel.cpp#L158-163
@@ -362,7 +372,7 @@ export function setupMethods(packageSchema: Schema<PackageDoc, PackageModel>) {
       framework: '',
       author: this.author || '',
     };
-  };
+  });
 
   /*
     Fields used by the app:
@@ -371,7 +381,7 @@ export function setupMethods(packageSchema: Schema<PackageDoc, PackageModel>) {
     - https://gitlab.com/theopenstore/openstore-web/-/blob/master/src/views/ManagePackage.vue
     - https://gitlab.com/theopenstore/openstore-web/-/blob/master/src/views/Package.vue
   */
-  packageSchema.methods.serialize = function(
+  packageSchema.method<HydratedPackage>('serialize', function(
     architecture: Architecture = Architecture.ARMHF,
     frameworks: string[] = [],
     apiVersion = 4,
@@ -399,6 +409,7 @@ export function setupMethods(packageSchema: Schema<PackageDoc, PackageModel>) {
     const revisions = (this.revisions || []).map((rData) => {
       const revision = {
         ...rData.toObject(),
+        _id: undefined,
         download_url: rData.download_url ? this.getDownloadUrl(rData.channel, rData.architecture, rData.version) : null,
         installedSize: toBytes(rData.filesize),
         downloadSize: rData.downloadSize ?? 0,
@@ -478,6 +489,7 @@ export function setupMethods(packageSchema: Schema<PackageDoc, PackageModel>) {
             if (downloadRevisionData) {
               const download = {
                 ...downloadRevisionData.toObject(),
+                _id: undefined,
                 architecture: downloadRevisionData.architecture.includes(',') ? arch : downloadRevisionData.architecture,
                 download_url: this.getDownloadUrl(channel, arch, downloadRevisionData.version),
                 installedSize: toBytes(downloadRevisionData.filesize),
@@ -536,9 +548,9 @@ export function setupMethods(packageSchema: Schema<PackageDoc, PackageModel>) {
     }
 
     return json;
-  };
+  });
 
-  packageSchema.methods.updateScreenshotFiles = async function(screenshotFiles: File[]) {
+  packageSchema.method<HydratedPackage>('updateScreenshotFiles', async function(screenshotFiles: File[]) {
     // Clear out the uploaded files that are over the limit
     let screenshotLimit = 5 - this.screenshots.length;
     if (screenshotFiles.length < screenshotLimit) {
@@ -571,9 +583,9 @@ export function setupMethods(packageSchema: Schema<PackageDoc, PackageModel>) {
         this.screenshots.push(filename);
       }
     }
-  };
+  });
 
-  packageSchema.methods.createRevisionFromClick = async function(filePath: string, channel: Channel, changelog?: string) {
+  packageSchema.method<HydratedPackage>('createRevisionFromClick', async function(filePath: string, channel: Channel, changelog?: string) {
     const parseData = await clickParser.parseClickPackage(filePath, true);
     const { version, architecture } = parseData;
     if (!parseData.name || !version || !architecture) {
@@ -676,9 +688,9 @@ export function setupMethods(packageSchema: Schema<PackageDoc, PackageModel>) {
     else if (!this.architectures.includes(architecture)) {
       this.architectures.push(architecture);
     }
-  };
+  });
 
-  packageSchema.methods.updateCalculatedProperties = async function() {
+  packageSchema.method<HydratedPackage>('updateCalculatedProperties', async function() {
     this.channel_architectures = this.channels.flatMap((channel) => {
       return this.architectures.map((arch) => {
         const { revisionData } = this.getLatestRevision(channel, arch, false);
@@ -696,5 +708,5 @@ export function setupMethods(packageSchema: Schema<PackageDoc, PackageModel>) {
     });
 
     this.device_compatibilities = Array.from(deviceCompatibilities);
-  };
+  });
 }

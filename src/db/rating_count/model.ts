@@ -1,8 +1,8 @@
 import { Schema, model } from 'mongoose';
 import { RATINGS } from '../review/constants';
-import { RatingCountDoc, RatingCountModel } from './types';
+import { HydratedRatingCount, IRatingCount, RatingCountModel } from './types';
 
-const ratingCountSchema = new Schema<RatingCountDoc, RatingCountModel>({
+const ratingCountSchema = new Schema<IRatingCount, RatingCountModel>({
   name: { type: String, enum: RATINGS },
   count: Number,
   package_id: String,
@@ -13,7 +13,7 @@ ratingCountSchema.statics.getCountsByIds = async function(ids: string[]) {
 
   const ratingCounts = await this.find(query).exec();
 
-  return ratingCounts.reduce((accumulation: { [key: string]: RatingCountDoc[] }, ratingCount: RatingCountDoc) => {
+  return ratingCounts.reduce((accumulation: { [key: string]: HydratedRatingCount[] }, ratingCount: HydratedRatingCount) => {
     const value = accumulation[ratingCount.package_id] ? [...accumulation[ratingCount.package_id], ratingCount] : [ratingCount];
 
     return {
@@ -23,4 +23,4 @@ ratingCountSchema.statics.getCountsByIds = async function(ids: string[]) {
   }, {});
 };
 
-export const RatingCount = model<RatingCountDoc, RatingCountModel>('RatingCount', ratingCountSchema);
+export const RatingCount = model<IRatingCount, RatingCountModel>('RatingCount', ratingCountSchema);

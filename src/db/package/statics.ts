@@ -1,6 +1,6 @@
 /* eslint-disable no-param-reassign */
 
-import { FilterQuery, Schema } from 'mongoose';
+import { FilterQuery, Schema, Types } from 'mongoose';
 import uniq from 'lodash/uniq';
 import { Request } from 'express';
 
@@ -9,21 +9,21 @@ import { UserError } from 'exceptions';
 import { DUPLICATE_PACKAGE, NO_SPACES_NAME, BAD_NAMESPACE, MISSING_CHANNEL_ARCH } from 'utils/error-messages';
 import {
   Architecture,
-  PackageType,
   PackageRequestFilters,
-  PackageDoc,
   CategoryStat,
   Channel,
   ChannelArchitecture,
   PackageModel,
   PackageStats,
-  PackageQueryReturn,
+  IPackage,
+  IPackageMethods,
+  HydratedPackage,
 } from './types';
 import { packageSearchInstance } from './search';
 import { RatingCount } from '../rating_count/model';
 
-export function setupStatics(packageSchema: Schema<PackageDoc, PackageModel>) {
-  packageSchema.statics.incrementDownload = async function(id: string, revisionIndex: number) {
+export function setupStatics(packageSchema: Schema<IPackage, PackageModel, IPackageMethods>) {
+  packageSchema.statics.incrementDownload = async function(id: Types.ObjectId, revisionIndex: number) {
     const inc: { [key: string]: number } = {};
     inc[`revisions.${revisionIndex}.downloads`] = 1;
 
@@ -110,7 +110,7 @@ export function setupStatics(packageSchema: Schema<PackageDoc, PackageModel>) {
   };
 
   packageSchema.statics.categoryStats = async function(channels: Channel[]): Promise<CategoryStat[]> {
-    const match: FilterQuery<PackageDoc> = { published: true };
+    const match: FilterQuery<IPackage> = { published: true };
     if (channels) {
       match.channels = { $in: channels };
     }
@@ -198,8 +198,8 @@ export function setupStatics(packageSchema: Schema<PackageDoc, PackageModel>) {
     nsfw,
     maintainer,
     published,
-  }: PackageRequestFilters, textSearch = true): FilterQuery<PackageDoc> {
-    const query: FilterQuery<PackageDoc> = {};
+  }: PackageRequestFilters, textSearch = true): FilterQuery<IPackage> {
+    const query: FilterQuery<IPackage> = {};
 
     if (types && types.length > 0) {
       query.types = {
@@ -289,7 +289,7 @@ export function setupStatics(packageSchema: Schema<PackageDoc, PackageModel>) {
     limit?: number,
     skip?: number,
     textSearch = true,
-  ): Promise<PackageQueryReturn[]> {
+  ): Promise<HydratedPackage[]> {
     const query = this.parseFilters(filters, textSearch);
 
     const findQuery = this.find(query).populate('rating_counts');
@@ -322,7 +322,7 @@ export function setupStatics(packageSchema: Schema<PackageDoc, PackageModel>) {
   packageSchema.statics.findOneByFilters = async function(
     id: string,
     filters: PackageRequestFilters = {},
-  ): Promise<PackageQueryReturn | null> {
+  ): Promise<HydratedPackage | null> {
     const query = this.parseFilters(filters);
     query.id = id;
 
@@ -333,7 +333,7 @@ export function setupStatics(packageSchema: Schema<PackageDoc, PackageModel>) {
   packageSchema.statics.searchByFilters = async function(
     filters: PackageRequestFilters,
     full = false,
-  ): Promise<{ pkgs: PackageQueryReturn[], count: number }> {
+  ): Promise<{ pkgs: HydratedPackage[], count: number }> {
     const results = await packageSearchInstance.search(filters, filters.sort, filters.skip, filters.limit);
     const hits = results.hits.hits.map((hit: any) => hit._source);
 

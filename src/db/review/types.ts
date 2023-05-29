@@ -1,24 +1,36 @@
-import { Document, FilterQuery, Model, Types } from 'mongoose';
+import { FilterQuery, HydratedDocument, Model, Types } from 'mongoose';
 import { Request } from 'express';
 
-import { PackageSchema, PackageDoc } from '../package/types';
-import { CommentSchema } from '../comment/types';
-import { UserSchema, UserDoc } from '../user/types';
+import { HydratedUser } from 'db/user';
+import { HydratedPackage } from '../package/types';
 import { Ratings } from './constants';
 
-export interface ReviewSchema {
-  pkg: PackageSchema;
+export interface IReview {
+  pkg: Types.ObjectId;
   version: string;
-  user: UserSchema;
+  user: Types.ObjectId;
   rating: Ratings;
   body?: string;
   date: Date,
   redacted: boolean,
-  comment: CommentSchema;
+  comment: Types.ObjectId;
 }
 
-export interface ReviewDoc extends ReviewSchema, Document {
-  serialize(): ReviewSchema;
+export type SerializedReview = {
+  author: string;
+  body?: string;
+  version: string;
+  rating: Ratings;
+  date: number,
+  redacted: boolean;
+  comment: {
+    body: string;
+    date: number;
+  } | null;
+}
+
+export interface IReviewMethods {
+  serialize(): SerializedReview;
 }
 
 export type ReviewRequestFilters = {
@@ -29,25 +41,22 @@ export type ReviewRequestFilters = {
   user?: any;
 }
 
-// Copy of the type returned by mongoose queries
-export type ReviewQueryReturn = Document<any, any, ReviewDoc> & ReviewDoc & {
-  _id: Types.ObjectId;
-};
+export type HydratedReview = HydratedDocument<IReview, IReviewMethods>;
 
-export interface ReviewModel extends Model<ReviewDoc> {
+export interface ReviewModel extends Model<IReview, {}, IReviewMethods> {
   createOrUpdateExisting(
-    pkg: PackageDoc,
-    user: UserDoc,
+    pkg: HydratedPackage,
+    user: HydratedUser,
     version: string,
     rating: Ratings,
     body?: string,
-  ): Promise<ReviewDoc & { _id: any }>;
+  ): Promise<HydratedReview>;
   parseRequestFilters(req: Request): ReviewRequestFilters;
-  parseFilters(filters: ReviewRequestFilters): FilterQuery<ReviewDoc>;
+  parseFilters(filters: ReviewRequestFilters): FilterQuery<IReview>;
   countByFilters(filters: ReviewRequestFilters): Promise<number>;
   findByFilters(
     filters: ReviewRequestFilters,
     limit?: number,
     skip?: number,
-  ): Promise<ReviewQueryReturn[]>;
+  ): Promise<HydratedReview[]>;
 }

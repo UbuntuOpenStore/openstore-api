@@ -20,7 +20,7 @@ describe('Reviews', () => {
 
     this.package = await factory.package({
       id: 'pkg-id',
-      maintainer: user2._id,
+      maintainer: user2._id.toString(),
       published: true,
       revisions: [
         {

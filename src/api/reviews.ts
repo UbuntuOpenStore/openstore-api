@@ -53,7 +53,7 @@ async function upsertReview(req: Request, res: Response) {
   const rating = req.body.rating;
 
   // Users cannot upload a review for their own app
-  if (req.user!._id == req.pkg.maintainer) {
+  if (req.user!._id.toString() == req.pkg.maintainer) {
     return error(res, CANNOT_REVIEW_OWN_APP, 400);
   }
   if (!req.pkg.revisions || !req.pkg.revisions.find((revision) => revision.version == version)) {

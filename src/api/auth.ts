@@ -9,7 +9,7 @@ import { Strategy as GitHubStrategy } from 'passport-github2';
 import { Strategy as GitLabStrategy } from 'passport-gitlab2';
 import { v4 } from 'uuid';
 import express, { Request, Response } from 'express';
-import { UserDoc, User } from 'db/user';
+import { HydratedUser, User } from 'db/user';
 
 import { logger, config } from 'utils';
 
@@ -37,17 +37,17 @@ function authenticated(req: Request, res: Response) {
   return res.redirect('/manage');
 }
 
-passport.serializeUser((user: UserDoc, done: GenericCallback) => {
+passport.serializeUser((user: HydratedUser, done: GenericCallback) => {
   // This is kinda hacky, but not all ubuntu logins will have an email
   done(null, user.email ? user.email : `UBUNTU_${user.ubuntu_id}`);
 });
 
 passport.deserializeUser((identifier: string, done: GenericCallback) => {
   if (identifier.substring(0, 7) == 'UBUNTU_') {
-    User.findOne({ ubuntu_id: identifier }, done);
+    User.findOne({ ubuntu_id: identifier }).then((user) => done(undefined, user));
   }
   else {
-    User.findOne({ email: identifier }, done);
+    User.findOne({ email: identifier }).then((user) => done(undefined, user));
   }
 });
 
@@ -75,7 +75,7 @@ passport.use(new UbuntuStrategy({
     }
 
     return user;
-  }).then((existing: UserDoc | null) => {
+  }).then((existing: HydratedUser | null) => {
     let user = existing;
     if (!user) {
       user = new User();
@@ -97,10 +97,13 @@ passport.use(new UbuntuStrategy({
     user.email = uboneParameter(profile.email) || user.email;
     user.language = uboneParameter(profile.language) || user.language;
 
-    user.save(callback);
-  }).catch((err) => {
-    callback(err);
-  });
+    return user.save();
+  }).then((user) => {
+    callback(undefined, user);
+  })
+    .catch((err) => {
+      callback(err);
+    });
 }));
 
 router.post('/ubuntu', passport.authenticate('ubuntu'));
@@ -136,10 +139,13 @@ if (config.github.clientID && config.github.clientSecret) {
       user.name = user.name ? user.name : profile.displayName;
       user.username = user.username ? user.username : profile.username;
 
-      user.save(callback);
-    }).catch((err) => {
-      callback(err);
-    });
+      return user.save();
+    }).then((user) => {
+      callback(undefined, user);
+    })
+      .catch((err) => {
+        callback(err);
+      });
   }));
 
   router.get('/github', passport.authenticate('github'));
@@ -176,10 +182,13 @@ if (config.gitlab.clientID && config.gitlab.clientSecret) {
       user.name = user.name ? user.name : profile.displayName;
       user.username = user.username ? user.username : profile.username;
 
-      user.save(callback);
-    }).catch((err) => {
-      callback(err);
-    });
+      return user.save();
+    }).then((user) => {
+      callback(undefined, user);
+    })
+      .catch((err) => {
+        callback(err);
+      });
   }));
 
   router.get('/gitlab', passport.authenticate('gitlab'));

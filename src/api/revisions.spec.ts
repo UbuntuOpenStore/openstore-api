@@ -1,5 +1,5 @@
 import { Package } from 'db/package';
-import { Architecture, Channel, RevisionDoc } from 'db/package/types';
+import { Architecture, Channel, HydratedRevision } from 'db/package/types';
 import factory from 'tests/factory';
 import { expect } from 'tests/helper';
 
@@ -97,7 +97,7 @@ describe('Revisions GET', () => {
   });
 
   it('returns nothing when the latest revision does not have a download_url', async function() {
-    this.package.revisions = this.package.revisions.map((revision: RevisionDoc) => {
+    this.package.revisions = this.package.revisions.map((revision: HydratedRevision) => {
       return {
         ...revision.toObject(),
         download_url: null,
@@ -112,7 +112,7 @@ describe('Revisions GET', () => {
   });
 
   it('returns nothing for a different arch', async function() {
-    this.package.revisions = this.package.revisions.map((revision: RevisionDoc) => {
+    this.package.revisions = this.package.revisions.map((revision: HydratedRevision) => {
       return {
         ...revision.toObject(),
         architecture: Architecture.ARM64,
@@ -128,7 +128,7 @@ describe('Revisions GET', () => {
   });
 
   it('returns the correct arch', async function() {
-    this.package.revisions = this.package.revisions.map((revision: RevisionDoc) => {
+    this.package.revisions = this.package.revisions.map((revision: HydratedRevision) => {
       return {
         ...revision.toObject(),
         architecture: Architecture.ARM64,
@@ -190,7 +190,7 @@ describe('Revisions GET', () => {
   });
 
   it('fails if arch is not specified or is invalid', async function() {
-    this.package.revisions = this.package.revisions.forEach((revision: RevisionDoc) => {
+    this.package.revisions = this.package.revisions.forEach((revision: HydratedRevision) => {
       return {
         ...revision,
         architecture: Architecture.ARM64,

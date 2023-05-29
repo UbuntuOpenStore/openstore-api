@@ -6,19 +6,19 @@ import { Request } from 'express';
 import { UserError } from 'exceptions';
 import { REVIEW_REDACTED } from 'utils/error-messages';
 import { getDataInt } from 'utils';
-import { ReviewDoc, ReviewModel, ReviewQueryReturn, ReviewRequestFilters } from './types';
-import { PackageDoc } from '../package/types';
-import { UserDoc } from '../user/types';
+import { HydratedUser } from 'db/user';
+import { HydratedPackage } from 'db/package';
+import { HydratedReview, IReview, IReviewMethods, ReviewModel, ReviewRequestFilters } from './types';
 import { Ratings } from './constants';
 
-export function setupStatics(reviewSchema: Schema<ReviewDoc, ReviewModel>) {
+export function setupStatics(reviewSchema: Schema<IReview, ReviewModel, IReviewMethods>) {
   reviewSchema.statics.createOrUpdateExisting = async function(
-    pkg: PackageDoc,
-    user: UserDoc,
+    pkg: HydratedPackage,
+    user: HydratedUser,
     version: string,
     rating: Ratings,
     body?: string,
-  ): Promise<ReviewDoc & { _id: any }> {
+  ): Promise<HydratedReview> {
     let ownReview = await this.findOne({ pkg: pkg._id, user: user._id });
     if (!ownReview) {
       ownReview = new this();
@@ -59,8 +59,8 @@ export function setupStatics(reviewSchema: Schema<ReviewDoc, ReviewModel>) {
     };
   };
 
-  reviewSchema.statics.parseFilters = function({ pkg, user, from }: ReviewRequestFilters): FilterQuery<ReviewDoc> {
-    const query: FilterQuery<ReviewDoc> = { pkg, redacted: false };
+  reviewSchema.statics.parseFilters = function({ pkg, user, from }: ReviewRequestFilters): FilterQuery<IReview> {
+    const query: FilterQuery<IReview> = { pkg, redacted: false };
 
     if (from) {
       query.date = { $lt: new Date(from) };
@@ -88,7 +88,7 @@ export function setupStatics(reviewSchema: Schema<ReviewDoc, ReviewModel>) {
     filters: ReviewRequestFilters,
     limit?: number,
     skip?: number,
-  ): Promise<ReviewQueryReturn[]> {
+  ): Promise<HydratedReview[]> {
     const query = this.parseFilters(filters);
 
     const findQuery = this.find(query)

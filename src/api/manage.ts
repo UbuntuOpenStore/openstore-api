@@ -3,7 +3,7 @@ import express, { Request, Response } from 'express';
 
 import fs from 'fs/promises';
 import { existsSync } from 'fs';
-import { Lock, LockDoc } from 'db/lock';
+import { HydratedLock, Lock } from 'db/lock';
 import { Channel } from 'db/package/types';
 import { Package } from 'db/package';
 import { packageSearchInstance } from 'db/package/search';
@@ -36,7 +36,7 @@ const router = express.Router();
 router.get('/', authenticate, userRole, asyncErrorWrapper(async(req: Request, res: Response) => {
   const filters = Package.parseRequestFilters(req);
   if (!req.isAdminUser) {
-    filters.maintainer = req.user!._id;
+    filters.maintainer = req.user!._id.toString();
   }
 
   const pkgs = await Package.findByFilters(filters, filters.sort, filters.limit, filters.skip, false);
@@ -83,7 +83,7 @@ router.post(
     let pkg = new Package();
     pkg.id = id;
     pkg.name = name;
-    pkg.maintainer = req.user!._id;
+    pkg.maintainer = req.user!._id.toString();
     pkg.maintainer_name = req.user!.name ? req.user!.name : req.user!.username;
     pkg = await pkg.save();
 
@@ -164,7 +164,7 @@ router.delete(
       return error(res, APP_HAS_REVISIONS, 400);
     }
 
-    await req.pkg.remove();
+    await req.pkg.deleteOne();
     return success(res, {});
   },
   'There was an error deleting your app, please try again later'),
@@ -198,7 +198,7 @@ router.post(
       return error(res, INVALID_CHANNEL, 400);
     }
 
-    let lock: LockDoc | null = null;
+    let lock: HydratedLock | null = null;
     const filePath = `${file.path}.click`;
     try {
       lock = await Lock.acquire(`revision-${req.params.id}`);
@@ -210,7 +210,7 @@ router.post(
         throw new NotFoundError(APP_NOT_FOUND);
       }
 
-      if (!req.isAdminUser && req.user!._id != pkg.maintainer) {
+      if (!req.isAdminUser && req.user!._id.toString() != pkg.maintainer) {
         throw new AuthorizationError(PERMISSION_DENIED);
       }
 

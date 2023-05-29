@@ -1,9 +1,9 @@
 import { Schema, model } from 'mongoose';
 import { RATINGS } from './constants';
 import { setupStatics } from './statics';
-import { ReviewDoc, ReviewModel } from './types';
+import { IReview, IReviewMethods, ReviewModel } from './types';
 
-export const reviewSchema = new Schema<ReviewDoc, ReviewModel>({
+export const reviewSchema = new Schema<IReview, ReviewModel, IReviewMethods>({
   pkg: { type: Schema.Types.ObjectId, ref: 'Package' },
   version: String,
   user: { type: Schema.Types.ObjectId, ref: 'User' },
@@ -36,4 +36,4 @@ reviewSchema.methods.serialize = function() {
 
 setupStatics(reviewSchema);
 
-export const Review = model<ReviewDoc, ReviewModel>('Review', reviewSchema);
+export const Review = model<IReview, ReviewModel>('Review', reviewSchema);

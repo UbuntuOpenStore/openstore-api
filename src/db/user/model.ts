@@ -1,7 +1,7 @@
 import { Schema, model } from 'mongoose';
-import { UserModel, UserDoc } from './types';
+import { IUser, IUserMethods, UserModel } from './types';
 
-const userSchema = new Schema<UserDoc, UserModel>({
+const userSchema = new Schema<IUser, UserModel, IUserMethods>({
   apikey: String,
   email: String,
   language: String,
@@ -13,7 +13,7 @@ const userSchema = new Schema<UserDoc, UserModel>({
   username: String,
 });
 
-userSchema.methods.serialize = function() {
+userSchema.method('serialize', function() {
   return {
     _id: this._id,
     email: this.email,
@@ -21,6 +21,6 @@ userSchema.methods.serialize = function() {
     role: this.role ? this.role : 'community',
     username: this.username,
   };
-};
+});
 
-export const User = model<UserDoc, UserModel>('User', userSchema);
+export const User = model<IUser, UserModel>('User', userSchema);

@@ -4,13 +4,13 @@ import { Request } from 'express';
 import { Schema, model } from 'mongoose';
 
 import { logger, captureException } from 'utils';
-import { LockDoc, LockModel } from './types';
+import { HydratedLock, ILock, LockModel } from './types';
 
 const TIMEOUT = 30 * 1000; // 30s in ms
 const WAIT_TIME = 500; // ms
 const MAX_RETRIES = 100;
 
-const lockSchema = new Schema<LockDoc, LockModel>({
+const lockSchema = new Schema<ILock, LockModel>({
   name: { type: String },
   expire: { type: Date },
   inserted: { type: Date, default: () => new Date() },
@@ -19,7 +19,7 @@ const lockSchema = new Schema<LockDoc, LockModel>({
 lockSchema.index({ name: 1 }, { unique: true });
 
 lockSchema.statics.acquire = async function(name: string) {
-  let lock: LockDoc = new this({
+  let lock: HydratedLock = new this({
     name,
     expire: Date.now() + TIMEOUT,
     inserted: Date.now(),
@@ -59,13 +59,13 @@ lockSchema.statics.acquire = async function(name: string) {
   return lock;
 };
 
-lockSchema.statics.release = async function(lock: LockDoc | null, req: Request) {
+lockSchema.statics.release = async function(lock: HydratedLock | null, req: Request) {
   if (!lock) {
     return;
   }
 
   try {
-    await lock.remove();
+    await lock.deleteOne();
   }
   catch (err) {
     logger.error('failed to release lock');
@@ -73,4 +73,4 @@ lockSchema.statics.release = async function(lock: LockDoc | null, req: Request) 
   }
 };
 
-export const Lock = model<LockDoc, LockModel>('Lock', lockSchema);
+export const Lock = model<ILock, LockModel>('Lock', lockSchema);

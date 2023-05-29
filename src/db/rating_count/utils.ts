@@ -1,12 +1,12 @@
 /* eslint-disable no-restricted-syntax */
-import { FilterQuery } from 'mongoose';
+import { FilterQuery, Types } from 'mongoose';
 
 import { logger } from 'utils';
-import { Review, ReviewDoc, RATINGS, RATING_MAP, Ratings } from 'db/review';
+import { Review, RATINGS, RATING_MAP, Ratings, IReview } from 'db/review';
 import { RatingCount } from 'db/rating_count';
 import { Package } from 'db/package';
 
-export async function recalculatePackageRatings(pkgId: string) {
+export async function recalculatePackageRatings(pkgId: Types.ObjectId) {
   let pkg = await Package.findOne({ _id: pkgId }).populate('rating_counts');
   if (!pkg) {
     logger.error('Failed to recalculate ratings: could not find package');
@@ -15,10 +15,10 @@ export async function recalculatePackageRatings(pkgId: string) {
 
   let calculatedRating = 0;
   if (!pkg.rating_counts) {
-    pkg.rating_counts = [];
+    pkg.rating_counts = [] as any;
   }
 
-  const reviews = await Review.find({ pkg: pkgId } as FilterQuery<ReviewDoc>);
+  const reviews = await Review.find({ pkg: pkgId } as FilterQuery<IReview>);
 
   for (const ratingName of RATINGS) {
     let count = 0;

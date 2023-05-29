@@ -3,7 +3,7 @@ import express, { Request, Response } from 'express';
 
 import fsPromise from 'fs/promises';
 import fs from 'fs';
-import { Architecture, Channel, DEFAULT_CHANNEL, PackageDoc } from 'db/package/types';
+import { Architecture, Channel, DEFAULT_CHANNEL, HydratedPackage } from 'db/package/types';
 import { Package } from 'db/package';
 import { success, getData, apiLinks, asyncErrorWrapper, getDataBoolean, getDataArray } from 'utils';
 import { fetchPublishedPackage } from 'middleware';
@@ -20,7 +20,7 @@ const router = express.Router();
 async function apps(req: Request, res: Response) {
   const filters = Package.parseRequestFilters(req);
   let count = 0;
-  let pkgs: PackageDoc[] = [];
+  let pkgs: HydratedPackage[] = [];
 
   // Send search queries to elastic search
   // TODO move author searches to a different request parameter

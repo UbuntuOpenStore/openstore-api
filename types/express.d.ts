@@ -1,12 +1,12 @@
-import { PackageQueryReturn } from '../src/db/package';
-import { UserDoc } from '../src/db/user';
+import { HydratedPackage } from '../src/db/package';
+import { HydratedUser } from '../src/db/user';
 
 declare global {
   namespace Express {
     interface Request {
       apiVersion?: number;
-      user?: UserDoc;
-      pkg: PackageQueryReturn;
+      user?: HydratedUser;
+      pkg: HydratedPackage;
       isAuthenticated(): boolean;
       logout(): void;
       isTrustedUser?: boolean;
@@ -37,6 +37,6 @@ declare global {
       server?: any;
     }
 
-    interface User extends UserDoc {}
+    interface User extends HydratedUser {}
   }
 }

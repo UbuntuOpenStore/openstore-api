@@ -1,8 +1,8 @@
-import { Document, FilterQuery, Model, Types } from 'mongoose';
+import { FilterQuery, HydratedDocument, Model, Types } from 'mongoose';
 import { Request } from 'express';
 
 import { ClickParserData } from 'utils';
-import { RatingCountDoc } from '../rating_count/types';
+import { HydratedRatingCount } from '../rating_count/types';
 
 export enum PackageType {
   APP = 'app',
@@ -41,7 +41,7 @@ export type File = {
   size: number;
 };
 
-export interface RevisionSchema {
+export interface IRevision {
   revision: number,
   version: string,
   downloads: number,
@@ -56,11 +56,11 @@ export interface RevisionSchema {
   permissions: string[],
 }
 
-export interface RevisionDoc extends RevisionSchema, Document {}
+export type HydratedRevision = HydratedDocument<IRevision>;
 
-export interface RevisionModel extends Model<RevisionDoc> {}
+export interface RevisionModel extends Model<IRevision> {}
 
-export interface SerializedDownload extends RevisionSchema { }
+export interface SerializedDownload extends IRevision { }
 
 export type SerializedRatings = {
   THUMBS_UP: number;
@@ -107,7 +107,7 @@ export type SerializedPackage = {
   types: PackageType[];
   updated_date: string;
   languages: string[];
-  revisions: RevisionSchema[];
+  revisions: IRevision[];
   totalDownloads: number;
   latestDownloads: number;
   version: string;
@@ -173,7 +173,7 @@ export type PackageRequestFilters = {
   published?: boolean;
 }
 
-export interface PackageSchema {
+export interface IPackage {
   id: string,
   name: string,
   tagline?: string,
@@ -209,10 +209,10 @@ export interface PackageSchema {
   published?: boolean,
   published_date?: string,
   updated_date?: string,
-  revisions: RevisionDoc[],
+  revisions: Types.DocumentArray<HydratedRevision>,
   channels: Channel[],
   icon?: string,
-  rating_counts: RatingCountDoc[],
+  rating_counts: Types.DocumentArray<HydratedRatingCount>,
   calculated_rating?: number,
 }
 
@@ -237,16 +237,14 @@ export interface BodyUpdate {
   maintainer?: string;
 }
 
-export interface PackageDoc extends PackageSchema {
-  _id: any; // PackageDoc can't extend Document because the `id` params are incompatible
-
+export interface IPackageMethods {
   getLatestRevision(
     channel: Channel,
     arch?: Architecture,
     detectAll?: boolean,
     frameworks?: string[],
     version?: string
-  ): { revisionData?: RevisionDoc | null, revisionIndex: number }
+  ): { revisionData?: HydratedRevision | null, revisionIndex: number }
   updateFromClick(data: ClickParserData): void;
   updateFromBody(body: BodyUpdate): void;
   createNextRevision(
@@ -276,17 +274,14 @@ export interface PackageDoc extends PackageSchema {
   icon_url: string;
 }
 
-// Copy of the type returned by mongoose queries
-export type PackageQueryReturn = Document<any, any, PackageDoc> & PackageDoc & {
-  _id: Types.ObjectId;
-};
+export type HydratedPackage = HydratedDocument<IPackage, IPackageMethods>;
 
-export interface PackageModel extends Model<PackageDoc> {
-  incrementDownload(id: string, revisionIndex: number): void;
+export interface PackageModel extends Model<IPackage, {}, IPackageMethods> {
+  incrementDownload(id: Types.ObjectId, revisionIndex: number): void;
   stats(): Promise<PackageStats>;
   categoryStats(channels: Channel[]): Promise<CategoryStat[]>;
   parseRequestFilters(req: Request): PackageRequestFilters;
-  parseFilters(filters: PackageRequestFilters, textSearch?: boolean): FilterQuery<PackageDoc>;
+  parseFilters(filters: PackageRequestFilters, textSearch?: boolean): FilterQuery<IPackage>;
   countByFilters(filters: PackageRequestFilters, textSearch?: boolean): Promise<number>;
   findByFilters(
     filters: PackageRequestFilters,
@@ -294,9 +289,9 @@ export interface PackageModel extends Model<PackageDoc> {
     limit?: number,
     skip?: number,
     textSearch?: boolean
-  ): Promise<PackageQueryReturn[]>;
-  findOneByFilters(id: string, filters?: PackageRequestFilters): Promise<PackageQueryReturn | null>;
-  searchByFilters(filters: PackageRequestFilters, full: boolean): Promise<{ pkgs: PackageQueryReturn[], count: number }>;
+  ): Promise<HydratedPackage[]>;
+  findOneByFilters(id: string, filters?: PackageRequestFilters): Promise<HydratedPackage | null>;
+  searchByFilters(filters: PackageRequestFilters, full: boolean): Promise<{ pkgs: HydratedPackage[], count: number }>;
   checkId(id: string): Promise<void>;
   checkRestrictedId(id: string): void;
 }

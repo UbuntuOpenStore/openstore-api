@@ -4,12 +4,12 @@ import pLimit from 'p-limit';
 
 import 'db'; // Make sure the database connection gets setup
 import { Package } from 'db/package';
-import { PackageDoc } from 'db/package/types';
+import { IPackage } from 'db/package/types';
 import { FilterQuery } from 'mongoose';
 
 const limit = pLimit(10);
 
-const query: FilterQuery<PackageDoc> = {};
+const query: FilterQuery<IPackage> = {};
 if (process.argv[2]) {
   query.id = process.argv[2];
 }

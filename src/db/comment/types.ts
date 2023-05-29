@@ -1,12 +1,10 @@
-import { Document, Model } from 'mongoose';
-import { UserDoc } from '../user/types';
+import { HydratedDocument, Model, Types } from 'mongoose';
 
-export interface CommentSchema {
-  user: UserDoc,
+export interface IComment {
+  user: Types.ObjectId,
   date: Date,
   body: string,
 }
 
-export interface CommentDoc extends CommentSchema, Document {}
-
-export interface CommentModel extends Model<CommentDoc> {}
+export type HydratedComment = HydratedDocument<IComment>;
+export interface CommentModel extends Model<IComment> {}

@@ -1,7 +1,7 @@
 import elasticsearch, { SearchParams } from 'elasticsearch';
 
 import { config } from 'utils';
-import { PackageDoc, PackageRequestFilters, PackageSchema } from './types';
+import { HydratedPackage, IPackage, PackageRequestFilters } from './types';
 
 // Modified from https://github.com/bhdouglass/uappexplorer/blob/master/src/db/elasticsearch/elasticsearch.js
 
@@ -49,8 +49,8 @@ export class PackageSearch {
     });
   }
 
-  convert(item: PackageDoc) {
-    const doc: Partial<PackageSchema> & { search_name?: string } = {};
+  convert(item: HydratedPackage) {
+    const doc: Partial<IPackage> & { search_name?: string } = {};
     PROPERTIES.forEach((prop: string) => {
       (doc as any)[prop] = (item as any)[prop] ? (item as any)[prop] : null;
     });
@@ -68,7 +68,7 @@ export class PackageSearch {
     return doc;
   }
 
-  async upsert(item: PackageDoc) {
+  async upsert(item: HydratedPackage) {
     await this.client.update({
       index: INDEX,
       type: TYPE,
@@ -83,7 +83,7 @@ export class PackageSearch {
     return item;
   }
 
-  async remove(item: PackageDoc) {
+  async remove(item: HydratedPackage) {
     try {
       await this.client.delete({
         index: INDEX,
@@ -103,7 +103,7 @@ export class PackageSearch {
     return item;
   }
 
-  bulk(upserts: PackageDoc[], removals?: PackageDoc[]) {
+  bulk(upserts: HydratedPackage[], removals?: HydratedPackage[]) {
     let body: { [key: string]: any }[] = [];
     upserts.forEach((item) => {
       body.push({
