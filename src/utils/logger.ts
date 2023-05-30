@@ -4,9 +4,9 @@ import * as Sentry from '@sentry/node';
 export const logger = winston.createLogger({
   transports: [
     new winston.transports.Console({
-      level: (process.env.NODE_ENV == 'production') ? 'info' : 'debug',
+      level: (process.env.NODE_ENV === 'production') ? 'info' : 'debug',
       format: winston.format.simple(),
-      silent: (process.env.NODE_ENV == 'testing' || process.env.NODE_ENV == 'ci'),
+      silent: (process.env.NODE_ENV === 'testing' || process.env.NODE_ENV === 'ci'),
     }),
   ],
 });
@@ -36,7 +36,7 @@ process.on('unhandledRejection', (err) => {
 });
 
 export function captureException(err: string | unknown | Error, route: string) {
-  if (process.env.NODE_ENV != 'testing' && process.env.NODE_ENV != 'ci') {
+  if (process.env.NODE_ENV !== 'testing' && process.env.NODE_ENV !== 'ci') {
     console.log(`Error from route: ${route}`);
     console.error(err);
   }

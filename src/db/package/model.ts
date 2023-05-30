@@ -2,7 +2,7 @@ import { Schema, model } from 'mongoose';
 import { setupMethods } from './methods';
 import { setupVirtuals } from './virtuals';
 import { setupStatics } from './statics';
-import { RevisionModel, PackageModel, IRevision, IPackageMethods, IPackage } from './types';
+import { type RevisionModel, type PackageModel, type IRevision, type IPackageMethods, type IPackage } from './types';
 
 const revisionSchema = new Schema<IRevision, RevisionModel>({
   revision: Number,

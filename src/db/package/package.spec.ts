@@ -93,10 +93,12 @@ describe('Package', () => {
       expect(parsed).to.deep.equal({
         types: { $in: [PackageType.APP, PackageType.WEBAPP] },
         id: { $in: ['foo.bar'] },
-        device_compatibilities: { $in: [
+        device_compatibilities: {
+          $in: [
           `${Channel.XENIAL}:${Architecture.ARMHF}:ubuntu-16.04`,
           `${Channel.XENIAL}:${Architecture.ALL}:ubuntu-16.04`,
-        ] },
+          ],
+        },
         category: 'Category',
         author: 'Author',
         $text: { $search: 'term' },
@@ -119,7 +121,7 @@ describe('Package', () => {
   });
 
   context('serialization', () => {
-    beforeEach(async function() {
+    beforeEach(async function () {
       this.now = (new Date()).toISOString();
 
       this.package = await factory.package({
@@ -150,24 +152,24 @@ describe('Package', () => {
     });
 
     context('iconUrl', () => {
-      it('generates an icon url', function() {
+      it('generates an icon url', function () {
         this.package.createNextRevision('1.0.0', Channel.XENIAL, Architecture.ARMHF, 'ubuntu-sdk-16.04', 'url', 'shasum', 10, 8);
         expect(this.package.icon_url).to.equal('http://local.open-store.io/icons/app.id/app.id-1.0.0.png');
       });
 
-      it('generates an icon url with no version info', function() {
+      it('generates an icon url with no version info', function () {
         expect(this.package.icon_url).to.equal('http://local.open-store.io/icons/app.id/app.id-0.0.0.png');
       });
     });
 
     context('downloadUrl', () => {
-      it('generates a download url without a version', function() {
+      it('generates a download url without a version', function () {
         expect(
           this.package.getDownloadUrl(Channel.XENIAL, Architecture.ARMHF),
         ).to.equal('http://local.open-store.io/api/v3/apps/app.id/download/xenial/armhf');
       });
 
-      it('generates a download url with a version', function() {
+      it('generates a download url with a version', function () {
         expect(
           this.package.getDownloadUrl(Channel.XENIAL, Architecture.ARMHF, '1.0.0'),
         ).to.equal('http://local.open-store.io/api/v3/apps/app.id/download/xenial/armhf/1.0.0');
@@ -175,7 +177,7 @@ describe('Package', () => {
     });
 
     context('serialize', () => {
-      it('serializes slimly', function() {
+      it('serializes slimly', function () {
         const serialized = this.package.serializeSlim();
 
         expect(serialized).to.deep.equal({
@@ -206,7 +208,7 @@ describe('Package', () => {
         });
       });
 
-      it('serializes fully', function() {
+      it('serializes fully', function () {
         this.package.channel_architectures = [ChannelArchitecture.XENIAL_ARMHF, ChannelArchitecture.XENIAL_ARM64];
         this.package.device_compatibilities = [
           `${ChannelArchitecture.XENIAL_ARMHF}:ubuntu-sdk-16.04`,

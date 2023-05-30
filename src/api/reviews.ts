@@ -1,5 +1,5 @@
 /* eslint-disable no-restricted-syntax */
-import express, { Request, Response } from 'express';
+import express, { type Request, type Response } from 'express';
 
 import 'db/comment';
 import { error, success, apiLinks, asyncErrorWrapper } from 'utils';
@@ -25,7 +25,7 @@ async function getReviews(req: Request, res: Response) {
   const reviews = await Review.findByFilters(filters, filters.limit, filters.skip);
   const { next, previous } = apiLinks(req.originalUrl, reviews.length, filters.limit, filters.skip);
 
-  return success(res, {
+  success(res, {
     count: reviewsTotalCount,
     next,
     previous,
@@ -45,7 +45,8 @@ router.get(
  */
 async function upsertReview(req: Request, res: Response) {
   if (!req.body.version || !req.body.rating) {
-    return error(res, PARAMETER_MISSING, 400);
+    error(res, PARAMETER_MISSING, 400);
+    return;
   }
 
   const body = req.body.body ? req.body.body.trim() : '';
@@ -53,23 +54,27 @@ async function upsertReview(req: Request, res: Response) {
   const rating = req.body.rating;
 
   // Users cannot upload a review for their own app
-  if (req.user!._id.toString() == req.pkg.maintainer) {
-    return error(res, CANNOT_REVIEW_OWN_APP, 400);
+  if (req.user!._id.toString() === req.pkg.maintainer) {
+    error(res, CANNOT_REVIEW_OWN_APP, 400);
+    return;
   }
-  if (!req.pkg.revisions || !req.pkg.revisions.find((revision) => revision.version == version)) {
-    return error(res, VERSION_NOT_FOUND, 404);
+  if (!req.pkg.revisions || !req.pkg.revisions.find((revision) => revision.version === version)) {
+    error(res, VERSION_NOT_FOUND, 404);
+    return;
   }
   if (body.length > REVIEW_MAX_LEN) {
-    return error(res, REVIEW_TOO_LONG, 400);
+    error(res, REVIEW_TOO_LONG, 400);
+    return;
   }
-  if (RATINGS.indexOf(rating) == -1) {
-    return error(res, INVALID_RATING, 400);
+  if (!RATINGS.includes(rating)) {
+    error(res, INVALID_RATING, 400);
+    return;
   }
 
   const review = await Review.createOrUpdateExisting(req.pkg, req.user!, version, rating, body);
   await recalculatePackageRatings(req.pkg._id);
 
-  return success(res, { review_id: review._id });
+  success(res, { review_id: review._id });
 }
 
 router.post(

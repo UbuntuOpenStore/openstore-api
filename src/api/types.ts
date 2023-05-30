@@ -1,11 +1,11 @@
-import { SerializedPackage } from 'db/package/types';
+import { type SerializedPackage } from 'db/package/types';
 
 export type DiscoverHighlight = {
   id: string;
   image: string;
   description: string;
   app: SerializedPackage;
-}
+};
 
 export type DiscoverCategory = {
   name: string;
@@ -13,10 +13,10 @@ export type DiscoverCategory = {
   referral: string;
   ids: string[];
   apps: SerializedPackage[];
-}
+};
 
 export type DiscoverData = {
   highlights: DiscoverHighlight[];
   categories: DiscoverCategory[];
   highlight: DiscoverHighlight;
-}
+};

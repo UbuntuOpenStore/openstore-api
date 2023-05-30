@@ -1,36 +1,37 @@
 /* eslint-disable no-param-reassign */
 
-import { FilterQuery, Schema, Types } from 'mongoose';
+import { type FilterQuery, type Schema, type Types } from 'mongoose';
 import uniq from 'lodash/uniq';
-import { Request } from 'express';
+import { type Request } from 'express';
 
 import { getData, getDataArray, getDataBooleanOrUndefined, getDataInt } from 'utils';
 import { UserError } from 'exceptions';
 import { DUPLICATE_PACKAGE, NO_SPACES_NAME, BAD_NAMESPACE, MISSING_CHANNEL_ARCH } from 'utils/error-messages';
 import {
   Architecture,
-  PackageRequestFilters,
-  CategoryStat,
+  type PackageRequestFilters,
+  type CategoryStat,
   Channel,
-  ChannelArchitecture,
-  PackageModel,
-  PackageStats,
-  IPackage,
-  IPackageMethods,
-  HydratedPackage,
+  type ChannelArchitecture,
+  type PackageModel,
+  type PackageStats,
+  type IPackage,
+  type IPackageMethods,
+  type HydratedPackage,
+  type PackageType,
 } from './types';
 import { packageSearchInstance } from './search';
 import { RatingCount } from '../rating_count/model';
 
 export function setupStatics(packageSchema: Schema<IPackage, PackageModel, IPackageMethods>) {
-  packageSchema.statics.incrementDownload = async function(id: Types.ObjectId, revisionIndex: number) {
+  packageSchema.statics.incrementDownload = async function (id: Types.ObjectId, revisionIndex: number) {
     const inc: { [key: string]: number } = {};
     inc[`revisions.${revisionIndex}.downloads`] = 1;
 
     await this.updateOne({ _id: id }, { $inc: inc });
   };
 
-  packageSchema.statics.stats = async function(): Promise<PackageStats> {
+  packageSchema.statics.stats = async function (): Promise<PackageStats> {
     // TODO refactor to support multiple channels
 
     const [categoryStats, typeStats, frameworkStats, archStats] = await Promise.all([
@@ -74,7 +75,7 @@ export function setupStatics(packageSchema: Schema<IPackage, PackageModel, IPack
     ]);
 
     const categories: { [key: string]: number } = {};
-    categoryStats.forEach((category: { _id: string, count: number }) => {
+    categoryStats.forEach((category: { _id: string; count: number }) => {
       categories[category._id] = category.count;
     });
 
@@ -82,7 +83,7 @@ export function setupStatics(packageSchema: Schema<IPackage, PackageModel, IPack
     typeStats.forEach((type) => {
       type._id.forEach((t: string) => {
         if (types[t]) {
-          types[t] += type.count;
+          types[t] += type.count as number;
         }
         else {
           types[t] = type.count;
@@ -102,14 +103,14 @@ export function setupStatics(packageSchema: Schema<IPackage, PackageModel, IPack
           architectures[arch] = 0;
         }
 
-        architectures[arch] += stats.count;
+        architectures[arch] += stats.count as number;
       });
     });
 
     return { categories, types, frameworks, architectures };
   };
 
-  packageSchema.statics.categoryStats = async function(channels: Channel[]): Promise<CategoryStat[]> {
+  packageSchema.statics.categoryStats = async function (channels: Channel[]): Promise<CategoryStat[]> {
     const match: FilterQuery<IPackage> = { published: true };
     if (channels) {
       match.channels = { $in: channels };
@@ -131,18 +132,18 @@ export function setupStatics(packageSchema: Schema<IPackage, PackageModel, IPack
     return results as CategoryStat[];
   };
 
-  packageSchema.statics.parseRequestFilters = function(req: Request): PackageRequestFilters {
+  packageSchema.statics.parseRequestFilters = function (req: Request): PackageRequestFilters {
     const types = [
       ...getDataArray(req, 'types'),
       // Handle non-pluralized form
       ...getDataArray(req, 'type'),
     ];
 
-    const architecture = getData(req, 'architecture').toLowerCase();
+    const architecture = getData(req, 'architecture').toLowerCase() as Architecture;
     let architectures: Architecture[] = [];
     if (architecture) {
       architectures = [architecture];
-      if (architecture != Architecture.ALL) {
+      if (architecture !== Architecture.ALL) {
         architectures.push(Architecture.ALL);
       }
     }
@@ -156,7 +157,7 @@ export function setupStatics(packageSchema: Schema<IPackage, PackageModel, IPack
     }
 
     const queryNsfw = getDataBooleanOrUndefined(req, 'nsfw');
-    let nsfw: (null|boolean)[] = [];
+    let nsfw: (null | boolean)[] = [];
     if (queryNsfw === true) {
       nsfw = [true];
     }
@@ -173,19 +174,19 @@ export function setupStatics(packageSchema: Schema<IPackage, PackageModel, IPack
       limit,
       skip: getDataInt(req, 'skip', 0),
       sort: getData(req, 'sort', 'relevance'),
-      types: uniq(types),
+      types: uniq(types) as PackageType[],
       ids: getDataArray(req, 'apps'),
       frameworks: getDataArray(req, 'frameworks'),
       architectures,
       category: getData(req, 'category'),
       author: getData(req, 'author') ? getData(req, 'author') : getData(req, 'publisher'),
       search: getData(req, 'search'),
-      channel,
+      channel: channel as Channel,
       nsfw,
     };
   };
 
-  packageSchema.statics.parseFilters = function({
+  packageSchema.statics.parseFilters = function ({
     types,
     ids,
     frameworks,
@@ -217,7 +218,7 @@ export function setupStatics(packageSchema: Schema<IPackage, PackageModel, IPack
     const arches: Architecture[] = architectures ?? [];
     if (architecture) {
       arches.push(architecture);
-      if (architecture != Architecture.ALL) {
+      if (architecture !== Architecture.ALL) {
         arches.push(Architecture.ALL);
       }
     }
@@ -276,14 +277,14 @@ export function setupStatics(packageSchema: Schema<IPackage, PackageModel, IPack
     return query;
   };
 
-  packageSchema.statics.countByFilters = async function(filters: PackageRequestFilters, textSearch = true): Promise<number> {
+  packageSchema.statics.countByFilters = async function (filters: PackageRequestFilters, textSearch = true): Promise<number> {
     const query = this.parseFilters(filters, textSearch);
 
     const result = await this.countDocuments(query);
     return result;
   };
 
-  packageSchema.statics.findByFilters = async function(
+  packageSchema.statics.findByFilters = async function (
     filters: PackageRequestFilters,
     sort: string = 'relevance',
     limit?: number,
@@ -294,32 +295,32 @@ export function setupStatics(packageSchema: Schema<IPackage, PackageModel, IPack
 
     const findQuery = this.find(query).populate('rating_counts');
 
-    if (sort == 'relevance') {
+    if (sort === 'relevance') {
       if (query.$text) {
-        findQuery.select({ score: { $meta: 'textScore' } });
-        findQuery.sort({ score: { $meta: 'textScore' } });
+        void findQuery.select({ score: { $meta: 'textScore' } });
+        void findQuery.sort({ score: { $meta: 'textScore' } });
       }
       else {
-        findQuery.sort('name');
+        void findQuery.sort('name');
       }
     }
     else {
-      findQuery.sort(sort).sort('name');
+      void findQuery.sort(sort).sort('name');
     }
 
     if (limit) {
-      findQuery.limit(limit);
+      void findQuery.limit(limit);
     }
 
     if (skip) {
-      findQuery.skip(skip);
+      void findQuery.skip(skip);
     }
 
     const results = await findQuery.exec();
     return results;
   };
 
-  packageSchema.statics.findOneByFilters = async function(
+  packageSchema.statics.findOneByFilters = async function (
     id: string,
     filters: PackageRequestFilters = {},
   ): Promise<HydratedPackage | null> {
@@ -330,10 +331,10 @@ export function setupStatics(packageSchema: Schema<IPackage, PackageModel, IPack
     return result;
   };
 
-  packageSchema.statics.searchByFilters = async function(
+  packageSchema.statics.searchByFilters = async function (
     filters: PackageRequestFilters,
     full = false,
-  ): Promise<{ pkgs: HydratedPackage[], count: number }> {
+  ): Promise<{ pkgs: HydratedPackage[]; count: number }> {
     const results = await packageSearchInstance.search(filters, filters.sort, filters.skip, filters.limit);
     const hits = results.hits.hits.map((hit: any) => hit._source);
 
@@ -363,7 +364,7 @@ export function setupStatics(packageSchema: Schema<IPackage, PackageModel, IPack
     };
   };
 
-  packageSchema.statics.checkId = async function(id: string): Promise<void> {
+  packageSchema.statics.checkId = async function (id: string): Promise<void> {
     if (id.includes(' ')) {
       throw new UserError(NO_SPACES_NAME);
     }
@@ -374,7 +375,7 @@ export function setupStatics(packageSchema: Schema<IPackage, PackageModel, IPack
     }
   };
 
-  packageSchema.statics.checkRestrictedId = function(id: string): void {
+  packageSchema.statics.checkRestrictedId = function (id: string): void {
     if (id.startsWith('com.ubuntu.') && !id.startsWith('com.ubuntu.developer.')) {
       throw new UserError(BAD_NAMESPACE);
     }

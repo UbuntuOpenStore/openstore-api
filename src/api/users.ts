@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express';
+import express, { type Request, type Response } from 'express';
 
 import { User } from 'db/user';
 import { success, asyncErrorWrapper } from 'utils';
@@ -8,21 +8,21 @@ import { USER_NOT_FOUND } from '../utils/error-messages';
 
 const router = express.Router();
 
-router.get('/', authenticate, adminOnly, asyncErrorWrapper(async(req: Request, res: Response) => {
+router.get('/', authenticate, adminOnly, asyncErrorWrapper(async (req: Request, res: Response) => {
   const users = await User.find({});
-  return success(res, users.map((user) => user.serialize()));
+  success(res, users.map((user) => user.serialize()));
 }, 'Could not fetch user list at this time'));
 
-router.get('/:id', authenticate, adminOnly, asyncErrorWrapper(async(req: Request, res: Response) => {
+router.get('/:id', authenticate, adminOnly, asyncErrorWrapper(async (req: Request, res: Response) => {
   const user = await User.findById(req.params.id);
   if (!user) {
     throw new NotFoundError(USER_NOT_FOUND);
   }
 
-  return success(res, user.serialize());
+  success(res, user.serialize());
 }, 'Could not fetch user at this time'));
 
-router.put('/:id', authenticate, adminOnly, asyncErrorWrapper(async(req: Request, res: Response) => {
+router.put('/:id', authenticate, adminOnly, asyncErrorWrapper(async (req: Request, res: Response) => {
   const user = await User.findById(req.params.id);
   if (!user) {
     throw new NotFoundError(USER_NOT_FOUND);
@@ -31,7 +31,7 @@ router.put('/:id', authenticate, adminOnly, asyncErrorWrapper(async(req: Request
   user.role = req.body.role;
   await user.save();
 
-  return success(res, user.serialize());
+  success(res, user.serialize());
 }, 'Could not update user at this time'));
 
 export default router;

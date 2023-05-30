@@ -1,8 +1,8 @@
-import { FilterQuery, HydratedDocument, Model, Types } from 'mongoose';
-import { Request } from 'express';
+import { type FilterQuery, type HydratedDocument, type Model, type Types } from 'mongoose';
+import { type Request } from 'express';
 
-import { ClickParserData } from 'utils';
-import { HydratedRatingCount } from '../rating_count/types';
+import { type ClickParserData } from 'utils';
+import { type HydratedRatingCount } from '../rating_count/types';
 
 export enum PackageType {
   APP = 'app',
@@ -42,18 +42,18 @@ export type File = {
 };
 
 export interface IRevision {
-  revision: number,
-  version: string,
-  downloads: number,
-  channel: Channel,
-  download_url: string | null,
-  download_sha512: string,
-  architecture: Architecture,
-  framework: string,
-  filesize: number,
-  downloadSize: number,
-  created_date: string,
-  permissions: string[],
+  revision: number;
+  version: string;
+  downloads: number;
+  channel: Channel;
+  download_url: string | null;
+  download_sha512: string;
+  architecture: Architecture;
+  framework: string;
+  filesize: number;
+  downloadSize: number;
+  created_date: string;
+  permissions: string[];
 }
 
 export type HydratedRevision = HydratedDocument<IRevision>;
@@ -68,7 +68,7 @@ export type SerializedRatings = {
   HAPPY: number;
   NEUTRAL: number;
   BUGGY: number;
-}
+};
 
 export type SerializedPackage = {
   architecture: string;
@@ -78,8 +78,8 @@ export type SerializedPackage = {
   category: string;
   changelog: string;
   channels: Channel[];
-  channel_architectures: ChannelArchitecture[],
-  device_compatibilities: string[],
+  channel_architectures: ChannelArchitecture[];
+  device_compatibilities: string[];
   description: string;
   downloads: SerializedDownload[];
   framework: string;
@@ -151,8 +151,8 @@ export type PackageStats = {
 };
 
 export type CategoryStat = {
-  _id: string,
-  count: number
+  _id: string;
+  count: number;
 };
 
 export type PackageRequestFilters = {
@@ -171,49 +171,49 @@ export type PackageRequestFilters = {
   nsfw?: (boolean | null)[];
   maintainer?: string;
   published?: boolean;
-}
+};
 
 export interface IPackage {
-  id: string,
-  name: string,
-  tagline?: string,
-  description?: string,
-  changelog?: string,
-  screenshots: string[],
-  category?: string,
-  keywords: string[],
-  nsfw?: boolean | null,
-  license?: string,
-  source?: string,
-  support_url?: string,
-  donate_url?: string,
-  video_url?: string,
-  translation_url?: string,
-  maintainer?: string,
-  maintainer_name?: string,
-  author?: string,
-  manifest?: { [key: string]: any },
-  types: PackageType[],
-  type_override?: PackageType,
-  languages: string[],
-  architectures: Architecture[],
-  channel_architectures: ChannelArchitecture[],
-  device_compatibilities: string[],
-  locked?: boolean,
+  id: string;
+  name: string;
+  tagline?: string;
+  description?: string;
+  changelog?: string;
+  screenshots: string[];
+  category?: string;
+  keywords: string[];
+  nsfw?: boolean | null;
+  license?: string;
+  source?: string;
+  support_url?: string;
+  donate_url?: string;
+  video_url?: string;
+  translation_url?: string;
+  maintainer?: string;
+  maintainer_name?: string;
+  author?: string;
+  manifest?: { [key: string]: any };
+  types: PackageType[];
+  type_override?: PackageType;
+  languages: string[];
+  architectures: Architecture[];
+  channel_architectures: ChannelArchitecture[];
+  device_compatibilities: string[];
+  locked?: boolean;
   qml_imports: {
     module: string;
     version: string;
-  }[],
+  }[];
   review_exceptions?: string[];
-  skip_review?: boolean,
-  published?: boolean,
-  published_date?: string,
-  updated_date?: string,
-  revisions: Types.DocumentArray<HydratedRevision>,
-  channels: Channel[],
-  icon?: string,
-  rating_counts: Types.DocumentArray<HydratedRatingCount>,
-  calculated_rating?: number,
+  skip_review?: boolean;
+  published?: boolean;
+  published_date?: string;
+  updated_date?: string;
+  revisions: Types.DocumentArray<HydratedRevision>;
+  channels: Channel[];
+  icon?: string;
+  rating_counts: Types.DocumentArray<HydratedRatingCount>;
+  calculated_rating?: number;
 }
 
 export interface BodyUpdate {
@@ -238,16 +238,16 @@ export interface BodyUpdate {
 }
 
 export interface IPackageMethods {
-  getLatestRevision(
+  getLatestRevision: (
     channel: Channel,
     arch?: Architecture,
     detectAll?: boolean,
     frameworks?: string[],
     version?: string
-  ): { revisionData?: HydratedRevision | null, revisionIndex: number }
-  updateFromClick(data: ClickParserData): void;
-  updateFromBody(body: BodyUpdate): void;
-  createNextRevision(
+  ) => { revisionData?: HydratedRevision | null; revisionIndex: number };
+  updateFromClick: (data: ClickParserData) => void;
+  updateFromBody: (body: BodyUpdate) => Promise<void>;
+  createNextRevision: (
     version: string,
     channel: Channel,
     architecture: Architecture,
@@ -257,16 +257,16 @@ export interface IPackageMethods {
     installedSize: number,
     downloadSize: number,
     permissions?: string[],
-  ): void;
-  getClickFilePath(channel: Channel, arch: Architecture, version: string): string;
-  getIconFilePath(ext: string): string;
-  getDownloadUrl(channel: Channel, arch: Architecture, version?: string): string;
-  serializeRatings(): SerializedRatings;
-  serializeSlim(): SerializedPackageSlim;
-  serialize(architecture?: Architecture, frameworks?: string[], apiVersion?: number): SerializedPackage;
-  updateScreenshotFiles(screenshotFiles: File[]): Promise<void>;
-  createRevisionFromClick(filePath: string, channel: Channel, changelog?: string): Promise<void>;
-  updateCalculatedProperties(): void;
+  ) => void;
+  getClickFilePath: (channel: Channel, arch: Architecture, version: string) => string;
+  getIconFilePath: (ext: string) => string;
+  getDownloadUrl: (channel: Channel, arch: Architecture, version?: string) => string;
+  serializeRatings: () => SerializedRatings;
+  serializeSlim: () => SerializedPackageSlim;
+  serialize: (architecture?: Architecture, frameworks?: string[], apiVersion?: number) => SerializedPackage;
+  updateScreenshotFiles: (screenshotFiles: File[]) => Promise<void>;
+  createRevisionFromClick: (filePath: string, channel: Channel, changelog?: string) => Promise<void>;
+  updateCalculatedProperties: () => void;
 
   // Virtuals
   architecture: string;
@@ -276,22 +276,22 @@ export interface IPackageMethods {
 
 export type HydratedPackage = HydratedDocument<IPackage, IPackageMethods>;
 
-export interface PackageModel extends Model<IPackage, {}, IPackageMethods> {
-  incrementDownload(id: Types.ObjectId, revisionIndex: number): void;
-  stats(): Promise<PackageStats>;
-  categoryStats(channels: Channel[]): Promise<CategoryStat[]>;
-  parseRequestFilters(req: Request): PackageRequestFilters;
-  parseFilters(filters: PackageRequestFilters, textSearch?: boolean): FilterQuery<IPackage>;
-  countByFilters(filters: PackageRequestFilters, textSearch?: boolean): Promise<number>;
-  findByFilters(
+export interface PackageModel extends Model<IPackage, unknown, IPackageMethods> {
+  incrementDownload: (id: Types.ObjectId, revisionIndex: number) => Promise<void>;
+  stats: () => Promise<PackageStats>;
+  categoryStats: (channels: Channel[]) => Promise<CategoryStat[]>;
+  parseRequestFilters: (req: Request) => PackageRequestFilters;
+  parseFilters: (filters: PackageRequestFilters, textSearch?: boolean) => FilterQuery<IPackage>;
+  countByFilters: (filters: PackageRequestFilters, textSearch?: boolean) => Promise<number>;
+  findByFilters: (
     filters: PackageRequestFilters,
     sort?: string,
     limit?: number,
     skip?: number,
     textSearch?: boolean
-  ): Promise<HydratedPackage[]>;
-  findOneByFilters(id: string, filters?: PackageRequestFilters): Promise<HydratedPackage | null>;
-  searchByFilters(filters: PackageRequestFilters, full: boolean): Promise<{ pkgs: HydratedPackage[], count: number }>;
-  checkId(id: string): Promise<void>;
-  checkRestrictedId(id: string): void;
+  ) => Promise<HydratedPackage[]>;
+  findOneByFilters: (id: string, filters?: PackageRequestFilters) => Promise<HydratedPackage | null>;
+  searchByFilters: (filters: PackageRequestFilters, full: boolean) => Promise<{ pkgs: HydratedPackage[]; count: number }>;
+  checkId: (id: string) => Promise<void>;
+  checkRestrictedId: (id: string) => void;
 }

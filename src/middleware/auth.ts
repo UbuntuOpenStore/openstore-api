@@ -1,13 +1,14 @@
 import passport from 'passport';
-import { Request, Response, NextFunction } from 'express';
+import { type Request, type Response, type NextFunction } from 'express';
 
 import { error } from 'utils';
+import { type HydratedUser } from 'db/user';
 
 export function userRole(req: Request, res: Response, next: NextFunction) {
-  req.isAdminUser = (req.isAuthenticated() && req.user && req.user.role == 'admin');
-  req.isTrustedUser = (req.isAuthenticated() && req.user && req.user.role == 'trusted');
+  req.isAdminUser = (req.isAuthenticated() && req.user && req.user.role === 'admin');
+  req.isTrustedUser = (req.isAuthenticated() && req.user && req.user.role === 'trusted');
 
-  if (req.isAuthenticated() && req.user && req.user.role != 'disabled') {
+  if (req.isAuthenticated() && req.user && req.user.role !== 'disabled') {
     next();
   }
   else {
@@ -16,7 +17,7 @@ export function userRole(req: Request, res: Response, next: NextFunction) {
 }
 
 export function adminOnly(req: Request, res: Response, next: NextFunction) {
-  if (req.isAuthenticated() && req.user && req.user.role == 'admin') {
+  if (req.isAuthenticated() && req.user && req.user.role === 'admin') {
     next();
   }
   else {
@@ -26,13 +27,14 @@ export function adminOnly(req: Request, res: Response, next: NextFunction) {
 
 // Check if the user is logged in, but allow anonymous access
 export function anonymousAuthenticate(req: Request, res: Response, next: NextFunction) {
-  passport.authenticate('localapikey', { session: false }, (err, user) => {
+  passport.authenticate('localapikey', { session: false }, (err: Error | null, user: HydratedUser) => {
     if (err) {
-      return next(err);
+      next(err);
+      return;
     }
 
     req.user = user;
-    return next();
+    next();
   })(req, res, next);
 }
 

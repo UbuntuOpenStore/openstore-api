@@ -20,7 +20,7 @@ const ERROR_REVIEW = {
 };
 
 describe('Manage Revision POST', () => {
-  beforeEach(async function() {
+  beforeEach(async function () {
     [this.package, this.package2] = await Promise.all([
       factory.package({
         maintainer: this.user._id,
@@ -40,12 +40,12 @@ describe('Manage Revision POST', () => {
     this.lockReleaseSpy = this.sandbox.spy(Lock, 'release');
   });
 
-  it('blocks access when not logged in', async function() {
+  it('blocks access when not logged in', async function () {
     await this.post(this.route, false).expect(401);
   });
 
   context('admin user', () => {
-    it('allows access to other packages', async function() {
+    it('allows access to other packages', async function () {
       const reviewStub = this.sandbox.stub(reviewPackage, 'clickReview').resolves(GOOD_REVIEW);
       const parseStub = this.sandbox.stub(clickParser, 'parseClickPackage').resolves({
         name: this.package2.id,
@@ -66,7 +66,7 @@ describe('Manage Revision POST', () => {
       expect(this.lockReleaseSpy).to.have.been.calledOnce;
     });
 
-    it('does not fail for manual review', async function() {
+    it('does not fail for manual review', async function () {
       const reviewStub = this.sandbox.stub(reviewPackage, 'clickReview').resolves(MANUAL_REVIEW);
       const parseStub = this.sandbox.stub(clickParser, 'parseClickPackage').resolves({
         name: this.package.id,
@@ -87,7 +87,7 @@ describe('Manage Revision POST', () => {
       expect(this.lockReleaseSpy).to.have.been.calledOnce;
     });
 
-    it('skips review if configured', async function() {
+    it('skips review if configured', async function () {
       this.package.skip_review = true;
       await this.package.save();
 
@@ -113,12 +113,12 @@ describe('Manage Revision POST', () => {
   });
 
   context('trusted user', () => {
-    beforeEach(async function() {
+    beforeEach(async function () {
       this.user.role = 'trusted';
       await this.user.save();
     });
 
-    it('does not fail for manual review', async function() {
+    it('does not fail for manual review', async function () {
       const reviewStub = this.sandbox.stub(reviewPackage, 'clickReview').resolves(MANUAL_REVIEW);
       const parseStub = this.sandbox.stub(clickParser, 'parseClickPackage').resolves({
         name: this.package.id,
@@ -141,12 +141,12 @@ describe('Manage Revision POST', () => {
   });
 
   context('community user', () => {
-    beforeEach(async function() {
+    beforeEach(async function () {
       this.user.role = 'community';
       await this.user.save();
     });
 
-    it('fails with no file', async function() {
+    it('fails with no file', async function () {
       const res = await this.post(this.route)
         .expect(400);
 
@@ -155,7 +155,7 @@ describe('Manage Revision POST', () => {
       expect(this.lockReleaseSpy).to.have.not.been.called;
     });
 
-    it('fails with invalid channel', async function() {
+    it('fails with invalid channel', async function () {
       const res = await this.post(this.route)
         .attach('file', this.emptyClick)
         .field('channel', 'vivid')
@@ -166,7 +166,7 @@ describe('Manage Revision POST', () => {
       expect(this.lockReleaseSpy).to.have.not.been.called;
     });
 
-    it('fails with bad id', async function() {
+    it('fails with bad id', async function () {
       const res = await this.post('/api/v3/manage/foo/revision')
         .attach('file', this.emptyClick)
         .field('channel', Channel.XENIAL)
@@ -177,7 +177,7 @@ describe('Manage Revision POST', () => {
       expect(this.lockReleaseSpy).to.have.been.calledOnce;
     });
 
-    it('does not allow access to other packages', async function() {
+    it('does not allow access to other packages', async function () {
       await this.post(`/api/v3/manage/${this.package2.id}/revision`)
         .attach('file', this.emptyClick)
         .field('channel', Channel.XENIAL)
@@ -187,7 +187,7 @@ describe('Manage Revision POST', () => {
       expect(this.lockReleaseSpy).to.have.been.calledOnce;
     });
 
-    it('needs manual review', async function() {
+    it('needs manual review', async function () {
       const reviewStub = this.sandbox.stub(reviewPackage, 'clickReview').resolves(MANUAL_REVIEW);
 
       const res = await this.post(this.route)
@@ -204,7 +204,7 @@ describe('Manage Revision POST', () => {
       expect(this.lockReleaseSpy).to.have.been.calledOnce;
     });
 
-    it('fail review because of other errors', async function() {
+    it('fail review because of other errors', async function () {
       const reviewStub = this.sandbox.stub(reviewPackage, 'clickReview').resolves(ERROR_REVIEW);
 
       const res = await this.post(this.route)
@@ -221,7 +221,7 @@ describe('Manage Revision POST', () => {
       expect(this.lockReleaseSpy).to.have.been.calledOnce;
     });
 
-    it('fails if not a click', async function() {
+    it('fails if not a click', async function () {
       const res = await this.post(this.route)
         .attach('file', this.notAClick)
         .field('channel', Channel.XENIAL)
@@ -233,7 +233,7 @@ describe('Manage Revision POST', () => {
       expect(this.lockReleaseSpy).to.have.been.calledOnce;
     });
 
-    it('fails with a different package id from file', async function() {
+    it('fails with a different package id from file', async function () {
       const reviewStub = this.sandbox.stub(reviewPackage, 'clickReview').resolves(GOOD_REVIEW);
       const parseStub = this.sandbox.stub(clickParser, 'parseClickPackage').resolves({
         name: 'foo',
@@ -254,7 +254,7 @@ describe('Manage Revision POST', () => {
       expect(this.lockReleaseSpy).to.have.been.calledOnce;
     });
 
-    it('fails with a malformed manifest', async function() {
+    it('fails with a malformed manifest', async function () {
       const reviewStub = this.sandbox.stub(reviewPackage, 'clickReview').resolves(GOOD_REVIEW);
       const parseStub = this.sandbox.stub(clickParser, 'parseClickPackage').resolves({});
 
@@ -271,7 +271,7 @@ describe('Manage Revision POST', () => {
       expect(this.lockReleaseSpy).to.have.been.calledOnce;
     });
 
-    it('fails with an existing version of the same arch', async function() {
+    it('fails with an existing version of the same arch', async function () {
       this.package.createNextRevision('1.0.0', Channel.XENIAL, Architecture.ARMHF, 'ubuntu-sdk-16.04', 'url', 'shasum', 10, 8);
       await this.package.save();
 
@@ -297,7 +297,7 @@ describe('Manage Revision POST', () => {
       expect(this.lockReleaseSpy).to.have.been.calledOnce;
     });
 
-    it('does not fail with an existing version of a different arch', async function() {
+    it('does not fail with an existing version of a different arch', async function () {
       this.package.createNextRevision('1.0.0', Channel.XENIAL, Architecture.ARM64, 'ubuntu-sdk-16.04', 'url', 'shasum', 10, 8);
       this.package.architectures = [Architecture.ARM64];
       await this.package.save();
@@ -333,7 +333,7 @@ describe('Manage Revision POST', () => {
       expect(this.lockReleaseSpy).to.have.been.calledOnce;
     });
 
-    it('fails when uploading all with existing armhf', async function() {
+    it('fails when uploading all with existing armhf', async function () {
       this.package.createNextRevision('1.0.0', Channel.XENIAL, Architecture.ARMHF, 'ubuntu-sdk-16.04', 'url', 'shasum', 10, 8);
       await this.package.save();
 
@@ -361,7 +361,7 @@ describe('Manage Revision POST', () => {
       expect(this.lockReleaseSpy).to.have.been.calledOnce;
     });
 
-    it('fails when uploading armhf with existing all', async function() {
+    it('fails when uploading armhf with existing all', async function () {
       this.package.createNextRevision('1.0.0', Channel.XENIAL, Architecture.ALL, 'ubuntu-sdk-16.04', 'url', 'shasum', 10, 8);
       await this.package.save();
 
@@ -389,7 +389,7 @@ describe('Manage Revision POST', () => {
       expect(this.lockReleaseSpy).to.have.been.calledOnce;
     });
 
-    it('fails when the same version but different arch and framework', async function() {
+    it('fails when the same version but different arch and framework', async function () {
       this.package.createNextRevision('1.0.0', Channel.XENIAL, Architecture.ARM64, 'ubuntu-sdk-16.04', 'url', 'shasum', 10, 8);
       await this.package.save();
 
@@ -415,7 +415,7 @@ describe('Manage Revision POST', () => {
       expect(this.lockReleaseSpy).to.have.been.calledOnce;
     });
 
-    it('fails when the same version but different arch and permissions', async function() {
+    it('fails when the same version but different arch and permissions', async function () {
       this.package.createNextRevision(
         '1.0.0',
         Channel.XENIAL,
@@ -452,7 +452,7 @@ describe('Manage Revision POST', () => {
       expect(this.lockReleaseSpy).to.have.been.calledOnce;
     });
 
-    it('passes when the same version but different framework and channel', async function() {
+    it('passes when the same version but different framework and channel', async function () {
       this.package.createNextRevision(
         '1.0.0',
         Channel.XENIAL,
@@ -488,7 +488,7 @@ describe('Manage Revision POST', () => {
       expect(this.lockReleaseSpy).to.have.been.calledOnce;
     });
 
-    it('passes when the same version but different framework and channel (existing version does not have permissions)', async function() {
+    it('passes when the same version but different framework and channel (existing version does not have permissions)', async function () {
       this.package.createNextRevision(
         '1.0.0',
         Channel.XENIAL,
@@ -524,7 +524,7 @@ describe('Manage Revision POST', () => {
       expect(this.lockReleaseSpy).to.have.been.calledOnce;
     });
 
-    it('fails when the app is locked', async function() {
+    it('fails when the app is locked', async function () {
       this.package.locked = true;
       await this.package.save();
 
@@ -539,7 +539,7 @@ describe('Manage Revision POST', () => {
       expect(this.lockReleaseSpy).to.have.been.calledOnce;
     });
 
-    it('sanitizes and updates the changelog', async function() {
+    it('sanitizes and updates the changelog', async function () {
       this.package.changelog = 'old changelog';
       await this.package.save();
 
@@ -567,7 +567,7 @@ describe('Manage Revision POST', () => {
       expect(pkg?.changelog).to.equal('changelog update\n\nold changelog');
     });
 
-    it('successfully reviews/updates/saves a package and icon and updates elasticsearch', async function() {
+    it('successfully reviews/updates/saves a package and icon and updates elasticsearch', async function () {
       this.timeout(5000);
 
       this.package.published = true;
@@ -606,7 +606,7 @@ describe('Manage Revision POST', () => {
       expect(this.lockReleaseSpy).to.have.been.calledOnce;
     });
 
-    it('fails gracefully', async function() {
+    it('fails gracefully', async function () {
       const findStub = this.sandbox.stub(Package, 'findOneByFilters').rejects();
 
       const res = await this.post(this.route)
@@ -620,7 +620,7 @@ describe('Manage Revision POST', () => {
       expect(this.lockReleaseSpy).to.have.been.calledOnce;
     });
 
-    it('sets the arch to "all" only when switching to a new version (from "arm64")', async function() {
+    it('sets the arch to "all" only when switching to a new version (from "arm64")', async function () {
       this.package.createNextRevision('1.0.0', Channel.XENIAL, Architecture.ARM64, 'ubuntu-sdk-16.04', 'url', 'shasum', 10, 8);
       this.package.architectures = [Architecture.ARM64];
       await this.package.save();
@@ -652,7 +652,7 @@ describe('Manage Revision POST', () => {
       expect(this.lockReleaseSpy).to.have.been.calledOnce;
     });
 
-    it('sets the arch to "armhf" only when switching to a new version (from "all")', async function() {
+    it('sets the arch to "armhf" only when switching to a new version (from "all")', async function () {
       this.package.createNextRevision('1.0.0', Channel.XENIAL, Architecture.ALL, 'ubuntu-sdk-16.04', 'url', 'shasum', 10, 8);
       this.package.architectures = [Architecture.ALL];
       await this.package.save();
@@ -684,7 +684,7 @@ describe('Manage Revision POST', () => {
       expect(this.lockReleaseSpy).to.have.been.calledOnce;
     });
 
-    it('does not skip review for a non-admin user', async function() {
+    it('does not skip review for a non-admin user', async function () {
       this.package.skip_review = true;
       this.package.save();
 
@@ -710,7 +710,7 @@ describe('Manage Revision POST', () => {
   });
 
   context('locks', () => {
-    it('waits for a lock', async function() {
+    it('waits for a lock', async function () {
       this.timeout(5000);
 
       const now = Date.now();
@@ -746,7 +746,7 @@ describe('Manage Revision POST', () => {
       expect(saveSpy.callCount).to.be.greaterThan(1);
     });
 
-    it('does not clobber existing data', async function() {
+    it('does not clobber existing data', async function () {
       this.timeout(5000);
 
       const armhfRevision = this.post(this.route)

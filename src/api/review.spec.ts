@@ -7,11 +7,11 @@ import { expect } from 'tests/helper';
 import factory from 'tests/factory';
 
 describe('Reviews', () => {
-  before(function() {
+  before(function () {
     this.route = '/api/v4/apps/pkg-id/reviews';
   });
 
-  beforeEach(async function() {
+  beforeEach(async function () {
     const [user2, user3, user4] = await Promise.all([
       factory.user(),
       factory.user(),
@@ -43,7 +43,7 @@ describe('Reviews', () => {
   });
 
   context('GET', () => {
-    it('shows all reviews (without authentication)', async function() {
+    it('shows all reviews (without authentication)', async function () {
       const res = await this.get(this.route, false).expect(200);
 
       expect(res.body.success).to.be.true;
@@ -51,7 +51,7 @@ describe('Reviews', () => {
       expect(res.body.data.reviews).to.have.lengthOf(2);
     });
 
-    it('shows own review', async function() {
+    it('shows own review', async function () {
       await factory.review({ pkg: this.package._id, user: this.user._id });
       const res = await this.get(`${this.route}?filter=apikey`).expect(200);
 
@@ -61,7 +61,7 @@ describe('Reviews', () => {
       expect(res.body.data.reviews[0].author).to.equal(this.user.name);
     });
 
-    it('shows review stats on the package', async function() {
+    it('shows review stats on the package', async function () {
       const res = await this.get('/api/v4/apps/pkg-id').expect(200);
 
       expect(res.body.success).to.be.true;
@@ -69,7 +69,7 @@ describe('Reviews', () => {
       expect(res.body.data.ratings.NEUTRAL).to.equal(1);
     });
 
-    it('does not return redacted reviews', async function() {
+    it('does not return redacted reviews', async function () {
       await factory.review({ pkg: this.package._id, user: this.user._id, redacted: true });
       const res = await this.get(this.route, false).expect(200);
 
@@ -80,7 +80,7 @@ describe('Reviews', () => {
   });
 
   context('PUT/POST', () => {
-    it('creates own review', async function() {
+    it('creates own review', async function () {
       const res = await this.post(this.route)
         .send({ body: 'great app', version: '1.0.0', rating: 'THUMBS_UP' })
         .expect(200);
@@ -97,7 +97,7 @@ describe('Reviews', () => {
       expect(review?.user.toString()).to.equal(this.user._id.toString());
     });
 
-    it('updates own review', async function() {
+    it('updates own review', async function () {
       await factory.review({ pkg: this.package._id, user: this.user._id, rating: 'THUMBS_DOWN' });
       await recalculatePackageRatings(this.package._id);
 
@@ -138,7 +138,7 @@ describe('Reviews', () => {
       expect(checkRatings).to.deep.equal({ THUMBS_UP: 1, THUMBS_DOWN: 0, HAPPY: 1, NEUTRAL: 1, BUGGY: 0 });
     });
 
-    it('throws a 404 when the package cannot be found', async function() {
+    it('throws a 404 when the package cannot be found', async function () {
       const res = await this.post('/api/v4/apps/bad-id/reviews')
         .send({ body: 'great app', version: '1.0.0', rating: 'THUMBS_UP' })
         .expect(404);
@@ -147,7 +147,7 @@ describe('Reviews', () => {
       expect(res.body.message).to.equal(messages.APP_NOT_FOUND);
     });
 
-    it('throws a 400 when reviewing own app', async function() {
+    it('throws a 400 when reviewing own app', async function () {
       this.package.maintainer = this.user._id;
       await this.package.save();
 
@@ -159,7 +159,7 @@ describe('Reviews', () => {
       expect(res.body.message).to.equal(messages.CANNOT_REVIEW_OWN_APP);
     });
 
-    it('throws a 404 when the revision cannot be found', async function() {
+    it('throws a 404 when the revision cannot be found', async function () {
       const res = await this.post(this.route)
         .send({ body: 'great app', version: 'nope', rating: 'THUMBS_UP' })
         .expect(404);
@@ -168,7 +168,7 @@ describe('Reviews', () => {
       expect(res.body.message).to.equal(messages.VERSION_NOT_FOUND);
     });
 
-    it('throws a 400 when the review is long winded', async function() {
+    it('throws a 400 when the review is long winded', async function () {
       const res = await this.post(this.route)
         .send({ body: 'a'.repeat(600), version: '1.0.0', rating: 'THUMBS_UP' })
         .expect(400);
@@ -177,7 +177,7 @@ describe('Reviews', () => {
       expect(res.body.message).to.equal(messages.REVIEW_TOO_LONG);
     });
 
-    it('throws a 400 when the rating is invalid', async function() {
+    it('throws a 400 when the rating is invalid', async function () {
       const res = await this.post(this.route)
         .send({ body: 'great app', version: '1.0.0', rating: 'INVALID' })
         .expect(400);
@@ -186,7 +186,7 @@ describe('Reviews', () => {
       expect(res.body.message).to.equal(messages.INVALID_RATING);
     });
 
-    it('throws a 400 when missing parameters', async function() {
+    it('throws a 400 when missing parameters', async function () {
       const res = await this.post(this.route)
         .send({ body: 'great app', version: '', rating: 'THUMBS_UP' })
         .expect(400);
@@ -195,7 +195,7 @@ describe('Reviews', () => {
       expect(res.body.message).to.equal(messages.PARAMETER_MISSING);
     });
 
-    it('creates a new review when trying to update a nonexistent review', async function() {
+    it('creates a new review when trying to update a nonexistent review', async function () {
       const res = await this.put(this.route)
         .send({ body: 'great app', version: '1.0.0', rating: 'THUMBS_UP' })
         .expect(200);
@@ -212,7 +212,7 @@ describe('Reviews', () => {
       expect(review?.user.toString()).to.equal(this.user._id.toString());
     });
 
-    it('throws a 400 when updating a redacted review', async function() {
+    it('throws a 400 when updating a redacted review', async function () {
       await factory.review({ pkg: this.package._id, user: this.user._id, redacted: true });
       const res = await this.put(this.route)
         .send({ body: 'great app', version: '1.0.0', rating: 'THUMBS_UP' })
@@ -222,7 +222,7 @@ describe('Reviews', () => {
       expect(res.body.message).to.equal(messages.REVIEW_REDACTED);
     });
 
-    it('updates existing review when to create another review', async function() {
+    it('updates existing review when to create another review', async function () {
       await factory.review({ pkg: this.package._id, user: this.user._id });
       const res = await this.post(this.route)
         .send({ body: 'really great app', version: '1.0.0', rating: 'THUMBS_UP' })

@@ -1,4 +1,4 @@
-import { IPackage, IRevision, Package } from 'db/package';
+import { type IPackage, type IRevision, Package } from 'db/package';
 import { Review } from 'db/review';
 import { User } from 'db/user';
 

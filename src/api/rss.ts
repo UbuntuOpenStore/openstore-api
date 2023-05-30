@@ -1,5 +1,5 @@
 import RSS from 'rss';
-import express, { Request, Response } from 'express';
+import express, { type Request, type Response } from 'express';
 
 import { Package } from 'db/package';
 import { logger, config, error, captureException, titleCase } from 'utils';
@@ -37,7 +37,7 @@ async function generateFeed(req: Request, res: Response, updates: boolean) {
         }
       }
 
-      const url = `${config.server.host}/app/${pkg.id}`;
+      const url = `${config.server.host}/app/${pkg.id as string}`;
 
       feed.item({
         title,
@@ -52,19 +52,20 @@ async function generateFeed(req: Request, res: Response, updates: boolean) {
   catch (err) {
     logger.error('RSS feed error', err);
     captureException(err, req.originalUrl);
-    return error(res, 'There was an error generating the RSS feed');
+    error(res, 'There was an error generating the RSS feed');
+    return;
   }
 
   res.header('Content-Type', 'text/xml');
   return res.send(feed.xml({ indent: true }));
 }
 
-router.get('/new.xml', (req: Request, res: Response) => {
-  generateFeed(req, res, false);
+router.get('/new.xml', async (req: Request, res: Response) => {
+  await generateFeed(req, res, false);
 });
 
-router.get('/updates.xml', async(req: Request, res: Response) => {
-  generateFeed(req, res, true);
+router.get('/updates.xml', async (req: Request, res: Response) => {
+  await generateFeed(req, res, true);
 });
 
 router.get('/', (req: Request, res: Response) => {

@@ -1,6 +1,6 @@
 import 'db'; // Make sure the database connection gets setup
 import { packageSearchInstance } from 'db/package/search';
-import { HydratedPackage, Package } from 'db/package';
+import { type HydratedPackage, Package } from 'db/package';
 import { recalculatePackageRatings } from 'db/rating_count/utils';
 
 Package.find({ published: true }).then((pkgs) => {

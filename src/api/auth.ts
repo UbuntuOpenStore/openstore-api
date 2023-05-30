@@ -8,46 +8,52 @@ import { Strategy as GitHubStrategy } from 'passport-github2';
 // @ts-ignore
 import { Strategy as GitLabStrategy } from 'passport-gitlab2';
 import { v4 } from 'uuid';
-import express, { Request, Response } from 'express';
-import { HydratedUser, User } from 'db/user';
+import express, { type Request, type Response } from 'express';
+import { type HydratedUser, User } from 'db/user';
 
 import { logger, config } from 'utils';
 
 // Passport doesn't seem to have nice types for the `done` callback
 export interface GenericCallback {
-  // eslint-disable-next-line no-unused-vars
+  // eslint-disable-next-line no-unused-vars, @typescript-eslint/prefer-function-type
   (err: any, arg1?: any, arg2?: any): void;
 }
 
 export type PassportProfile = {
   [key: string]: any;
-}
+};
 
 const router = express.Router();
 
 function authenticated(req: Request, res: Response) {
   if (!req.user) {
-    return res.redirect('/login');
+    res.redirect('/login');
+    return;
   }
 
   if (req.headers['user-agent']?.startsWith('OpenStore App')) {
-    return res.redirect(`/logged-in?apiKey=${req.user.apikey}`);
+    res.redirect(`/logged-in?apiKey=${req.user.apikey}`);
+    return;
   }
 
-  return res.redirect('/manage');
+  res.redirect('/manage');
 }
 
 passport.serializeUser((user: HydratedUser, done: GenericCallback) => {
   // This is kinda hacky, but not all ubuntu logins will have an email
-  done(null, user.email ? user.email : `UBUNTU_${user.ubuntu_id}`);
+  done(null, user.email ? user.email : `UBUNTU_${user.ubuntu_id ?? ''}`);
 });
 
 passport.deserializeUser((identifier: string, done: GenericCallback) => {
-  if (identifier.substring(0, 7) == 'UBUNTU_') {
-    User.findOne({ ubuntu_id: identifier }).then((user) => done(undefined, user));
+  if (identifier.substring(0, 7) === 'UBUNTU_') {
+    User.findOne({ ubuntu_id: identifier })
+      .then((user) => { done(undefined, user); })
+      .catch((err) => { done(err); });
   }
   else {
-    User.findOne({ email: identifier }).then((user) => done(undefined, user));
+    User.findOne({ email: identifier })
+      .then((user) => { done(undefined, user); })
+      .catch((err) => { done(err); });
   }
 });
 
@@ -118,8 +124,8 @@ if (config.github.clientID && config.github.clientSecret) {
     scope: ['user:email'],
   }, (accessToken: string, refreshToken: string, profile: PassportProfile, callback: GenericCallback) => {
     User.findOne({ github_id: profile.id }).then((user) => {
-      const emails = profile.emails.filter((email: { verified: boolean, value: string }) => email.verified)
-        .map((email: { verified: boolean, value: string }) => email.value);
+      const emails = profile.emails.filter((email: { verified: boolean; value: string }) => email.verified)
+        .map((email: { verified: boolean; value: string }) => email.value);
 
       if (!user && emails) {
         return User.findOne({ email: { $in: emails } }).then((emailUser) => emailUser);

@@ -1,11 +1,11 @@
 /* eslint-disable no-param-reassign */
 
-import { Schema } from 'mongoose';
+import { type Schema } from 'mongoose';
 import path from 'path';
 import fs from 'fs/promises';
 
-import { sanitize, ClickParserData, config, moveFile, sha512Checksum } from 'utils';
-import { HydratedRatingCount } from 'db/rating_count/types';
+import { sanitize, type ClickParserData, config, moveFile, sha512Checksum } from 'utils';
+import { type HydratedRatingCount } from 'db/rating_count/types';
 import { v4 } from 'uuid';
 import {
   EXISTING_VERSION,
@@ -21,21 +21,21 @@ import * as clickParser from 'utils/click-parser-async';
 import { isURL } from 'class-validator';
 import { difference } from 'lodash';
 import {
-  PackageModel,
+  type PackageModel,
   Architecture,
-  BodyUpdate,
+  type BodyUpdate,
   Channel,
-  SerializedRatings,
-  SerializedPackageSlim,
-  SerializedDownload,
+  type SerializedRatings,
+  type SerializedPackageSlim,
+  type SerializedDownload,
   DEFAULT_CHANNEL,
-  SerializedPackage,
-  File,
-  ChannelArchitecture,
-  IPackage,
-  IPackageMethods,
-  HydratedPackage,
-  HydratedRevision,
+  type SerializedPackage,
+  type File,
+  type ChannelArchitecture,
+  type IPackage,
+  type IPackageMethods,
+  type HydratedPackage,
+  type HydratedRevision,
 } from './types';
 import { User } from '../user';
 
@@ -67,7 +67,7 @@ export function serializeRatings(ratingCounts: HydratedRatingCount[]) {
 }
 
 export function setupMethods(packageSchema: Schema<IPackage, PackageModel, IPackageMethods>) {
-  packageSchema.method<HydratedPackage>('getLatestRevision', function(
+  packageSchema.method<HydratedPackage>('getLatestRevision', function (
     channel: Channel,
     arch: Architecture,
     detectAll = true,
@@ -82,7 +82,7 @@ export function setupMethods(packageSchema: Schema<IPackage, PackageModel, IPack
     let revisionData: HydratedRevision | null = null;
     let revisionIndex = -1;
     this.revisions.forEach((data, index) => {
-      let archCheck = data.architecture == architecture;
+      let archCheck = data.architecture === architecture;
       if (data.architecture && data.architecture.includes(',')) {
         // Handle multi arch clicks
         archCheck = data.architecture.includes(architecture);
@@ -90,7 +90,7 @@ export function setupMethods(packageSchema: Schema<IPackage, PackageModel, IPack
 
       if (
         (!revisionData || revisionData.revision < data.revision) &&
-        data.channel == channel &&
+        data.channel === channel &&
         (!arch || archCheck) &&
         (!frameworks || frameworks.length === 0 || frameworks.includes(data.framework)) &&
         (!version || version === data.version)
@@ -103,20 +103,21 @@ export function setupMethods(packageSchema: Schema<IPackage, PackageModel, IPack
     return { revisionData, revisionIndex };
   });
 
-  packageSchema.method<HydratedPackage>('updateFromClick', function(data: ClickParserData) {
+  packageSchema.method<HydratedPackage>('updateFromClick', function (data: ClickParserData) {
     const manifest = {
       architecture: data.architecture,
       changelog: data.changelog,
       description: data.description,
       framework: data.framework,
-      hooks: <{ [key: string]: any }>{},
+      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+      hooks: {} as { [key: string]: any },
       maintainer: data.maintainer,
       name: data.name,
       title: data.title,
       version: data.version,
     };
 
-    let qmlImports: { module: string; version: string; }[] = [];
+    let qmlImports: { module: string; version: string }[] = [];
     data.apps.forEach((app) => {
       const hook: { [key: string]: any } = {};
 
@@ -181,13 +182,13 @@ export function setupMethods(packageSchema: Schema<IPackage, PackageModel, IPack
     this.tagline = this.tagline ? this.tagline : sanitize(data.description);
   });
 
-  packageSchema.method<HydratedPackage>('updateFromBody', async function(body: BodyUpdate) {
+  packageSchema.method<HydratedPackage>('updateFromBody', async function (body: BodyUpdate) {
     if (body.locked !== undefined) {
-      this.locked = (body.locked == 'true' || body.locked === true);
+      this.locked = (body.locked === 'true' || body.locked === true);
     }
 
     if (body.published !== undefined) {
-      this.published = (body.published == 'true' || body.published === true);
+      this.published = (body.published === 'true' || body.published === true);
     }
 
     if (!this.published_date && this.published) {
@@ -239,7 +240,7 @@ export function setupMethods(packageSchema: Schema<IPackage, PackageModel, IPack
     // eslint-disable-next-line no-restricted-syntax
     for (const screenshot of this.screenshots) {
       const filename = screenshot.replace(regex, '');
-      if (updatedScreenshots.indexOf(filename) == -1) {
+      if (!updatedScreenshots.includes(filename)) {
         await fs.unlink(`${config.image_dir}/${filename}`);
       }
     }
@@ -277,7 +278,7 @@ export function setupMethods(packageSchema: Schema<IPackage, PackageModel, IPack
     }
   });
 
-  packageSchema.method<HydratedPackage>('createNextRevision', function(
+  packageSchema.method<HydratedPackage>('createNextRevision', function (
     version: string,
     channel: Channel,
     architecture: Architecture,
@@ -306,16 +307,16 @@ export function setupMethods(packageSchema: Schema<IPackage, PackageModel, IPack
     this.updated_date = (new Date()).toISOString();
   });
 
-  packageSchema.method<HydratedPackage>('getClickFilePath', function(channel, arch, version) {
-    return path.join(config.data_dir, `${this.id}-${channel}-${arch}-${version}.click`);
+  packageSchema.method<HydratedPackage>('getClickFilePath', function (channel: Channel, arch: Architecture, version: string) {
+    return path.join(config.data_dir, `${this.id as string}-${channel}-${arch}-${version}.click`);
   });
 
-  packageSchema.method<HydratedPackage>('getIconFilePath', function(ext) {
-    return path.join(config.icon_dir, `${this.id}${ext}`);
+  packageSchema.method<HydratedPackage>('getIconFilePath', function (ext: string) {
+    return path.join(config.icon_dir, `${this.id as string}${ext}`);
   });
 
-  packageSchema.method<HydratedPackage>('getDownloadUrl', function(channel: Channel, arch: Architecture, version?: string) {
-    let url: string = `${config.server.host}/api/v3/apps/${this.id}/download/${channel}/${arch}`;
+  packageSchema.method<HydratedPackage>('getDownloadUrl', function (channel: Channel, arch: Architecture, version?: string) {
+    let url: string = `${config.server.host}/api/v3/apps/${this.id as string}/download/${channel}/${arch}`;
     if (version) {
       url = `${url}/${version}`;
     }
@@ -324,11 +325,11 @@ export function setupMethods(packageSchema: Schema<IPackage, PackageModel, IPack
   });
 
   /* eslint-disable no-restricted-syntax */
-  packageSchema.method<HydratedPackage>('serializeRatings', function(): SerializedRatings {
+  packageSchema.method<HydratedPackage>('serializeRatings', function (): SerializedRatings {
     return serializeRatings(this.rating_counts);
   });
 
-  packageSchema.method<HydratedPackage>('serializeSlim', function(): SerializedPackageSlim {
+  packageSchema.method<HydratedPackage>('serializeSlim', function (): SerializedPackageSlim {
     /*
       Data used by the app:
       - https://gitlab.com/theopenstore/openstore-app/-/blob/master/src/models/searchmodel.cpp#L158-163
@@ -381,7 +382,7 @@ export function setupMethods(packageSchema: Schema<IPackage, PackageModel, IPack
     - https://gitlab.com/theopenstore/openstore-web/-/blob/master/src/views/ManagePackage.vue
     - https://gitlab.com/theopenstore/openstore-web/-/blob/master/src/views/Package.vue
   */
-  packageSchema.method<HydratedPackage>('serialize', function(
+  packageSchema.method<HydratedPackage>('serialize', function (
     architecture: Architecture = Architecture.ARMHF,
     frameworks: string[] = [],
     apiVersion = 4,
@@ -430,7 +431,7 @@ export function setupMethods(packageSchema: Schema<IPackage, PackageModel, IPack
       channel_architectures: this.channel_architectures || [],
       device_compatibilities: this.device_compatibilities || [],
       description: this.description || '',
-      downloads: <SerializedDownload[]>[],
+      downloads: [] as SerializedDownload[],
       icon: this.icon_url,
       id: this.id || '',
       keywords: this.keywords || [],
@@ -479,33 +480,33 @@ export function setupMethods(packageSchema: Schema<IPackage, PackageModel, IPack
     if (this.revisions) {
       const jsonDownloads = Object.values(Channel)
         .reduce<(SerializedDownload | null)[]>((downloads: (SerializedDownload | null)[], channel: Channel) => {
-          return [...downloads, ...this.architectures.map((arch) => {
-            if (!Object.values(Architecture).includes(arch)) {
-              return null; // Filter out unsupported arches like i386 (legacy apps)
-            }
+        return [...downloads, ...this.architectures.map((arch) => {
+          if (!Object.values(Architecture).includes(arch)) {
+            return null; // Filter out unsupported arches like i386 (legacy apps)
+          }
 
-            const { revisionData: downloadRevisionData } = this.getLatestRevision(channel, arch, false, frameworks);
+          const { revisionData: downloadRevisionData } = this.getLatestRevision(channel, arch, false, frameworks);
 
-            if (downloadRevisionData) {
-              const download = {
-                ...downloadRevisionData.toObject(),
-                _id: undefined,
-                architecture: downloadRevisionData.architecture.includes(',') ? arch : downloadRevisionData.architecture,
-                download_url: this.getDownloadUrl(channel, arch, downloadRevisionData.version),
-                installedSize: toBytes(downloadRevisionData.filesize),
-                downloadSize: downloadRevisionData.downloadSize ?? 0,
+          if (downloadRevisionData) {
+            const download = {
+              ...downloadRevisionData.toObject(),
+              _id: undefined,
+              architecture: downloadRevisionData.architecture.includes(',') ? arch : downloadRevisionData.architecture,
+              download_url: this.getDownloadUrl(channel, arch, downloadRevisionData.version),
+              installedSize: toBytes(downloadRevisionData.filesize),
+              downloadSize: downloadRevisionData.downloadSize ?? 0,
 
-                // TODO deprecate
-                filesize: toBytes(downloadRevisionData.filesize),
-              };
+              // TODO deprecate
+              filesize: toBytes(downloadRevisionData.filesize),
+            };
 
-              delete download._id;
-              return download;
-            }
+            delete download._id;
+            return download;
+          }
 
-            return null;
-          })];
-        }, []).filter((revision) => (revision?.download_url)) as SerializedDownload[];
+          return null;
+        })];
+      }, []).filter((revision) => (revision?.download_url)) as SerializedDownload[];
 
       jsonDownloads.sort((a, b) => {
         // Sort xenial to the bottom
@@ -519,19 +520,19 @@ export function setupMethods(packageSchema: Schema<IPackage, PackageModel, IPack
 
         // TODO is this hack still needed?
         // Make sure the current architecture is last to not break old versions of the app
-        if (a.architecture == architecture) {
+        if (a.architecture === architecture) {
           return 1;
         }
-        if (b.architecture == architecture) {
+        if (b.architecture === architecture) {
           return -1;
         }
 
         return 0;
       });
 
-      if (apiVersion == 3) {
+      if (apiVersion === 3) {
         json.downloads = jsonDownloads.filter((download) => (
-          download.architecture == architecture || download.architecture == Architecture.ALL
+          download.architecture === architecture || download.architecture === Architecture.ALL
         ));
       }
       else {
@@ -550,7 +551,7 @@ export function setupMethods(packageSchema: Schema<IPackage, PackageModel, IPack
     return json;
   });
 
-  packageSchema.method<HydratedPackage>('updateScreenshotFiles', async function(screenshotFiles: File[]) {
+  packageSchema.method<HydratedPackage>('updateScreenshotFiles', async function (screenshotFiles: File[]) {
     // Clear out the uploaded files that are over the limit
     let screenshotLimit = 5 - this.screenshots.length;
     if (screenshotFiles.length < screenshotLimit) {
@@ -567,13 +568,13 @@ export function setupMethods(packageSchema: Schema<IPackage, PackageModel, IPack
       const file = screenshotFiles[i];
 
       const ext = path.extname(file.originalname);
-      if (['.png', '.jpg', '.jpeg'].indexOf(ext) == -1) {
+      if (!['.png', '.jpg', '.jpeg'].includes(ext)) {
         // Reject anything not an image we support
         await fs.unlink(file.path);
       }
       else {
         const id = v4();
-        const filename = `${this.id}-screenshot-${id}${ext}`;
+        const filename = `${this.id as string}-screenshot-${id}${ext}`;
 
         await moveFile(
           screenshotFiles[i].path,
@@ -585,14 +586,14 @@ export function setupMethods(packageSchema: Schema<IPackage, PackageModel, IPack
     }
   });
 
-  packageSchema.method<HydratedPackage>('createRevisionFromClick', async function(filePath: string, channel: Channel, changelog?: string) {
+  packageSchema.method<HydratedPackage>('createRevisionFromClick', async function (filePath: string, channel: Channel, changelog?: string) {
     const parseData = await clickParser.parseClickPackage(filePath, true);
     const { version, architecture } = parseData;
     if (!parseData.name || !version || !architecture) {
       throw new UserError(MALFORMED_MANIFEST);
     }
 
-    if (parseData.name != this.id) {
+    if (parseData.name !== this.id) {
       throw new UserError(WRONG_PACKAGE);
     }
 
@@ -601,9 +602,9 @@ export function setupMethods(packageSchema: Schema<IPackage, PackageModel, IPack
 
       const matches = this.revisions.find((revision) => {
         return (
-          revision.version == version &&
-          revision.channel == channel &&
-          revision.architecture == architecture
+          revision.version === version &&
+          revision.channel === channel &&
+          revision.architecture === architecture
         );
       });
 
@@ -614,14 +615,14 @@ export function setupMethods(packageSchema: Schema<IPackage, PackageModel, IPack
       const currentRevisions = this.revisions.filter((rev) => rev.version === version && rev.channel === channel);
       if (currentRevisions.length > 0) {
         const currentArches = currentRevisions.map((rev) => rev.architecture);
-        if (architecture == Architecture.ALL && !currentArches.includes(Architecture.ALL)) {
+        if (architecture === Architecture.ALL && !currentArches.includes(Architecture.ALL)) {
           throw new UserError(NO_ALL);
         }
-        if (architecture != Architecture.ALL && currentArches.includes(Architecture.ALL)) {
+        if (architecture !== Architecture.ALL && currentArches.includes(Architecture.ALL)) {
           throw new UserError(NO_NON_ALL);
         }
 
-        if (parseData.framework != currentRevisions[0].framework) {
+        if (parseData.framework !== currentRevisions[0].framework) {
           throw new UserError(MISMATCHED_FRAMEWORK);
         }
 
@@ -633,7 +634,7 @@ export function setupMethods(packageSchema: Schema<IPackage, PackageModel, IPack
     }
 
     // Only update the data from the parsed click if it's for the default channel or if it's the first one
-    const data = (channel == DEFAULT_CHANNEL || this.revisions.length === 0) ? parseData : null;
+    const data = (channel === DEFAULT_CHANNEL || this.revisions.length === 0) ? parseData : null;
     const downloadSha512 = await sha512Checksum(filePath);
     const downloadSize = (await fs.stat(filePath)).size;
 
@@ -657,7 +658,7 @@ export function setupMethods(packageSchema: Schema<IPackage, PackageModel, IPack
       parseData.permissions,
     );
 
-    const updateIcon = (channel == DEFAULT_CHANNEL || !this.icon);
+    const updateIcon = (channel === DEFAULT_CHANNEL || !this.icon);
     if (updateIcon && parseData.icon) {
       const ext = path.extname(parseData.icon).toLowerCase();
       if (['.png', '.jpg', '.jpeg', '.svg'].includes(ext)) {
@@ -679,10 +680,10 @@ export function setupMethods(packageSchema: Schema<IPackage, PackageModel, IPack
       this.channels.push(channel);
     }
 
-    if (this.architectures.includes(Architecture.ALL) && architecture != Architecture.ALL) {
+    if (this.architectures.includes(Architecture.ALL) && architecture !== Architecture.ALL) {
       this.architectures = [architecture];
     }
-    else if (!this.architectures.includes(Architecture.ALL) && architecture == Architecture.ALL) {
+    else if (!this.architectures.includes(Architecture.ALL) && architecture === Architecture.ALL) {
       this.architectures = [Architecture.ALL];
     }
     else if (!this.architectures.includes(architecture)) {
@@ -690,7 +691,7 @@ export function setupMethods(packageSchema: Schema<IPackage, PackageModel, IPack
     }
   });
 
-  packageSchema.method<HydratedPackage>('updateCalculatedProperties', async function() {
+  packageSchema.method<HydratedPackage>('updateCalculatedProperties', async function () {
     this.channel_architectures = this.channels.flatMap((channel) => {
       return this.architectures.map((arch) => {
         const { revisionData } = this.getLatestRevision(channel, arch, false);

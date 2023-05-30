@@ -1,9 +1,9 @@
 import mime from 'mime';
-import express, { Request, Response } from 'express';
+import express, { type Request, type Response } from 'express';
 
 import fsPromise from 'fs/promises';
 import fs from 'fs';
-import { Architecture, Channel, DEFAULT_CHANNEL, HydratedPackage } from 'db/package/types';
+import { Architecture, Channel, DEFAULT_CHANNEL, type HydratedPackage } from 'db/package/types';
 import { Package } from 'db/package';
 import { success, getData, apiLinks, asyncErrorWrapper, getDataBoolean, getDataArray } from 'utils';
 import { fetchPublishedPackage } from 'middleware';
@@ -35,7 +35,7 @@ async function apps(req: Request, res: Response) {
     count = await Package.countByFilters(publishedFilters);
   }
 
-  const arch = getData(req, 'architecture', Architecture.ARMHF);
+  const arch = getData(req, 'architecture', Architecture.ARMHF) as Architecture;
   const frameworks = getDataArray(req, 'frameworks', []);
   const formatted = pkgs.map((pkg) => {
     if (req.query.full) {
@@ -46,7 +46,7 @@ async function apps(req: Request, res: Response) {
   });
 
   const { next, previous } = apiLinks(req.originalUrl, formatted.length, filters.limit, filters.skip);
-  return success(res, { count, next, previous, packages: formatted });
+  success(res, { count, next, previous, packages: formatted });
 }
 
 // Available also as a POST to avoid issues with the GET request params being to large
@@ -56,10 +56,10 @@ router.post('/', asyncErrorWrapper(apps, 'Could not fetch app list at this time'
 /**
  * Get one app and return a serialized version.
  */
-router.get('/:id', fetchPublishedPackage(true), async(req: Request, res: Response) => {
-  const arch = getData(req, 'architecture', Architecture.ARMHF);
+router.get('/:id', fetchPublishedPackage(true), async (req: Request, res: Response) => {
+  const arch = getData(req, 'architecture', Architecture.ARMHF) as Architecture;
   const frameworks = getDataArray(req, 'frameworks', []);
-  return success(res, req.pkg.serialize(arch, frameworks, req.apiVersion));
+  success(res, req.pkg.serialize(arch, frameworks, req.apiVersion));
 });
 
 /**
@@ -86,7 +86,7 @@ async function download(req: Request, res: Response) {
   const stat = await fsPromise.stat(revisionData.download_url);
   res.setHeader('Content-Length', stat.size);
   res.setHeader('Content-type', mime.getType(revisionData.download_url) ?? '');
-  res.setHeader('Content-Disposition', `attachment; filename=${req.pkg.id}_${revisionData.version}_${arch}.click`);
+  res.setHeader('Content-Disposition', `attachment; filename=${req.pkg.id as string}_${revisionData.version}_${arch}.click`);
 
   // TODO let nginx handle this, making this just a 302
   fs.createReadStream(revisionData.download_url).pipe(res);

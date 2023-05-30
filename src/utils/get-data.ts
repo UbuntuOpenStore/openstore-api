@@ -1,9 +1,7 @@
-import { Request } from 'express';
+import { type Request } from 'express';
 import isString from 'lodash/isString';
 
-// TODO return types
-
-export function getData(req: Request, name: string, defaultData = '') {
+export function getData(req: Request, name: string, defaultData = ''): string {
   if (req.query && req.query[name]) {
     const value = req.query[name];
     if (isString(value)) {
@@ -18,7 +16,7 @@ export function getData(req: Request, name: string, defaultData = '') {
   return defaultData;
 }
 
-export function getDataInt(req: Request, name: string, defaultData = 0) {
+export function getDataInt(req: Request, name: string, defaultData = 0): number {
   let returnValue = defaultData;
   if (req.query && req.query[name]) {
     const value = req.query[name];
@@ -35,11 +33,11 @@ export function getDataInt(req: Request, name: string, defaultData = 0) {
   return Number.isNaN(returnValue) ? defaultData : returnValue;
 }
 
-export function getDataArray(req: Request, name: string, defaultData: string[] = []) {
+export function getDataArray(req: Request, name: string, defaultData: string[] = []): string[] {
   if (req.query && req.query[name]) {
     const value = req.query[name];
     if (Array.isArray(value)) {
-      return value;
+      return value as string[];
     }
 
     if (isString(value)) {
@@ -58,11 +56,11 @@ export function getDataArray(req: Request, name: string, defaultData: string[] =
   return defaultData;
 }
 
-export function getDataBoolean(req: Request, name: string, defaultData = false) {
+export function getDataBoolean(req: Request, name: string, defaultData = false): boolean {
   if (req.query && req.query[name] !== undefined) {
     const value = req.query[name];
     if (isString(value)) {
-      return value.toLowerCase() == 'true';
+      return value.toLowerCase() === 'true';
     }
 
     return Boolean(value);
@@ -70,7 +68,7 @@ export function getDataBoolean(req: Request, name: string, defaultData = false) 
 
   if (req.body && req.body[name] !== undefined) {
     if (isString(req.body[name])) {
-      return req.body[name].toLowerCase() == 'true';
+      return req.body[name].toLowerCase() === 'true';
     }
 
     return Boolean(req.body[name]);
@@ -79,11 +77,11 @@ export function getDataBoolean(req: Request, name: string, defaultData = false) 
   return Boolean(defaultData);
 }
 
-export function getDataBooleanOrUndefined(req: Request, name: string) {
+export function getDataBooleanOrUndefined(req: Request, name: string): boolean | undefined {
   if (req.query && req.query[name] !== undefined && req.query[name] !== '') {
     const value = req.query[name];
     if (isString(value)) {
-      return value.toLowerCase() == 'true';
+      return value.toLowerCase() === 'true';
     }
 
     return Boolean(value);
@@ -91,7 +89,7 @@ export function getDataBooleanOrUndefined(req: Request, name: string) {
 
   if (req.body && req.body[name] !== undefined && req.body[name] !== '') {
     if (isString(req.body[name])) {
-      return req.body[name].toLowerCase() == 'true';
+      return req.body[name].toLowerCase() === 'true';
     }
 
     return Boolean(req.body[name]);

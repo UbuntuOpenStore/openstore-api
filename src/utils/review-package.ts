@@ -24,14 +24,14 @@ export type ReviewData = {
         text: string;
       };
     };
-  }
-}
+  };
+};
 
 export type ReviewSummary = {
   manualReviewMessages: string[];
   errorMessages: string[];
   warningMessages: string[];
-}
+};
 
 export function clickReview(file: string, exceptions: string[]): Promise<ReviewSummary> {
   return new Promise((resolve, reject) => {

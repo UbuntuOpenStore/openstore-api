@@ -22,11 +22,11 @@ fs.readdirSync(poDir).forEach((poFile: string) => {
 export function setLang(lang: string) {
   if (lang) {
     let checkLang = lang;
-    if (langs.indexOf(checkLang) == -1 && checkLang.indexOf('_') > -1) {
+    if (!langs.includes(checkLang) && checkLang.includes('_')) {
       checkLang = checkLang.split('_')[0];
     }
 
-    if (langs.indexOf(checkLang) > -1) {
+    if (langs.includes(checkLang)) {
       gt.setLocale(checkLang);
     }
     else {

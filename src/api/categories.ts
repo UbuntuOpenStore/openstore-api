@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express';
+import express, { type Request, type Response } from 'express';
 
 import { DEFAULT_CHANNEL, Channel } from 'db/package/types';
 import { Package } from 'db/package';
@@ -11,10 +11,10 @@ const router = express.Router();
 /**
  * Returns a list of available categories that apps can belong to.
  */
-router.get('/', asyncErrorWrapper(async(req: Request, res: Response) => {
+router.get('/', asyncErrorWrapper(async (req: Request, res: Response) => {
   setLang(getData(req, 'lang'));
 
-  let channel = getData(req, 'channel', DEFAULT_CHANNEL);
+  let channel = getData(req, 'channel', DEFAULT_CHANNEL) as Channel;
   if (!Object.values(Channel).includes(channel)) {
     channel = DEFAULT_CHANNEL;
   }

@@ -3,13 +3,14 @@ import * as messages from 'utils/error-messages';
 import { Architecture, Channel, ChannelArchitecture, DEFAULT_CHANNEL } from 'db/package/types';
 import factory from 'tests/factory';
 import { expect } from 'tests/helper';
+import path from 'path';
 
 describe('Apps API', () => {
-  before(function() {
+  before(function () {
     this.route = '/api/v3/apps/';
   });
 
-  beforeEach(async function() {
+  beforeEach(async function () {
     const [package1, package2, package3] = await Promise.all([
       factory.package({
         id: 'app1',
@@ -43,26 +44,26 @@ describe('Apps API', () => {
   });
 
   context('GET one app', () => {
-    it('gets an app successfully', async function() {
+    it('gets an app successfully', async function () {
       const res = await this.get(`${this.route}${this.package1.id}`, false).expect(200);
 
       expect(res.body.success).to.be.true;
       expect(res.body.data.id).to.equal(this.package1.id);
     });
 
-    it('throws a 404', async function() {
+    it('throws a 404', async function () {
       const res = await this.get(`${this.route}foobar`, false).expect(404);
 
       expect(res.body.success).to.be.false;
     });
 
-    it('throws a 404 for an unpublished app', async function() {
+    it('throws a 404 for an unpublished app', async function () {
       const res = await this.get(`${this.route}${this.package3.id}`, false).expect(404);
 
       expect(res.body.success).to.be.false;
     });
 
-    it('fails gracefully', async function() {
+    it('fails gracefully', async function () {
       const findOneStub = this.sandbox.stub(Package, 'findOneByFilters').rejects();
 
       const res = await this.get(`${this.route}${this.package1.id}`, false).expect(500);
@@ -73,7 +74,7 @@ describe('Apps API', () => {
   });
 
   context('GET all apps', () => {
-    it('returns successfully', async function() {
+    it('returns successfully', async function () {
       const res = await this.get(this.route, false).expect(200);
 
       expect(res.body.success).to.be.true;
@@ -83,7 +84,7 @@ describe('Apps API', () => {
 
     // TODO it seems that populating the data during the test doesn't work properly
     /*
-    it('searches for apps', async function() {
+    it('searches for apps', async function () {
       await packageSearchInstance.bulk([
         this.package1,
         this.package2,
@@ -98,7 +99,7 @@ describe('Apps API', () => {
     });
     */
 
-    it('searches by author', async function() {
+    it('searches by author', async function () {
       const res = await this.get(`${this.route}?search=author:${this.package2.author}`, false).expect(200);
 
       expect(res.body.success).to.be.true;
@@ -107,7 +108,7 @@ describe('Apps API', () => {
       expect(res.body.data.packages[0].id).to.equal(this.package2.id);
     });
 
-    it('fails gracefully', async function() {
+    it('fails gracefully', async function () {
       const findStub = this.sandbox.stub(Package, 'findByFilters').rejects();
 
       const res = await this.get(this.route, false).expect(500);
@@ -116,7 +117,7 @@ describe('Apps API', () => {
       expect(findStub).to.have.been.calledOnce;
     });
 
-    it('gets apps for a specific architecture/channel (including ALL)', async function() {
+    it('gets apps for a specific architecture/channel (including ALL)', async function () {
       this.package1.channel_architectures = [ChannelArchitecture.FOCAL_ARMHF];
       this.package2.channel_architectures = [ChannelArchitecture.FOCAL_ALL];
       this.package3.channel_architectures = [ChannelArchitecture.FOCAL_ARM64];
@@ -134,7 +135,7 @@ describe('Apps API', () => {
       expect(res.body.data.packages[1].id).to.equal(this.package2.id);
     });
 
-    it('gets apps for a specific architecture/channel (excluding other channels)', async function() {
+    it('gets apps for a specific architecture/channel (excluding other channels)', async function () {
       this.package1.channel_architectures = [ChannelArchitecture.FOCAL_ARMHF];
       this.package2.channel_architectures = [ChannelArchitecture.XENIAL_ALL];
       this.package3.channel_architectures = [ChannelArchitecture.XENIAL_ARM64];
@@ -151,7 +152,7 @@ describe('Apps API', () => {
       expect(res.body.data.packages[0].id).to.equal(this.package1.id);
     });
 
-    it('gets apps for a specific arch/channel/framework', async function() {
+    it('gets apps for a specific arch/channel/framework', async function () {
       this.package1.device_compatibilities = [`${ChannelArchitecture.FOCAL_ARMHF}:ubuntu-sdk-16.04`];
       this.package2.device_compatibilities = [`${ChannelArchitecture.FOCAL_ALL}:ubuntu-sdk-16.04`];
       this.package3.device_compatibilities = [`${ChannelArchitecture.FOCAL_ARMHF}:ubuntu-sdk-15.04`];
@@ -174,7 +175,7 @@ describe('Apps API', () => {
   });
 
   context('GET app download', () => {
-    beforeEach(async function() {
+    beforeEach(async function () {
       this.package4 = await factory.package({
         id: 'app4',
         published: true,
@@ -186,7 +187,7 @@ describe('Apps API', () => {
             version: '1',
             downloads: 10,
             channel: DEFAULT_CHANNEL,
-            download_url: `${__dirname}/../tests/fixtures/empty.click`,
+            download_url: path.join(__dirname, '/../tests/fixtures/empty.click'),
             architecture: Architecture.ARMHF,
             framework: 'ubuntu-sdk-16.04',
             filesize: 100,
@@ -196,7 +197,7 @@ describe('Apps API', () => {
             version: '2',
             downloads: 10,
             channel: DEFAULT_CHANNEL,
-            download_url: `${__dirname}/../tests/fixtures/empty.click`,
+            download_url: path.join(__dirname, '/../tests/fixtures/empty.click'),
             architecture: Architecture.ARMHF,
             framework: 'ubuntu-sdk-16.04',
             filesize: 100,
@@ -205,39 +206,39 @@ describe('Apps API', () => {
       });
     });
 
-    it('returns successfully', async function() {
+    it('returns successfully', async function () {
       await this.get(`${this.route}${this.package4.id}/download/${DEFAULT_CHANNEL}/armhf`, false).expect(200);
     });
 
-    it('throws a 404', async function() {
+    it('throws a 404', async function () {
       const res = await this.get(`${this.route}somepackage/download/${DEFAULT_CHANNEL}/armhf`, false).expect(404);
 
       expect(res.body.success).to.be.false;
       expect(res.body.message).to.equal(messages.APP_NOT_FOUND);
     });
 
-    it('throws for an invalid channel', async function() {
+    it('throws for an invalid channel', async function () {
       const res = await this.get(`${this.route}${this.package4.id}/download/invalid/armhf`, false).expect(400);
 
       expect(res.body.success).to.be.false;
       expect(res.body.message).to.equal(messages.INVALID_CHANNEL);
     });
 
-    it('throws for an invalid arch', async function() {
+    it('throws for an invalid arch', async function () {
       const res = await this.get(`${this.route}${this.package4.id}/download/${DEFAULT_CHANNEL}/invalid`, false).expect(400);
 
       expect(res.body.success).to.be.false;
       expect(res.body.message).to.equal(messages.INVALID_ARCH);
     });
 
-    it('throws for a download not found for unknown version', async function() {
+    it('throws for a download not found for unknown version', async function () {
       const res = await this.get(`${this.route}${this.package4.id}/download/${DEFAULT_CHANNEL}/armhf/3`, false).expect(404);
 
       expect(res.body.success).to.be.false;
       expect(res.body.message).to.equal(messages.DOWNLOAD_NOT_FOUND_FOR_CHANNEL);
     });
 
-    it('fails gracefully', async function() {
+    it('fails gracefully', async function () {
       const findStub = this.sandbox.stub(Package, 'findOneByFilters').rejects();
 
       const res = await this.get(`${this.route}${this.package4.id}/download/${DEFAULT_CHANNEL}/armhf`, false).expect(500);
@@ -246,7 +247,7 @@ describe('Apps API', () => {
       expect(findStub).to.have.been.calledOnce;
     });
 
-    it('gets the download by version', async function() {
+    it('gets the download by version', async function () {
       await this.get(`${this.route}${this.package4.id}/download/${DEFAULT_CHANNEL}/armhf/2`, false).expect(200);
     });
   });

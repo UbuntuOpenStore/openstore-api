@@ -7,7 +7,7 @@ export function apiLinks(originalUrl: string, count: number, limit: number = 0, 
   let previous: string | null = null;
 
   const url = new URL(config.server.host + originalUrl);
-  if (count == limit) {
+  if (count === limit) {
     const nextSkip = skip + limit;
     url.searchParams.set('skip', `${nextSkip}`);
     next = url.toString();

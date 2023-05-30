@@ -1,18 +1,18 @@
 /* eslint-disable no-param-reassign */
 
-import { FilterQuery, Schema } from 'mongoose';
-import { Request } from 'express';
+import { type FilterQuery, type Schema } from 'mongoose';
+import { type Request } from 'express';
 
 import { UserError } from 'exceptions';
 import { REVIEW_REDACTED } from 'utils/error-messages';
 import { getDataInt } from 'utils';
-import { HydratedUser } from 'db/user';
-import { HydratedPackage } from 'db/package';
-import { HydratedReview, IReview, IReviewMethods, ReviewModel, ReviewRequestFilters } from './types';
-import { Ratings } from './constants';
+import { type HydratedUser } from 'db/user';
+import { type HydratedPackage } from 'db/package';
+import { type HydratedReview, type IReview, type IReviewMethods, type ReviewModel, type ReviewRequestFilters } from './types';
+import { type Ratings } from './constants';
 
 export function setupStatics(reviewSchema: Schema<IReview, ReviewModel, IReviewMethods>) {
-  reviewSchema.statics.createOrUpdateExisting = async function(
+  reviewSchema.statics.createOrUpdateExisting = async function (
     pkg: HydratedPackage,
     user: HydratedUser,
     version: string,
@@ -40,7 +40,7 @@ export function setupStatics(reviewSchema: Schema<IReview, ReviewModel, IReviewM
     return ownReview;
   };
 
-  reviewSchema.statics.parseRequestFilters = function(req: Request): ReviewRequestFilters {
+  reviewSchema.statics.parseRequestFilters = function (req: Request): ReviewRequestFilters {
     let limit = getDataInt(req, 'limit', 10);
     if (limit < 0) {
       limit = 10;
@@ -49,7 +49,7 @@ export function setupStatics(reviewSchema: Schema<IReview, ReviewModel, IReviewM
       limit = 100;
     }
 
-    const user = ('filter' in req.query && req.query.filter == 'apikey' && req.user) ? req.user._id : undefined;
+    const user = ('filter' in req.query && req.query.filter === 'apikey' && req.user) ? req.user._id : undefined;
     return {
       limit,
       skip: getDataInt(req, 'skip', 0),
@@ -59,7 +59,7 @@ export function setupStatics(reviewSchema: Schema<IReview, ReviewModel, IReviewM
     };
   };
 
-  reviewSchema.statics.parseFilters = function({ pkg, user, from }: ReviewRequestFilters): FilterQuery<IReview> {
+  reviewSchema.statics.parseFilters = function ({ pkg, user, from }: ReviewRequestFilters): FilterQuery<IReview> {
     const query: FilterQuery<IReview> = { pkg, redacted: false };
 
     if (from) {
@@ -77,14 +77,14 @@ export function setupStatics(reviewSchema: Schema<IReview, ReviewModel, IReviewM
     return query;
   };
 
-  reviewSchema.statics.countByFilters = async function(filters: ReviewRequestFilters): Promise<number> {
+  reviewSchema.statics.countByFilters = async function (filters: ReviewRequestFilters): Promise<number> {
     const query = this.parseFilters(filters);
 
     const result = await this.countDocuments(query);
     return result;
   };
 
-  reviewSchema.statics.findByFilters = async function(
+  reviewSchema.statics.findByFilters = async function (
     filters: ReviewRequestFilters,
     limit?: number,
     skip?: number,
@@ -97,11 +97,11 @@ export function setupStatics(reviewSchema: Schema<IReview, ReviewModel, IReviewM
       .sort({ date: -1 });
 
     if (limit) {
-      findQuery.limit(limit);
+      void findQuery.limit(limit);
     }
 
     if (skip) {
-      findQuery.skip(skip);
+      void findQuery.skip(skip);
     }
 
     const results = await findQuery.exec();

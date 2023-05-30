@@ -2,10 +2,10 @@
 
 import path from 'path';
 import fs from 'fs';
-import { GetTextComment, po } from 'gettext-parser';
+import { po } from 'gettext-parser';
 import categoryIcons from '../api/json/category_icons.json';
 import discoverJSON from '../api/json/discover_apps.json';
-import { DiscoverData } from '../api/types';
+import { type DiscoverData } from '../api/types';
 
 const discoverApps = discoverJSON as DiscoverData;
 
@@ -41,7 +41,7 @@ discoverApps.categories.forEach((category) => {
     msgstr: [''],
     comments: {
       translator: 'Discovery section category name',
-    } as GetTextComment,
+    } as any, // TODO fix type
   };
 
   if (category.tagline) {
@@ -50,7 +50,7 @@ discoverApps.categories.forEach((category) => {
       msgstr: [''],
       comments: {
         translator: `Discovery section category tagline for "${category.name}"`,
-      } as GetTextComment,
+      } as any, // TODO fix type
     };
   }
 });

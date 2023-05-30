@@ -1,10 +1,10 @@
 /* eslint-disable no-await-in-loop */
 import { sleep } from 'sleepjs';
-import { Request } from 'express';
+import { type Request } from 'express';
 import { Schema, model } from 'mongoose';
 
 import { logger, captureException } from 'utils';
-import { HydratedLock, ILock, LockModel } from './types';
+import { type HydratedLock, type ILock, type LockModel } from './types';
 
 const TIMEOUT = 30 * 1000; // 30s in ms
 const WAIT_TIME = 500; // ms
@@ -18,7 +18,7 @@ const lockSchema = new Schema<ILock, LockModel>({
 
 lockSchema.index({ name: 1 }, { unique: true });
 
-lockSchema.statics.acquire = async function(name: string) {
+lockSchema.statics.acquire = async function (name: string) {
   let lock: HydratedLock = new this({
     name,
     expire: Date.now() + TIMEOUT,
@@ -44,7 +44,7 @@ lockSchema.statics.acquire = async function(name: string) {
       logger.debug('Lock acquired');
     }
     catch (err) {
-      if (err?.code == 11000) {
+      if (err?.code === 11000) {
         // a lock already exists, try again
         logger.debug(`Lock exists, going to wait (retries: ${retries})`);
         retries--;
@@ -59,7 +59,7 @@ lockSchema.statics.acquire = async function(name: string) {
   return lock;
 };
 
-lockSchema.statics.release = async function(lock: HydratedLock | null, req: Request) {
+lockSchema.statics.release = async function (lock: HydratedLock | null, req: Request) {
   if (!lock) {
     return;
   }

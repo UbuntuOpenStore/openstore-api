@@ -1,6 +1,6 @@
 import { Schema, model } from 'mongoose';
 import { RATINGS } from '../review/constants';
-import { HydratedRatingCount, IRatingCount, RatingCountModel } from './types';
+import { type HydratedRatingCount, type IRatingCount, type RatingCountModel } from './types';
 
 const ratingCountSchema = new Schema<IRatingCount, RatingCountModel>({
   name: { type: String, enum: RATINGS },
@@ -8,7 +8,7 @@ const ratingCountSchema = new Schema<IRatingCount, RatingCountModel>({
   package_id: String,
 });
 
-ratingCountSchema.statics.getCountsByIds = async function(ids: string[]) {
+ratingCountSchema.statics.getCountsByIds = async function (ids: string[]) {
   const query = { package_id: { $in: ids } };
 
   const ratingCounts = await this.find(query).exec();

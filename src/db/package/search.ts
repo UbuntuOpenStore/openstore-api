@@ -1,7 +1,7 @@
-import elasticsearch, { SearchParams } from 'elasticsearch';
+import elasticsearch, { type SearchParams } from 'elasticsearch';
 
 import { config } from 'utils';
-import { HydratedPackage, IPackage, PackageRequestFilters } from './types';
+import { type HydratedPackage, type IPackage, type PackageRequestFilters } from './types';
 
 // Modified from https://github.com/bhdouglass/uappexplorer/blob/master/src/db/elasticsearch/elasticsearch.js
 
@@ -39,7 +39,7 @@ const SEARCH_FIELDS = [
 
 export class PackageSearch {
   // https://stackoverflow.com/a/68631678
-  private client: elasticsearch.Client;
+  private readonly client: elasticsearch.Client;
 
   constructor() {
     this.client = new elasticsearch.Client({
@@ -93,7 +93,7 @@ export class PackageSearch {
       } as any);
     }
     catch (err) {
-      if (err?.status == 404) {
+      if (err?.status === 404) {
         return item;
       }
 
@@ -219,8 +219,8 @@ export class PackageSearch {
   search(filters: PackageRequestFilters, sort: string = 'relevance', skip: number = 0, limit: number = 30) {
     let sortTerm = '';
     let direction = 'asc';
-    if (sort && sort != 'relevance') {
-      if (sort.charAt(0) == '-') {
+    if (sort && sort !== 'relevance') {
+      if (sort.charAt(0) === '-') {
         direction = 'desc';
         sortTerm = sort.substring(1);
       }

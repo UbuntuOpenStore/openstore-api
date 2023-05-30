@@ -1,9 +1,9 @@
 import multer from 'multer';
-import express, { Request, Response } from 'express';
+import express, { type Request, type Response } from 'express';
 
 import fs from 'fs/promises';
 import { existsSync } from 'fs';
-import { HydratedLock, Lock } from 'db/lock';
+import { type HydratedLock, Lock } from 'db/lock';
 import { Channel } from 'db/package/types';
 import { Package } from 'db/package';
 import { packageSearchInstance } from 'db/package/search';
@@ -33,7 +33,7 @@ const router = express.Router();
  * Get a list of apps belonging to the logged in user.
  * If the user is an admin, return all apps.
  */
-router.get('/', authenticate, userRole, asyncErrorWrapper(async(req: Request, res: Response) => {
+router.get('/', authenticate, userRole, asyncErrorWrapper(async (req: Request, res: Response) => {
   const filters = Package.parseRequestFilters(req);
   if (!req.isAdminUser) {
     filters.maintainer = req.user!._id.toString();
@@ -44,14 +44,14 @@ router.get('/', authenticate, userRole, asyncErrorWrapper(async(req: Request, re
 
   const formatted = pkgs.map((pkg) => pkg.serialize());
   const { next, previous } = apiLinks(req.originalUrl, formatted.length, filters.limit, filters.skip);
-  return success(res, { count, next, previous, packages: formatted });
+  success(res, { count, next, previous, packages: formatted });
 }, 'Could not fetch app list at this time'));
 
 /**
  * Get one app belonging to the logged in user.
  */
-router.get('/:id', authenticate, userRole, fetchPackage(), canManage, async(req: Request, res: Response) => {
-  return success(res, req.pkg.serialize());
+router.get('/:id', authenticate, userRole, fetchPackage(), canManage, async (req: Request, res: Response) => {
+  success(res, req.pkg.serialize());
 });
 
 /**
@@ -63,13 +63,15 @@ router.post(
   authenticate,
   userRole,
   downloadFile,
-  asyncErrorWrapper(async(req: Request, res: Response) => {
+  asyncErrorWrapper(async (req: Request, res: Response) => {
     if (!req.body.id || !req.body.id.trim()) {
-      return error(res, NO_APP_NAME, 400);
+      error(res, NO_APP_NAME, 400);
+      return;
     }
 
     if (!req.body.name || !req.body.name.trim()) {
-      return error(res, NO_APP_TITLE, 400);
+      error(res, NO_APP_TITLE, 400);
+      return;
     }
 
     const name = req.body.name.trim();
@@ -87,7 +89,7 @@ router.post(
     pkg.maintainer_name = req.user!.name ? req.user!.name : req.user!.username;
     pkg = await pkg.save();
 
-    return success(res, pkg.serialize());
+    success(res, pkg.serialize());
   },
   'There was an error creating your app, please try again later'),
 );
@@ -112,8 +114,8 @@ router.put(
   userRole,
   fetchPackage(),
   canManageLocked,
-  asyncErrorWrapper(async(req: Request, res: Response) => {
-    if (req.body && (!req.body.maintainer || req.body.maintainer == 'null')) {
+  asyncErrorWrapper(async (req: Request, res: Response) => {
+    if (req.body && (!req.body.maintainer || req.body.maintainer === 'null')) {
       req.body.maintainer = req.user!._id;
     }
 
@@ -124,9 +126,10 @@ router.put(
       delete req.body.type_override;
     }
 
-    const published = (req.body.published == 'true' || req.body.published === true);
-    if (published && req.pkg.revisions.length == 0) {
-      return error(res, NO_REVISIONS, 400);
+    const published = (req.body.published === 'true' || req.body.published === true);
+    if (published && req.pkg.revisions.length === 0) {
+      error(res, NO_REVISIONS, 400);
+      return;
     }
 
     await req.pkg.updateFromBody(req.body);
@@ -135,7 +138,7 @@ router.put(
       await req.pkg.updateScreenshotFiles(req.files.screenshot_files);
     }
 
-    const pkg = await req.pkg!.save();
+    const pkg = await req.pkg.save();
 
     if (pkg.published) {
       await packageSearchInstance.upsert(pkg);
@@ -144,7 +147,7 @@ router.put(
       await packageSearchInstance.remove(pkg);
     }
 
-    return success(res, pkg.serialize());
+    success(res, pkg.serialize());
   },
   'There was an error updating your app, please try again later'),
 );
@@ -159,13 +162,14 @@ router.delete(
   userRole,
   fetchPackage(),
   canManageLocked,
-  asyncErrorWrapper(async(req: Request, res: Response) => {
+  asyncErrorWrapper(async (req: Request, res: Response) => {
     if (req.pkg.revisions.length > 0) {
-      return error(res, APP_HAS_REVISIONS, 400);
+      error(res, APP_HAS_REVISIONS, 400);
+      return;
     }
 
     await req.pkg.deleteOne();
-    return success(res, {});
+    success(res, {});
   },
   'There was an error deleting your app, please try again later'),
 );
@@ -186,16 +190,18 @@ router.post(
   postUpload,
   userRole,
   downloadFile,
-  async(req: Request, res: Response) => {
+  async (req: Request, res: Response) => {
     if (!req.files || Array.isArray(req.files) || !req.files.file || req.files.file.length === 0) {
-      return error(res, NO_FILE, 400);
+      error(res, NO_FILE, 400);
+      return;
     }
 
     const file = req.files.file[0];
 
     const channel = req.body.channel ? req.body.channel.toLowerCase() : '';
     if (!Object.values(Channel).includes(channel)) {
-      return error(res, INVALID_CHANNEL, 400);
+      error(res, INVALID_CHANNEL, 400);
+      return;
     }
 
     let lock: HydratedLock | null = null;
@@ -210,7 +216,7 @@ router.post(
         throw new NotFoundError(APP_NOT_FOUND);
       }
 
-      if (!req.isAdminUser && req.user!._id.toString() != pkg.maintainer) {
+      if (!req.isAdminUser && req.user!._id.toString() !== pkg.maintainer) {
         throw new AuthorizationError(PERMISSION_DENIED);
       }
 
@@ -223,7 +229,7 @@ router.post(
       }
 
       if (req.isAdminUser && pkg.skip_review) {
-        logger.info(`Skipping review for ${pkg.id}`);
+        logger.info(`Skipping review for ${pkg.id as string}`);
       }
       else {
         const reviewSummary = await clickReview(filePath, pkg.review_exceptions ?? []);
@@ -254,7 +260,8 @@ router.post(
       }
 
       await Lock.release(lock, req);
-      return success(res, pkg.serialize());
+      success(res, pkg.serialize());
+      return;
     }
     catch (err) {
       if (lock) {
@@ -284,19 +291,21 @@ router.post(
       }
 
       if (err instanceof ClickReviewError) {
-        return error(res, err.message, err.httpCode, {
+        error(res, err.message, err.httpCode, {
           reasons: err.reasons,
         });
+        return;
       }
       if (err instanceof HttpError) {
-        return error(res, err.message, err.httpCode);
+        error(res, err.message, err.httpCode);
+        return;
       }
 
       const message = err?.message ? err.message : err;
-      logger.error(`Error updating package: ${message}`);
+      logger.error(`Error updating package: ${message as string}`);
       captureException(err, req.originalUrl);
 
-      return error(res, 'There was an error updating your app, please try again later');
+      error(res, 'There was an error updating your app, please try again later');
     }
   },
 );

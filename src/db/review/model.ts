@@ -1,7 +1,7 @@
 import { Schema, model } from 'mongoose';
 import { RATINGS } from './constants';
 import { setupStatics } from './statics';
-import { IReview, IReviewMethods, ReviewModel } from './types';
+import { type IReview, type IReviewMethods, type ReviewModel } from './types';
 
 export const reviewSchema = new Schema<IReview, ReviewModel, IReviewMethods>({
   pkg: { type: Schema.Types.ObjectId, ref: 'Package' },
@@ -14,8 +14,8 @@ export const reviewSchema = new Schema<IReview, ReviewModel, IReviewMethods>({
   comment: { type: Schema.Types.ObjectId, ref: 'Comment' },
 });
 
-reviewSchema.methods.serialize = function() {
-  let comment: null | { body: string, date: number } = null;
+reviewSchema.methods.serialize = function () {
+  let comment: null | { body: string; date: number } = null;
   if (this.comment) {
     comment = {
       body: this.comment.body,

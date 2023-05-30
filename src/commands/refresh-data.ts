@@ -4,8 +4,8 @@ import pLimit from 'p-limit';
 
 import 'db'; // Make sure the database connection gets setup
 import { Package } from 'db/package';
-import { IPackage } from 'db/package/types';
-import { FilterQuery } from 'mongoose';
+import { type IPackage } from 'db/package/types';
+import { type FilterQuery } from 'mongoose';
 
 const limit = pLimit(10);
 
@@ -16,13 +16,13 @@ if (process.argv[2]) {
 
 Package.find(query).then((pkgs) => {
   return Promise.all(pkgs.map((pkg) => {
-    return limit(async() => {
-      console.log(`processing ${pkg.id}`);
+    return limit(async () => {
+      console.log(`processing ${pkg.id as string}`);
 
       await pkg.updateFromBody({ screenshots: pkg.screenshots });
       pkg.updateCalculatedProperties();
 
-      return pkg.save();
+      return await pkg.save();
     });
   }));
 }).then(() => {

@@ -1,8 +1,8 @@
 /* eslint-disable no-restricted-syntax */
-import { FilterQuery, Types } from 'mongoose';
+import { type FilterQuery, type Types } from 'mongoose';
 
 import { logger } from 'utils';
-import { Review, RATINGS, RATING_MAP, Ratings, IReview } from 'db/review';
+import { Review, RATINGS, RATING_MAP, type Ratings, type IReview } from 'db/review';
 import { RatingCount } from 'db/rating_count';
 import { Package } from 'db/package';
 
@@ -18,19 +18,20 @@ export async function recalculatePackageRatings(pkgId: Types.ObjectId) {
     pkg.rating_counts = [] as any;
   }
 
-  const reviews = await Review.find({ pkg: pkgId } as FilterQuery<IReview>);
+  const reviewQuery: FilterQuery<IReview> = { pkg: pkgId };
+  const reviews = await Review.find(reviewQuery);
 
   for (const ratingName of RATINGS) {
     let count = 0;
     for (const rev of reviews) {
-      if (rev.rating == ratingName) count++;
+      if (rev.rating === ratingName) count++;
     }
 
     calculatedRating += RATING_MAP[ratingName as keyof typeof RATING_MAP] * count;
 
     let updatedCount = false;
     for (const ratingCount of pkg.rating_counts) {
-      if (ratingCount.name == ratingName) {
+      if (ratingCount.name === ratingName) {
         ratingCount.count = count;
         ratingCount.package_id = pkg.id;
 

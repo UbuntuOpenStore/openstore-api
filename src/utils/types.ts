@@ -1,4 +1,4 @@
-import { Architecture, PackageType } from 'db/package/types';
+import { type Architecture, type PackageType } from 'db/package/types';
 
 export type ClickParserApp = {
   name: string;
@@ -18,25 +18,25 @@ export type ClickParserApp = {
   contentHub: {
     [key: string]: string[];
   };
-  urlDispatcher: {
+  urlDispatcher: Array<{
     [key: string]: string;
-  }[];
+  }>;
   pushHelper: {
     [key: string]: string;
   };
   accountService: {
     service?: {
       [key: string]: string;
-    }
+    };
   };
   accountApplication: {
     application?: {
       services: {
         service: {
           [key: string]: string;
-        }
-      }
-    }
+        };
+      };
+    };
   };
   webappProperties: {
     [key: string]: string;
@@ -46,13 +46,13 @@ export type ClickParserApp = {
   hooks: {
     [key: string]: string;
   };
-  qmlImports: {
+  qmlImports: Array<{
     module: string;
     version: string;
-  }[]
-}
+  }>;
+};
 
-export type ClickParserData = {
+export interface ClickParserData {
   apps: ClickParserApp[];
   architecture: Architecture;
   description: string;
@@ -70,4 +70,4 @@ export type ClickParserData = {
   installedSize: number;
   languages: string[];
   files: string[];
-}
+};

@@ -1,6 +1,6 @@
 /* eslint-disable no-param-reassign */
 import shuffle from 'shuffle-array';
-import express, { Request, Response } from 'express';
+import express, { type Request, type Response } from 'express';
 
 import { Package } from 'db/package';
 import { Architecture, DEFAULT_CHANNEL, Channel, PackageType } from 'db/package/types';
@@ -8,7 +8,7 @@ import { RatingCount } from 'db/rating_count';
 import { success, getData, getDataArray, setLang, gettext, config, asyncErrorWrapper } from 'utils';
 import { serializeRatings } from 'db/package/methods';
 import discoverJSON from './json/discover_apps.json';
-import { DiscoverHighlight, DiscoverData } from './types';
+import { type DiscoverHighlight, type DiscoverData } from './types';
 
 const router = express.Router();
 
@@ -37,7 +37,7 @@ async function getHighlights(
   });
 
   discover.highlights = discover.highlights.map((highlight) => {
-    const highlightedApp = highlights.find((app) => app.id == highlight.id);
+    const highlightedApp = highlights.find((app) => app.id === highlight.id);
 
     if (!highlightedApp) {
       return null;
@@ -84,12 +84,12 @@ async function getNewAndUpdatedApps(
     }, '-updated_date', 8),
   ]);
 
-  const newAndUpdatedCategory = discover.categories.find((category) => (category.name == NEW_AND_UPDATED));
+  const newAndUpdatedCategory = discover.categories.find((category) => (category.name === NEW_AND_UPDATED));
 
   // Get the 10 latest updated or published apps
   let newAndUpdatedApps = newApps.concat(updatedApps);
   newAndUpdatedApps = newAndUpdatedApps.filter((app, pos) => {
-    return newAndUpdatedApps.findIndex((a) => a.id == app.id) == pos;
+    return newAndUpdatedApps.findIndex((a) => a.id === app.id) === pos;
   });
 
   newAndUpdatedApps.sort((a, b) => {
@@ -162,7 +162,7 @@ async function getPopularApps(
     types: [PackageType.APP],
   }, '-calculated_rating', 8);
 
-  const popularCategory = discover.categories.find((category) => (category.name == POPULAR));
+  const popularCategory = discover.categories.find((category) => (category.name === POPULAR));
   popularCategory!.apps = popularApps.map((app) => app.serialize(architecture, frameworks, apiVersion));
 }
 
@@ -204,15 +204,15 @@ async function refreshRatings(discover: DiscoverData) {
  * There are two static categories: one for new and updated apps
  * and one for popular apps.
  */
-router.get('/', asyncErrorWrapper(async(req: Request, res: Response) => {
+router.get('/', asyncErrorWrapper(async (req: Request, res: Response) => {
   const frameworks = getDataArray(req, 'frameworks', []);
 
-  let channel = getData(req, 'channel', DEFAULT_CHANNEL).toLowerCase();
+  let channel = getData(req, 'channel', DEFAULT_CHANNEL).toLowerCase() as Channel;
   if (!Object.values(Channel).includes(channel)) {
     channel = DEFAULT_CHANNEL;
   }
 
-  let architecture = getData(req, 'architecture', Architecture.ARMHF).toLowerCase();
+  let architecture = getData(req, 'architecture', Architecture.ARMHF).toLowerCase() as Architecture;
   if (!Object.values(Architecture).includes(architecture)) {
     architecture = Architecture.ARMHF;
   }

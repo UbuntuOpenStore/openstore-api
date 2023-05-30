@@ -1,5 +1,5 @@
 import { Schema, model } from 'mongoose';
-import { IUser, IUserMethods, UserModel } from './types';
+import { type IUser, type IUserMethods, type UserModel } from './types';
 
 const userSchema = new Schema<IUser, UserModel, IUserMethods>({
   apikey: String,
@@ -13,7 +13,7 @@ const userSchema = new Schema<IUser, UserModel, IUserMethods>({
   username: String,
 });
 
-userSchema.method('serialize', function() {
+userSchema.method('serialize', function () {
   return {
     _id: this._id,
     email: this.email,

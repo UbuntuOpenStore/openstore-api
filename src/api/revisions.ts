@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express';
+import express, { type Request, type Response } from 'express';
 
 import { Package } from 'db/package';
 import { Architecture, Channel } from 'db/package/types';
@@ -12,9 +12,9 @@ async function revisionsByVersion(req: Request, res: Response) {
   const versions = getDataArray(req, 'apps');
   const ids = versions.map((version: string) => version.split('@')[0]);
 
-  const defaultChannel = getData(req, 'channel').toLowerCase();
+  const defaultChannel = getData(req, 'channel').toLowerCase() as Channel;
   const frameworks = getDataArray(req, 'frameworks', []);
-  const architecture = getData(req, 'architecture').toLowerCase();
+  const architecture = getData(req, 'architecture').toLowerCase() as Architecture;
 
   if (!Object.values(Channel).includes(defaultChannel) || !defaultChannel) {
     throw new UserError(INVALID_CHANNEL);
@@ -25,21 +25,22 @@ async function revisionsByVersion(req: Request, res: Response) {
   }
 
   if (ids.length === 0) {
-    return success(res, []);
+    success(res, []);
+    return;
   }
 
   const pkgs = (await Package.findByFilters({ published: true, ids }))
     .filter((pkg) => (pkg.architectures.includes(architecture) || pkg.architectures.includes(Architecture.ALL)))
     .map((pkg) => {
-      let version = versions.filter((v: string) => (v.split('@')[0] == pkg.id))[0];
+      let version = versions.filter((v: string) => (v.split('@')[0] === pkg.id))[0];
       const parts = version.split('@');
-      const channel = (parts.length > 2) ? parts[2] : defaultChannel;
+      const channel = (parts.length > 2) ? parts[2] as Channel : defaultChannel;
       version = parts[1];
 
       const revisionData = pkg.revisions.filter((rev) => (
-        rev.version == version &&
-                  rev.channel == channel &&
-                  (rev.architecture == architecture || rev.architecture == Architecture.ALL)
+        rev.version === version &&
+                  rev.channel === channel &&
+                  (rev.architecture === architecture || rev.architecture === Architecture.ALL)
       ))[0];
       const revision = revisionData ? revisionData.revision : 0;
 
@@ -59,7 +60,7 @@ async function revisionsByVersion(req: Request, res: Response) {
     })
     .filter(Boolean);
 
-  return success(res, pkgs);
+  success(res, pkgs);
 }
 
 router.get('/', asyncErrorWrapper(revisionsByVersion, 'Could not fetch app revisions at this time'));

@@ -4,9 +4,9 @@ import fs from 'fs';
 import pLimit from 'p-limit';
 
 import 'db'; // Make sure the database connection gets setup
-import { HydratedRevision, IPackage, Package } from 'db/package';
+import { type HydratedRevision, type IPackage, Package } from 'db/package';
 import * as clickParser from 'utils/click-parser-async';
-import { FilterQuery } from 'mongoose';
+import { type FilterQuery } from 'mongoose';
 
 const limit = pLimit(10);
 
@@ -17,7 +17,7 @@ if (process.argv[2]) {
 
 Package.find(query).then((pkgs) => {
   return Promise.all(pkgs.map((pkg) => {
-    return limit(async() => {
+    return limit(async () => {
       let revisionData: HydratedRevision | undefined;
       pkg.revisions.forEach((data) => {
         if (!revisionData || revisionData.revision < data.revision) {
@@ -26,13 +26,13 @@ Package.find(query).then((pkgs) => {
       });
 
       if (revisionData && revisionData.download_url && fs.existsSync(revisionData.download_url)) {
-        console.log(`Parsing ${pkg.id}`);
+        console.log('Parsing', pkg.id);
 
         const parseData = await clickParser.parseClickPackage(revisionData.download_url, false);
         pkg.updateFromClick(parseData);
 
-        console.log(`Saving ${pkg.id}`);
-        return pkg.save();
+        console.log('Saving', pkg.id);
+        return await pkg.save();
       }
 
       return pkg;

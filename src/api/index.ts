@@ -3,7 +3,7 @@ import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 import methodOverride from 'method-override';
 import session from 'cookie-session';
-import express, { Request, Response, NextFunction } from 'express';
+import express, { type Request, type Response, type NextFunction } from 'express';
 import cluster from 'cluster';
 import * as Sentry from '@sentry/node';
 
@@ -40,10 +40,10 @@ export function setup() {
   });
 
   app.use((req: Request, res: Response, next: NextFunction) => {
-    if (process.env.NODE_ENV == 'production') {
+    if (process.env.NODE_ENV === 'production') {
       // Redirect to the main domain
       const host = config.server.host.replace('https://', '').replace('http://', '');
-      if (req.headers.host != host) {
+      if (req.headers.host !== host) {
         res.redirect(301, config.server.host + req.originalUrl);
       }
       else {
@@ -126,17 +126,19 @@ export function setup() {
   app.get('/logged-in', (req: Request, res: Response) => {
     if (req.isAuthenticated()) {
       if (!req.query.apiKey && req.headers['user-agent'] && req.headers['user-agent'].startsWith('OpenStore App')) {
-        return res.redirect(`/logged-in?apiKey=${req.user!.apikey}`);
+        res.redirect(`/logged-in?apiKey=${req.user!.apikey}`);
+        return;
       }
 
-      return success(res, { 'logged-in': 'ok' });
+      success(res, { 'logged-in': 'ok' });
+      return;
     }
 
-    return res.redirect('/login');
+    res.redirect('/login');
   });
 
   app.use((req: Request, res: Response) => {
-    return error(res, 'Route not found', 404);
+    error(res, 'Route not found', 404);
   });
 
   app.server = app.listen(config.server.port, config.server.ip);

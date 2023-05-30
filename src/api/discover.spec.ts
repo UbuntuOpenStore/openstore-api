@@ -6,11 +6,11 @@ import { expect } from 'tests/helper';
 import discoverJSON from './json/discover_apps.json';
 
 describe('Discover API', () => {
-  before(function() {
+  before(function () {
     this.route = '/api/v3/discover/';
   });
 
-  beforeEach(async function() {
+  beforeEach(async function () {
     [this.package] = await Promise.all([
       factory.package({
         published: true,
@@ -53,7 +53,7 @@ describe('Discover API', () => {
     ]);
   });
 
-  it('returns a nice error', async function() {
+  it('returns a nice error', async function () {
     const findStub = this.sandbox.stub(Package, 'findByFilters').rejects();
 
     const res = await this.get(this.route, false).expect(500);
@@ -61,7 +61,7 @@ describe('Discover API', () => {
     expect(findStub).to.have.been.called;
   });
 
-  it('returns data', async function() {
+  it('returns data', async function () {
     const getCountsByIdsSpy = this.sandbox.spy(RatingCount, 'getCountsByIds');
 
     const res = await this.get(this.route, false).expect(200);

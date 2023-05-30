@@ -11,7 +11,7 @@ if (config.server.process_limit > 0) {
   logger.debug(`limiting processes to ${processes} (CPUs: ${cpus})`);
 }
 
-if (processes == 1 || !cluster.isPrimary) {
+if (processes === 1 || !cluster.isPrimary) {
   setup();
 }
 else {

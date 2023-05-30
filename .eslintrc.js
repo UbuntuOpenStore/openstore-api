@@ -1,57 +1,38 @@
 module.exports = {
-  root: true,
-  parserOptions: {
-    ecmaVersion: 12,
-    sourceType: 'module',
+  env: {
+    node: true,
+    es2021: true,
+    mocha: true,
   },
   extends: [
     'eslint-config-bhdouglass',
     'plugin:chai-friendly/recommended',
   ],
-  parser: '@typescript-eslint/parser',
-  plugins: ['@typescript-eslint', 'chai-friendly'],
-  settings: {
-    'import/resolver': {
-      node: {
-        extensions: ['.js', '.ts'],
-        moduleDirectory: ['node_modules', 'src'],
-      },
-    },
-  },
-  env: {
-    browser: false,
-    node: true,
-    mocha: true,
+  parserOptions: {
+    ecmaVersion: 'latest',
+    sourceType: 'module',
+    project: ['tsconfig.json'],
+    tsconfigRootDir: __dirname,
   },
   rules: {
-    // allow debugger during development
     'no-debugger': process.env.NODE_ENV === 'production' ? 2 : 0,
     'no-console': process.env.NODE_ENV === 'production' ? 1 : 0,
 
-    'no-underscore-dangle': 'off',
-    'import/extensions': [
-      'error',
-      'ignorePackages',
-      {
-        js: 'never',
-        ts: 'never',
-      },
-    ],
-    'import/prefer-default-export': 'off',
-    'no-await-in-loop': 'off',
-    'class-methods-use-this': 'off',
+    '@typescript-eslint/no-misused-promises': 'off',
+    '@typescript-eslint/consistent-indexed-object-style': 'off',
+    '@typescript-eslint/ban-ts-comment': 'off',
+    '@typescript-eslint/prefer-ts-expect-error': 'off',
+    '@typescript-eslint/array-type': 'off',
 
-    'no-shadow': 'off',
-    '@typescript-eslint/no-shadow': ['error'],
-
-    'no-unused-vars': 'off',
-    '@typescript-eslint/no-unused-vars': ['error'],
+    '@typescript-eslint/prefer-optional-chain': 'off', // TODO fix these errors
+    '@typescript-eslint/prefer-nullish-coalescing': 'off', // TODO fix these errors
   },
   overrides: [
     {
-      files: '*-test.js',
+      files: '*.spec.ts',
       rules: {
-        'no-unused-expressions': 'off',
+        '@typescript-eslint/no-unused-expressions': 'off',
+        '@typescript-eslint/restrict-template-expressions': 'off',
       },
     },
   ],

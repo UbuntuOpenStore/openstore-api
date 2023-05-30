@@ -12,9 +12,9 @@ import factory from './factory';
 chai.use(sinonChai);
 chai.config.includeStack = true;
 
-before(async function() {
+before(async function () {
   // Wait for the mongo connection to settle
-  if (mongoose.connection.readyState != 1) {
+  if (mongoose.connection.readyState !== 1) {
     await new Promise((resolve) => mongoose.connection.once('open', resolve));
   }
 
@@ -25,7 +25,9 @@ before(async function() {
     return (route: string, withApiKey = true) => {
       let modifiedRoute = route;
       if (withApiKey) {
-        modifiedRoute = route.includes('?') ? `${route}&apikey=${this.user.apikey}` : `${route}?apikey=${this.user.apikey}`;
+        modifiedRoute = route.includes('?')
+          ? `${route}&apikey=${this.user.apikey as string}`
+          : `${route}?apikey=${this.user.apikey as string}`;
       }
 
       return (request(this.app) as any)[method](modifiedRoute);
@@ -38,13 +40,13 @@ before(async function() {
   this.delete = generateRequest('delete');
 });
 
-beforeEach(async function() {
+beforeEach(async function () {
   if (process.env.SNAPSHOT_TEST !== 'true') {
     // Clean out the database
     const collections = await mongoose.connection.db.listCollections().toArray();
 
     await Promise.all(collections.map(({ name }) => {
-      if (name == 'system.profile') {
+      if (name === 'system.profile') {
         return null;
       }
 
@@ -56,12 +58,12 @@ beforeEach(async function() {
   }
 });
 
-after(function() {
+after(async function () {
   this.app.server.close();
-  mongoose.connection.close();
+  await mongoose.connection.close();
 });
 
-afterEach(function() {
+afterEach(function () {
   this.sandbox.restore();
 });
 

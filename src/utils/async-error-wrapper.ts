@@ -1,20 +1,23 @@
-import { NextFunction, Request, RequestHandler, Response } from 'express';
+import { type NextFunction, type Request, type RequestHandler, type Response } from 'express';
 
 import { HttpError } from 'exceptions';
 import { captureException, error } from 'utils';
 
 export function asyncErrorWrapper(fn: RequestHandler, errorMessage: string) {
-  return async function(req: Request, res: Response, next: NextFunction) {
+  return async function (req: Request, res: Response, next: NextFunction) {
     try {
-      return await fn(req, res, next);
+      // eslint-disable-next-line @typescript-eslint/await-thenable, @typescript-eslint/no-confusing-void-expression
+      await fn(req, res, next);
+      return;
     }
     catch (err) {
       if (err instanceof HttpError) {
-        return error(res, err.message, err.httpCode);
+        error(res, err.message, err.httpCode);
+        return;
       }
 
       captureException(err, req.originalUrl);
-      return error(res, errorMessage);
+      error(res, errorMessage);
     }
   };
 }

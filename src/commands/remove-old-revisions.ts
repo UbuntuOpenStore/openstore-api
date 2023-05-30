@@ -34,7 +34,7 @@ Package.find({ id: { $in: limitedApps } }).then((pkgs) => {
         if (revision.download_url) {
           fileCounts[key]++;
           if (fileCounts[key] > MAX_REVISIONS) {
-            console.log(`[${pkg.id}] removing ${revision.download_url}`);
+            console.log(`[${pkg.id as string}] removing ${revision.download_url}`);
 
             try {
               fs.unlinkSync(revision.download_url);
@@ -53,13 +53,13 @@ Package.find({ id: { $in: limitedApps } }).then((pkgs) => {
             keepFiles.push(revision.download_url);
           }
           else {
-            console.log(`[${pkg.id}] missing ${revision.download_url}`);
+            console.log(`[${pkg.id as string}] missing ${revision.download_url}`);
             revision.download_url = null;
           }
         }
       }
 
-      console.log(`[${pkg.id}] keeping ${keepFiles.length} clicks`);
+      console.log(`[${pkg.id as string}] keeping ${keepFiles.length} clicks`);
 
       const allFiles = fs.readdirSync(config.data_dir);
       const extraFiles = allFiles.filter((file) => {
@@ -67,12 +67,14 @@ Package.find({ id: { $in: limitedApps } }).then((pkgs) => {
 
         // TODO make a script to update everything to the new path
         // /srv/openstore-data is a symlink to /srv/data/openstore-data
-        return file.startsWith(`${pkg.id}`) && !keepFiles.includes(fullFile) && !keepFiles.includes(fullFile.replace('/data/', '/'));
+        return file.startsWith(`${pkg.id as string}`) &&
+          !keepFiles.includes(fullFile) &&
+          !keepFiles.includes(fullFile.replace('/data/', '/'));
       });
 
       for (let i = 0; i < extraFiles.length; i++) {
         const file = path.join(config.data_dir, extraFiles[i]);
-        console.log(`[${pkg.id}] removing extra file ${file}`);
+        console.log(`[${pkg.id as string}] removing extra file ${file}`);
         fs.unlinkSync(file);
       }
 
