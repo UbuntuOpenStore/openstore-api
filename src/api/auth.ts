@@ -11,7 +11,7 @@ import { v4 } from 'uuid';
 import express, { type Request, type Response } from 'express';
 import { type HydratedUser, User } from 'db/user';
 
-import { logger, config } from 'utils';
+import { logger, config, asyncErrorWrapper } from 'utils';
 
 // Passport doesn't seem to have nice types for the `done` callback
 export interface GenericCallback {
@@ -112,9 +112,9 @@ passport.use(new UbuntuStrategy({
     });
 }));
 
-router.post('/ubuntu', passport.authenticate('ubuntu'));
-router.get('/ubuntu/return', passport.authenticate('ubuntu'), authenticated);
-router.post('/ubuntu/return', passport.authenticate('ubuntu'), authenticated);
+router.post('/ubuntu', asyncErrorWrapper(passport.authenticate('ubuntu')));
+router.get('/ubuntu/return', asyncErrorWrapper(passport.authenticate('ubuntu')), authenticated);
+router.post('/ubuntu/return', asyncErrorWrapper(passport.authenticate('ubuntu')), authenticated);
 
 if (config.github.clientID && config.github.clientSecret) {
   passport.use(new GitHubStrategy({
@@ -154,8 +154,8 @@ if (config.github.clientID && config.github.clientSecret) {
       });
   }));
 
-  router.get('/github', passport.authenticate('github'));
-  router.get('/github/callback', passport.authenticate('github'), authenticated);
+  router.get('/github', asyncErrorWrapper(passport.authenticate('github')));
+  router.get('/github/callback', asyncErrorWrapper(passport.authenticate('github')), authenticated);
 }
 else {
   logger.error('GitHub login is not available, set a client id & secret');
@@ -197,14 +197,14 @@ if (config.gitlab.clientID && config.gitlab.clientSecret) {
       });
   }));
 
-  router.get('/gitlab', passport.authenticate('gitlab'));
-  router.get('/gitlab/callback', passport.authenticate('gitlab'), authenticated);
+  router.get('/gitlab', asyncErrorWrapper(passport.authenticate('gitlab')));
+  router.get('/gitlab/callback', asyncErrorWrapper(passport.authenticate('gitlab')), authenticated);
 }
 else {
   logger.error('GitLab login is not available, set a client id & secret');
 }
 
-router.get('/me', (req: Request, res: Response) => {
+router.get('/me', asyncErrorWrapper((req: Request, res: Response) => {
   if (req.user) {
     res.send({
       success: true,
@@ -227,11 +227,11 @@ router.get('/me', (req: Request, res: Response) => {
       message: 'User not logged in',
     });
   }
-});
+}));
 
-router.get('/logout', (req: Request, res: Response) => {
+router.get('/logout', asyncErrorWrapper((req: Request, res: Response) => {
   req.logout();
   res.redirect('/');
-});
+}));
 
 export default router;
