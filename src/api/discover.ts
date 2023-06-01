@@ -46,7 +46,7 @@ async function getHighlights(
     return {
       ...highlight,
       image: config.server.host + highlight.image,
-      app: highlightedApp.serialize(architecture, frameworks, apiVersion),
+      app: highlightedApp.serialize(architecture, channel, frameworks, apiVersion),
     };
   }).filter(Boolean) as DiscoverHighlight[];
 
@@ -105,7 +105,7 @@ async function getNewAndUpdatedApps(
   });
 
   newAndUpdatedCategory!.apps = newAndUpdatedApps.slice(0, 10)
-    .map((app) => app.serialize(architecture, frameworks, apiVersion));
+    .map((app) => app.serialize(architecture, channel, frameworks, apiVersion));
 }
 
 /**
@@ -133,7 +133,7 @@ async function getCategoryApps(
   }));
 
   discover.categories = discover.categories.map((category, index) => {
-    const apps = discoverCategoriesApps[index].map((app) => app.serialize(architecture, frameworks, apiVersion));
+    const apps = discoverCategoriesApps[index].map((app) => app.serialize(architecture, channel, frameworks, apiVersion));
 
     return {
       ...category,
@@ -163,7 +163,7 @@ async function getPopularApps(
   }, '-calculated_rating', 8);
 
   const popularCategory = discover.categories.find((category) => (category.name === POPULAR));
-  popularCategory!.apps = popularApps.map((app) => app.serialize(architecture, frameworks, apiVersion));
+  popularCategory!.apps = popularApps.map((app) => app.serialize(architecture, channel, frameworks, apiVersion));
 }
 
 /**

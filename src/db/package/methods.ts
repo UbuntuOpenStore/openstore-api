@@ -384,6 +384,7 @@ export function setupMethods(packageSchema: Schema<IPackage, PackageModel, IPack
   */
   packageSchema.method<HydratedPackage>('serialize', function (
     architecture: Architecture = Architecture.ARMHF,
+    channel: Channel = DEFAULT_CHANNEL,
     frameworks: string[] = [],
     apiVersion = 4,
   ): SerializedPackage {
@@ -539,7 +540,10 @@ export function setupMethods(packageSchema: Schema<IPackage, PackageModel, IPack
         json.downloads = jsonDownloads;
       }
 
-      json.downloads.forEach((download) => {
+      console.log(channel, json.downloads);
+      jsonDownloads.filter((download) => (
+        download.channel === channel
+      )).forEach((download) => {
         json.latestDownloads += download.downloads;
       });
 

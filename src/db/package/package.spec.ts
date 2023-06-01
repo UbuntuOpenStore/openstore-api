@@ -221,7 +221,7 @@ describe('Package', () => {
         this.package.revisions[1].created_date = this.now;
         this.package.updated_date = this.now;
 
-        const serialized = this.package.serialize(Architecture.ARMHF, [], 4);
+        const serialized = this.package.serialize(Architecture.ARMHF, DEFAULT_CHANNEL, [], 4);
 
         expect(serialized).to.deep.equal({
           id: 'app.id',

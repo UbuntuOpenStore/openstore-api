@@ -15,6 +15,7 @@ export enum Channel {
   FOCAL = 'focal',
 }
 
+// TODO update this to focal once there is enough adoption
 export const DEFAULT_CHANNEL = Channel.XENIAL;
 
 export enum Architecture {
@@ -263,7 +264,12 @@ export interface IPackageMethods {
   getDownloadUrl: (channel: Channel, arch: Architecture, version?: string) => string;
   serializeRatings: () => SerializedRatings;
   serializeSlim: () => SerializedPackageSlim;
-  serialize: (architecture?: Architecture, frameworks?: string[], apiVersion?: number) => SerializedPackage;
+  serialize: (
+    architecture?: Architecture,
+    channel?: Channel,
+    frameworks?: string[],
+    apiVersion?: number
+  ) => SerializedPackage;
   updateScreenshotFiles: (screenshotFiles: File[]) => Promise<void>;
   createRevisionFromClick: (filePath: string, channel: Channel, changelog?: string) => Promise<void>;
   updateCalculatedProperties: () => void;

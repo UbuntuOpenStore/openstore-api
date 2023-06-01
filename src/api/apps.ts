@@ -36,10 +36,11 @@ async function apps(req: Request, res: Response) {
   }
 
   const arch = getData(req, 'architecture', Architecture.ARMHF) as Architecture;
+  const channel = getData(req, 'channel', DEFAULT_CHANNEL) as Channel;
   const frameworks = getDataArray(req, 'frameworks', []);
   const formatted = pkgs.map((pkg) => {
     if (req.query.full) {
-      return pkg.serialize(arch, frameworks, req.apiVersion);
+      return pkg.serialize(arch, channel, frameworks, req.apiVersion);
     }
 
     return pkg.serializeSlim();
@@ -58,8 +59,9 @@ router.post('/', asyncErrorWrapper(apps, 'Could not fetch app list at this time'
  */
 router.get('/:id', fetchPublishedPackage(true), async (req: Request, res: Response) => {
   const arch = getData(req, 'architecture', Architecture.ARMHF) as Architecture;
+  const channel = getData(req, 'channel', DEFAULT_CHANNEL) as Channel;
   const frameworks = getDataArray(req, 'frameworks', []);
-  success(res, req.pkg.serialize(arch, frameworks, req.apiVersion));
+  success(res, req.pkg.serialize(arch, channel, frameworks, req.apiVersion));
 });
 
 /**
