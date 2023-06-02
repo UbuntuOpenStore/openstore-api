@@ -540,7 +540,6 @@ export function setupMethods(packageSchema: Schema<IPackage, PackageModel, IPack
         json.downloads = jsonDownloads;
       }
 
-      console.log(channel, json.downloads);
       jsonDownloads.filter((download) => (
         download.channel === channel
       )).forEach((download) => {
