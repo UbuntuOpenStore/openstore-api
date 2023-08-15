@@ -610,6 +610,42 @@ describe('Manage PUT', () => {
       expect(pkg?.screenshots[0]).to.equal(res.body.data.screenshots[1].replace('http://local.open-store.io/screenshots/', ''));
       expect(pkg?.screenshots[1]).to.equal(res.body.data.screenshots[0].replace('http://local.open-store.io/screenshots/', ''));
     });
+
+    it('clears out urls', async function () {
+      const res = await this.put(`${this.route}/${this.package.id}`)
+        .send({
+          source: 'https://example.com/',
+          support_url: 'https://example.com/',
+          donate_url: 'https://example.com/',
+          translation_url: 'https://example.com/',
+          video_url: 'https://www.youtube.com/embed/example',
+        })
+        .expect(200);
+
+      expect(res.body.success).to.be.true;
+      expect(res.body.data.source).to.not.be.empty;
+      expect(res.body.data.support_url).to.not.be.empty;
+      expect(res.body.data.donate_url).to.not.be.empty;
+      expect(res.body.data.translation_url).to.not.be.empty;
+      expect(res.body.data.video_url).to.not.be.empty;
+
+      const res2 = await this.put(`${this.route}/${this.package.id}`)
+        .send({
+          source: '',
+          support_url: '',
+          donate_url: '',
+          translation_url: '',
+          video_url: '',
+        })
+        .expect(200);
+
+      expect(res2.body.success).to.be.true;
+      expect(res2.body.data.source).to.be.empty;
+      expect(res2.body.data.support_url).to.be.empty;
+      expect(res2.body.data.donate_url).to.be.empty;
+      expect(res2.body.data.translation_url).to.be.empty;
+      expect(res2.body.data.video_url).to.be.empty;
+    });
   });
 });
 

@@ -203,12 +203,14 @@ export function setupMethods(packageSchema: Schema<IPackage, PackageModel, IPack
     this.description = sanitize(body.description ?? this.description ?? '');
     this.tagline = sanitize(body.tagline ?? this.tagline ?? '');
 
-    this.source = isURL(body.source ?? '') ? body.source : (this.source ?? '');
-    this.support_url = isURL(body.support_url ?? '') ? body.support_url : (this.support_url ?? '');
-    this.donate_url = isURL(body.donate_url ?? '') ? body.donate_url : (this.donate_url ?? '');
-    this.translation_url = isURL(body.translation_url ?? '') ? body.translation_url : (this.translation_url ?? '');
+    this.source = (isURL(body.source ?? '') || body.source === '') ? body.source : (this.source ?? '');
+    this.support_url = (isURL(body.support_url ?? '') || body.support_url === '') ? body.support_url : (this.support_url ?? '');
+    this.donate_url = (isURL(body.donate_url ?? '') || body.donate_url === '') ? body.donate_url : (this.donate_url ?? '');
+    this.translation_url = (isURL(body.translation_url ?? '') || body.translation_url === '')
+      ? body.translation_url
+      : (this.translation_url ?? '');
 
-    if (body.video_url && isURL(body.video_url)) {
+    if ((body.video_url && isURL(body.video_url)) || body.video_url === '') {
       // TODO support regular urls and transform them into embedded urls
       if (
         body.video_url.indexOf('https://www.youtube.com/embed/') === 0 ||
