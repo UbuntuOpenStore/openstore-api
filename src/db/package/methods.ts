@@ -402,7 +402,7 @@ export function setupMethods(packageSchema: Schema<IPackage, PackageModel, IPack
       return cleanLanguage;
     });
 
-    let defaultChannel = DEFAULT_CHANNEL;
+    let defaultChannel = channel;
     if (!this.channels.includes(defaultChannel) && this.channels.length > 0) {
       defaultChannel = this.channels[0];
     }
