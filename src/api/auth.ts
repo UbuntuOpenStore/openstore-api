@@ -23,6 +23,20 @@ export type PassportProfile = {
   [key: string]: any;
 };
 
+function replaceName(name?: string, email?: string): string {
+  if (email?.endsWith('@ubports.com')) {
+    return name ?? '';
+  }
+
+  return (name ?? '')
+    .replace(/ubports/gi, 'user')
+    .replace(/open store/gi, 'user')
+    .replace(/openstore/gi, 'user')
+    .replace(/open-store/gi, 'user')
+    .replace(/ubuntu touch/gi, 'user')
+    .replace(/ubuntu/gi, 'user');
+}
+
 const router = express.Router();
 
 function authenticated(req: Request, res: Response) {
@@ -98,9 +112,9 @@ passport.use(new UbuntuStrategy({
     }
 
     user.ubuntu_id = identifier;
-    user.name = uboneParameter(profile.fullname) || user.name;
-    user.username = uboneParameter(profile.nickname) || user.username;
     user.email = uboneParameter(profile.email) || user.email;
+    user.name = replaceName(uboneParameter(profile.fullname) || user.name, user.email);
+    user.username = replaceName(uboneParameter(profile.nickname) || user.username, user.email);
     user.language = uboneParameter(profile.language) || user.language;
 
     return user.save();
@@ -142,8 +156,8 @@ if (config.github.clientID && config.github.clientSecret) {
 
       user.github_id = profile.id;
       user.email = (!user.email && profile.emails.length >= 1) ? profile.emails[0].value : user.email;
-      user.name = user.name ? user.name : profile.displayName;
-      user.username = user.username ? user.username : profile.username;
+      user.name = replaceName(user.name ? user.name : profile.displayName, user.email);
+      user.username = replaceName(user.username ? user.username : profile.username, user.email);
 
       return user.save();
     }).then((user) => {
@@ -185,8 +199,8 @@ if (config.gitlab.clientID && config.gitlab.clientSecret) {
 
       user.gitlab_id = profile.id;
       user.email = (!user.email && profile.emails.length > 0) ? profile.emails[0].value : user.email;
-      user.name = user.name ? user.name : profile.displayName;
-      user.username = user.username ? user.username : profile.username;
+      user.name = replaceName(user.name ? user.name : profile.displayName, user.email);
+      user.username = replaceName(user.username ? user.username : profile.username, user.email);
 
       return user.save();
     }).then((user) => {
