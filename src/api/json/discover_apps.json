@@ -1,90 +1,276 @@
 {
     "highlights": [
-        {
-          "id": "io.guh.nymeaapp",
-          "image": "/banners/nymea.svg",
-          "description": "nymea transforms your regular smart devices into a harmoniously connected ecosystem."
-        },
-        {
-            "id": "cinny.nitanmarcel",
-            "image": "/banners/cinny.svg",
-            "description": "A Matrix client focusing primarily on a simple, elegant, and secure interface."
-        },
-        {
-            "id": "futify.frenchutouch",
-            "image": "/banners/futify.svg",
-            "description": "Unofficial native qml Spotify client for premium users only"
-        },
-        {
-            "id": "circlejump.abmyii",
-            "image": "/banners/circlejump.svg",
-            "description": "How far can you get? Tap to jump from circle to circle for as long as you can."
-        }
+      {
+        "id": "io.guh.nymeaapp",
+        "image": "/banners/nymea.svg",
+        "description": "nymea transforms your regular smart devices into a harmoniously connected ecosystem."
+      },
+      {
+        "id": "cinny.nitanmarcel",
+        "image": "/banners/cinny.svg",
+        "description": "A Matrix client focusing primarily on a simple, elegant, and secure interface."
+      },
+      {
+        "id": "futify.frenchutouch",
+        "image": "/banners/futify.svg",
+        "description": "Unofficial native qml Spotify client for premium users only"
+      },
+      {
+        "id": "circlejump.abmyii",
+        "image": "/banners/circlejump.svg",
+        "description": "How far can you get? Tap to jump from circle to circle for as long as you can."
+      },
+      {
+        "id": "me.lduboeuf.stellarium",
+        "image": "/banners/stellarium.svg",
+        "description": "A realistic night sky map in 3D in the palm of your hand."
+      },
+      {
+        "id": "dekko2.dekkoproject",
+        "image": "/banners/dekko.svg",
+        "description": "An email client for multiple email providers."
+      },
+      {
+        "id": "pure-maps.jonnius",
+        "image": "/banners/puremaps.svg",
+        "description": "A full-featured map and navigation application allowing you to explore maps and navigate to your destination."
+      },
+      {
+        "id": "sturmreader.emanuelesorce",
+        "image": "/banners/sturmreader.svg",
+        "description": "An e-book and comic reader supporting Epub, PDF,  CBZ and CBR files."
+      },
+      {
+        "id": "teleports.ubports",
+        "image": "/banners/telegram.svg",
+        "description": "The Telegram client for Ubuntu Touch."
+      },
+      {
+        "id": "uadblockng.liohmoeller",
+        "image": "/banners/uadblock.svg",
+        "description": "System wide adblocker for Ubuntu Touch."
+      },
+      {
+        "id": "navigator.costales",
+        "image": "/banners/unav.svg",
+        "description": "Navigation and maps powered by OpenStreetMap."
+      }
     ],
     "categories": [
-        {
-            "name": "New and Updated Apps",
-            "tagline": "Exciting new apps & updates",
-            "referral": "",
-            "ids": []
-        },
-        {
-            "name": "Focal Support",
-            "tagline": "These apps already support the next version of Ubuntu Touch!",
-            "referral": "",
-            "ids": [
-                "turntable.lduboeuf",
-                "me.fredl.ghostcloud",
-                "me.lduboeuf.aircraftwar",
-                "pvms.me.fredl",
-                "putaside.comiryu",
-                "audio-recorder.luksus",
-                "me.lduboeuf.sfxr",
-                "navigator.costales"
-            ]
-        },
-        {
-            "name": "Utilities",
-            "tagline": "It is essential to have good tools",
-            "referral": "Utilities",
-            "ids": [
-                "dict.walking-octopus",
-                "timetracker.matdahl",
-                "kellypool.red",
-                "opensesame.red",
-                "fastburgers.collaproductions",
-                "kaltracker.ivoxavier",
-                "me.fredl.ghostcloudphotobackup"
-            ]
-        },
-        {
-            "name": "Game Helpers",
-            "tagline": "No matter what the game, everyone can agree, games are fun.",
-            "referral": "",
-            "ids": [
-                "scorekeeper.red",
-                "com.jchrtech.coinflip",
-                "dice-roller.bhdouglass"
-            ]
-        },
-        {
-            "name": "Essential Apps",
-            "tagline": "Check these out first",
-            "referral": "",
-            "ids": [
-                "tfamanager.cibersheep",
-                "teleports.ubports",
-                "com.ubuntu.docviewer",
-                "navigator.costales",
-                "dekko2.dekkoproject",
-                "com.ubuntu.docviewer"
-            ]
-        },
-        {
-            "name": "Most Loved",
-            "tagline": "Apps with the highest ratings",
-            "referral": "",
-            "ids": []
-        }
+      {
+        "name": "Utilities",
+        "tagline": "It is essential to have good tools",
+        "referral": "Utilities",
+        "ids": [
+          "dict.walking-octopus",
+          "timetracker.matdahl",
+          "kellypool.red",
+          "opensesame.red",
+          "me.fredl.ghostcloudphotobackup",
+          "me.fredl.ghostcloud",
+          "me.fredl.isodrive",
+          "wifitransfer.costa"
+        ]
+      },
+      {
+        "name": "Tools",
+        "tagline": "Even the simplest tools can empower people to do great things",
+        "referral": "Utilities",
+        "ids": [
+          "ut-sysbench-qt-gui",
+          "wireguard.davidv.dev",
+          "keepass.davidv.dev",
+          "networkspeedtest.francesco",
+          "bincalc.piotrzpl",
+          "scooter.s710",
+          "subaybay.kugiigi",
+          "hhash.mateosalta",
+          "transmission.pavelprosto"
+        ]
+      },
+      {
+        "name": "Toolbox",
+        "tagline": "It's not the thing itself, but how you use it.",
+        "referral": "Utilities",
+        "ids": [
+          "it.mardy.lomiri-vnc",
+          "quickconversions.phelion",
+          "wifiscanner.arubislander",
+          "uvolman.mateosalta",
+          "openstore.tagger",
+          "authenticator-ng.dobey",
+          "uadblockng.liohmoeller",
+          "webber.timsueberkrueb"
+        ]
+      },
+      {
+        "name": "Dev Tools & Reference",
+        "tagline": "Talk is cheap. Show me the code.",
+        "referral": "Developer Tools",
+        "ids": [
+          "seabass2.mikhael",
+          "me.fredl.qmlcreator",
+          "me.lduboeuf.livecoding",
+          "ubuntu-ui-toolkit-gallery-m.mateosalta",
+          "qqc2-gallery.ubad",
+          "org.kde.kirigami2.gallery",
+          "logviewer.ruditimmer"
+        ]
+      },
+      {
+        "name": "Games",
+        "tagline": "We are all our own worst enemy. But also, our best teacher.",
+        "referral": "Games",
+        "ids": [
+          "taquin.aloysliska",
+          "circlejump.abmyii",
+          "neverball.abmyii",
+          "openttd.abmyii",
+          "tuxracer.abmyii",
+          "superttt.emanuelesorce",
+          "guess-words.bhdouglass",
+          "circlepuzzle.cibersheep",
+          "esviji.cibersheep"
+        ]
+      },
+      {
+        "name": "Fun Games",
+        "tagline": "Cause I always play to win!",
+        "referral": "Games",
+        "ids": [
+          "sm.lduboeuf",
+          "farkle.arc676",
+          "tuxdungeon.jjvannielen",
+          "neopar.mvm",
+          "sakawochi.wendigosoft",
+          "gelek-vanilla.cibersheep",
+          "monsterwars.t-mon",
+          "com.ubuntu.developer.1bsyl.demineur"
+        ]
+      },
+      {
+        "name": "Best Games",
+        "tagline": "Didn't we have some fun though?",
+        "referral": "Games",
+        "ids": [
+          "amazons.arc676",
+          "me.lduboeuf.gol",
+          "me.lduboeuf.aircraftwar",
+          "wumpus.cibersheep",
+          "gearboy.bhdouglass",
+          "pathwindfork.mateo-salta",
+          "ttris.lduboeuf"
+        ]
+      },
+      {
+        "name": "Awesome Games",
+        "tagline": "It's dangerous to go alone, take this!",
+        "referral": "Games",
+        "ids": [
+          "switch-reloaded.timsueberkrueb",
+          "volleyball2d.emanuelesorce",
+          "tankball.cibersheep",
+          "com.ubuntu.developer.1bsyl.negative-space",
+          "falldown.rpadovani",
+          "com.ubuntu.developer.rpadovani.100balls"
+        ]
+      },
+      {
+        "name": "Game Helpers",
+        "tagline": "No matter what the game, everyone can agree, games are fun.",
+        "referral": "",
+        "ids": ["scorekeeper.red", "com.jchrtech.coinflip", "dice-roller.bhdouglass"]
+      },
+      {
+        "name": "Essential Apps",
+        "tagline": "Check these out first",
+        "referral": "",
+        "ids": [
+          "tfamanager.cibersheep",
+          "teleports.ubports",
+          "com.ubuntu.docviewer",
+          "navigator.costales",
+          "dekko2.dekkoproject",
+          "com.ubuntu.docviewer"
+        ]
+      },
+      {
+        "name": "News",
+        "tagline": "News is only the first rough draft of history",
+        "referral": "",
+        "ids": [
+          "darkeye.ursses",
+          "headline.collaproductions",
+          "hnr.davidv.dev",
+          "net.gsantner.ut.ttrssreadermobile",
+          "newsie.martinferretti",
+          "quickddit"
+        ]
+      },
+      {
+        "name": "Godot Games",
+        "tagline": "The game engine you waited for",
+        "referral": "Games",
+        "ids": [
+          "tanks.arc676",
+          "circlejump.abmyii",
+          "liner.abmyii",
+          "package-resolved.marquiskurt",
+          "godot3dtest.pavelprosto",
+          "costumemaster.marquiskurt",
+          "3rdperson.gabriele"
+        ]
+      },
+      {
+        "name": "Fediverse",
+        "tagline": "To infinity and beyond!",
+        "referral": "",
+        "ids": [
+          "pixelfed-web.darkeye",
+          "hubzilla-web.povoq",
+          "ulemmy.povoq",
+          "umastodon.christianpauly",
+          "udiaspora-webapp.darkeye",
+          "hyperspacedesktop.marquiskurt"
+        ]
+      },
+      {
+        "name": "Health & Wellness",
+        "tagline": "An apple a day...",
+        "referral": "Health & Fitness",
+        "ids": ["fastburgers.collaproductions", "pulse.mivoligo", "activitytracker.cwayne18", "iquit.aurora", "fatburners.christianpauly", "weight-tracker.avisoftware"]
+      },
+      {
+        "name": "Cross Platform Apps",
+        "tagline": "Find these apps anywhere",
+        "referral": "",
+        "ids": ["pure-maps.jonnius", "harbour-messwerk.mymike00", "me.fredl.ghostcloud", "me.fredl.qshodan", "io.guh.nymeaapp"]
+      },
+      {
+        "name": "Chat Connection",
+        "tagline": "Don't forget to text mom!",
+        "referral": "Communication & Social",
+        "ids": ["im.kaidan.kaidan", "teleports.ubports", "linphone.cibersheep", "fluffychat.christianpauly", "umatriks.larreamikel"]
+      },
+      {
+        "name": "RSS Feed Readers",
+        "tagline": "RSS is dead, long live RSS!",
+        "referral": "",
+        "ids": ["rssreader.florisluiten", "it.mardy.ttrss", "inoreader.cibersheep", "doniks.shorter", "feedbin.jos-henson"]
+      },
+      {
+        "name": "Core Apps",
+        "tagline": "There is an app for that",
+        "referral": "",
+        "ids": [
+          "com.ubuntu.calculator",
+          "com.ubuntu.calendar",
+          "com.ubuntu.camera",
+          "com.ubuntu.clock",
+          "com.ubuntu.gallery",
+          "com.ubuntu.music",
+          "com.ubuntu.reminders"
+        ]
+      }
     ]
 }

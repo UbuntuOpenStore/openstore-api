@@ -36,7 +36,7 @@ async function getHighlights(
     published: true,
   });
 
-  discover.highlights = discover.highlights.map((highlight) => {
+  discover.highlights = shuffle(discover.highlights.map((highlight) => {
     const highlightedApp = highlights.find((app) => app.id === highlight.id);
 
     if (!highlightedApp) {
@@ -48,7 +48,7 @@ async function getHighlights(
       image: config.server.host + highlight.image,
       app: highlightedApp.serialize(architecture, channel, frameworks, apiVersion),
     };
-  }).filter(Boolean) as DiscoverHighlight[];
+  }).filter(Boolean) as DiscoverHighlight[]);
 
   // Deprecated, for backwards compatibility
   discover.highlight = discover.highlights[0];
@@ -118,7 +118,25 @@ async function getCategoryApps(
   frameworks: string[],
   apiVersion?: number,
 ) {
-  const discoverCategoriesApps = await Promise.all(discover.categories.map((category) => {
+  const filteredCategories = shuffle(discover.categories).slice(0, 3);
+
+  const categories = [
+    {
+      name: 'New and Updated Apps',
+      tagline: 'Exciting new apps & updates',
+      referral: '',
+      ids: [],
+    },
+    ...filteredCategories,
+    {
+      name: 'Most Loved',
+      tagline: 'Apps with the highest ratings',
+      referral: '',
+      ids: [],
+    },
+  ];
+
+  const discoverCategoriesApps = await Promise.all(categories.map((category) => {
     if (category.ids.length === 0) {
       return [];
     }
@@ -132,7 +150,7 @@ async function getCategoryApps(
     });
   }));
 
-  discover.categories = discover.categories.map((category, index) => {
+  discover.categories = categories.map((category, index) => {
     const apps = discoverCategoriesApps[index].map((app) => app.serialize(architecture, channel, frameworks, apiVersion));
 
     return {
