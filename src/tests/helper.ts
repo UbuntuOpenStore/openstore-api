@@ -1,5 +1,6 @@
 /* eslint-disable import/no-extraneous-dependencies */
 
+import 'mocha';
 import chai from 'chai';
 import mongoose from 'mongoose';
 import request from 'supertest';

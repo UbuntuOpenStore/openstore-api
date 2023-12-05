@@ -261,7 +261,6 @@ router.post(
 
       await Lock.release(lock, req);
       success(res, pkg.serialize());
-      return;
     }
     catch (err) {
       if (lock) {

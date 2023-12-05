@@ -8,7 +8,6 @@ export function asyncErrorWrapper(fn: RequestHandler, errorMessage: string = 'An
     try {
       // eslint-disable-next-line @typescript-eslint/await-thenable, @typescript-eslint/no-confusing-void-expression
       await fn(req, res, next);
-      return;
     }
     catch (err) {
       if (err instanceof HttpError) {

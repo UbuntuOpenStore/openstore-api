@@ -9,3 +9,4 @@ config-file.json
 .nyc_output/
 dist
 .env
+tsconfig.tsbuildinfo
