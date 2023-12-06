@@ -663,7 +663,7 @@ export function setupMethods(packageSchema: Schema<IPackage, PackageModel, IPack
       parseData.permissions,
     );
 
-    if (!this.icon && parseData.icon) {
+    if (parseData.icon) {
       const ext = path.extname(parseData.icon).toLowerCase();
       if (['.png', '.jpg', '.jpeg', '.svg'].includes(ext)) {
         const localIconPath = this.getIconFilePath(ext);
