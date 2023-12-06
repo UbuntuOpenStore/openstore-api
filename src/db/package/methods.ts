@@ -663,8 +663,7 @@ export function setupMethods(packageSchema: Schema<IPackage, PackageModel, IPack
       parseData.permissions,
     );
 
-    const updateIcon = (channel === DEFAULT_CHANNEL || !this.icon);
-    if (updateIcon && parseData.icon) {
+    if (!this.icon && parseData.icon) {
       const ext = path.extname(parseData.icon).toLowerCase();
       if (['.png', '.jpg', '.jpeg', '.svg'].includes(ext)) {
         const localIconPath = this.getIconFilePath(ext);
