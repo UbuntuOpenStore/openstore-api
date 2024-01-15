@@ -15,8 +15,7 @@ export enum Channel {
   FOCAL = 'focal',
 }
 
-// TODO update this to focal once there is enough adoption
-export const DEFAULT_CHANNEL = Channel.XENIAL;
+export const DEFAULT_CHANNEL = Channel.FOCAL;
 
 export enum Architecture {
   ALL = 'all',

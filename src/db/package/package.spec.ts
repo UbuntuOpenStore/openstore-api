@@ -22,7 +22,7 @@ describe('Package', () => {
           category: 'Category',
           author: 'Author',
           search: 'term',
-          channel: Channel.XENIAL,
+          channel: Channel.FOCAL,
           nsfw: 'false',
         },
       } as any);
@@ -38,7 +38,7 @@ describe('Package', () => {
         category: 'Category',
         author: 'Author',
         search: 'term',
-        channel: Channel.XENIAL,
+        channel: Channel.FOCAL,
         nsfw: [null, false],
       });
     });
@@ -83,7 +83,7 @@ describe('Package', () => {
         architectures: [Architecture.ARMHF, Architecture.ALL],
         category: 'Category',
         author: 'Author',
-        channel: Channel.XENIAL,
+        channel: Channel.FOCAL,
         search: 'term',
         nsfw: [true],
         maintainer: 'foobar',
@@ -95,8 +95,8 @@ describe('Package', () => {
         id: { $in: ['foo.bar'] },
         device_compatibilities: {
           $in: [
-          `${Channel.XENIAL}:${Architecture.ARMHF}:ubuntu-16.04`,
-          `${Channel.XENIAL}:${Architecture.ALL}:ubuntu-16.04`,
+          `${Channel.FOCAL}:${Architecture.ARMHF}:ubuntu-16.04`,
+          `${Channel.FOCAL}:${Architecture.ALL}:ubuntu-16.04`,
           ],
         },
         category: 'Category',
@@ -111,11 +111,11 @@ describe('Package', () => {
     it('parses filters, with arch/channel specified', () => {
       const parsed = Package.parseFilters({
         architectures: [Architecture.ARMHF, Architecture.ALL],
-        channel: Channel.XENIAL,
+        channel: Channel.FOCAL,
       });
 
       expect(parsed).to.deep.equal({
-        channel_architectures: { $in: [ChannelArchitecture.XENIAL_ARMHF, ChannelArchitecture.XENIAL_ALL] },
+        channel_architectures: { $in: [ChannelArchitecture.FOCAL_ARMHF, ChannelArchitecture.FOCAL_ALL] },
       });
     });
   });
@@ -153,7 +153,7 @@ describe('Package', () => {
 
     context('iconUrl', () => {
       it('generates an icon url', function () {
-        this.package.createNextRevision('1.0.0', Channel.XENIAL, Architecture.ARMHF, 'ubuntu-sdk-16.04', 'url', 'shasum', 10, 8);
+        this.package.createNextRevision('1.0.0', Channel.FOCAL, Architecture.ARMHF, 'ubuntu-sdk-16.04', 'url', 'shasum', 10, 8);
         expect(this.package.icon_url).to.equal('http://local.open-store.io/icons/app.id/app.id-1.0.0.png');
       });
 
@@ -165,14 +165,14 @@ describe('Package', () => {
     context('downloadUrl', () => {
       it('generates a download url without a version', function () {
         expect(
-          this.package.getDownloadUrl(Channel.XENIAL, Architecture.ARMHF),
-        ).to.equal('http://local.open-store.io/api/v3/apps/app.id/download/xenial/armhf');
+          this.package.getDownloadUrl(Channel.FOCAL, Architecture.ARMHF),
+        ).to.equal('http://local.open-store.io/api/v3/apps/app.id/download/focal/armhf');
       });
 
       it('generates a download url with a version', function () {
         expect(
-          this.package.getDownloadUrl(Channel.XENIAL, Architecture.ARMHF, '1.0.0'),
-        ).to.equal('http://local.open-store.io/api/v3/apps/app.id/download/xenial/armhf/1.0.0');
+          this.package.getDownloadUrl(Channel.FOCAL, Architecture.ARMHF, '1.0.0'),
+        ).to.equal('http://local.open-store.io/api/v3/apps/app.id/download/focal/armhf/1.0.0');
       });
     });
 
@@ -209,13 +209,13 @@ describe('Package', () => {
       });
 
       it('serializes fully', function () {
-        this.package.channel_architectures = [ChannelArchitecture.XENIAL_ARMHF, ChannelArchitecture.XENIAL_ARM64];
+        this.package.channel_architectures = [ChannelArchitecture.FOCAL_ARMHF, ChannelArchitecture.FOCAL_ARM64];
         this.package.device_compatibilities = [
-          `${ChannelArchitecture.XENIAL_ARMHF}:ubuntu-sdk-16.04`,
-          `${ChannelArchitecture.XENIAL_ARM64}:ubuntu-sdk-16.04`,
+          `${ChannelArchitecture.FOCAL_ARMHF}:ubuntu-sdk-16.04`,
+          `${ChannelArchitecture.FOCAL_ARM64}:ubuntu-sdk-16.04`,
         ];
-        this.package.createNextRevision('1.0.0', Channel.XENIAL, Architecture.ARMHF, 'ubuntu-sdk-16.04', 'url', 'shasum', 10, 8);
-        this.package.createNextRevision('1.0.0', Channel.XENIAL, Architecture.ARM64, 'ubuntu-sdk-16.04', 'url', 'shasum', 10, 8);
+        this.package.createNextRevision('1.0.0', Channel.FOCAL, Architecture.ARMHF, 'ubuntu-sdk-16.04', 'url', 'shasum', 10, 8);
+        this.package.createNextRevision('1.0.0', Channel.FOCAL, Architecture.ARM64, 'ubuntu-sdk-16.04', 'url', 'shasum', 10, 8);
 
         this.package.revisions[0].created_date = this.now;
         this.package.revisions[1].created_date = this.now;
@@ -230,10 +230,10 @@ describe('Package', () => {
           channels: [DEFAULT_CHANNEL],
           architecture: '',
           architectures: [Architecture.ARMHF, Architecture.ARM64],
-          channel_architectures: [ChannelArchitecture.XENIAL_ARMHF, ChannelArchitecture.XENIAL_ARM64],
+          channel_architectures: [ChannelArchitecture.FOCAL_ARMHF, ChannelArchitecture.FOCAL_ARM64],
           device_compatibilities: [
-            `${ChannelArchitecture.XENIAL_ARMHF}:ubuntu-sdk-16.04`,
-            `${ChannelArchitecture.XENIAL_ARM64}:ubuntu-sdk-16.04`,
+            `${ChannelArchitecture.FOCAL_ARMHF}:ubuntu-sdk-16.04`,
+            `${ChannelArchitecture.FOCAL_ARM64}:ubuntu-sdk-16.04`,
           ],
           author: 'Jill',
           publisher: 'Jill',
@@ -261,10 +261,10 @@ describe('Package', () => {
           downloads: [
             {
               architecture: Architecture.ARM64,
-              channel: Channel.XENIAL,
+              channel: Channel.FOCAL,
               created_date: this.now,
               download_sha512: 'shasum',
-              download_url: 'http://local.open-store.io/api/v3/apps/app.id/download/xenial/arm64/1.0.0',
+              download_url: 'http://local.open-store.io/api/v3/apps/app.id/download/focal/arm64/1.0.0',
               downloads: 0,
               downloadSize: 8,
               installedSize: 10240,
@@ -276,10 +276,10 @@ describe('Package', () => {
             },
             {
               architecture: Architecture.ARMHF,
-              channel: Channel.XENIAL,
+              channel: Channel.FOCAL,
               created_date: this.now,
               download_sha512: 'shasum',
-              download_url: 'http://local.open-store.io/api/v3/apps/app.id/download/xenial/armhf/1.0.0',
+              download_url: 'http://local.open-store.io/api/v3/apps/app.id/download/focal/armhf/1.0.0',
               downloads: 0,
               downloadSize: 8,
               installedSize: 10240,
@@ -296,7 +296,7 @@ describe('Package', () => {
           locked: false,
           maintainer: 'jill.id',
           maintainer_name: 'Jill',
-          manifest: {},
+          manifest: { hooks: {} },
           published: false,
           screenshots: [],
           source: 'https://example.com/source',
@@ -313,10 +313,10 @@ describe('Package', () => {
           revisions: [
             {
               architecture: Architecture.ARMHF,
-              channel: Channel.XENIAL,
+              channel: Channel.FOCAL,
               created_date: this.now,
               download_sha512: 'shasum',
-              download_url: 'http://local.open-store.io/api/v3/apps/app.id/download/xenial/armhf/1.0.0',
+              download_url: 'http://local.open-store.io/api/v3/apps/app.id/download/focal/armhf/1.0.0',
               downloads: 0,
               downloadSize: 8,
               installedSize: 10240,
@@ -328,10 +328,10 @@ describe('Package', () => {
             },
             {
               architecture: Architecture.ARM64,
-              channel: Channel.XENIAL,
+              channel: Channel.FOCAL,
               created_date: this.now,
               download_sha512: 'shasum',
-              download_url: 'http://local.open-store.io/api/v3/apps/app.id/download/xenial/arm64/1.0.0',
+              download_url: 'http://local.open-store.io/api/v3/apps/app.id/download/focal/arm64/1.0.0',
               downloads: 0,
               downloadSize: 8,
               installedSize: 10240,

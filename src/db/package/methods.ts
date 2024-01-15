@@ -19,7 +19,7 @@ import {
 import { UserError } from 'exceptions';
 import * as clickParser from 'utils/click-parser-async';
 import { isURL } from 'class-validator';
-import { difference } from 'lodash';
+import { difference, omit } from 'lodash';
 import {
   type PackageModel,
   Architecture,
@@ -426,6 +426,13 @@ export function setupMethods(packageSchema: Schema<IPackage, PackageModel, IPack
       return revision;
     });
 
+    const originalManifest = this.manifest || {};
+    const manifest = { ...omit(originalManifest, 'hooks'), hooks: {} };
+    for (const [key, value] of Object.entries(originalManifest.hooks ?? {})) {
+      // @ts-ignore
+      manifest.hooks[key.replace(/__/g, '.')] = value;
+    }
+
     const json = {
       architectures: this.architectures || [],
       category: this.category || '',
@@ -441,7 +448,7 @@ export function setupMethods(packageSchema: Schema<IPackage, PackageModel, IPack
       license: this.license || 'Proprietary',
       maintainer_name: this.maintainer_name || null,
       maintainer: this.maintainer || null,
-      manifest: this.manifest || {},
+      manifest,
       name: this.name || '',
       nsfw: !!this.nsfw,
       published_date: this.published_date || '',
