@@ -215,6 +215,21 @@ async function refreshRatings(discover: DiscoverData) {
   });
 }
 
+function translateDiscover(lang: string, discover: DiscoverData) {
+  setLang(lang);
+
+  const cloneDiscover: DiscoverData = JSON.parse(JSON.stringify(discover));
+  cloneDiscover.categories = cloneDiscover.categories.map((category) => {
+    return {
+      ...category,
+      name: gettext(category.name),
+      tagline: category.tagline ? gettext(category.tagline) : '',
+    };
+  });
+
+  return cloneDiscover;
+}
+
 /**
  * Get highlighted apps based on the data in ./json/discover_apps.json
  * This consists of a list of highlighted apps that have a banner image
@@ -224,6 +239,7 @@ async function refreshRatings(discover: DiscoverData) {
  */
 router.get('/', asyncErrorWrapper(async (req: Request, res: Response) => {
   const frameworks = getDataArray(req, 'frameworks', []);
+  const lang = getData(req, 'lang');
 
   let channel = getData(req, 'channel', DEFAULT_CHANNEL).toLowerCase() as Channel;
   if (!Object.values(Channel).includes(channel)) {
@@ -260,25 +276,13 @@ router.get('/', asyncErrorWrapper(async (req: Request, res: Response) => {
     discoverCache[cacheKey] = discover;
     discoverDate[cacheKey] = now;
 
-    const lang = getData(req, 'lang');
-    setLang(lang);
-
-    const cloneDiscover: DiscoverData = JSON.parse(JSON.stringify(discover));
-    cloneDiscover.categories = cloneDiscover.categories.map((category) => {
-      return {
-        ...category,
-        name: gettext(category.name),
-        tagline: category.tagline ? gettext(category.tagline) : '',
-      };
-    });
-
-    success(res, cloneDiscover);
+    success(res, translateDiscover(lang, discover));
   }
   else { // Cache hit
     const discover: DiscoverData = JSON.parse(JSON.stringify(discoverCache[cacheKey]));
     await refreshRatings(discover);
 
-    success(res, discover);
+    success(res, translateDiscover(lang, discover));
   }
 }, 'Unable to fetch discovery data at this time'));
 
