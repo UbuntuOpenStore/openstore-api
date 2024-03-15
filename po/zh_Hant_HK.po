@@ -132,3 +132,110 @@ msgstr ""
 # Discovery section category tagline for "Most Loved"
 msgid "Apps with the highest ratings"
 msgstr ""
+
+# Discovery section category tagline for "Utilities"
+msgid "It is essential to have good tools"
+msgstr ""
+
+# Discovery section category name
+msgid "Tools"
+msgstr ""
+
+# Discovery section category tagline for "Tools"
+msgid "Even the simplest tools can empower people to do great things"
+msgstr ""
+
+# Discovery section category name
+msgid "Toolbox"
+msgstr ""
+
+# Discovery section category tagline for "Toolbox"
+msgid "It's not the thing itself, but how you use it."
+msgstr ""
+
+# Discovery section category tagline for "Games"
+msgid "We are all our own worst enemy. But also, our best teacher."
+msgstr ""
+
+#, fuzzy
+#| msgid "Games"
+msgid "Fun Games"
+msgstr "遊戲"
+
+# Discovery section category tagline for "Fun Games"
+msgid "Cause I always play to win!"
+msgstr ""
+
+#, fuzzy
+#| msgid "Games"
+msgid "Best Games"
+msgstr "遊戲"
+
+# Discovery section category tagline for "Best Games"
+msgid "Didn't we have some fun though?"
+msgstr ""
+
+# Discovery section category name
+msgid "Awesome Games"
+msgstr ""
+
+# Discovery section category tagline for "Awesome Games"
+msgid "It's dangerous to go alone, take this!"
+msgstr ""
+
+# Discovery section category name
+msgid "Game Helpers"
+msgstr ""
+
+# Discovery section category tagline for "Game Helpers"
+msgid "No matter what the game, everyone can agree, games are fun."
+msgstr ""
+
+# Discovery section category name
+msgid "News"
+msgstr ""
+
+# Discovery section category tagline for "News"
+msgid "News is only the first rough draft of history"
+msgstr ""
+
+#, fuzzy
+#| msgid "Games"
+msgid "Godot Games"
+msgstr "遊戲"
+
+# Discovery section category tagline for "Godot Games"
+msgid "The game engine you waited for"
+msgstr ""
+
+# Discovery section category name
+msgid "Fediverse"
+msgstr ""
+
+# Discovery section category tagline for "Fediverse"
+msgid "To infinity and beyond!"
+msgstr ""
+
+# Discovery section category name
+msgid "Chat Connection"
+msgstr ""
+
+# Discovery section category tagline for "Chat Connection"
+msgid "Don't forget to text mom!"
+msgstr ""
+
+# Discovery section category name
+msgid "RSS Feed Readers"
+msgstr ""
+
+# Discovery section category tagline for "RSS Feed Readers"
+msgid "RSS is dead, long live RSS!"
+msgstr ""
+
+# Discovery section category name
+msgid "Core Apps"
+msgstr ""
+
+# Discovery section category tagline for "Core Apps"
+msgid "There is an app for that"
+msgstr ""
