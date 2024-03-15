@@ -1,0 +1,128 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2017-06-20 01:45:+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Language-Team: none\n"
+"Language: da\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid "Accessibility"
+msgstr ""
+
+msgid "Books & Comics"
+msgstr ""
+
+msgid "Business & Finance"
+msgstr ""
+
+msgid "Communication & Social"
+msgstr ""
+
+msgid "Developer Tools"
+msgstr ""
+
+msgid "Education & Reference"
+msgstr ""
+
+msgid "Entertainment"
+msgstr ""
+
+msgid "Food & Drink"
+msgstr ""
+
+msgid "Games"
+msgstr ""
+
+msgid "Graphics"
+msgstr ""
+
+msgid "Health & Fitness"
+msgstr ""
+
+msgid "Lifestyle"
+msgstr ""
+
+msgid "Media & Video"
+msgstr ""
+
+msgid "Music & Audio"
+msgstr ""
+
+msgid "News & Magazines"
+msgstr ""
+
+msgid "Personalisation"
+msgstr ""
+
+msgid "Productivity"
+msgstr ""
+
+msgid "Science & Engineering"
+msgstr ""
+
+msgid "Shopping"
+msgstr ""
+
+msgid "Sports"
+msgstr ""
+
+msgid "Travel & Weather"
+msgstr ""
+
+msgid "Utilities"
+msgstr ""
+
+# This is text to go on a button that will say "Download from the\nOpenStore" (where \n is a line break)
+msgid "Download from the"
+msgstr ""
+
+# Discovery section category name
+msgid "New and Updated Apps"
+msgstr ""
+
+# Discovery section category tagline for "New and Updated Apps"
+msgid "Exciting new apps & updates"
+msgstr ""
+
+# Discovery section category name
+msgid "Health & Wellness"
+msgstr ""
+
+# Discovery section category tagline for "Health & Wellness"
+msgid "An apple a day..."
+msgstr ""
+
+# Discovery section category name
+msgid "Cross Platform Apps"
+msgstr ""
+
+# Discovery section category tagline for "Cross Platform Apps"
+msgid "Find these apps anywhere"
+msgstr ""
+
+# Discovery section category name
+msgid "Essential Apps"
+msgstr ""
+
+# Discovery section category tagline for "Essential Apps"
+msgid "Check these out first"
+msgstr ""
+
+# Discovery section category name
+msgid "Dev Tools & Reference"
+msgstr ""
+
+# Discovery section category tagline for "Dev Tools & Reference"
+msgid "Talk is cheap. Show me the code."
+msgstr ""
+
+# Discovery section category name
+msgid "Most Loved"
+msgstr ""
+
+# Discovery section category tagline for "Most Loved"
+msgid "Apps with the highest ratings"
+msgstr ""
