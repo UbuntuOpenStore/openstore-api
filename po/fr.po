@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2017-06-20 01:45:+0000\n"
-"PO-Revision-Date: 2024-03-24 00:01+0000\n"
+"PO-Revision-Date: 2024-03-25 14:02+0000\n"
 "Last-Translator: Steve <steve.kueffer.ch@gmail.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/open-store-io/"
 "openstore-api/fr/>\n"
@@ -162,7 +162,7 @@ msgstr "Jeux amusants"
 
 # Discovery section category tagline for "Fun Games"
 msgid "Cause I always play to win!"
-msgstr "Car je joue toujours pour gagner!"
+msgstr "Car je joue toujours pour gagner !"
 
 msgid "Best Games"
 msgstr "Meilleurs Jeux"
@@ -177,7 +177,7 @@ msgstr "Jeux Géniaux"
 
 # Discovery section category tagline for "Awesome Games"
 msgid "It's dangerous to go alone, take this!"
-msgstr "Il est dangereux d'y aller seul, prenez ceci!"
+msgstr "Il est dangereux d'y aller seul, prenez ceci !"
 
 # Discovery section category name
 msgid "Game Helpers"
