@@ -8,16 +8,16 @@ msgstr ""
 "Project-Id-Version: openstore-web\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2017-06-20 01:45:+0000\n"
-"PO-Revision-Date: 2021-01-31 22:54+0000\n"
-"Last-Translator: Rondy Andersson <rondarius@vivaldi.net>\n"
-"Language-Team: Swedish <https://translate.ubports.com/projects/openstore/"
+"PO-Revision-Date: 2024-04-29 04:07+0000\n"
+"Last-Translator: Kristoffer Grundström <swedishsailfishosuser@tutanota.com>\n"
+"Language-Team: Swedish <https://hosted.weblate.org/projects/open-store-io/"
 "openstore-api/sv/>\n"
 "Language: sv\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 3.11.3\n"
+"X-Generator: Weblate 5.5.1\n"
 "X-Launchpad-Export-Date: 2017-06-21 14:52+0000\n"
 
 msgid "Accessibility"
@@ -138,11 +138,11 @@ msgstr "Appar med högst betyg"
 
 # Discovery section category tagline for "Utilities"
 msgid "It is essential to have good tools"
-msgstr ""
+msgstr "Det är viktigt att ha bra verktyg"
 
 # Discovery section category name
 msgid "Tools"
-msgstr ""
+msgstr "Verktyg"
 
 # Discovery section category tagline for "Tools"
 msgid "Even the simplest tools can empower people to do great things"
@@ -150,29 +150,25 @@ msgstr ""
 
 # Discovery section category name
 msgid "Toolbox"
-msgstr ""
+msgstr "Verktygslåda"
 
 # Discovery section category tagline for "Toolbox"
 msgid "It's not the thing itself, but how you use it."
-msgstr ""
+msgstr "Det är inte saken i sig självt utan hur du använder den."
 
 # Discovery section category tagline for "Games"
 msgid "We are all our own worst enemy. But also, our best teacher."
-msgstr ""
+msgstr "Vi är våran egen värsta fiende, men också vår bästa lärare."
 
-#, fuzzy
-#| msgid "Games"
 msgid "Fun Games"
-msgstr "Spel"
+msgstr "Roliga spel"
 
 # Discovery section category tagline for "Fun Games"
 msgid "Cause I always play to win!"
-msgstr ""
+msgstr "För att jag spelar alltid för att vinna!"
 
-#, fuzzy
-#| msgid "Games"
 msgid "Best Games"
-msgstr "Spel"
+msgstr "De bästa spelen"
 
 # Discovery section category tagline for "Best Games"
 msgid "Didn't we have some fun though?"
