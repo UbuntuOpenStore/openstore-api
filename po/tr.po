@@ -2,16 +2,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2017-06-20 01:45:+0000\n"
-"PO-Revision-Date: 2019-11-03 19:36+0000\n"
-"Last-Translator: Ege Öz <ege.oz@tutanota.com>\n"
-"Language-Team: Turkish <https://translate.ubports.com/projects/openstore/"
+"PO-Revision-Date: 2024-05-29 07:09+0000\n"
+"Last-Translator: Ali Beyaz <alipolatbeyaz@gmail.com>\n"
+"Language-Team: Turkish <https://hosted.weblate.org/projects/open-store-io/"
 "openstore-api/tr/>\n"
 "Language: tr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 3.8\n"
+"X-Generator: Weblate 5.6-dev\n"
 
 msgid "Accessibility"
 msgstr "Erişilebilirlik"
@@ -77,165 +77,157 @@ msgid "Travel & Weather"
 msgstr "Seyahat & Hava Durumu"
 
 msgid "Utilities"
-msgstr "Araçlar"
+msgstr "Yardımcı uygulamalar"
 
 # This is text to go on a button that will say "Download from the\nOpenStore" (where \n is a line break)
 msgid "Download from the"
-msgstr "İndir:"
+msgstr "Şuradan indirin"
 
 # Discovery section category name
 msgid "New and Updated Apps"
-msgstr ""
+msgstr "Yeni ve Güncellenmiş Uygulamalar"
 
 # Discovery section category tagline for "New and Updated Apps"
 msgid "Exciting new apps & updates"
-msgstr ""
+msgstr "Heyecan verici yeni uygulamalar ve güncellemeler"
 
-#, fuzzy
-#| msgid "Health & Fitness"
 msgid "Health & Wellness"
-msgstr "Sağlık & Fitness"
+msgstr "Sağlık ve Sağlıklı Yaşam"
 
 # Discovery section category tagline for "Health & Wellness"
 msgid "An apple a day..."
-msgstr ""
+msgstr "Günde bir elma..."
 
 # Discovery section category name
 msgid "Cross Platform Apps"
-msgstr ""
+msgstr "Çapraz Platform Uygulamaları"
 
 # Discovery section category tagline for "Cross Platform Apps"
 msgid "Find these apps anywhere"
-msgstr ""
+msgstr "Bu uygulamaları her yerde bulun"
 
 # Discovery section category name
 msgid "Essential Apps"
-msgstr ""
+msgstr "Temel Uygulamalar"
 
 # Discovery section category tagline for "Essential Apps"
 msgid "Check these out first"
-msgstr ""
+msgstr "İlk önce bunlara bir göz atın"
 
-#, fuzzy
-#| msgid "Education & Reference"
 msgid "Dev Tools & Reference"
-msgstr "Eğitim & Referans"
+msgstr "Geliştirici Araçları ve Referans"
 
 # Discovery section category tagline for "Dev Tools & Reference"
 msgid "Talk is cheap. Show me the code."
-msgstr ""
+msgstr "Konuşma ucuzdur. Bana kodu göster."
 
 # Discovery section category name
 msgid "Most Loved"
-msgstr ""
+msgstr "En Sevilen"
 
 # Discovery section category tagline for "Most Loved"
 msgid "Apps with the highest ratings"
-msgstr ""
+msgstr "En yüksek derecelendirmeye sahip uygulamalar"
 
 # Discovery section category tagline for "Utilities"
 msgid "It is essential to have good tools"
-msgstr ""
+msgstr "İyi araçlara sahip olmak önemlidir"
 
 # Discovery section category name
 msgid "Tools"
-msgstr ""
+msgstr "Araçlar"
 
 # Discovery section category tagline for "Tools"
 msgid "Even the simplest tools can empower people to do great things"
-msgstr ""
+msgstr "En basit araçlar bile insanlara harika şeyler yapma gücü verebilir"
 
 # Discovery section category name
 msgid "Toolbox"
-msgstr ""
+msgstr "Araç Kutusu"
 
 # Discovery section category tagline for "Toolbox"
 msgid "It's not the thing itself, but how you use it."
-msgstr ""
+msgstr "Önemli olan nesnenin kendisi değil, onu nasıl kullandığınızdır."
 
 # Discovery section category tagline for "Games"
 msgid "We are all our own worst enemy. But also, our best teacher."
 msgstr ""
+"Hepimiz kendimizin en büyük düşmanıyız. Ama aynı zamanda en iyi öğretmeniyiz."
 
-#, fuzzy
-#| msgid "Games"
 msgid "Fun Games"
-msgstr "Oyunlar"
+msgstr "Eğlenceli oyunlar"
 
 # Discovery section category tagline for "Fun Games"
 msgid "Cause I always play to win!"
-msgstr ""
+msgstr "Çünkü her zaman kazanmak için oynarım!"
 
-#, fuzzy
-#| msgid "Games"
 msgid "Best Games"
-msgstr "Oyunlar"
+msgstr "En İyi Oyunlar"
 
 # Discovery section category tagline for "Best Games"
 msgid "Didn't we have some fun though?"
-msgstr ""
+msgstr "Yine de biraz eğlenmedik mi?"
 
 # Discovery section category name
 msgid "Awesome Games"
-msgstr ""
+msgstr "Harika Oyunlar"
 
 # Discovery section category tagline for "Awesome Games"
 msgid "It's dangerous to go alone, take this!"
-msgstr ""
+msgstr "Yalnız gitmek tehlikelidir, al şunu!"
 
 # Discovery section category name
 msgid "Game Helpers"
-msgstr ""
+msgstr "Oyun Yardımcıları"
 
 # Discovery section category tagline for "Game Helpers"
 msgid "No matter what the game, everyone can agree, games are fun."
 msgstr ""
+"Oyun ne olursa olsun herkes oyunların eğlenceli olduğu konusunda hemfikirdir."
 
 # Discovery section category name
 msgid "News"
-msgstr ""
+msgstr "Haberler"
 
 # Discovery section category tagline for "News"
 msgid "News is only the first rough draft of history"
-msgstr ""
+msgstr "Haberler tarihin yalnızca ilk kaba taslağıdır"
 
-#, fuzzy
-#| msgid "Games"
 msgid "Godot Games"
-msgstr "Oyunlar"
+msgstr "Godot Oyunları"
 
 # Discovery section category tagline for "Godot Games"
 msgid "The game engine you waited for"
-msgstr ""
+msgstr "Beklediğiniz oyun motoru"
 
 # Discovery section category name
 msgid "Fediverse"
-msgstr ""
+msgstr "Fediverse"
 
 # Discovery section category tagline for "Fediverse"
 msgid "To infinity and beyond!"
-msgstr ""
+msgstr "Sonsuzluğa ve ötesine!"
 
 # Discovery section category name
 msgid "Chat Connection"
-msgstr ""
+msgstr "Sohbet Bağlantısı"
 
 # Discovery section category tagline for "Chat Connection"
 msgid "Don't forget to text mom!"
-msgstr ""
+msgstr "Annene mesaj atmayı unutma!"
 
 # Discovery section category name
 msgid "RSS Feed Readers"
-msgstr ""
+msgstr "RSS Akışı Okuyucuları"
 
 # Discovery section category tagline for "RSS Feed Readers"
 msgid "RSS is dead, long live RSS!"
-msgstr ""
+msgstr "RSS öldü, yaşasın RSS!"
 
 # Discovery section category name
 msgid "Core Apps"
-msgstr ""
+msgstr "Çekirdek Uygulamalar"
 
 # Discovery section category tagline for "Core Apps"
 msgid "There is an app for that"
-msgstr ""
+msgstr "Bunun için bir uygulama var"
