@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2017-06-20 01:45:+0000\n"
-"PO-Revision-Date: 2024-05-29 07:09+0000\n"
+"PO-Revision-Date: 2024-06-02 08:09+0000\n"
 "Last-Translator: Ali Beyaz <alipolatbeyaz@gmail.com>\n"
 "Language-Team: Turkish <https://hosted.weblate.org/projects/open-store-io/"
 "openstore-api/tr/>\n"
@@ -41,13 +41,13 @@ msgid "Games"
 msgstr "Oyunlar"
 
 msgid "Graphics"
-msgstr "Grafik"
+msgstr "Grafikler"
 
 msgid "Health & Fitness"
 msgstr "Sağlık & Fitness"
 
 msgid "Lifestyle"
-msgstr "Yaşam"
+msgstr "Yaşam Tarzı"
 
 msgid "Media & Video"
 msgstr "Medya & Video"
@@ -77,7 +77,7 @@ msgid "Travel & Weather"
 msgstr "Seyahat & Hava Durumu"
 
 msgid "Utilities"
-msgstr "Yardımcı uygulamalar"
+msgstr "Yardımcı Uygulamalar"
 
 # This is text to go on a button that will say "Download from the\nOpenStore" (where \n is a line break)
 msgid "Download from the"
@@ -155,7 +155,7 @@ msgstr ""
 "Hepimiz kendimizin en büyük düşmanıyız. Ama aynı zamanda en iyi öğretmeniyiz."
 
 msgid "Fun Games"
-msgstr "Eğlenceli oyunlar"
+msgstr "Eğlenceli Oyunlar"
 
 # Discovery section category tagline for "Fun Games"
 msgid "Cause I always play to win!"
