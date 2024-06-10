@@ -80,6 +80,10 @@ export function setupStatics(reviewSchema: Schema<IReview, ReviewModel, IReviewM
   reviewSchema.statics.countByFilters = async function (filters: ReviewRequestFilters): Promise<number> {
     const query = this.parseFilters(filters);
 
+    if (query.date) { // The date filter is for paging, so we want the count to include all the reviews, not just the ones from this date
+      delete query.date;
+    }
+
     const result = await this.countDocuments(query);
     return result;
   };
