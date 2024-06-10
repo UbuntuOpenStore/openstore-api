@@ -30,8 +30,8 @@ deploy:
     - echo $VERSION
     - npm install
     - npm run build
-    - rsync -av --delete --exclude node_modules --exclude ".*" . root@ssh.open-store.io:/srv/openstore-api/$VERSION
-    - ssh root@ssh.open-store.io "/srv/openstore-api/$VERSION/deploy/post-deploy.sh $VERSION"
+    - rsync -av --delete --exclude node_modules --exclude ".*" . brian@ssh.open-store.io:/srv/openstore-api/$VERSION
+    - ssh brian@ssh.open-store.io "/srv/openstore-api/$VERSION/deploy/post-deploy.sh $VERSION"
 
 deploy_staging:
   stage: deploy
@@ -48,8 +48,8 @@ deploy_staging:
     - echo $VERSION
     - npm install
     - npm run build
-    - rsync -av --delete --exclude node_modules --exclude ".*" . root@ssh.open-store.io:/srv/openstore-api$ENV/$VERSION
-    - ssh root@ssh.open-store.io "/srv/openstore-api$ENV/$VERSION/deploy/post-deploy.sh $VERSION $ENV"
+    - rsync -av --delete --exclude node_modules --exclude ".*" . brian@ssh.open-store.io:/srv/openstore-api$ENV/$VERSION
+    - ssh brian@ssh.open-store.io "/srv/openstore-api$ENV/$VERSION/deploy/post-deploy.sh $VERSION $ENV"
 
 sast:
   variables:
