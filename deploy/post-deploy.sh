@@ -17,7 +17,7 @@ echo -e "#!/bin/bash\nexport VERSION=$VERSION$ENV" > /srv/openstore$ENV/version.
 rm -f $BASE/current
 ln -s $BASE/$VERSION $BASE/current
 
-systemctl restart openstore-api$ENV
+sudo systemctl restart openstore-api$ENV
 
 cd $BASE/
 echo "Going to remove old versions"
