@@ -2,16 +2,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2017-06-20 01:45:+0000\n"
-"PO-Revision-Date: 2021-02-15 01:58+0000\n"
-"Last-Translator: louies0623 <louies0623@gmail.com>\n"
-"Language-Team: Chinese (Traditional) <https://translate.ubports.com/projects/"
-"openstore/openstore-api/zh_Hant/>\n"
+"PO-Revision-Date: 2024-07-03 06:09+0000\n"
+"Last-Translator: hugoalh <hugoalh@users.noreply.hosted.weblate.org>\n"
+"Language-Team: Chinese (Traditional) <https://hosted.weblate.org/projects/"
+"open-store-io/openstore-api/zh_Hant/>\n"
 "Language: zh_Hant\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 3.11.3\n"
+"X-Generator: Weblate 5.7-dev\n"
 
 msgid "Accessibility"
 msgstr "無障礙"
@@ -135,7 +135,7 @@ msgstr ""
 
 # Discovery section category name
 msgid "Tools"
-msgstr ""
+msgstr "工具"
 
 # Discovery section category tagline for "Tools"
 msgid "Even the simplest tools can empower people to do great things"
@@ -143,7 +143,7 @@ msgstr ""
 
 # Discovery section category name
 msgid "Toolbox"
-msgstr ""
+msgstr "工具箱"
 
 # Discovery section category tagline for "Toolbox"
 msgid "It's not the thing itself, but how you use it."
@@ -153,19 +153,15 @@ msgstr ""
 msgid "We are all our own worst enemy. But also, our best teacher."
 msgstr ""
 
-#, fuzzy
-#| msgid "Games"
 msgid "Fun Games"
-msgstr "遊戲"
+msgstr "有趣的遊戲"
 
 # Discovery section category tagline for "Fun Games"
 msgid "Cause I always play to win!"
 msgstr ""
 
-#, fuzzy
-#| msgid "Games"
 msgid "Best Games"
-msgstr "遊戲"
+msgstr "最佳遊戲"
 
 # Discovery section category tagline for "Best Games"
 msgid "Didn't we have some fun though?"
@@ -173,7 +169,7 @@ msgstr ""
 
 # Discovery section category name
 msgid "Awesome Games"
-msgstr ""
+msgstr "驚人的遊戲"
 
 # Discovery section category tagline for "Awesome Games"
 msgid "It's dangerous to go alone, take this!"
@@ -181,7 +177,7 @@ msgstr ""
 
 # Discovery section category name
 msgid "Game Helpers"
-msgstr ""
+msgstr "遊戲助手"
 
 # Discovery section category tagline for "Game Helpers"
 msgid "No matter what the game, everyone can agree, games are fun."
@@ -189,16 +185,14 @@ msgstr ""
 
 # Discovery section category name
 msgid "News"
-msgstr ""
+msgstr "新聞"
 
 # Discovery section category tagline for "News"
 msgid "News is only the first rough draft of history"
 msgstr ""
 
-#, fuzzy
-#| msgid "Games"
 msgid "Godot Games"
-msgstr "遊戲"
+msgstr "Godot 遊戲"
 
 # Discovery section category tagline for "Godot Games"
 msgid "The game engine you waited for"
@@ -206,7 +200,7 @@ msgstr ""
 
 # Discovery section category name
 msgid "Fediverse"
-msgstr ""
+msgstr "Fediverse"
 
 # Discovery section category tagline for "Fediverse"
 msgid "To infinity and beyond!"
@@ -222,7 +216,7 @@ msgstr ""
 
 # Discovery section category name
 msgid "RSS Feed Readers"
-msgstr ""
+msgstr "RSS 提要閱讀器"
 
 # Discovery section category tagline for "RSS Feed Readers"
 msgid "RSS is dead, long live RSS!"
@@ -230,7 +224,7 @@ msgstr ""
 
 # Discovery section category name
 msgid "Core Apps"
-msgstr ""
+msgstr "核心應用程式"
 
 # Discovery section category tagline for "Core Apps"
 msgid "There is an app for that"
