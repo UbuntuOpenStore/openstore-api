@@ -5,7 +5,7 @@ import fsPromise from 'fs/promises';
 import fs from 'fs';
 import { Architecture, Channel, DEFAULT_CHANNEL, type HydratedPackage } from 'db/package/types';
 import { Package } from 'db/package';
-import { success, getData, apiLinks, asyncErrorWrapper, getDataBoolean, getDataArray } from 'utils';
+import { success, getData, apiLinks, asyncErrorWrapper, getDataArray } from 'utils';
 import { fetchPublishedPackage } from 'middleware';
 import { NotFoundError, UserError } from 'exceptions';
 import reviews from './reviews';
