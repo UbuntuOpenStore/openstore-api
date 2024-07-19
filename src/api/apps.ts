@@ -5,7 +5,7 @@ import fsPromise from 'fs/promises';
 import fs from 'fs';
 import { Architecture, Channel, DEFAULT_CHANNEL, type HydratedPackage } from 'db/package/types';
 import { Package } from 'db/package';
-import { success, getData, apiLinks, asyncErrorWrapper, getDataArray } from 'utils';
+import { success, getData, apiLinks, asyncErrorWrapper, getDataArray, getDataBoolean } from 'utils';
 import { fetchPublishedPackage } from 'middleware';
 import { NotFoundError, UserError } from 'exceptions';
 import reviews from './reviews';
@@ -24,18 +24,16 @@ async function apps(req: Request, res: Response) {
 
   // Send search queries to elastic search
   // TODO move author searches to a different request parameter
-  /*
   if (filters.search && !filters.search.startsWith('author:') && !filters.search.startsWith('publisher:')) {
     const results = await Package.searchByFilters(filters, getDataBoolean(req, 'full', false));
     pkgs = results.pkgs;
     count = results.count;
   }
   else {
-  */
-  const publishedFilters = { ...filters, published: true };
-  pkgs = await Package.findByFilters(publishedFilters, publishedFilters.sort, publishedFilters.limit, publishedFilters.skip);
-  count = await Package.countByFilters(publishedFilters);
-  // }
+    const publishedFilters = { ...filters, published: true };
+    pkgs = await Package.findByFilters(publishedFilters, publishedFilters.sort, publishedFilters.limit, publishedFilters.skip);
+    count = await Package.countByFilters(publishedFilters);
+  }
 
   const arch = getData(req, 'architecture', Architecture.ARMHF) as Architecture;
   const channel = getData(req, 'channel', DEFAULT_CHANNEL) as Channel;

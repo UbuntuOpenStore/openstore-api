@@ -39,6 +39,7 @@
     "ext": "ts, js, json"
   },
   "dependencies": {
+    "@elastic/elasticsearch": "^7.17.14",
     "@sentry/node": "^7.53.1",
     "axios": "^1.4.0",
     "body-parser": "^1.19.0",
@@ -47,7 +48,6 @@
     "cookie-parser": "^1.4.6",
     "cookie-session": "^2.0.0",
     "dotenv": "^16.0.3",
-    "elasticsearch": "^16.7.2",
     "express": "^4.17.1",
     "gettext-parser": "^7.0.0",
     "lodash": "^4.17.21",

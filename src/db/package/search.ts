@@ -1,12 +1,12 @@
-import elasticsearch, { type SearchParams } from 'elasticsearch';
+import elasticsearch from '@elastic/elasticsearch';
 
 import { config } from 'utils';
 import { type HydratedPackage, type IPackage, type PackageRequestFilters } from './types';
+import { type Search } from '@elastic/elasticsearch/api/requestParams';
 
 // Modified from https://github.com/bhdouglass/uappexplorer/blob/master/src/db/elasticsearch/elasticsearch.js
 
 const INDEX = config.elasticsearch.index;
-const TYPE = 'openstore_package';
 const PROPERTIES = [
   'id',
   'name',
@@ -38,14 +38,12 @@ const SEARCH_FIELDS = [
 ];
 
 export class PackageSearch {
-  // https://stackoverflow.com/a/68631678
   private readonly client: elasticsearch.Client;
 
   constructor() {
+    // IMPORTANT: The client version must match the major version of the server. So we need v7 while the server is v7
     this.client = new elasticsearch.Client({
-      host: config.elasticsearch.uri,
-      apiVersion: '6.8',
-      ssl: { rejectUnauthorized: false, pfx: [] },
+      node: config.elasticsearch.uri,
     });
   }
 
@@ -71,9 +69,8 @@ export class PackageSearch {
   async upsert(item: HydratedPackage) {
     await this.client.update({
       index: INDEX,
-      type: TYPE,
       id: item.id,
-      retryOnConflict: 3,
+      retry_on_conflict: 3,
       body: {
         doc_as_upsert: true,
         doc: this.convert(item),
@@ -87,9 +84,7 @@ export class PackageSearch {
     try {
       await this.client.delete({
         index: INDEX,
-        type: TYPE,
         id: item.id,
-        retryOnConflict: 3,
       } as any);
     }
     catch (err) {
@@ -110,8 +105,6 @@ export class PackageSearch {
         update: {
           _id: item.id,
           _index: INDEX,
-          _type: TYPE,
-          _retry_on_conflict: 3,
         },
       });
 
@@ -127,8 +120,6 @@ export class PackageSearch {
           delete: {
             _id: id,
             _index: INDEX,
-            _type: TYPE,
-            _retry_on_conflict: 3,
           },
         };
       }));
@@ -138,21 +129,20 @@ export class PackageSearch {
   }
 
   parseFilters({ types, ids, frameworks, architectures, category, author, channel, nsfw }: PackageRequestFilters) {
-    const query: { [key: string]: any } = {
-      and: [], // No default published=true filter, only published apps are in elasticsearch
-    };
+    // No default published=true filter, only published apps are in elasticsearch
+    const query: { [key: string]: any }[] = [];
 
     if (types && types.length > 0) {
-      query.and.push({
-        in: {
+      query.push({
+        terms: {
           types,
         },
       });
     }
 
     if (ids && ids.length > 0) {
-      query.and.push({
-        in: {
+      query.push({
+        terms: {
           id: ids,
         },
       });
@@ -168,8 +158,8 @@ export class PackageSearch {
         });
       });
 
-      query.and.push({
-        in: { device_compatibilities: deviceCompatibilities },
+      query.push({
+        terms: { device_compatibilities: deviceCompatibilities },
       });
     }
     else if (architectures && architectures.length > 0 && channel) {
@@ -177,20 +167,20 @@ export class PackageSearch {
         return `${channel}:${arch}`;
       });
 
-      query.and.push({
-        in: { channel_architectures: channelArchitectures },
+      query.push({
+        terms: { channel_architectures: channelArchitectures },
       });
     }
     else if (channel) {
-      query.and.push({
-        in: {
+      query.push({
+        terms: {
           channels: [channel],
         },
       });
     }
 
     if (category) {
-      query.and.push({
+      query.push({
         term: {
           category: category.replace(/&/g, '_').replace(/ /g, '_').toLowerCase(),
         },
@@ -198,7 +188,7 @@ export class PackageSearch {
     }
 
     if (author) {
-      query.and.push({
+      query.push({
         term: {
           author,
         },
@@ -206,7 +196,7 @@ export class PackageSearch {
     }
 
     if (nsfw) {
-      query.and.push({
+      query.push({
         term: {
           nsfw: nsfw.includes(true),
         },
@@ -229,36 +219,38 @@ export class PackageSearch {
       }
     }
 
-    const request: SearchParams = {
+    const request: Search<Record<string, any>> = {
       index: INDEX,
-      type: TYPE,
       body: {
         from: skip || 0,
         size: limit || 30,
         query: {
-          multi_match: {
-            query: filters.search?.toLowerCase() || '',
-            fields: SEARCH_FIELDS,
-            slop: 10,
-            max_expansions: 50,
-            type: 'phrase_prefix',
+          bool: {
+            must: {
+              multi_match: {
+                query: filters.search?.toLowerCase() || '',
+                fields: SEARCH_FIELDS,
+                slop: 10,
+                max_expansions: 50,
+                type: 'phrase_prefix',
+              },
+            },
           },
         },
       },
     };
 
     const query = this.parseFilters(filters);
-    if (query && query.and && query.and.length > 0) {
-      request.body.filter = query;
+    if (query && query.length > 0) {
+      request.body!.query.bool.filter = query;
     }
 
     if (sortTerm) {
-      const s: { [key: string]: { order: string; ignore_unmapped: boolean } } = {};
+      const s: { [key: string]: { order: string } } = {};
       s[sortTerm] = {
         order: direction,
-        ignore_unmapped: true,
       };
-      request.body.sort = [s];
+      request.body!.sort = [s];
     }
 
     return this.client.search(request);
@@ -272,7 +264,6 @@ export class PackageSearch {
     return this.client.indices.create({
       index: INDEX,
       body: {
-        packages: INDEX,
         settings: {
           analysis: {
             analyzer: {
@@ -285,64 +276,52 @@ export class PackageSearch {
           },
         },
         mappings: {
-          package: {
-            properties: {
-              search_name: {
-                type: 'string',
-                analyzer: 'lower_standard',
-              },
-              description: {
-                type: 'string',
-                analyzer: 'lower_standard',
-              },
-              keywords: {
-                type: 'string',
-                analyzer: 'lower_standard',
-              },
-              author: {
-                type: 'string',
-                analyzer: 'lower_standard',
-              },
-              category: {
-                type: 'string',
-                index: 'not_analyzed',
-              },
-              license: {
-                type: 'string',
-                index: 'not_analyzed',
-              },
-              architectures: {
-                type: 'string',
-                index: 'not_analyzed',
-              },
-              name: {
-                type: 'string',
-                index: 'not_analyzed',
-              },
-              framework: {
-                type: 'string',
-                index: 'not_analyzed',
-              },
-              icon: {
-                type: 'string',
-                index: 'not_analyzed',
-              },
-              version: {
-                type: 'string',
-                index: 'not_analyzed',
-              },
-              channels: {
-                type: 'string',
-                index: 'not_analyzed',
-              },
-              channel_architectures: {
-                type: 'string',
-                index: 'not_analyzed',
-              },
-              device_compatibilities: {
-                type: 'string',
-                index: 'not_analyzed',
-              },
+          properties: {
+            search_name: {
+              type: 'text',
+              analyzer: 'lower_standard',
+            },
+            description: {
+              type: 'text',
+              analyzer: 'lower_standard',
+            },
+            keywords: {
+              type: 'text',
+              analyzer: 'lower_standard',
+            },
+            author: {
+              type: 'text',
+              analyzer: 'lower_standard',
+            },
+            category: {
+              type: 'keyword',
+            },
+            license: {
+              type: 'keyword',
+            },
+            architectures: {
+              type: 'keyword',
+            },
+            name: {
+              type: 'keyword',
+            },
+            framework: {
+              type: 'keyword',
+            },
+            icon: {
+              type: 'keyword',
+            },
+            version: {
+              type: 'keyword',
+            },
+            channels: {
+              type: 'keyword',
+            },
+            channel_architectures: {
+              type: 'keyword',
+            },
+            device_compatibilities: {
+              type: 'keyword',
             },
           },
         },
