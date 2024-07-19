@@ -41,7 +41,11 @@ export class PackageSearch {
   private readonly client: elasticsearch.Client;
 
   constructor() {
-    // IMPORTANT: The client version must match the major version of the server. So we need v7 while the server is v7
+    /*
+      IMPORTANT: The client version must match the major version of the server. So we need v7 while the server is v7
+      Also, we are stuck at v7.13.0 for now due to the client not supporting the server:
+      https://github.com/elastic/elasticsearch-js/issues/1519
+    */
     this.client = new elasticsearch.Client({
       node: config.elasticsearch.uri,
     });

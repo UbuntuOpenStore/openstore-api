@@ -39,7 +39,7 @@
     "ext": "ts, js, json"
   },
   "dependencies": {
-    "@elastic/elasticsearch": "^7.17.14",
+    "@elastic/elasticsearch": "^7.13.0",
     "@sentry/node": "^7.53.1",
     "axios": "^1.4.0",
     "body-parser": "^1.19.0",
