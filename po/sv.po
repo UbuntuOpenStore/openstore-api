@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: openstore-web\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2017-06-20 01:45:+0000\n"
-"PO-Revision-Date: 2024-04-29 04:07+0000\n"
+"PO-Revision-Date: 2024-08-23 02:09+0000\n"
 "Last-Translator: Kristoffer Grundström <swedishsailfishosuser@tutanota.com>\n"
 "Language-Team: Swedish <https://hosted.weblate.org/projects/open-store-io/"
 "openstore-api/sv/>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.5.1\n"
+"X-Generator: Weblate 5.7\n"
 "X-Launchpad-Export-Date: 2017-06-21 14:52+0000\n"
 
 msgid "Accessibility"
@@ -75,7 +75,7 @@ msgid "Science & Engineering"
 msgstr "Vetenskap och teknik"
 
 msgid "Shopping"
-msgstr "Shopping"
+msgstr "Köp och Sälj"
 
 msgid "Sports"
 msgstr "Sport"
@@ -147,6 +147,7 @@ msgstr "Verktyg"
 # Discovery section category tagline for "Tools"
 msgid "Even the simplest tools can empower people to do great things"
 msgstr ""
+"Även de enklaste verktygen kan ge människor möjlighet att göra stora saker"
 
 # Discovery section category name
 msgid "Toolbox"
@@ -172,48 +173,46 @@ msgstr "De bästa spelen"
 
 # Discovery section category tagline for "Best Games"
 msgid "Didn't we have some fun though?"
-msgstr ""
+msgstr "Har vi inte haft lite roligt ändå?"
 
 # Discovery section category name
 msgid "Awesome Games"
-msgstr ""
+msgstr "Grymt bra spel"
 
 # Discovery section category tagline for "Awesome Games"
 msgid "It's dangerous to go alone, take this!"
-msgstr ""
+msgstr "Det är farligt att gå ensam, ta det här!"
 
 # Discovery section category name
 msgid "Game Helpers"
-msgstr ""
+msgstr "Spelhjälpare"
 
 # Discovery section category tagline for "Game Helpers"
 msgid "No matter what the game, everyone can agree, games are fun."
-msgstr ""
+msgstr "Oavsett vilket spel så kan alla vara överrens om att spel är roligt."
 
 # Discovery section category name
 msgid "News"
-msgstr ""
+msgstr "Nyheter"
 
 # Discovery section category tagline for "News"
 msgid "News is only the first rough draft of history"
-msgstr ""
+msgstr "Nyheter är bara det första grova utkastet till historia"
 
-#, fuzzy
-#| msgid "Games"
 msgid "Godot Games"
-msgstr "Spel"
+msgstr "Godot-spel"
 
 # Discovery section category tagline for "Godot Games"
 msgid "The game engine you waited for"
-msgstr ""
+msgstr "Spelmotorn som du har väntat på"
 
 # Discovery section category name
 msgid "Fediverse"
-msgstr ""
+msgstr "Fediverse"
 
 # Discovery section category tagline for "Fediverse"
 msgid "To infinity and beyond!"
-msgstr ""
+msgstr "Till oändligheten och så vidare!"
 
 # Discovery section category name
 msgid "Chat Connection"
@@ -221,20 +220,20 @@ msgstr ""
 
 # Discovery section category tagline for "Chat Connection"
 msgid "Don't forget to text mom!"
-msgstr ""
+msgstr "Glöm inte att skicka meddelande till morsan!"
 
 # Discovery section category name
 msgid "RSS Feed Readers"
-msgstr ""
+msgstr "Flödesläsare för RSS"
 
 # Discovery section category tagline for "RSS Feed Readers"
 msgid "RSS is dead, long live RSS!"
-msgstr ""
+msgstr "RSS är dött, länge leve RSS!"
 
 # Discovery section category name
 msgid "Core Apps"
-msgstr ""
+msgstr "Bas-appar"
 
 # Discovery section category tagline for "Core Apps"
 msgid "There is an app for that"
-msgstr ""
+msgstr "Det finns en app för det"
