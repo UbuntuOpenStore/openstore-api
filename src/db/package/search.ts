@@ -2,7 +2,6 @@ import elasticsearch from '@elastic/elasticsearch';
 
 import { config } from 'utils';
 import { type HydratedPackage, type IPackage, type PackageRequestFilters } from './types';
-import { type Search } from '@elastic/elasticsearch/api/requestParams';
 
 // Modified from https://github.com/bhdouglass/uappexplorer/blob/master/src/db/elasticsearch/elasticsearch.js
 
@@ -223,7 +222,7 @@ export class PackageSearch {
       }
     }
 
-    const request: Search<Record<string, any>> = {
+    const request: elasticsearch.RequestParams.Search<Record<string, any>> = {
       index: INDEX,
       body: {
         from: skip || 0,

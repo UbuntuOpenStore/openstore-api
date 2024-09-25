@@ -10,37 +10,23 @@
     "src"
   ],
   "exclude": ["**/node_modules", "**/.*/", "**/dist"],
-  // TODO review https://github.com/microsoft/TypeScript/wiki/Performance
-  // TODO review https://www.totaltypescript.com/tsconfig-cheat-sheet
-  // TODO check performance https://www.totaltypescript.com/typescript-performance
-
   "compilerOptions": {
-    "incremental": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
     "target": "es2022",
-    "module": "commonjs",
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "moduleDetection": "force",
+    "isolatedModules": true,
+    "strict": true,
+    "module": "NodeNext",
+    "outDir": "dist",
+    "sourceMap": true,
+    "lib": ["es2022"],
     "rootDir": "src",
-    "moduleResolution": "node",
     "baseUrl": "src",
-    "typeRoots": ["./types", "./node_modules/@types/"],                                  /* Specify multiple folders that act like `./node_modules/@types`. */
-    "types": [
-      "node"
-    ],
-    "resolveJsonModule": true,                        /* Enable importing .json files */
-    "declaration": true,                              /* Generate .d.ts files from TypeScript and JavaScript files in your project. */
-    "sourceMap": true,                                /* Create source map files for emitted JavaScript files. */
-    "outDir": "./dist",                                   /* Specify an output folder for all emitted files. */
-    "removeComments": true,                           /* Disable emitting comments. */
-    "inlineSources": true,                            /* Include source code in the sourcemaps inside the emitted JavaScript. */
-    "allowSyntheticDefaultImports": true,             /* Allow 'import x from y' when a module doesn't have a default export. */
-    "esModuleInterop": true,                             /* Emit additional JavaScript to ease support for importing CommonJS modules. This enables `allowSyntheticDefaultImports` for type compatibility. */
-    "forceConsistentCasingInFileNames": true,            /* Ensure that casing is correct in imports. */
-
-    "strict": true,                                      /* Enable all strict type-checking options. */
-    "noImplicitThis": false,                           /* Enable error reporting when `this` is given the type `any`. */
-    "useUnknownInCatchVariables": false,               /* Type catch clause variables as 'unknown' instead of 'any'. */
-    "alwaysStrict": true,                             /* Ensure 'use strict' is always emitted. */
-
-    "skipDefaultLibCheck": true,                      /* Skip type checking .d.ts files that are included with TypeScript. */
-    "skipLibCheck": true                                 /* Skip type checking all .d.ts files. */
+    "typeRoots": ["./types", "./node_modules/@types/"],
+    "allowSyntheticDefaultImports": true,
+    "useUnknownInCatchVariables": false,
   }
 }

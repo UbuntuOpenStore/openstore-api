@@ -1,4 +1,3 @@
-import mime from 'mime';
 import express, { type Request, type Response } from 'express';
 
 import fsPromise from 'fs/promises';
@@ -87,7 +86,8 @@ async function download(req: Request, res: Response) {
 
   const stat = await fsPromise.stat(revisionData.download_url);
   res.setHeader('Content-Length', stat.size);
-  res.setHeader('Content-type', mime.getType(revisionData.download_url) ?? '');
+  // TODO if we ever offer anything other than a click file this should change
+  res.setHeader('Content-type', 'application/vnd.debian.binary-package');
   res.setHeader('Content-Disposition', `attachment; filename=${req.pkg.id as string}_${revisionData.version}_${arch}.click`);
 
   // TODO let nginx handle this, making this just a 302

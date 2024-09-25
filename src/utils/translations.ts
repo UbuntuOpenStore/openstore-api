@@ -1,18 +1,18 @@
 import Gettext from 'node-gettext';
-import { po } from 'gettext-parser';
 import fs from 'fs';
 import path from 'path';
 
+const gettextParse = import('gettext-parser');
 const gt = new Gettext();
 
 const langs: string[] = [];
 const poDir = path.join(__dirname, '../../po');
-fs.readdirSync(poDir).forEach((poFile: string) => {
+fs.readdirSync(poDir).forEach(async (poFile: string) => {
   if (poFile.endsWith('.po')) {
     const lang = poFile.replace('.po', '');
     const fileName = path.join(poDir, poFile);
     const content = fs.readFileSync(fileName, 'utf-8');
-    const parsed = po.parse(content);
+    const parsed = (await gettextParse).po.parse(content);
 
     langs.push(lang);
     gt.addTranslations(lang, 'messages', parsed);

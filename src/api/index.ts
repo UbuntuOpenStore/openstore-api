@@ -78,7 +78,6 @@ export function setup() {
   }));
   app.use(passport.initialize());
   app.use(passport.session());
-  app.use(Sentry.Handlers.errorHandler());
 
   app.use('/auth', auth);
   app.use('/api/users', users);
@@ -140,6 +139,8 @@ export function setup() {
   app.use((req: Request, res: Response) => {
     error(res, 'Route not found', 404);
   });
+
+  Sentry.setupExpressErrorHandler(app);
 
   if (process.env.NODE_ENV !== 'testing' && process.env.NODE_ENV !== 'ci') {
     app.listen(config.server.port, config.server.ip);
