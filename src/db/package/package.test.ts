@@ -1,14 +1,16 @@
+import { test, describe, beforeEach } from 'node:test';
+import assert from 'node:assert/strict';
+
 import { Ratings } from 'db/review';
 import { UserError } from 'exceptions';
-import factory from 'tests/factory';
-import { expect } from 'tests/helper';
 import { Package } from '.';
 import { Architecture, Channel, PackageType, DEFAULT_CHANNEL, ChannelArchitecture } from './types';
 import { serializeRatings } from './methods';
+import { type TestPackage } from 'tests/factory';
 
 describe('Package', () => {
-  context('parseRequestFilters', () => {
-    it('parses a request', () => {
+  describe('parseRequestFilters', () => {
+    test('parses a request', () => {
       const parsed = Package.parseRequestFilters({
         query: {
           types: PackageType.APP,
@@ -27,7 +29,7 @@ describe('Package', () => {
         },
       } as any);
 
-      expect(parsed).to.deep.equal({
+      assert.deepEqual(parsed, {
         types: [PackageType.APP],
         architectures: [Architecture.ALL],
         limit: 100,
@@ -43,39 +45,33 @@ describe('Package', () => {
       });
     });
 
-    it('handles types and type', () => {
-      expect(Package.parseRequestFilters({
+    test('handles types and type', () => {
+      assert.deepEqual(Package.parseRequestFilters({
         query: { type: PackageType.APP, types: PackageType.WEBAPP },
-      } as any)).to.deep.include({
-        types: [PackageType.WEBAPP, PackageType.APP],
-      });
+      } as any).types, [PackageType.WEBAPP, PackageType.APP]);
     });
 
-    it('adds arch all when the arch is not all', () => {
-      expect(Package.parseRequestFilters({
+    test('adds arch all when the arch is not all', () => {
+      assert.deepEqual(Package.parseRequestFilters({
         query: { architecture: Architecture.ARMHF, channel: Channel.FOCAL },
-      } as any)).to.deep.include({
-        architectures: [Architecture.ARMHF, Architecture.ALL],
-      });
+      } as any).architectures, [Architecture.ARMHF, Architecture.ALL]);
     });
 
-    it('does not throw an error when arch is not specified but channel is', () => {
-      expect(Package.parseRequestFilters({
+    test('does not throw an error when arch is not specified but channel is', () => {
+      assert.equal(Package.parseRequestFilters({
         query: { channel: Channel.FOCAL },
-      } as any)).to.deep.include({
-        channel: Channel.FOCAL,
-      });
+      } as any).channel, Channel.FOCAL);
     });
 
-    it('throws an error when channel is not specified but arch is', () => {
-      expect(() => Package.parseRequestFilters({
+    test('throws an error when channel is not specified but arch is', () => {
+      assert.throws(() => Package.parseRequestFilters({
         query: { architecture: Architecture.ARMHF },
-      } as any)).to.throw(UserError);
+      } as any), UserError);
     });
   });
 
-  context('parseFilters', () => {
-    it('parses filters, with arch/channel/frameworks specified', () => {
+  describe('parseFilters', () => {
+    test('parses filters, with arch/channel/frameworks specified', () => {
       const parsed = Package.parseFilters({
         types: [PackageType.APP, PackageType.WEBAPP],
         ids: ['foo.bar'],
@@ -90,7 +86,7 @@ describe('Package', () => {
         published: true,
       });
 
-      expect(parsed).to.deep.equal({
+      assert.deepEqual(parsed, {
         types: { $in: [PackageType.APP, PackageType.WEBAPP] },
         id: { $in: ['foo.bar'] },
         device_compatibilities: {
@@ -108,23 +104,24 @@ describe('Package', () => {
       });
     });
 
-    it('parses filters, with arch/channel specified', () => {
+    test('parses filters, with arch/channel specified', () => {
       const parsed = Package.parseFilters({
         architectures: [Architecture.ARMHF, Architecture.ALL],
         channel: Channel.FOCAL,
       });
 
-      expect(parsed).to.deep.equal({
+      assert.deepEqual(parsed, {
         channel_architectures: { $in: [ChannelArchitecture.FOCAL_ARMHF, ChannelArchitecture.FOCAL_ALL] },
       });
     });
   });
 
-  context('serialization', () => {
-    beforeEach(async function () {
-      this.now = (new Date()).toISOString();
+  describe('serialization', () => {
+    const now = (new Date()).toISOString();
+    let package1: TestPackage;
 
-      this.package = await factory.package({
+    beforeEach(() => {
+      package1 = new Package({
         id: 'app.id',
         name: 'Best App Ever',
         channels: [DEFAULT_CHANNEL],
@@ -135,10 +132,10 @@ describe('Package', () => {
         keywords: ['best', 'good'],
         license: 'GNU LGPL v3',
         nsfw: false,
-        published_date: this.now,
+        published_date: now,
         tagline: 'such wow',
         types: [PackageType.APP],
-        updated_date: this.now,
+        updated_date: now,
         changelog: 'some changes',
         donate_url: 'https://example.com/donate',
         languages: ['en_US'],
@@ -151,36 +148,38 @@ describe('Package', () => {
       });
     });
 
-    context('iconUrl', () => {
-      it('generates an icon url', function () {
-        this.package.createNextRevision('1.0.0', Channel.FOCAL, Architecture.ARMHF, 'ubuntu-sdk-16.04', 'url', 'shasum', 10, 8);
-        expect(this.package.icon_url).to.equal('http://local.open-store.io/icons/app.id/app.id-1.0.0.png');
+    describe('iconUrl', () => {
+      test('generates an icon url', () => {
+        package1.createNextRevision('1.0.0', Channel.FOCAL, Architecture.ARMHF, 'ubuntu-sdk-16.04', 'url', 'shasum', 10, 8);
+        assert.equal(package1.icon_url, 'http://local.open-store.io/icons/app.id/app.id-1.0.0.png');
       });
 
-      it('generates an icon url with no version info', function () {
-        expect(this.package.icon_url).to.equal('http://local.open-store.io/icons/app.id/app.id-0.0.0.png');
-      });
-    });
-
-    context('downloadUrl', () => {
-      it('generates a download url without a version', function () {
-        expect(
-          this.package.getDownloadUrl(Channel.FOCAL, Architecture.ARMHF),
-        ).to.equal('http://local.open-store.io/api/v3/apps/app.id/download/focal/armhf');
-      });
-
-      it('generates a download url with a version', function () {
-        expect(
-          this.package.getDownloadUrl(Channel.FOCAL, Architecture.ARMHF, '1.0.0'),
-        ).to.equal('http://local.open-store.io/api/v3/apps/app.id/download/focal/armhf/1.0.0');
+      test('generates an icon url with no version info', () => {
+        assert.equal(package1.icon_url, 'http://local.open-store.io/icons/app.id/app.id-0.0.0.png');
       });
     });
 
-    context('serialize', () => {
-      it('serializes slimly', function () {
-        const serialized = this.package.serializeSlim();
+    describe('downloadUrl', () => {
+      test('generates a download url without a version', () => {
+        assert.equal(
+          package1.getDownloadUrl(Channel.FOCAL, Architecture.ARMHF),
+          'http://local.open-store.io/api/v3/apps/app.id/download/focal/armhf',
+        );
+      });
 
-        expect(serialized).to.deep.equal({
+      test('generates a download url with a version', () => {
+        assert.equal(
+          package1.getDownloadUrl(Channel.FOCAL, Architecture.ARMHF, '1.0.0'),
+          'http://local.open-store.io/api/v3/apps/app.id/download/focal/armhf/1.0.0',
+        );
+      });
+    });
+
+    describe('serialize', () => {
+      test('serializes slimly', () => {
+        const serialized = package1.serializeSlim();
+
+        assert.deepEqual(serialized, {
           id: 'app.id',
           name: 'Best App Ever',
           icon: 'http://local.open-store.io/icons/app.id/app.id-0.0.0.png',
@@ -194,10 +193,10 @@ describe('Package', () => {
           keywords: ['best', 'good'],
           license: 'GNU LGPL v3',
           nsfw: false,
-          published_date: this.now,
+          published_date: now,
           tagline: 'such wow',
           types: ['app'],
-          updated_date: this.now,
+          updated_date: now,
           ratings: {
             BUGGY: 0,
             HAPPY: 0,
@@ -208,22 +207,22 @@ describe('Package', () => {
         });
       });
 
-      it('serializes fully', function () {
-        this.package.channel_architectures = [ChannelArchitecture.FOCAL_ARMHF, ChannelArchitecture.FOCAL_ARM64];
-        this.package.device_compatibilities = [
+      test('serializes fully', () => {
+        package1.channel_architectures = [ChannelArchitecture.FOCAL_ARMHF, ChannelArchitecture.FOCAL_ARM64];
+        package1.device_compatibilities = [
           `${ChannelArchitecture.FOCAL_ARMHF}:ubuntu-sdk-16.04`,
           `${ChannelArchitecture.FOCAL_ARM64}:ubuntu-sdk-16.04`,
         ];
-        this.package.createNextRevision('1.0.0', Channel.FOCAL, Architecture.ARMHF, 'ubuntu-sdk-16.04', 'url', 'shasum', 10, 8);
-        this.package.createNextRevision('1.0.0', Channel.FOCAL, Architecture.ARM64, 'ubuntu-sdk-16.04', 'url', 'shasum', 10, 8);
+        package1.createNextRevision('1.0.0', Channel.FOCAL, Architecture.ARMHF, 'ubuntu-sdk-16.04', 'url', 'shasum', 10, 8);
+        package1.createNextRevision('1.0.0', Channel.FOCAL, Architecture.ARM64, 'ubuntu-sdk-16.04', 'url', 'shasum', 10, 8);
 
-        this.package.revisions[0].created_date = this.now;
-        this.package.revisions[1].created_date = this.now;
-        this.package.updated_date = this.now;
+        package1.revisions[0].created_date = now;
+        package1.revisions[1].created_date = now;
+        package1.updated_date = now;
 
-        const serialized = this.package.serialize(Architecture.ARMHF, DEFAULT_CHANNEL, [], 4);
+        const serialized = package1.serialize(Architecture.ARMHF, DEFAULT_CHANNEL, [], 4);
 
-        expect(serialized).to.deep.equal({
+        assert.deepEqual(serialized, {
           id: 'app.id',
           name: 'Best App Ever',
           icon: 'http://local.open-store.io/icons/app.id/app.id-1.0.0.png',
@@ -243,10 +242,10 @@ describe('Package', () => {
           keywords: ['best', 'good'],
           license: 'GNU LGPL v3',
           nsfw: false,
-          published_date: this.now,
+          published_date: now,
           tagline: 'such wow',
           types: ['app'],
-          updated_date: this.now,
+          updated_date: now,
           calculated_rating: 0,
           ratings: {
             BUGGY: 0,
@@ -262,7 +261,7 @@ describe('Package', () => {
             {
               architecture: Architecture.ARM64,
               channel: Channel.FOCAL,
-              created_date: this.now,
+              created_date: now,
               download_sha512: 'shasum',
               download_url: 'http://local.open-store.io/api/v3/apps/app.id/download/focal/arm64/1.0.0',
               downloads: 0,
@@ -277,7 +276,7 @@ describe('Package', () => {
             {
               architecture: Architecture.ARMHF,
               channel: Channel.FOCAL,
-              created_date: this.now,
+              created_date: now,
               download_sha512: 'shasum',
               download_url: 'http://local.open-store.io/api/v3/apps/app.id/download/focal/armhf/1.0.0',
               downloads: 0,
@@ -314,7 +313,7 @@ describe('Package', () => {
             {
               architecture: Architecture.ARMHF,
               channel: Channel.FOCAL,
-              created_date: this.now,
+              created_date: now,
               download_sha512: 'shasum',
               download_url: 'http://local.open-store.io/api/v3/apps/app.id/download/focal/armhf/1.0.0',
               downloads: 0,
@@ -329,7 +328,7 @@ describe('Package', () => {
             {
               architecture: Architecture.ARM64,
               channel: Channel.FOCAL,
-              created_date: this.now,
+              created_date: now,
               download_sha512: 'shasum',
               download_url: 'http://local.open-store.io/api/v3/apps/app.id/download/focal/arm64/1.0.0',
               downloads: 0,
@@ -346,12 +345,12 @@ describe('Package', () => {
       });
     });
 
-    context('serializeRatings', () => {
-      it('formats ratings', () => {
-        expect(serializeRatings([
+    describe('serializeRatings', () => {
+      test('formats ratings', () => {
+        assert.deepEqual(serializeRatings([
           { name: Ratings.THUMBS_UP, count: 10 } as any,
           { name: Ratings.THUMBS_DOWN, count: 10 } as any,
-        ])).to.deep.equal({
+        ]), {
           THUMBS_UP: 10,
           THUMBS_DOWN: 10,
           HAPPY: 0,

@@ -1,17 +1,34 @@
+import { test, describe, beforeEach, before, after } from 'node:test';
+import assert from 'node:assert/strict';
+import request from 'supertest';
+import { cleanMongoose, closeMongoose, waitForMongoose } from 'tests/utils';
+import factory from 'tests/factory';
+import * as api from 'api';
+import { type App } from 'supertest/types';
+
 import { Package } from 'db/package';
 import { RatingCount } from 'db/rating_count';
 import { Architecture, Channel, ChannelArchitecture, PackageType } from 'db/package/types';
-import factory from 'tests/factory';
-import { expect } from 'tests/helper';
 import discoverJSON from './json/discover_apps.json';
 
 describe('Discover API', () => {
-  before(function () {
-    this.route = '/api/v3/discover/';
+  const route = '/api/v3/discover/';
+  let app: App;
+
+  before(async () => {
+    await waitForMongoose();
+
+    app = api.setup();
   });
 
-  beforeEach(async function () {
-    [this.package] = await Promise.all([
+  after(async () => {
+    await closeMongoose();
+  });
+
+  beforeEach(async () => {
+    await cleanMongoose();
+
+    await Promise.all([
       factory.package({
         published: true,
         id: discoverJSON.highlights[0].id,
@@ -53,35 +70,35 @@ describe('Discover API', () => {
     ]);
   });
 
-  it('returns a nice error', async function () {
-    const findStub = this.sandbox.stub(Package, 'findByFilters').rejects();
+  test('returns a nice error', async (t) => {
+    const mockFn = t.mock.method(Package, 'findByFilters', () => { throw new Error(); });
 
-    const res = await this.get(this.route, false).expect(500);
-    expect(res.body.success).to.be.false;
-    expect(findStub).to.have.been.called;
+    const res = await request(app).get(route).expect(500);
+    assert.equal(res.body.success, false);
+    assert.equal(mockFn.mock.callCount(), 1);
   });
 
-  it('returns data', async function () {
-    const getCountsByIdsSpy = this.sandbox.spy(RatingCount, 'getCountsByIds');
+  test('returns data', async (t) => {
+    const getCountsByIdsSpy = t.mock.method(RatingCount, 'getCountsByIds');
 
-    const res = await this.get(this.route, false).expect(200);
+    const res = await request(app).get(route).expect(200);
 
-    expect(res.body.success).to.be.true;
-    expect(res.body.data.highlight).to.not.be.undefined;
-    expect(res.body.data.highlights.length).to.be.greaterThan(0);
-    expect(res.body.data.categories.length).to.be.greaterThan(0);
+    assert.ok(res.body.success);
+    assert.ok(res.body.data.highlight);
+    assert.ok(res.body.data.highlights.length > 0);
+    assert.ok(res.body.data.categories.length > 0);
 
-    expect(getCountsByIdsSpy).to.not.have.been.called;
+    assert.equal(getCountsByIdsSpy.mock.callCount(), 0);
 
     // Cache hit
-    const res2 = await this.get(this.route, false).expect(200);
+    const res2 = await request(app).get(route).expect(200);
 
-    expect(res2.body.success).to.be.true;
-    expect(res2.body.data.highlight).to.not.be.undefined;
-    expect(res2.body.data.highlights.length).to.be.greaterThan(0);
-    expect(res2.body.data.categories.length).to.be.greaterThan(0);
+    assert.ok(res2.body.success);
+    assert.ok(res2.body.data.highlight);
+    assert.ok(res2.body.data.highlights.length > 0);
+    assert.ok(res2.body.data.categories.length > 0);
 
     // Verify that ratings get refreshed on a cache hit
-    expect(getCountsByIdsSpy).to.have.been.calledOnce;
+    assert.equal(getCountsByIdsSpy.mock.callCount(), 1);
   });
 });

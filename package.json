@@ -11,10 +11,9 @@
     "lint": "eslint ./src/**/*.ts ./src/*/*/*.ts --fix",
     "lint:nofix": "eslint ./src/**/*.ts ./src/*/*/*.ts",
     "lint:json": "jsonlint -q ./src/api/json/category_icons.json && jsonlint -q ./src/api/json/discover_apps.json",
-    "test": "NODE_ENV=testing mocha -r tsconfig-paths/register -r ts-node/register src/*/*.spec.ts src/*/*/*.spec.ts",
-    "coverage": "NODE_ENV=testing nyc mocha -r tsconfig-paths/register -r ts-node/register  src/*/*.spec.ts src/*/*/*.spec.ts",
-    "test:ci": "NODE_ENV=ci nyc mocha -r tsconfig-paths/register -r ts-node/register  src/*/*.spec.ts src/*/*/*.spec.ts",
-    "test:snapshot": "SNAPSHOT_TEST=true NODE_ENV=testing mocha -r tsconfig-paths/register -r ts-node/register --reporter dot snapshots.spec.ts",
+    "test": "NODE_ENV=testing node -r tsconfig-paths/register -r ts-node/register -r dotenv/config --test-concurrency=1 --test src/**/*.test.ts",
+    "test:ci": "NODE_ENV=ci node -r tsconfig-paths/register -r ts-node/register -r dotenv/config --test-concurrency=1 --test src/**/*.test.ts",
+    "test:snapshot": "SNAPSHOT_TEST=true NODE_ENV=testing node -r tsconfig-paths/register -r ts-node/register -r dotenv/config --test-concurrency=1 --test src/tests/snapshots.test.ts",
     "update-pot-file": "npm run ts-command update-pot-file",
     "command": "bash -c 'NODE_PATH=./dist node -r dotenv/config ./dist/commands/\"$0\".js $1'",
     "ts-command": "bash -c 'NODE_PATH=./src ts-node ./src/commands/\"$0\".ts $1'"
@@ -70,7 +69,6 @@
     "winston": "^3.3.3"
   },
   "devDependencies": {
-    "@types/chai": "^4.3.11",
     "@types/cookie-parser": "^1.4.2",
     "@types/cookie-session": "^2.0.43",
     "@types/elasticsearch": "^5.0.40",
@@ -79,7 +77,6 @@
     "@types/lodash": "^4.14.177",
     "@types/method-override": "^0.0.35",
     "@types/mime": "^3.0.1",
-    "@types/mocha": "^10.0.6",
     "@types/multer": "^1.4.7",
     "@types/node": "^20.10.3",
     "@types/node-gettext": "^3.0.2",
@@ -88,22 +85,19 @@
     "@types/rss": "^0.0.32",
     "@types/sanitize-html": "^2.5.0",
     "@types/shuffle-array": "^1.0.2",
-    "@types/sinon-chai": "^3.2.5",
-    "@types/supertest": "^2.0.11",
+    "@types/supertest": "^6.0.2",
     "@types/uuid": "^9.0.1",
-    "chai": "^4.3.4",
     "eslint": "^8.2.0",
     "eslint-config-bhdouglass": "^0.0.9",
-    "eslint-plugin-chai-friendly": "^0.7.2",
     "jsonlint": "^1.6.3",
-    "mocha": "^10.2.0",
     "nodemon": "^3.0.2",
     "nyc": "^15.1.0",
-    "sinon": "^17.0.1",
-    "sinon-chai": "^3.7.0",
-    "supertest": "^6.1.6",
+    "supertest": "^7.0.0",
     "ts-node": "^10.9.1",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.0.4"
+  },
+  "volta": {
+    "node": "22.9.0"
   }
 }

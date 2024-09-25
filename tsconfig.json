@@ -23,8 +23,6 @@
     "baseUrl": "src",
     "typeRoots": ["./types", "./node_modules/@types/"],                                  /* Specify multiple folders that act like `./node_modules/@types`. */
     "types": [
-      "mocha",
-      "chai",
       "node"
     ],
     "resolveJsonModule": true,                        /* Enable importing .json files */

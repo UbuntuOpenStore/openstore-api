@@ -2,11 +2,9 @@ module.exports = {
   env: {
     node: true,
     es2021: true,
-    mocha: true,
   },
   extends: [
     'eslint-config-bhdouglass',
-    'plugin:chai-friendly/recommended',
   ],
   parserOptions: {
     ecmaVersion: 'latest',
@@ -29,10 +27,9 @@ module.exports = {
   },
   overrides: [
     {
-      files: '*.spec.ts',
+      files: '*.test.ts',
       rules: {
-        '@typescript-eslint/no-unused-expressions': 'off',
-        '@typescript-eslint/restrict-template-expressions': 'off',
+        '@typescript-eslint/no-floating-promises': 'off',
       },
     },
   ],

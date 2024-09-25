@@ -1,9 +1,13 @@
-import { type IPackage, type IRevision, Package } from 'db/package';
-import { Review } from 'db/review';
-import { User } from 'db/user';
+import { type IPackage, type IRevision, Package, type IPackageMethods } from 'db/package';
+import { type IReview, Review } from 'db/review';
+import { type IUser, User } from 'db/user';
+
+export type TestPackage = IPackage & IPackageMethods & { _id: any; save: () => Promise<IPackage> };
+export type TestUser = IUser & { _id: any; save: () => Promise<IUser> };
+export type TestReview = IReview & { _id: any; save: () => Promise<IReview> };
 
 export default {
-  package(data: Omit<Partial<IPackage>, 'revisions'> & { revisions?: Partial<IRevision>[] } = {}) {
+  package(data: Omit<Partial<IPackage>, 'revisions'> & { revisions?: Partial<IRevision>[] } = {}): Promise<TestPackage> {
     const pkg = new Package({
       id: `foo.${Math.random()}`,
       name: `Package ${Math.random()}`,
@@ -15,7 +19,7 @@ export default {
     return pkg.save();
   },
 
-  review(data = {}) {
+  review(data = {}): Promise<TestReview> {
     const review = new Review({
       rating: 'THUMBS_UP',
       body: `review body ${Math.random()}`,
@@ -27,7 +31,7 @@ export default {
     return review.save();
   },
 
-  user(data = {}) {
+  user(data = {}): Promise<TestUser> {
     const user = new User({
       name: `User ${Math.random()}`,
       username: `username-${Math.random()}`,

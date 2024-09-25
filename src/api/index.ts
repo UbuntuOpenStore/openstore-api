@@ -141,8 +141,10 @@ export function setup() {
     error(res, 'Route not found', 404);
   });
 
-  app.server = app.listen(config.server.port, config.server.ip);
-  logger.debug(`listening on ${config.server.ip}:${config.server.port}`);
+  if (process.env.NODE_ENV !== 'testing' && process.env.NODE_ENV !== 'ci') {
+    app.listen(config.server.port, config.server.ip);
+    logger.debug(`listening on ${config.server.ip}:${config.server.port}`);
+  }
 
   return app;
 }
