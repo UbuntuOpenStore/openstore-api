@@ -15,6 +15,9 @@ describe('Manage', () => {
   let app: App;
   let user: TestUser;
 
+  // TODO setup elastic search for testing in CI
+  const mockSearchMethod = (process.env.NODE_ENV === 'ci' ? () => {} : undefined) as any;
+
   before(async () => {
     await waitForMongoose();
 
@@ -440,7 +443,9 @@ describe('Manage', () => {
         await user.save();
       });
 
-      test('allows changing admin only fields', async () => {
+      test('allows changing admin only fields', async (t) => {
+        const removeSpy = t.mock.method(packageSearchInstance, 'remove', mockSearchMethod);
+
         const user2 = await factory.user();
 
         const res = await request(app).put(route)
@@ -452,11 +457,15 @@ describe('Manage', () => {
         assert.equal(res.body.data.type_override, 'webapp');
         assert.ok(res.body.data.locked);
 
+        assert.equal(removeSpy.mock.callCount(), 1);
+
         const pkg = await Package.findOneByFilters(package1.id);
         assert.equal(pkg?.maintainer, user2._id.toString());
       });
 
       test('can update any package', async (t) => {
+        const removeSpy = t.mock.method(packageSearchInstance, 'remove', mockSearchMethod);
+
         const res = await request(app).put(route2)
           .send({ name: 'Foo Bar' })
           .expect(200);
@@ -464,11 +473,15 @@ describe('Manage', () => {
         assert.ok(res.body.success);
         assert.equal(res.body.data.name, 'Foo Bar');
 
+        assert.equal(removeSpy.mock.callCount(), 1);
+
         const pkg = await Package.findOneByFilters(package2.id);
         assert.equal(pkg?.name, 'Foo Bar');
       });
 
-      test('can update a locked package', async () => {
+      test('can update a locked package', async (t) => {
+        const removeSpy = t.mock.method(packageSearchInstance, 'remove', mockSearchMethod);
+
         package2.locked = true;
         await package2.save();
 
@@ -478,6 +491,8 @@ describe('Manage', () => {
 
         assert.ok(res.body.success);
         assert.equal(res.body.data.name, 'Foo Bar');
+
+        assert.equal(removeSpy.mock.callCount(), 1);
 
         const pkg = await Package.findOneByFilters(package2.id);
         assert.equal(pkg?.name, 'Foo Bar');
@@ -507,7 +522,9 @@ describe('Manage', () => {
         assert.equal(res.body.message, messages.NO_REVISIONS);
       });
 
-      test('does not allow changing admin only fields', async () => {
+      test('does not allow changing admin only fields', async (t) => {
+        const removeSpy = t.mock.method(packageSearchInstance, 'remove', mockSearchMethod);
+
         const res = await request(app).put(route)
           .send({ maintainer: 'foo', type_override: 'webapp', locked: true })
           .expect(200);
@@ -516,9 +533,13 @@ describe('Manage', () => {
         assert.equal(res.body.data.maintainer, user._id.toString());
         assert.equal(res.body.data.type_override, '');
         assert.equal(res.body.data.locked, false);
+
+        assert.equal(removeSpy.mock.callCount(), 1);
       });
 
-      test('updates successfully', async () => {
+      test('updates successfully', async (t) => {
+        const removeSpy = t.mock.method(packageSearchInstance, 'remove', mockSearchMethod);
+
         const res = await request(app).put(route)
           .send({ name: 'Foo Bar' })
           .expect(200);
@@ -526,12 +547,14 @@ describe('Manage', () => {
         assert.ok(res.body.success);
         assert.equal(res.body.data.name, 'Foo Bar');
 
+        assert.equal(removeSpy.mock.callCount(), 1);
+
         const pkg = await Package.findOneByFilters(package1.id);
         assert.equal(pkg?.name, 'Foo Bar');
       });
 
       test('publishes the package', async (t) => {
-        const upsertSpy = t.mock.method(packageSearchInstance, 'upsert');
+        const upsertSpy = t.mock.method(packageSearchInstance, 'upsert', mockSearchMethod);
 
         package1.revisions.push({});
         await package1.save();
@@ -551,7 +574,7 @@ describe('Manage', () => {
         package1.published = true;
         await package1.save();
 
-        const removeSpy = t.mock.method(packageSearchInstance, 'remove');
+        const removeSpy = t.mock.method(packageSearchInstance, 'remove', mockSearchMethod);
 
         package1.revisions.push({});
         await package1.save();
@@ -593,7 +616,9 @@ describe('Manage', () => {
         assert.ok(pkg?.locked);
       });
 
-      test('adds screenshots up to the limit', async () => {
+      test('adds screenshots up to the limit', async (t) => {
+        const removeSpy = t.mock.method(packageSearchInstance, 'remove', mockSearchMethod);
+
         const res = await request(app).put(route)
           .attach('screenshot_files', screenshot1)
           .attach('screenshot_files', screenshot2)
@@ -606,11 +631,15 @@ describe('Manage', () => {
         assert.ok(res.body.success);
         assert.equal(res.body.data.screenshots.length, 5);
 
+        assert.equal(removeSpy.mock.callCount(), 1);
+
         const pkg = await Package.findOneByFilters(package1.id);
         assert.equal(pkg?.screenshots.length, 5);
       });
 
-      test('rejects non-images uploaded as screenshots', async () => {
+      test('rejects non-images uploaded as screenshots', async (t) => {
+        const removeSpy = t.mock.method(packageSearchInstance, 'remove', mockSearchMethod);
+
         const res = await request(app).put(route)
           .attach('screenshot_files', screenshot1)
           .attach('screenshot_files', notAScreenshot)
@@ -619,11 +648,15 @@ describe('Manage', () => {
         assert.ok(res.body.success);
         assert.equal(res.body.data.screenshots.length, 1);
 
+        assert.equal(removeSpy.mock.callCount(), 1);
+
         const pkg = await Package.findOneByFilters(package1.id);
         assert.equal(pkg?.screenshots.length, 1);
       });
 
-      test('removes screenshots', async () => {
+      test('removes screenshots', async (t) => {
+        const removeSpy = t.mock.method(packageSearchInstance, 'remove', mockSearchMethod);
+
         const res = await request(app).put(route)
           .attach('screenshot_files', screenshot1)
           .attach('screenshot_files', screenshot2)
@@ -639,11 +672,15 @@ describe('Manage', () => {
         assert.ok(res2.body.success);
         assert.equal(res2.body.data.screenshots.length, 0);
 
+        assert.equal(removeSpy.mock.callCount(), 2);
+
         const pkg = await Package.findOneByFilters(package1.id);
         assert.equal(pkg?.screenshots.length, 0);
       });
 
-      test('reorders screenshots', async () => {
+      test('reorders screenshots', async (t) => {
+        const removeSpy = t.mock.method(packageSearchInstance, 'remove', mockSearchMethod);
+
         const res = await request(app).put(route)
           .attach('screenshot_files', screenshot1)
           .attach('screenshot_files', screenshot2)
@@ -666,13 +703,17 @@ describe('Manage', () => {
         assert.equal(res2.body.data.screenshots[0], res.body.data.screenshots[1]);
         assert.equal(res2.body.data.screenshots[1], res.body.data.screenshots[0]);
 
+        assert.equal(removeSpy.mock.callCount(), 2);
+
         const pkg = await Package.findOneByFilters(package1.id);
         assert.equal(pkg?.screenshots.length, 2);
         assert.equal(pkg?.screenshots[0], res.body.data.screenshots[1].replace('http://local.open-store.io/screenshots/', ''));
         assert.equal(pkg?.screenshots[1], res.body.data.screenshots[0].replace('http://local.open-store.io/screenshots/', ''));
       });
 
-      test('clears out urls', async () => {
+      test('clears out urls', async (t) => {
+        const removeSpy = t.mock.method(packageSearchInstance, 'remove', mockSearchMethod);
+
         const res = await request(app).put(route)
           .send({
             source: 'https://example.com/',
@@ -706,6 +747,8 @@ describe('Manage', () => {
         assert.equal(res2.body.data.donate_url.length, 0);
         assert.equal(res2.body.data.translation_url.length, 0);
         assert.equal(res2.body.data.video_url.length, 0);
+
+        assert.equal(removeSpy.mock.callCount(), 2);
       });
     });
   });
