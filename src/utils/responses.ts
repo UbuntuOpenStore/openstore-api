@@ -10,7 +10,12 @@ export function success(res: Response, data: any, message?: string) {
 }
 
 export function error(res: Response, message: string | unknown | Error, code = 500, data: any = null) {
-  logger.debug('server:', message);
+  if (typeof message === 'string' || message instanceof Error) {
+    logger.debug(`server: ${message.toString()}`);
+  }
+  else {
+    console.log(message);
+  }
 
   res.status(code);
   res.send({

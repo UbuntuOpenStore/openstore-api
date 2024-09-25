@@ -92,7 +92,7 @@ export class PackageSearch {
       } as any);
     }
     catch (err) {
-      if (err?.status === 404) {
+      if (err?.meta?.statusCode === 404) {
         return item;
       }
 
