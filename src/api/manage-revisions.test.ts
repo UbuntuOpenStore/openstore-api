@@ -674,7 +674,10 @@ describe('Manage Revision POST', () => {
       await package1.save();
 
       const reviewMock = t.mock.method(reviewPackage, 'clickReview', async () => GOOD_REVIEW);
-      const usertSpy = t.mock.method(packageSearchInstance, 'upsert');
+
+      // TODO setup elastic search for testing in CI
+      const mockSearchMethod = (process.env.NODE_ENV === 'ci' ? () => { } : undefined) as any;
+      const usertSpy = t.mock.method(packageSearchInstance, 'upsert', mockSearchMethod);
 
       const res = await request(app).post(route1)
         .attach('file', goodClick)
