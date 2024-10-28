@@ -360,7 +360,7 @@ export function setupStatics(packageSchema: Schema<IPackage, PackageModel, IPack
 
     return {
       pkgs,
-      count: results.body.hits.total,
+      count: results.body.hits.total.value,
     };
   };
 
