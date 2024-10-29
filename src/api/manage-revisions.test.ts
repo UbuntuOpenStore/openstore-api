@@ -343,7 +343,7 @@ describe('Manage Revision POST', () => {
       const lockAcquireSpy = t.mock.method(Lock, 'acquire');
       const lockReleaseSpy = t.mock.method(Lock, 'release');
 
-      package1.createNextRevision('1.0.0', Channel.FOCAL, Architecture.ARMHF, 'ubuntu-sdk-16.04', 'url', 'shasum', 10, 8);
+      package1.createNextRevision('1.0.0', Channel.FOCAL, Architecture.ARMHF, 'ubuntu-sdk-20.04', 'url', 'shasum', 10, 8);
       await package1.save();
 
       const reviewMock = t.mock.method(reviewPackage, 'clickReview', async () => GOOD_REVIEW);
@@ -351,7 +351,7 @@ describe('Manage Revision POST', () => {
         name: package1.id,
         version: '1.0.0',
         architecture: Architecture.ARMHF,
-        framework: 'ubuntu-sdk-16.04',
+        framework: 'ubuntu-sdk-20.04',
         apps: [],
       }));
 
@@ -372,7 +372,7 @@ describe('Manage Revision POST', () => {
       const lockAcquireSpy = t.mock.method(Lock, 'acquire');
       const lockReleaseSpy = t.mock.method(Lock, 'release');
 
-      package1.createNextRevision('1.0.0', Channel.FOCAL, Architecture.ARM64, 'ubuntu-sdk-16.04', 'url', 'shasum', 10, 8);
+      package1.createNextRevision('1.0.0', Channel.FOCAL, Architecture.ARM64, 'ubuntu-sdk-20.04', 'url', 'shasum', 10, 8);
       package1.architectures = [Architecture.ARM64];
       await package1.save();
 
@@ -381,7 +381,7 @@ describe('Manage Revision POST', () => {
         name: package1.id,
         version: '1.0.0',
         architecture: Architecture.ARMHF,
-        framework: 'ubuntu-sdk-16.04',
+        framework: 'ubuntu-sdk-20.04',
         apps: [],
       }));
 
@@ -397,7 +397,7 @@ describe('Manage Revision POST', () => {
       assert.equal(data.revisions[1].version, '1.0.0');
       assert.equal(data.revisions[1].channel, Channel.FOCAL);
       assert.equal(data.revisions[1].architecture, Architecture.ARMHF);
-      assert.equal(data.revisions[1].framework, 'ubuntu-sdk-16.04');
+      assert.equal(data.revisions[1].framework, 'ubuntu-sdk-20.04');
       assert.equal(data.architectures.length, 2);
       assert.ok(data.architectures.includes(Architecture.ARMHF));
       assert.ok(data.architectures.includes(Architecture.ARM64));
@@ -411,7 +411,7 @@ describe('Manage Revision POST', () => {
       const lockAcquireSpy = t.mock.method(Lock, 'acquire');
       const lockReleaseSpy = t.mock.method(Lock, 'release');
 
-      package1.createNextRevision('1.0.0', Channel.FOCAL, Architecture.ARMHF, 'ubuntu-sdk-16.04', 'url', 'shasum', 10, 8);
+      package1.createNextRevision('1.0.0', Channel.FOCAL, Architecture.ARMHF, 'ubuntu-sdk-20.04', 'url', 'shasum', 10, 8);
       await package1.save();
 
       const reviewMock = t.mock.method(reviewPackage, 'clickReview', async () => GOOD_REVIEW);
@@ -419,7 +419,7 @@ describe('Manage Revision POST', () => {
         name: package1.id,
         version: '1.0.0',
         architecture: Architecture.ALL,
-        framework: 'ubuntu-sdk-16.04',
+        framework: 'ubuntu-sdk-20.04',
         apps: [],
       }));
 
@@ -442,7 +442,7 @@ describe('Manage Revision POST', () => {
       const lockAcquireSpy = t.mock.method(Lock, 'acquire');
       const lockReleaseSpy = t.mock.method(Lock, 'release');
 
-      package1.createNextRevision('1.0.0', Channel.FOCAL, Architecture.ALL, 'ubuntu-sdk-16.04', 'url', 'shasum', 10, 8);
+      package1.createNextRevision('1.0.0', Channel.FOCAL, Architecture.ALL, 'ubuntu-sdk-20.04', 'url', 'shasum', 10, 8);
       await package1.save();
 
       const reviewMock = t.mock.method(reviewPackage, 'clickReview', async () => GOOD_REVIEW);
@@ -450,7 +450,7 @@ describe('Manage Revision POST', () => {
         name: package1.id,
         version: '1.0.0',
         architecture: Architecture.ARMHF,
-        framework: 'ubuntu-sdk-16.04',
+        framework: 'ubuntu-sdk-20.04',
         apps: [],
       }));
 
@@ -473,7 +473,7 @@ describe('Manage Revision POST', () => {
       const lockAcquireSpy = t.mock.method(Lock, 'acquire');
       const lockReleaseSpy = t.mock.method(Lock, 'release');
 
-      package1.createNextRevision('1.0.0', Channel.FOCAL, Architecture.ARM64, 'ubuntu-sdk-16.04', 'url', 'shasum', 10, 8);
+      package1.createNextRevision('1.0.0', Channel.FOCAL, Architecture.ARM64, 'ubuntu-sdk-20.04', 'url', 'shasum', 10, 8);
       await package1.save();
 
       const reviewMock = t.mock.method(reviewPackage, 'clickReview', async () => GOOD_REVIEW);
@@ -506,7 +506,7 @@ describe('Manage Revision POST', () => {
         '1.0.0',
         Channel.FOCAL,
         Architecture.ARM64,
-        'ubuntu-sdk-16.04',
+        'ubuntu-sdk-20.04',
         'url',
         'shasum',
         10,
@@ -520,7 +520,7 @@ describe('Manage Revision POST', () => {
         name: package1.id,
         version: '1.0.0',
         architecture: Architecture.ARMHF,
-        framework: 'ubuntu-sdk-16.04',
+        framework: 'ubuntu-sdk-20.04',
         apps: [],
         permissions: ['permission1', 'permission3'],
       }));
@@ -546,7 +546,7 @@ describe('Manage Revision POST', () => {
         '1.0.0',
         Channel.FOCAL,
         Architecture.ARM64,
-        'ubuntu-sdk-16.04',
+        'ubuntu-sdk-20.04',
         'url',
         'shasum',
         10,
@@ -585,7 +585,7 @@ describe('Manage Revision POST', () => {
         '1.0.0',
         Channel.FOCAL,
         Architecture.ARM64,
-        'ubuntu-sdk-16.04',
+        'ubuntu-sdk-20.04',
         'url',
         'shasum',
         10,
@@ -670,7 +670,7 @@ describe('Manage Revision POST', () => {
       const lockReleaseSpy = t.mock.method(Lock, 'release');
 
       package1.published = true;
-      package1.createNextRevision('0.0.1', Channel.FOCAL, Architecture.ARMHF, 'ubuntu-sdk-16.04', 'url', 'shasum', 10, 8);
+      package1.createNextRevision('0.0.1', Channel.FOCAL, Architecture.ARMHF, 'ubuntu-sdk-20.04', 'url', 'shasum', 10, 8);
       await package1.save();
 
       const reviewMock = t.mock.method(reviewPackage, 'clickReview', async () => GOOD_REVIEW);
@@ -700,7 +700,7 @@ describe('Manage Revision POST', () => {
       assert.equal(data.revisions[1].version, '1.0.0');
       assert.equal(data.revisions[1].channel, Channel.FOCAL);
       assert.equal(data.revisions[1].architecture, Architecture.ARMHF);
-      assert.equal(data.revisions[1].framework, 'ubuntu-sdk-16.04');
+      assert.equal(data.revisions[1].framework, 'ubuntu-sdk-20.04.1');
 
       assert.equal(reviewMock.mock.callCount(), 1);
       assert.equal(usertSpy.mock.callCount(), 1);
@@ -729,7 +729,7 @@ describe('Manage Revision POST', () => {
       const lockAcquireSpy = t.mock.method(Lock, 'acquire');
       const lockReleaseSpy = t.mock.method(Lock, 'release');
 
-      package1.createNextRevision('1.0.0', Channel.FOCAL, Architecture.ARM64, 'ubuntu-sdk-16.04', 'url', 'shasum', 10, 8);
+      package1.createNextRevision('1.0.0', Channel.FOCAL, Architecture.ARM64, 'ubuntu-sdk-20.04', 'url', 'shasum', 10, 8);
       package1.architectures = [Architecture.ARM64];
       await package1.save();
 
@@ -738,7 +738,7 @@ describe('Manage Revision POST', () => {
         name: package1.id,
         version: '2.0.0',
         architecture: Architecture.ALL,
-        framework: 'ubuntu-sdk-16.04',
+        framework: 'ubuntu-sdk-20.04',
         apps: [],
       }));
 
@@ -764,7 +764,7 @@ describe('Manage Revision POST', () => {
       const lockAcquireSpy = t.mock.method(Lock, 'acquire');
       const lockReleaseSpy = t.mock.method(Lock, 'release');
 
-      package1.createNextRevision('1.0.0', Channel.FOCAL, Architecture.ALL, 'ubuntu-sdk-16.04', 'url', 'shasum', 10, 8);
+      package1.createNextRevision('1.0.0', Channel.FOCAL, Architecture.ALL, 'ubuntu-sdk-20.04', 'url', 'shasum', 10, 8);
       package1.architectures = [Architecture.ALL];
       await package1.save();
 
@@ -773,7 +773,7 @@ describe('Manage Revision POST', () => {
         name: package1.id,
         version: '2.0.0',
         architecture: Architecture.ARMHF,
-        framework: 'ubuntu-sdk-16.04',
+        framework: 'ubuntu-sdk-20.04',
         apps: [],
       }));
 
@@ -867,20 +867,15 @@ describe('Manage Revision POST', () => {
 
       const armhfRevision = request(app).post(route1)
         .attach('file', goodClick)
-        .field('channel', Channel.FOCAL);
-        // .expect(200);
+        .field('channel', Channel.FOCAL)
+        .expect(200);
 
       const arm64Revision = request(app).post(route1)
         .attach('file', good64Click)
-        .field('channel', Channel.FOCAL);
-        // .expect(200);
+        .field('channel', Channel.FOCAL)
+        .expect(200);
 
-      const [arm64Res, armhfRes] = await Promise.all([arm64Revision, armhfRevision]);
-      console.log(armhfRes.body);
-      console.log(arm64Res.body);
-
-      armhfRevision.expect(200);
-      arm64Revision.expect(200);
+      const [arm64Res] = await Promise.all([arm64Revision, armhfRevision]);
 
       const data = arm64Res.body.data;
       assert.equal(data.revisions.length, 2);

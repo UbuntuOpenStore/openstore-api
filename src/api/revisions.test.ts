@@ -40,7 +40,7 @@ describe('Revisions GET', () => {
           version: '1.0.0',
           channel: Channel.XENIAL,
           architecture: Architecture.ALL,
-          framework: 'ubuntu-sdk-16.04',
+          framework: 'ubuntu-sdk-20.04',
           download_url: 'url',
         },
         {
@@ -48,7 +48,7 @@ describe('Revisions GET', () => {
           version: '1.0.1',
           channel: Channel.XENIAL,
           architecture: Architecture.ALL,
-          framework: 'ubuntu-sdk-16.04',
+          framework: 'ubuntu-sdk-20.04',
           download_url: 'url',
         },
         {
@@ -56,7 +56,7 @@ describe('Revisions GET', () => {
           version: '2.0.0',
           channel: Channel.XENIAL,
           architecture: Architecture.ALL,
-          framework: 'ubuntu-sdk-16.04',
+          framework: 'ubuntu-sdk-20.04',
           download_url: 'url',
         },
       ],
@@ -158,7 +158,7 @@ describe('Revisions GET', () => {
       version: '2.0.0',
       channel: Channel.XENIAL,
       architecture: Architecture.ARMHF,
-      framework: 'ubuntu-sdk-16.04',
+      framework: 'ubuntu-sdk-20.04',
       download_url: 'url',
     });
     package1.architectures = [Architecture.ARM64, Architecture.ARMHF];
@@ -233,7 +233,7 @@ describe('Revisions GET', () => {
     assert.equal(body.data.length, 1);
     assert.equal(body.data[0].latest_revision, 2);
 
-    const { body: body2 } = await request(app).get(`${makeUrl()}&frameworks=ubuntu-sdk-15.04,ubuntu-sdk-16.04`).expect(200);
+    const { body: body2 } = await request(app).get(`${makeUrl()}&frameworks=ubuntu-sdk-15.04,ubuntu-sdk-20.04`).expect(200);
 
     assert.ok(body2.success);
     assert.equal(body2.data.length, 1);

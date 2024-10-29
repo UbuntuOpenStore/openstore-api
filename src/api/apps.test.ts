@@ -169,8 +169,8 @@ describe('Apps API', () => {
     });
 
     test('gets apps for a specific arch/channel/framework', async () => {
-      package1.device_compatibilities = [`${ChannelArchitecture.FOCAL_ARMHF}:ubuntu-sdk-16.04`];
-      package2.device_compatibilities = [`${ChannelArchitecture.FOCAL_ALL}:ubuntu-sdk-16.04`];
+      package1.device_compatibilities = [`${ChannelArchitecture.FOCAL_ARMHF}:ubuntu-sdk-20.04`];
+      package2.device_compatibilities = [`${ChannelArchitecture.FOCAL_ALL}:ubuntu-sdk-20.04`];
       unpublishedPackage.device_compatibilities = [`${ChannelArchitecture.FOCAL_ARMHF}:ubuntu-sdk-15.04`];
       await Promise.all([
         package1.save(),
@@ -179,7 +179,7 @@ describe('Apps API', () => {
       ]);
 
       const res = await request(app).get(
-        `${route}?architecture=armhf&channel=${Channel.FOCAL}&frameworks=ubuntu-sdk-16.04,ubuntu-sdk-20.04`,
+        `${route}?architecture=armhf&channel=${Channel.FOCAL}&frameworks=ubuntu-sdk-20.04,ubuntu-sdk-20.04`,
       ).expect(200);
       assert.ok(res.body.success);
       assert.equal(res.body.data.packages.length, 2);
@@ -206,7 +206,7 @@ describe('Apps API', () => {
             channel: DEFAULT_CHANNEL,
             download_url: path.join(__dirname, '/../tests/fixtures/empty.click'),
             architecture: Architecture.ARMHF,
-            framework: 'ubuntu-sdk-16.04',
+            framework: 'ubuntu-sdk-20.04',
             filesize: 100,
           },
           {
@@ -216,7 +216,7 @@ describe('Apps API', () => {
             channel: DEFAULT_CHANNEL,
             download_url: path.join(__dirname, '/../tests/fixtures/empty.click'),
             architecture: Architecture.ARMHF,
-            framework: 'ubuntu-sdk-16.04',
+            framework: 'ubuntu-sdk-20.04',
             filesize: 100,
           },
         ],

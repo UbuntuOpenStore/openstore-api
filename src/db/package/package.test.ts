@@ -150,7 +150,7 @@ describe('Package', () => {
 
     describe('iconUrl', () => {
       test('generates an icon url', () => {
-        package1.createNextRevision('1.0.0', Channel.FOCAL, Architecture.ARMHF, 'ubuntu-sdk-16.04', 'url', 'shasum', 10, 8);
+        package1.createNextRevision('1.0.0', Channel.FOCAL, Architecture.ARMHF, 'ubuntu-sdk-20.04', 'url', 'shasum', 10, 8);
         assert.equal(package1.icon_url, 'http://local.open-store.io/icons/app.id/app.id-1.0.0.png');
       });
 
@@ -210,11 +210,11 @@ describe('Package', () => {
       test('serializes fully', () => {
         package1.channel_architectures = [ChannelArchitecture.FOCAL_ARMHF, ChannelArchitecture.FOCAL_ARM64];
         package1.device_compatibilities = [
-          `${ChannelArchitecture.FOCAL_ARMHF}:ubuntu-sdk-16.04`,
-          `${ChannelArchitecture.FOCAL_ARM64}:ubuntu-sdk-16.04`,
+          `${ChannelArchitecture.FOCAL_ARMHF}:ubuntu-sdk-20.04`,
+          `${ChannelArchitecture.FOCAL_ARM64}:ubuntu-sdk-20.04`,
         ];
-        package1.createNextRevision('1.0.0', Channel.FOCAL, Architecture.ARMHF, 'ubuntu-sdk-16.04', 'url', 'shasum', 10, 8);
-        package1.createNextRevision('1.0.0', Channel.FOCAL, Architecture.ARM64, 'ubuntu-sdk-16.04', 'url', 'shasum', 10, 8);
+        package1.createNextRevision('1.0.0', Channel.FOCAL, Architecture.ARMHF, 'ubuntu-sdk-20.04', 'url', 'shasum', 10, 8);
+        package1.createNextRevision('1.0.0', Channel.FOCAL, Architecture.ARM64, 'ubuntu-sdk-20.04', 'url', 'shasum', 10, 8);
 
         package1.revisions[0].created_date = now;
         package1.revisions[1].created_date = now;
@@ -231,8 +231,8 @@ describe('Package', () => {
           architectures: [Architecture.ARMHF, Architecture.ARM64],
           channel_architectures: [ChannelArchitecture.FOCAL_ARMHF, ChannelArchitecture.FOCAL_ARM64],
           device_compatibilities: [
-            `${ChannelArchitecture.FOCAL_ARMHF}:ubuntu-sdk-16.04`,
-            `${ChannelArchitecture.FOCAL_ARM64}:ubuntu-sdk-16.04`,
+            `${ChannelArchitecture.FOCAL_ARMHF}:ubuntu-sdk-20.04`,
+            `${ChannelArchitecture.FOCAL_ARM64}:ubuntu-sdk-20.04`,
           ],
           author: 'Jill',
           publisher: 'Jill',
@@ -268,7 +268,7 @@ describe('Package', () => {
               downloadSize: 8,
               installedSize: 10240,
               filesize: 10240,
-              framework: 'ubuntu-sdk-16.04',
+              framework: 'ubuntu-sdk-20.04',
               revision: 2,
               version: '1.0.0',
               permissions: [],
@@ -283,7 +283,7 @@ describe('Package', () => {
               downloadSize: 8,
               installedSize: 10240,
               filesize: 10240,
-              framework: 'ubuntu-sdk-16.04',
+              framework: 'ubuntu-sdk-20.04',
               revision: 1,
               version: '1.0.0',
               permissions: [],
@@ -320,7 +320,7 @@ describe('Package', () => {
               downloadSize: 8,
               installedSize: 10240,
               filesize: 10240,
-              framework: 'ubuntu-sdk-16.04',
+              framework: 'ubuntu-sdk-20.04',
               revision: 1,
               version: '1.0.0',
               permissions: [],
@@ -335,7 +335,7 @@ describe('Package', () => {
               downloadSize: 8,
               installedSize: 10240,
               filesize: 10240,
-              framework: 'ubuntu-sdk-16.04',
+              framework: 'ubuntu-sdk-20.04',
               revision: 2,
               version: '1.0.0',
               permissions: [],

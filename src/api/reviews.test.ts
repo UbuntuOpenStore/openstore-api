@@ -52,7 +52,7 @@ describe('Reviews', () => {
           version: '1.0.0',
           channel: Channel.XENIAL,
           architecture: Architecture.ALL,
-          framework: 'ubuntu-sdk-16.04',
+          framework: 'ubuntu-sdk-20.04',
           download_url: 'url',
         },
       ],
