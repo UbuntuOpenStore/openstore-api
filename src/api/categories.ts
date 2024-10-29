@@ -44,6 +44,7 @@ router.get('/', asyncErrorWrapper(async (req: Request, res: Response) => {
         translation: gettext(category.name),
         count: category.count,
         icon: config.server.host + (categoryIcons as { [key: string]: string })[category.name],
+        slug: category.name.toLowerCase().replace('& ', '').replace(/ /g, '-'),
       };
     });
 
