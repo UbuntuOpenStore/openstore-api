@@ -867,15 +867,20 @@ describe('Manage Revision POST', () => {
 
       const armhfRevision = request(app).post(route1)
         .attach('file', goodClick)
-        .field('channel', Channel.FOCAL)
-        .expect(200);
+        .field('channel', Channel.FOCAL);
+        // .expect(200);
 
       const arm64Revision = request(app).post(route1)
         .attach('file', good64Click)
-        .field('channel', Channel.FOCAL)
-        .expect(200);
+        .field('channel', Channel.FOCAL);
+        // .expect(200);
 
-      const [arm64Res] = await Promise.all([arm64Revision, armhfRevision]);
+      const [arm64Res, armhfRes] = await Promise.all([arm64Revision, armhfRevision]);
+      console.log(armhfRes.body);
+      console.log(arm64Res.body);
+
+      armhfRevision.expect(200);
+      arm64Revision.expect(200);
 
       const data = arm64Res.body.data;
       assert.equal(data.revisions.length, 2);
