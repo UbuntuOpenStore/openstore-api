@@ -8,16 +8,16 @@ msgstr ""
 "Project-Id-Version: openstore-web\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2017-06-20 01:45:+0000\n"
-"PO-Revision-Date: 2020-09-02 11:36+0000\n"
+"PO-Revision-Date: 2024-10-30 19:05+0000\n"
 "Last-Translator: Joan CiberSheep <cibersheep@gmail.com>\n"
-"Language-Team: Catalan <https://translate.ubports.com/projects/openstore/"
+"Language-Team: Catalan <https://hosted.weblate.org/projects/open-store-io/"
 "openstore-api/ca/>\n"
 "Language: ca\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 3.11.3\n"
+"X-Generator: Weblate 5.8.2-dev\n"
 "X-Launchpad-Export-Date: 2017-06-21 14:52+0000\n"
 
 msgid "Accessibility"
@@ -138,107 +138,101 @@ msgstr "Apps amb les puntuacions més altes"
 
 # Discovery section category tagline for "Utilities"
 msgid "It is essential to have good tools"
-msgstr ""
+msgstr "És essencial tenir bones eines"
 
 # Discovery section category name
 msgid "Tools"
-msgstr ""
+msgstr "Eines"
 
 # Discovery section category tagline for "Tools"
 msgid "Even the simplest tools can empower people to do great things"
-msgstr ""
+msgstr "Fins i tot les eines més senzilles poden ajudar-vos a fer grans coses"
 
 # Discovery section category name
 msgid "Toolbox"
-msgstr ""
+msgstr "Caixa d'eines"
 
 # Discovery section category tagline for "Toolbox"
 msgid "It's not the thing itself, but how you use it."
-msgstr ""
+msgstr "No és tant què és, sinó com es fa servir."
 
 # Discovery section category tagline for "Games"
 msgid "We are all our own worst enemy. But also, our best teacher."
-msgstr ""
+msgstr "Som els nostre pitjor enemic, però també el millor mestre."
 
-#, fuzzy
-#| msgid "Games"
 msgid "Fun Games"
-msgstr "Jocs"
+msgstr "Jocs divertits"
 
 # Discovery section category tagline for "Fun Games"
 msgid "Cause I always play to win!"
-msgstr ""
+msgstr "Perquè sempre jugam per guanyar!"
 
-#, fuzzy
-#| msgid "Games"
 msgid "Best Games"
-msgstr "Jocs"
+msgstr "Els millors jocs"
 
 # Discovery section category tagline for "Best Games"
 msgid "Didn't we have some fun though?"
-msgstr ""
+msgstr "Però a què hem passat una bona estona?"
 
 # Discovery section category name
 msgid "Awesome Games"
-msgstr ""
+msgstr "Jocs meravellosos"
 
 # Discovery section category tagline for "Awesome Games"
 msgid "It's dangerous to go alone, take this!"
-msgstr ""
+msgstr "És perillós allà fora, ges això!"
 
 # Discovery section category name
 msgid "Game Helpers"
-msgstr ""
+msgstr "Ajudes per jocs"
 
 # Discovery section category tagline for "Game Helpers"
 msgid "No matter what the game, everyone can agree, games are fun."
-msgstr ""
+msgstr "No importa el joc, tothom està d'acord que són divertits."
 
 # Discovery section category name
 msgid "News"
-msgstr ""
+msgstr "Notícies"
 
 # Discovery section category tagline for "News"
 msgid "News is only the first rough draft of history"
-msgstr ""
+msgstr "Les notícies són només el primer esborrany de la història"
 
-#, fuzzy
-#| msgid "Games"
 msgid "Godot Games"
-msgstr "Jocs"
+msgstr "Jocs del Godot"
 
 # Discovery section category tagline for "Godot Games"
 msgid "The game engine you waited for"
-msgstr ""
+msgstr "El motor de joc que estaves esperant"
 
 # Discovery section category name
 msgid "Fediverse"
-msgstr ""
+msgstr "Fedivers"
 
 # Discovery section category tagline for "Fediverse"
 msgid "To infinity and beyond!"
-msgstr ""
+msgstr "Cap a l'infinit i més enllà!"
 
 # Discovery section category name
 msgid "Chat Connection"
-msgstr ""
+msgstr "Connexions a xats"
 
 # Discovery section category tagline for "Chat Connection"
 msgid "Don't forget to text mom!"
-msgstr ""
+msgstr "No oblidis enviar un missatge a ta mare!"
 
 # Discovery section category name
 msgid "RSS Feed Readers"
-msgstr ""
+msgstr "Lector de RSS"
 
 # Discovery section category tagline for "RSS Feed Readers"
 msgid "RSS is dead, long live RSS!"
-msgstr ""
+msgstr "L'RSS és mort, llarga vida als RSS!"
 
 # Discovery section category name
 msgid "Core Apps"
-msgstr ""
+msgstr "Aplicacions del sistema"
 
 # Discovery section category tagline for "Core Apps"
 msgid "There is an app for that"
-msgstr ""
+msgstr "Hi ha una aplicació per fer això"
