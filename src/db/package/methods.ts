@@ -117,12 +117,26 @@ export function setupMethods(packageSchema: Schema<IPackage, PackageModel, IPack
       version: data.version,
     };
 
+    let writePaths: string[] = [];
+    let readPaths: string[] = [];
     let qmlImports: { module: string; version: string }[] = [];
     data.apps.forEach((app) => {
       const hook: { [key: string]: any } = {};
 
       if (Object.keys(app.apparmor).length > 0) {
         hook.apparmor = app.apparmor;
+
+        if (hook.apparmor.write_path && Array.isArray(hook.apparmor.write_path)) {
+          writePaths = writePaths.concat(
+            hook.apparmor.write_path.map((path: string) => path.replace('/home/phablet', '~').replace('@{HOME}', '~')),
+          );
+        }
+
+        if (hook.apparmor.read_path && Array.isArray(hook.apparmor.read_path)) {
+          readPaths = readPaths.concat(
+            hook.apparmor.read_path.map((path: string) => path.replace('/home/phablet', '~').replace('@{HOME}', '~')),
+          );
+        }
       }
 
       if (Object.keys(app.desktop).length > 0) {
@@ -175,6 +189,8 @@ export function setupMethods(packageSchema: Schema<IPackage, PackageModel, IPack
     this.types = this.type_override ? [this.type_override] : data.types;
     this.languages = data.languages;
     this.qml_imports = qmlImports;
+    this.read_paths = readPaths;
+    this.write_paths = writePaths;
 
     // Don't overwrite the these if they already exists
     this.name = this.name ? this.name : data.title;
@@ -475,6 +491,8 @@ export function setupMethods(packageSchema: Schema<IPackage, PackageModel, IPack
       publisher: this.author || '',
       review_exceptions: this.review_exceptions ?? [],
       permissions: [] as string[],
+      read_paths: this.read_paths ?? [],
+      write_paths: this.write_paths ?? [],
 
       // Deprecated, remove in the next major version
       author: this.author || '',

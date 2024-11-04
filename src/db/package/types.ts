@@ -204,6 +204,8 @@ export interface IPackage {
     module: string;
     version: string;
   }[];
+  read_paths?: string[];
+  write_paths?: string[];
   review_exceptions?: string[];
   skip_review?: boolean;
   published?: boolean;
