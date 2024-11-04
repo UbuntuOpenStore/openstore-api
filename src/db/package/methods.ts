@@ -213,8 +213,7 @@ export function setupMethods(packageSchema: Schema<IPackage, PackageModel, IPack
     if ((body.video_url && isURL(body.video_url)) || body.video_url === '') {
       // TODO support regular urls and transform them into embedded urls
       if (
-        body.video_url.indexOf('https://www.youtube.com/embed/') === 0 ||
-        body.video_url.indexOf('https://odysee.com/$/embed/') === 0
+        body.video_url.indexOf('https://www.youtube.com/embed/') === 0
       ) {
         this.video_url = body.video_url;
       }
@@ -475,6 +474,7 @@ export function setupMethods(packageSchema: Schema<IPackage, PackageModel, IPack
       calculated_rating: this.calculated_rating || 0,
       publisher: this.author || '',
       review_exceptions: this.review_exceptions ?? [],
+      permissions: [] as string[],
 
       // Deprecated, remove in the next major version
       author: this.author || '',
@@ -484,7 +484,6 @@ export function setupMethods(packageSchema: Schema<IPackage, PackageModel, IPack
       download: null,
       download_sha512: '',
       filesize: installedSize,
-      permissions: [],
     };
 
     if (this.revisions) {
@@ -549,11 +548,18 @@ export function setupMethods(packageSchema: Schema<IPackage, PackageModel, IPack
         json.downloads = jsonDownloads;
       }
 
+      const permissions = new Set<string>();
       jsonDownloads.filter((download) => (
         download.channel === channel
       )).forEach((download) => {
         json.latestDownloads += download.downloads;
+
+        // TODO include read/write paths (save these on the revision)
+        for (const permission of download.permissions) {
+          permissions.add(permission);
+        }
       });
+      json.permissions = Array.from(permissions);
 
       this.revisions.forEach((revision) => {
         json.totalDownloads += revision.downloads;
