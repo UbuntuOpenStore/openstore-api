@@ -4,7 +4,7 @@ import express, { type Request, type Response } from 'express';
 import fs from 'fs/promises';
 import { existsSync } from 'fs';
 import { type HydratedLock, Lock } from 'db/lock';
-import { Channel } from 'db/package/types';
+import { Channel, DEPRECATED_CHANNELS } from 'db/package/types';
 import { Package } from 'db/package';
 import { packageSearchInstance } from 'db/package/search';
 import { success, error, captureException, moveFile, apiLinks, logger, asyncErrorWrapper } from 'utils';
@@ -199,7 +199,7 @@ router.post(
     const file = req.files.file[0];
 
     const channel = req.body.channel ? req.body.channel.toLowerCase() : '';
-    if (!Object.values(Channel).includes(channel)) {
+    if (!Object.values(Channel).includes(channel) || DEPRECATED_CHANNELS.includes(channel)) {
       error(res, INVALID_CHANNEL, 400);
       return;
     }

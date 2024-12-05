@@ -213,6 +213,20 @@ describe('Manage Revision POST', () => {
       assert.equal(lockReleaseSpy.mock.callCount(), 0);
     });
 
+    test('fails with invalid channel (deprecated channel)', async (t) => {
+      const lockAcquireSpy = t.mock.method(Lock, 'acquire');
+      const lockReleaseSpy = t.mock.method(Lock, 'release');
+
+      const res = await request(app).post(route1)
+        .attach('file', emptyClick)
+        .field('channel', 'xenial')
+        .expect(400);
+
+      assert.equal(res.body.message, messages.INVALID_CHANNEL);
+      assert.equal(lockAcquireSpy.mock.callCount(), 0);
+      assert.equal(lockReleaseSpy.mock.callCount(), 0);
+    });
+
     test('fails with bad id', async (t) => {
       const lockAcquireSpy = t.mock.method(Lock, 'acquire');
       const lockReleaseSpy = t.mock.method(Lock, 'release');
@@ -544,7 +558,7 @@ describe('Manage Revision POST', () => {
 
       package1.createNextRevision(
         '1.0.0',
-        Channel.FOCAL,
+        Channel.XENIAL,
         Architecture.ARM64,
         'ubuntu-sdk-20.04',
         'url',
@@ -567,7 +581,7 @@ describe('Manage Revision POST', () => {
 
       const res = await request(app).post(route1)
         .attach('file', emptyClick)
-        .field('channel', Channel.XENIAL)
+        .field('channel', Channel.FOCAL)
         .expect(200);
 
       assert.ok(res.body.success);
@@ -583,7 +597,7 @@ describe('Manage Revision POST', () => {
 
       package1.createNextRevision(
         '1.0.0',
-        Channel.FOCAL,
+        Channel.XENIAL,
         Architecture.ARM64,
         'ubuntu-sdk-20.04',
         'url',
@@ -606,7 +620,7 @@ describe('Manage Revision POST', () => {
 
       const res = await request(app).post(route1)
         .attach('file', emptyClick)
-        .field('channel', Channel.XENIAL)
+        .field('channel', Channel.FOCAL)
         .expect(200);
 
       assert.ok(res.body.success);

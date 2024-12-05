@@ -15,6 +15,8 @@ export enum Channel {
   FOCAL = 'focal',
 }
 
+export const DEPRECATED_CHANNELS = [Channel.XENIAL] as const;
+
 export const DEFAULT_CHANNEL = Channel.FOCAL;
 
 export enum Architecture {

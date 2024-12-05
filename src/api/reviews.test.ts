@@ -50,7 +50,7 @@ describe('Reviews', () => {
         {
           revision: 1,
           version: '1.0.0',
-          channel: Channel.XENIAL,
+          channel: Channel.FOCAL,
           architecture: Architecture.ALL,
           framework: 'ubuntu-sdk-20.04',
           download_url: 'url',

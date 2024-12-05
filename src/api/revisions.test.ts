@@ -14,7 +14,7 @@ describe('Revisions GET', () => {
   let app: App;
   let package1: TestPackage;
 
-  const makeUrl = function ({ version = '1.0.0', id = package1.id, architecture = 'all', channel = 'xenial' } = {}) {
+  const makeUrl = function ({ version = '1.0.0', id = package1.id, architecture = 'all', channel = 'focal' } = {}) {
     return `${route}?apps=${id}@${version}&architecture=${architecture}&channel=${channel}`;
   };
 
@@ -38,7 +38,7 @@ describe('Revisions GET', () => {
         {
           revision: 1,
           version: '1.0.0',
-          channel: Channel.XENIAL,
+          channel: Channel.FOCAL,
           architecture: Architecture.ALL,
           framework: 'ubuntu-sdk-20.04',
           download_url: 'url',
@@ -46,7 +46,7 @@ describe('Revisions GET', () => {
         {
           revision: 2,
           version: '1.0.1',
-          channel: Channel.XENIAL,
+          channel: Channel.FOCAL,
           architecture: Architecture.ALL,
           framework: 'ubuntu-sdk-20.04',
           download_url: 'url',
@@ -54,7 +54,7 @@ describe('Revisions GET', () => {
         {
           revision: 3,
           version: '2.0.0',
-          channel: Channel.XENIAL,
+          channel: Channel.FOCAL,
           architecture: Architecture.ALL,
           framework: 'ubuntu-sdk-20.04',
           download_url: 'url',
@@ -156,7 +156,7 @@ describe('Revisions GET', () => {
     package1.revisions.push({
       revision: 4,
       version: '2.0.0',
-      channel: Channel.XENIAL,
+      channel: Channel.FOCAL,
       architecture: Architecture.ARMHF,
       framework: 'ubuntu-sdk-20.04',
       download_url: 'url',
@@ -193,7 +193,7 @@ describe('Revisions GET', () => {
   });
 
   test('gets the channel from the version', async () => {
-    const url = `${route}?apps=${package1.id}@1.0.0@${Channel.XENIAL}&channel=${Channel.FOCAL}&architecture=${Architecture.ARMHF}`;
+    const url = `${route}?apps=${package1.id}@1.0.0@${Channel.FOCAL}&channel=${Channel.FOCAL}&architecture=${Architecture.ARMHF}`;
     const { body } = await request(app).get(url).expect(200);
 
     assert.ok(body.success);
