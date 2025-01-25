@@ -22,6 +22,7 @@ import {
 } from './types';
 import { packageSearchInstance } from './search';
 import { RatingCount } from '../rating_count/model';
+import { handleChannel } from 'utils/channels';
 
 export function setupStatics(packageSchema: Schema<IPackage, PackageModel, IPackageMethods>) {
   packageSchema.statics.incrementDownload = async function (id: Types.ObjectId, revisionIndex: number) {
@@ -165,7 +166,7 @@ export function setupStatics(packageSchema: Schema<IPackage, PackageModel, IPack
       nsfw = [null, false];
     }
 
-    const channel = getData(req, 'channel').toLowerCase();
+    const channel = getData(req, 'channel') ? handleChannel(getData(req, 'channel')) : undefined;
     if (!channel && architectures.length > 0) {
       throw new UserError(MISSING_CHANNEL_ARCH);
     }
@@ -181,7 +182,7 @@ export function setupStatics(packageSchema: Schema<IPackage, PackageModel, IPack
       category: getData(req, 'category'),
       author: getData(req, 'author') ? getData(req, 'author') : getData(req, 'publisher'),
       search: getData(req, 'search'),
-      channel: channel as Channel,
+      channel,
       nsfw,
     };
   };

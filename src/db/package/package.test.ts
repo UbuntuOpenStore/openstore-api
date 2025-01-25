@@ -306,6 +306,8 @@ describe('Package', () => {
           type_override: '',
           revision: -1,
           permissions: [],
+          read_paths: [],
+          write_paths: [],
           version: '1.0.0',
           download: null,
           download_sha512: '',
@@ -342,6 +344,94 @@ describe('Package', () => {
             },
           ],
         });
+      });
+
+      test('serializes with the latest supported framework in the downloads', () => {
+        package1.channel_architectures = [ChannelArchitecture.FOCAL_ARM64];
+        package1.device_compatibilities = [
+          `${ChannelArchitecture.FOCAL_ARM64}:ubuntu-sdk-16.04`,
+          `${ChannelArchitecture.FOCAL_ARM64}:ubuntu-sdk-20.04`,
+        ];
+        package1.createNextRevision('1.0.0', Channel.FOCAL, Architecture.ARM64, 'ubuntu-sdk-16.04', 'url', 'shasum', 10, 8);
+        package1.createNextRevision('1.0.1', Channel.FOCAL, Architecture.ARM64, 'ubuntu-sdk-20.04', 'url', 'shasum', 10, 8);
+
+        package1.revisions[0].created_date = now;
+        package1.revisions[1].created_date = now;
+        package1.updated_date = now;
+
+        const serialized = package1.serialize(Architecture.ARM64, DEFAULT_CHANNEL, ['ubuntu-sdk-16.04'], 4);
+
+        // All revisions are serialized in the revisions, event unsupported frameworks
+        assert.deepEqual(serialized.revisions, [
+          {
+            architecture: Architecture.ARM64,
+            channel: Channel.FOCAL,
+            created_date: now,
+            download_sha512: 'shasum',
+            download_url: 'http://local.open-store.io/api/v3/apps/app.id/download/focal/arm64/1.0.0',
+            downloads: 0,
+            downloadSize: 8,
+            installedSize: 10240,
+            filesize: 10240,
+            framework: 'ubuntu-sdk-16.04',
+            revision: 1,
+            version: '1.0.0',
+            permissions: [],
+          },
+          {
+            architecture: Architecture.ARM64,
+            channel: Channel.FOCAL,
+            created_date: now,
+            download_sha512: 'shasum',
+            download_url: 'http://local.open-store.io/api/v3/apps/app.id/download/focal/arm64/1.0.1',
+            downloads: 0,
+            downloadSize: 8,
+            installedSize: 10240,
+            filesize: 10240,
+            framework: 'ubuntu-sdk-20.04',
+            revision: 2,
+            version: '1.0.1',
+            permissions: [],
+          },
+        ]);
+
+        // Only the latest supported framwork will show in the download links
+        assert.deepEqual(serialized.downloads, [
+          {
+            architecture: Architecture.ARM64,
+            channel: Channel.FOCAL,
+            created_date: now,
+            download_sha512: 'shasum',
+            download_url: 'http://local.open-store.io/api/v3/apps/app.id/download/focal/arm64/1.0.0',
+            downloads: 0,
+            downloadSize: 8,
+            installedSize: 10240,
+            filesize: 10240,
+            framework: 'ubuntu-sdk-16.04',
+            revision: 1,
+            version: '1.0.0',
+            permissions: [],
+          },
+        ]);
+
+        const serialized2 = package1.serialize(Architecture.ARM64, DEFAULT_CHANNEL, ['ubuntu-sdk-20.04'], 4);
+        assert.deepEqual(serialized2.downloads, [
+          {
+            architecture: Architecture.ARM64,
+            channel: Channel.FOCAL,
+            created_date: now,
+            download_sha512: 'shasum',
+            download_url: 'http://local.open-store.io/api/v3/apps/app.id/download/focal/arm64/1.0.1',
+            downloads: 0,
+            downloadSize: 8,
+            installedSize: 10240,
+            filesize: 10240,
+            framework: 'ubuntu-sdk-20.04',
+            revision: 2,
+            version: '1.0.1',
+            permissions: [],
+          },
+        ]);
       });
     });
 

@@ -3,12 +3,13 @@ import shuffle from 'shuffle-array';
 import express, { type Request, type Response } from 'express';
 
 import { Package } from 'db/package';
-import { Architecture, DEFAULT_CHANNEL, Channel, PackageType } from 'db/package/types';
+import { Architecture, type Channel, PackageType } from 'db/package/types';
 import { RatingCount } from 'db/rating_count';
 import { success, getData, getDataArray, setLang, gettext, config, asyncErrorWrapper } from 'utils';
 import { serializeRatings } from 'db/package/methods';
 import discoverJSON from './json/discover_apps.json';
 import { type DiscoverHighlight, type DiscoverData } from './types';
+import { handleChannel } from 'utils/channels';
 
 const router = express.Router();
 
@@ -241,11 +242,7 @@ router.get('/', asyncErrorWrapper(async (req: Request, res: Response) => {
   const frameworks = getDataArray(req, 'frameworks', []);
   const lang = getData(req, 'lang');
 
-  let channel = getData(req, 'channel', DEFAULT_CHANNEL).toLowerCase() as Channel;
-  if (!Object.values(Channel).includes(channel)) {
-    channel = DEFAULT_CHANNEL;
-  }
-
+  const channel = handleChannel(getData(req, 'channel'));
   let architecture = getData(req, 'architecture', Architecture.ARMHF).toLowerCase() as Architecture;
   if (!Object.values(Architecture).includes(architecture)) {
     architecture = Architecture.ARMHF;

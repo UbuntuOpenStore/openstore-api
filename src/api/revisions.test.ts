@@ -178,9 +178,8 @@ describe('Revisions GET', () => {
     assert.ok(data.download_url);
   });
 
-  test('fails if the channel is missing or invalid', async () => {
-    await request(app).get(makeUrl({ channel: 'foo', architecture: Architecture.ARMHF })).expect(400);
-    await request(app).get(makeUrl({ channel: '', architecture: Architecture.ARMHF })).expect(400);
+  test('fails if the channel is invalid', async () => {
+    await request(app).get(makeUrl({ channel: 'vivid', architecture: Architecture.ARMHF })).expect(400);
   });
 
   test('fails gracefully', async (t) => {

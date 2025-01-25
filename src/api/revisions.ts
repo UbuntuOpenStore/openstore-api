@@ -1,10 +1,11 @@
 import express, { type Request, type Response } from 'express';
 
 import { Package } from 'db/package';
-import { Architecture, Channel } from 'db/package/types';
+import { Architecture, type Channel } from 'db/package/types';
 import { getDataArray, getData, success, asyncErrorWrapper } from 'utils';
-import { INVALID_ARCH, INVALID_CHANNEL } from 'utils/error-messages';
+import { INVALID_ARCH } from 'utils/error-messages';
 import { UserError } from 'exceptions';
+import { handleChannel } from 'utils/channels';
 
 const router = express.Router();
 
@@ -12,13 +13,9 @@ async function revisionsByVersion(req: Request, res: Response) {
   const versions = getDataArray(req, 'apps');
   const ids = versions.map((version: string) => version.split('@')[0]);
 
-  const defaultChannel = getData(req, 'channel').toLowerCase() as Channel;
+  const defaultChannel = handleChannel(getData(req, 'channel'));
   const frameworks = getDataArray(req, 'frameworks', []);
   const architecture = getData(req, 'architecture').toLowerCase() as Architecture;
-
-  if (!Object.values(Channel).includes(defaultChannel) || !defaultChannel) {
-    throw new UserError(INVALID_CHANNEL);
-  }
 
   if (!Object.values(Architecture).includes(architecture) || !architecture) {
     throw new UserError(INVALID_ARCH);

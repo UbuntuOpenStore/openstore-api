@@ -1,9 +1,9 @@
 import express, { type Request, type Response } from 'express';
 
-import { DEFAULT_CHANNEL, Channel } from 'db/package/types';
 import { Package } from 'db/package';
 import { setLang, gettext, config, success, getData, asyncErrorWrapper } from 'utils';
 import categoryIcons from './json/category_icons.json';
+import { handleChannel } from 'utils/channels';
 
 const categoryNames = Object.keys(categoryIcons);
 const router = express.Router();
@@ -14,11 +14,7 @@ const router = express.Router();
 router.get('/', asyncErrorWrapper(async (req: Request, res: Response) => {
   setLang(getData(req, 'lang'));
 
-  let channel = getData(req, 'channel', DEFAULT_CHANNEL) as Channel;
-  if (!Object.values(Channel).includes(channel)) {
-    channel = DEFAULT_CHANNEL;
-  }
-
+  const channel = handleChannel(getData(req, 'channel'));
   let categories = categoryNames.map((category) => {
     return {
       name: category,

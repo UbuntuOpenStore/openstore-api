@@ -170,8 +170,8 @@ describe('Apps API', () => {
 
     test('gets apps for a specific arch/channel/framework', async () => {
       package1.device_compatibilities = [`${ChannelArchitecture.FOCAL_ARMHF}:ubuntu-sdk-20.04`];
-      package2.device_compatibilities = [`${ChannelArchitecture.FOCAL_ALL}:ubuntu-sdk-20.04`];
-      unpublishedPackage.device_compatibilities = [`${ChannelArchitecture.FOCAL_ARMHF}:ubuntu-sdk-15.04`];
+      package2.device_compatibilities = [`${ChannelArchitecture.FOCAL_ALL}:ubuntu-sdk-16.04`];
+      unpublishedPackage.device_compatibilities = [`${ChannelArchitecture.FOCAL_ARMHF}:ubuntu-sdk-16.04`];
       await Promise.all([
         package1.save(),
         package2.save(),
@@ -179,13 +179,32 @@ describe('Apps API', () => {
       ]);
 
       const res = await request(app).get(
-        `${route}?architecture=armhf&channel=${Channel.FOCAL}&frameworks=ubuntu-sdk-20.04,ubuntu-sdk-20.04`,
+        `${route}?architecture=armhf&channel=${Channel.FOCAL}&frameworks=ubuntu-sdk-20.04,ubuntu-sdk-16.04`,
       ).expect(200);
       assert.ok(res.body.success);
       assert.equal(res.body.data.packages.length, 2);
       assert.equal(res.body.data.count, 2);
       assert.equal(res.body.data.packages[0].id, package1.id);
       assert.equal(res.body.data.packages[1].id, package2.id);
+    });
+
+    test('gets apps for the supported frameworks', async () => {
+      package1.device_compatibilities = [`${ChannelArchitecture.FOCAL_ARMHF}:ubuntu-sdk-20.04`];
+      package2.device_compatibilities = [`${ChannelArchitecture.FOCAL_ARMHF}:ubuntu-sdk-16.04`];
+      unpublishedPackage.device_compatibilities = [`${ChannelArchitecture.FOCAL_ARMHF}:ubuntu-sdk-20.04`];
+      await Promise.all([
+        package1.save(),
+        package2.save(),
+        unpublishedPackage.save(),
+      ]);
+
+      const res = await request(app).get(
+        `${route}?architecture=armhf&channel=${Channel.FOCAL}&frameworks=ubuntu-sdk-20.04`,
+      ).expect(200);
+      assert.ok(res.body.success);
+      assert.equal(res.body.data.packages.length, 1);
+      assert.equal(res.body.data.count, 1);
+      assert.equal(res.body.data.packages[0].id, package1.id);
     });
   });
 
@@ -235,10 +254,14 @@ describe('Apps API', () => {
     });
 
     test('throws for an invalid channel', async () => {
-      const res = await request(app).get(`${route}${package3.id}/download/invalid/armhf`).expect(400);
+      const res = await request(app).get(`${route}${package3.id}/download/vivid/armhf`).expect(400);
 
       assert.equal(res.body.success, false);
       assert.equal(res.body.message, messages.INVALID_CHANNEL);
+    });
+
+    test('does not throw for newer-unknown channels', async () => {
+      await request(app).get(`${route}${package3.id}/download/nobel/armhf`).expect(200);
     });
 
     test('throws for an invalid arch', async () => {

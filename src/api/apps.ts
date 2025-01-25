@@ -2,13 +2,14 @@ import express, { type Request, type Response } from 'express';
 
 import fsPromise from 'fs/promises';
 import fs from 'fs';
-import { Architecture, Channel, DEFAULT_CHANNEL, type HydratedPackage } from 'db/package/types';
+import { Architecture, type HydratedPackage } from 'db/package/types';
 import { Package } from 'db/package';
 import { success, getData, apiLinks, asyncErrorWrapper, getDataArray, getDataBoolean } from 'utils';
 import { fetchPublishedPackage } from 'middleware';
 import { NotFoundError, UserError } from 'exceptions';
 import reviews from './reviews';
-import { DOWNLOAD_NOT_FOUND_FOR_CHANNEL, INVALID_CHANNEL, INVALID_ARCH } from '../utils/error-messages';
+import { DOWNLOAD_NOT_FOUND_FOR_CHANNEL, INVALID_ARCH } from '../utils/error-messages';
+import { handleChannel } from 'utils/channels';
 
 const router = express.Router();
 
@@ -35,7 +36,7 @@ async function apps(req: Request, res: Response) {
   }
 
   const arch = getData(req, 'architecture', Architecture.ARMHF) as Architecture;
-  const channel = getData(req, 'channel', DEFAULT_CHANNEL) as Channel;
+  const channel = handleChannel(getData(req, 'channel'));
   const frameworks = getDataArray(req, 'frameworks', []);
   const formatted = pkgs.map((pkg) => {
     if (req.query.full) {
@@ -58,7 +59,7 @@ router.post('/', asyncErrorWrapper(apps, 'Could not fetch app list at this time'
  */
 router.get('/:id', fetchPublishedPackage(true), async (req: Request, res: Response) => {
   const arch = getData(req, 'architecture', Architecture.ARMHF) as Architecture;
-  const channel = getData(req, 'channel', DEFAULT_CHANNEL) as Channel;
+  const channel = handleChannel(getData(req, 'channel'));
   const frameworks = getDataArray(req, 'frameworks', []);
   success(res, req.pkg.serialize(arch, channel, frameworks, req.apiVersion));
 });
@@ -67,10 +68,7 @@ router.get('/:id', fetchPublishedPackage(true), async (req: Request, res: Respon
  * Gets the download for a given package for the given channel and architecture.
  */
 async function download(req: Request, res: Response) {
-  const channel = req.params.channel ? req.params.channel.toLowerCase() as Channel : DEFAULT_CHANNEL;
-  if (!Object.values(Channel).includes(channel)) {
-    throw new UserError(INVALID_CHANNEL);
-  }
+  const channel = handleChannel(req.params.channel);
 
   const arch = req.params.arch ? req.params.arch.toLowerCase() as Architecture : Architecture.ARMHF;
   if (!Object.values(Architecture).includes(arch)) {

@@ -35,6 +35,7 @@ describe('Discover API', () => {
         architectures: [Architecture.ALL],
         channels: [Channel.FOCAL],
         channel_architectures: [ChannelArchitecture.FOCAL_ALL],
+        device_compatibilities: [`${ChannelArchitecture.FOCAL_ALL}:ubuntu-sdk-20.04`],
         published_date: (new Date()).toISOString(),
         types: [PackageType.APP],
       }),
@@ -44,6 +45,7 @@ describe('Discover API', () => {
         architectures: [Architecture.ALL],
         channels: [Channel.FOCAL],
         channel_architectures: [ChannelArchitecture.FOCAL_ALL],
+        device_compatibilities: [`${ChannelArchitecture.FOCAL_ALL}:ubuntu-sdk-20.04`],
         published_date: '2021-01-01T13:35:16.095Z',
         updated_date: '2021-01-01T13:35:16.095Z',
         types: [PackageType.APP],
@@ -54,6 +56,7 @@ describe('Discover API', () => {
         architectures: [Architecture.ALL],
         channels: [Channel.FOCAL],
         channel_architectures: [ChannelArchitecture.FOCAL_ALL],
+        device_compatibilities: [`${ChannelArchitecture.FOCAL_ALL}:ubuntu-sdk-16.04`],
         published_date: '2021-01-01T13:35:16.095Z',
         updated_date: '2021-01-01T13:35:16.095Z',
         types: [PackageType.APP],
@@ -64,6 +67,7 @@ describe('Discover API', () => {
         architectures: [Architecture.ALL],
         channels: [Channel.FOCAL],
         channel_architectures: [ChannelArchitecture.FOCAL_ALL],
+        device_compatibilities: [`${ChannelArchitecture.FOCAL_ALL}:ubuntu-sdk-16.04`],
         published_date: (new Date()).toISOString(),
         types: [PackageType.APP],
       }),
@@ -87,6 +91,7 @@ describe('Discover API', () => {
     assert.ok(res.body.data.highlight);
     assert.ok(res.body.data.highlights.length > 0);
     assert.ok(res.body.data.categories.length > 0);
+    assert.equal(res.body.data.categories[0].ids.length, 4); // Category 0 is the new/updated apps
 
     assert.equal(getCountsByIdsSpy.mock.callCount(), 0);
 
@@ -97,6 +102,50 @@ describe('Discover API', () => {
     assert.ok(res2.body.data.highlight);
     assert.ok(res2.body.data.highlights.length > 0);
     assert.ok(res2.body.data.categories.length > 0);
+    assert.equal(res.body.data.categories[0].ids.length, 4); // Category 0 is the new/updated apps
+
+    // Verify that ratings get refreshed on a cache hit
+    assert.equal(getCountsByIdsSpy.mock.callCount(), 1);
+  });
+
+  test('returns data for the latest supported framework', async (t) => {
+    const getCountsByIdsSpy = t.mock.method(RatingCount, 'getCountsByIds');
+
+    const frameworkRoute = `${route}?channel=${Channel.FOCAL}&architecture=${Architecture.ARM64}&frameworks=ubuntu-sdk-16.04`;
+    const res = await request(app).get(frameworkRoute).expect(200);
+
+    assert.ok(res.body.success);
+    assert.equal(res.body.data.categories[0].ids.length, 2); // Category 0 is the new/updated apps
+
+    assert.equal(getCountsByIdsSpy.mock.callCount(), 0);
+
+    // Cache hit
+    const res2 = await request(app).get(frameworkRoute).expect(200);
+
+    assert.ok(res2.body.success);
+    assert.equal(res.body.data.categories[0].ids.length, 2); // Category 0 is the new/updated apps
+
+    // Verify that ratings get refreshed on a cache hit
+    assert.equal(getCountsByIdsSpy.mock.callCount(), 1);
+  });
+
+  test('returns data for the multiple supported framework', async (t) => {
+    const getCountsByIdsSpy = t.mock.method(RatingCount, 'getCountsByIds');
+
+    const frameworkRoute =
+      `${route}?channel=${Channel.FOCAL}&architecture=${Architecture.ARM64}&frameworks=ubuntu-sdk-16.04,ubuntu-sdk-20.04`;
+    const res = await request(app).get(frameworkRoute).expect(200);
+
+    assert.ok(res.body.success);
+    assert.equal(res.body.data.categories[0].ids.length, 4); // Category 0 is the new/updated apps
+
+    assert.equal(getCountsByIdsSpy.mock.callCount(), 0);
+
+    // Cache hit
+    const res2 = await request(app).get(frameworkRoute).expect(200);
+
+    assert.ok(res2.body.success);
+    assert.equal(res.body.data.categories[0].ids.length, 4); // Category 0 is the new/updated apps
 
     // Verify that ratings get refreshed on a cache hit
     assert.equal(getCountsByIdsSpy.mock.callCount(), 1);

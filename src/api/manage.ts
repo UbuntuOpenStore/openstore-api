@@ -4,8 +4,7 @@ import express, { type Request, type Response } from 'express';
 import fs from 'fs/promises';
 import { existsSync } from 'fs';
 import { type HydratedLock, Lock } from 'db/lock';
-import { Channel, DEPRECATED_CHANNELS } from 'db/package/types';
-import { Package } from 'db/package';
+import { DEFAULT_CHANNEL, DEPRECATED_CHANNELS, Package } from 'db/package';
 import { packageSearchInstance } from 'db/package/search';
 import { success, error, captureException, moveFile, apiLinks, logger, asyncErrorWrapper } from 'utils';
 import { authenticate, userRole, downloadFile, extendTimeout, fetchPackage, canManage, canManageLocked, maintenanceMode } from 'middleware';
@@ -14,7 +13,6 @@ import {
   PERMISSION_DENIED,
   BAD_FILE,
   NO_FILE,
-  INVALID_CHANNEL,
   NO_REVISIONS,
   NO_APP_NAME,
   NO_APP_TITLE,
@@ -22,9 +20,11 @@ import {
   APP_LOCKED,
   NEEDS_MANUAL_REVIEW,
   CLICK_REVIEW_ERROR,
+  INVALID_CHANNEL,
 } from 'utils/error-messages';
 import { HttpError, UserError, AuthorizationError, NotFoundError, ClickReviewError } from 'exceptions';
 import { clickReview } from 'utils/review-package';
+import { handleChannel } from 'utils/channels';
 
 const mupload = multer({ dest: '/tmp' });
 const router = express.Router();
@@ -198,8 +198,21 @@ router.post(
 
     const file = req.files.file[0];
 
-    const channel = req.body.channel ? req.body.channel.toLowerCase() : '';
-    if (!Object.values(Channel).includes(channel) || DEPRECATED_CHANNELS.includes(channel)) {
+    let channel = DEFAULT_CHANNEL;
+    try {
+      channel = handleChannel(req.body.channel);
+    }
+    catch (err) {
+      console.log(err);
+      if (err instanceof UserError) {
+        error(res, INVALID_CHANNEL, 400);
+        return;
+      }
+
+      throw err;
+    }
+
+    if (DEPRECATED_CHANNELS.includes(channel)) {
       error(res, INVALID_CHANNEL, 400);
       return;
     }
