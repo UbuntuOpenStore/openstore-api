@@ -8,7 +8,7 @@ import { Strategy as GitHubStrategy } from 'passport-github2';
 // @ts-ignore
 import { Strategy as GitLabStrategy } from 'passport-gitlab2';
 import { v4 } from 'uuid';
-import express, { type Request, type Response } from 'express';
+import express, { type NextFunction, type Request, type Response } from 'express';
 import { type HydratedUser, User } from 'db/user';
 
 import { logger, config, asyncErrorWrapper } from 'utils';
@@ -39,6 +39,27 @@ function replaceName(name?: string, email?: string): string {
 
 const router = express.Router();
 
+function safeParseUrl(url: string) {
+  try {
+    return new URL(url, config.server.host);
+  }
+  catch (e) {
+
+  }
+}
+
+function saveReturnTo(req: Request, res: Response, next: NextFunction) {
+  console.log(req.query.next, req.session);
+  if (typeof req.query.next === 'string' && req.session) {
+    const url = safeParseUrl(req.query.next);
+    if (url?.hostname.endsWith(config.server.domain)) {
+      req.session.returnTo = req.query.next;
+    }
+  }
+
+  next();
+}
+
 function authenticated(req: Request, res: Response) {
   if (!req.user) {
     res.redirect('/login');
@@ -50,7 +71,21 @@ function authenticated(req: Request, res: Response) {
     return;
   }
 
-  res.redirect('/manage');
+  if (typeof req.session?.returnTo === 'string') {
+    const returnTo = req.session.returnTo;
+    const returnToUrl = safeParseUrl(returnTo);
+    delete req.session.returnTo;
+
+    if (returnToUrl && returnToUrl.hostname !== config.server.domain) {
+      res.redirect(`${returnTo}?key=${req.user.apikey}`);
+    }
+    else {
+      res.redirect(returnTo);
+    }
+  }
+  else {
+    res.redirect('/manage');
+  }
 }
 
 passport.serializeUser((user: HydratedUser, done: GenericCallback) => {
@@ -126,7 +161,7 @@ passport.use(new UbuntuStrategy({
     });
 }));
 
-router.post('/ubuntu', asyncErrorWrapper(passport.authenticate('ubuntu')));
+router.post('/ubuntu', saveReturnTo, asyncErrorWrapper(passport.authenticate('ubuntu')));
 router.get('/ubuntu/return', asyncErrorWrapper(passport.authenticate('ubuntu')), authenticated);
 router.post('/ubuntu/return', asyncErrorWrapper(passport.authenticate('ubuntu')), authenticated);
 
@@ -168,7 +203,7 @@ if (config.github.clientID && config.github.clientSecret) {
       });
   }));
 
-  router.get('/github', asyncErrorWrapper(passport.authenticate('github')));
+  router.get('/github', saveReturnTo, asyncErrorWrapper(passport.authenticate('github')));
   router.get('/github/callback', asyncErrorWrapper(passport.authenticate('github')), authenticated);
 }
 else {
@@ -211,7 +246,7 @@ if (config.gitlab.clientID && config.gitlab.clientSecret) {
       });
   }));
 
-  router.get('/gitlab', asyncErrorWrapper(passport.authenticate('gitlab')));
+  router.get('/gitlab', saveReturnTo, asyncErrorWrapper(passport.authenticate('gitlab')));
   router.get('/gitlab/callback', asyncErrorWrapper(passport.authenticate('gitlab')), authenticated);
 }
 else {

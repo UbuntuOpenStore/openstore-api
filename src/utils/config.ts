@@ -9,6 +9,7 @@ let configuration = {
     port: parseInt(process.env.PORT || process.env.NODEJS_PORT || '8080', 10),
     session_secret: process.env.SESSION_SECRET || 'openstore',
     host: process.env.HOST || 'http://local.open-store.io',
+    domain: (process.env.HOST || 'http://local.open-store.io').replace('http://', '').replace('https://', ''),
     process_limit: parseInt(process.env.PROCESS_LIMIT || '2', 10),
     static_root: process.env.STATIC_ROOT || path.join(__dirname, '../../www/'),
   },
