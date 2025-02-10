@@ -6,11 +6,6 @@
         "description": "nymea transforms your regular smart devices into a harmoniously connected ecosystem."
       },
       {
-        "id": "cinny.nitanmarcel",
-        "image": "/banners/cinny.svg",
-        "description": "A Matrix client focusing primarily on a simple, elegant, and secure interface."
-      },
-      {
         "id": "futify.frenchutouch",
         "image": "/banners/futify.svg",
         "description": "Unofficial native qml Spotify client for premium users only"
