@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2017-06-20 01:45:+0000\n"
-"PO-Revision-Date: 2025-03-06 04:15+0000\n"
+"PO-Revision-Date: 2025-03-06 08:43+0000\n"
 "Last-Translator: ChenLei <falsecollector@outlook.com>\n"
 "Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/"
 "projects/open-store-io/openstore-api/zh_Hans/>\n"
@@ -146,9 +146,8 @@ msgid "Toolbox"
 msgstr "工具箱"
 
 # Discovery section category tagline for "Toolbox"
-#, fuzzy
 msgid "It's not the thing itself, but how you use it."
-msgstr "它不是东西本身，而是你如何使用它。"
+msgstr "重要的不是事物本身,而在于你如何使用它."
 
 # Discovery section category tagline for "Games"
 msgid "We are all our own worst enemy. But also, our best teacher."
@@ -173,9 +172,8 @@ msgid "Awesome Games"
 msgstr "不可思议的游戏"
 
 # Discovery section category tagline for "Awesome Games"
-#, fuzzy
 msgid "It's dangerous to go alone, take this!"
-msgstr "独自一人去很危险，拿这个！"
+msgstr "单独操作存在风险 ,请使用辅助工具!"
 
 # Discovery section category name
 msgid "Game Helpers"
@@ -187,49 +185,47 @@ msgstr "无论何种游戏，大家都能达成共识：游戏总是充满乐趣
 
 # Discovery section category name
 msgid "News"
-msgstr ""
+msgstr "新闻"
 
 # Discovery section category tagline for "News"
 msgid "News is only the first rough draft of history"
-msgstr ""
+msgstr "新闻只是历史的第一个草稿"
 
-#, fuzzy
-#| msgid "Games"
 msgid "Godot Games"
-msgstr "游戏"
+msgstr "Godot 游戏"
 
 # Discovery section category tagline for "Godot Games"
 msgid "The game engine you waited for"
-msgstr ""
+msgstr "您期待的游戏引擎"
 
 # Discovery section category name
 msgid "Fediverse"
-msgstr ""
+msgstr "去中心化"
 
 # Discovery section category tagline for "Fediverse"
 msgid "To infinity and beyond!"
-msgstr ""
+msgstr "到无限和超越!"
 
 # Discovery section category name
 msgid "Chat Connection"
-msgstr ""
+msgstr "聊天连接"
 
 # Discovery section category tagline for "Chat Connection"
 msgid "Don't forget to text mom!"
-msgstr ""
+msgstr "不要忘记给妈妈发短信!"
 
 # Discovery section category name
 msgid "RSS Feed Readers"
-msgstr ""
+msgstr "RSS订阅阅读器"
 
 # Discovery section category tagline for "RSS Feed Readers"
 msgid "RSS is dead, long live RSS!"
-msgstr ""
+msgstr "RSS已死,RSS长青!"
 
 # Discovery section category name
 msgid "Core Apps"
-msgstr ""
+msgstr "核心应用"
 
 # Discovery section category tagline for "Core Apps"
 msgid "There is an app for that"
-msgstr ""
+msgstr "有一个应用可以做到这一点"
