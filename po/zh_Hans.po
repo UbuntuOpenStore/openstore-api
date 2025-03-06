@@ -2,16 +2,16 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2017-06-20 01:45:+0000\n"
-"PO-Revision-Date: 2021-05-03 03:51+0000\n"
-"Last-Translator: Enceka <enceka@yeah.net>\n"
-"Language-Team: Chinese (Simplified) <https://translate.ubports.com/projects/"
-"openstore/openstore-api/zh_Hans/>\n"
+"PO-Revision-Date: 2025-03-06 04:15+0000\n"
+"Last-Translator: ChenLei <falsecollector@outlook.com>\n"
+"Language-Team: Chinese (Simplified Han script) <https://hosted.weblate.org/"
+"projects/open-store-io/openstore-api/zh_Hans/>\n"
 "Language: zh_Hans\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 3.11.3\n"
+"X-Generator: Weblate 5.10.3-dev\n"
 
 msgid "Accessibility"
 msgstr "无障碍"
@@ -131,61 +131,59 @@ msgstr "评分最高的应用"
 
 # Discovery section category tagline for "Utilities"
 msgid "It is essential to have good tools"
-msgstr ""
+msgstr "拥有良好的工具至关重要"
 
 # Discovery section category name
 msgid "Tools"
-msgstr ""
+msgstr "工具"
 
 # Discovery section category tagline for "Tools"
 msgid "Even the simplest tools can empower people to do great things"
-msgstr ""
+msgstr "即使是最简单的工具也能赋予人们做大事的能力"
 
 # Discovery section category name
 msgid "Toolbox"
-msgstr ""
+msgstr "工具箱"
 
 # Discovery section category tagline for "Toolbox"
+#, fuzzy
 msgid "It's not the thing itself, but how you use it."
-msgstr ""
+msgstr "它不是东西本身，而是你如何使用它。"
 
 # Discovery section category tagline for "Games"
 msgid "We are all our own worst enemy. But also, our best teacher."
-msgstr ""
+msgstr "我们都是自己最可怕的敌人。但同时也是最好的老师。"
 
-#, fuzzy
-#| msgid "Games"
 msgid "Fun Games"
-msgstr "游戏"
+msgstr "有趣的游戏"
 
 # Discovery section category tagline for "Fun Games"
 msgid "Cause I always play to win!"
-msgstr ""
+msgstr "因为我总是为了赢而玩！"
 
-#, fuzzy
-#| msgid "Games"
 msgid "Best Games"
-msgstr "游戏"
+msgstr "最佳游戏"
 
 # Discovery section category tagline for "Best Games"
 msgid "Didn't we have some fun though?"
-msgstr ""
+msgstr "可我们终究有过些快乐时光，不是吗？"
 
 # Discovery section category name
 msgid "Awesome Games"
-msgstr ""
+msgstr "不可思议的游戏"
 
 # Discovery section category tagline for "Awesome Games"
+#, fuzzy
 msgid "It's dangerous to go alone, take this!"
-msgstr ""
+msgstr "独自一人去很危险，拿这个！"
 
 # Discovery section category name
 msgid "Game Helpers"
-msgstr ""
+msgstr "游戏帮助"
 
 # Discovery section category tagline for "Game Helpers"
 msgid "No matter what the game, everyone can agree, games are fun."
-msgstr ""
+msgstr "无论何种游戏，大家都能达成共识：游戏总是充满乐趣的。"
 
 # Discovery section category name
 msgid "News"
