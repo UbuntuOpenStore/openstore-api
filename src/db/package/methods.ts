@@ -432,6 +432,7 @@ export function setupMethods(packageSchema: Schema<IPackage, PackageModel, IPack
         download_url: rData.download_url ? this.getDownloadUrl(rData.channel, rData.architecture, rData.version) : null,
         installedSize: toBytes(rData.filesize),
         downloadSize: rData.downloadSize ?? 0,
+        architecture: rData.architecture ?? 'armhf',
 
         // TODO deprecate
         filesize: toBytes(rData.filesize),

@@ -13,6 +13,20 @@ router.get('/', authenticate, adminOnly, asyncErrorWrapper(async (req: Request, 
   success(res, users.map((user) => user.serialize()));
 }, 'Could not fetch user list at this time'));
 
+router.get('/me', authenticate, adminOnly, asyncErrorWrapper(async (req: Request, res: Response) => {
+  if (req.user) {
+    success(res, req.user.serialize());
+  }
+  else {
+    res.status(401);
+    res.send({
+      success: false,
+      data: null,
+      message: 'User not logged in',
+    });
+  }
+}, 'Could not fetch user at this time'));
+
 router.get('/:id', authenticate, adminOnly, asyncErrorWrapper(async (req: Request, res: Response) => {
   const user = await User.findById(req.params.id);
   if (!user) {

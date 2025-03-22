@@ -20,6 +20,7 @@ userSchema.method('serialize', function () {
     name: this.name ? this.name : this.username,
     role: this.role ? this.role : 'community',
     username: this.username,
+    language: this.language,
   };
 });
 

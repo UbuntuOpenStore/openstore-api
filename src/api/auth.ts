@@ -49,7 +49,6 @@ function safeParseUrl(url: string) {
 }
 
 function saveReturnTo(req: Request, res: Response, next: NextFunction) {
-  console.log(req.query.next, req.session);
   if (typeof req.query.next === 'string' && req.session) {
     const url = safeParseUrl(req.query.next);
     if (url?.hostname.endsWith(config.server.domain)) {
