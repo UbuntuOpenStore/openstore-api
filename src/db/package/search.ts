@@ -198,7 +198,7 @@ export class PackageSearch {
       });
     }
 
-    if (nsfw) {
+    if (nsfw && nsfw.length > 0) {
       query.push({
         term: {
           nsfw: nsfw.includes(true),
