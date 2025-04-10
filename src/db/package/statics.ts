@@ -306,7 +306,12 @@ export function setupStatics(packageSchema: Schema<IPackage, PackageModel, IPack
       }
     }
     else {
-      void findQuery.sort(sort).sort('name');
+      if (sort === '-name' || sort === 'name') {
+        void findQuery.sort(sort);
+      }
+      else {
+        void findQuery.sort(sort).sort('name');
+      }
     }
 
     if (limit) {
