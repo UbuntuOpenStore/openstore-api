@@ -200,11 +200,11 @@ export function setupMethods(packageSchema: Schema<IPackage, PackageModel, IPack
 
   packageSchema.method<HydratedPackage>('updateFromBody', async function (body: BodyUpdate) {
     if (body.locked !== undefined) {
-      this.locked = (body.locked === 'true' || body.locked === true);
+      this.locked = (body.locked === 'true' || body.locked === 'on' || body.locked === true);
     }
 
     if (body.published !== undefined) {
-      this.published = (body.published === 'true' || body.published === true);
+      this.published = (body.published === 'true' || body.published === 'on' || body.published === true);
     }
 
     if (!this.published_date && this.published) {
@@ -243,6 +243,10 @@ export function setupMethods(packageSchema: Schema<IPackage, PackageModel, IPack
       if (Array.isArray(body.screenshots)) {
         updatedScreenshots = body.screenshots;
       }
+      else if (isURL(body.screenshots)) {
+        // When there is just one screenshot in form data, it comes across like a single string
+        updatedScreenshots = [body.screenshots];
+      }
       else {
         updatedScreenshots = JSON.parse(body.screenshots);
       }
@@ -271,7 +275,7 @@ export function setupMethods(packageSchema: Schema<IPackage, PackageModel, IPack
     this.keywords = keywords.map((keyword) => keyword.trim());
 
     if (body.nsfw !== undefined) {
-      this.nsfw = body.nsfw;
+      this.nsfw = (body.nsfw === 'true' || body.nsfw === 'on' || body.nsfw === true);
     }
 
     if (body.type_override !== undefined) {

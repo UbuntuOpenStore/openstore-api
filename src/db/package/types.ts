@@ -236,7 +236,7 @@ export interface BodyUpdate {
   tagline?: string;
   screenshots?: string[] | string;
   keywords?: string[] | string;
-  nsfw?: boolean;
+  nsfw?: boolean | string;
   type_override?: PackageType;
   maintainer?: string;
 }
