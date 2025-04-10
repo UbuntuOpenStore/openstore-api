@@ -25,9 +25,11 @@ export function setupVirtuals(packageSchema: Schema<IPackage, PackageModel, IPac
   });
 
   packageSchema.virtual<HydratedPackage>('icon_url').get(function (): string {
-    const ext = this.icon ? path.extname(this.icon) : '.png';
-    let version = DEFAULT_VERSION;
+    if (!this.icon) {
+      return `${config.server.host}/icons/404.png`;
+    }
 
+    let version = DEFAULT_VERSION;
     let channel = DEFAULT_CHANNEL;
     if (!this.channels.includes(channel) && this.channels.length > 0) {
       channel = this.channels[0];
@@ -38,6 +40,6 @@ export function setupVirtuals(packageSchema: Schema<IPackage, PackageModel, IPac
       version = revisionData.version;
     }
 
-    return `${config.server.host}/icons/${this.id as string}/${this.id as string}-${version}${ext}`;
+    return `${config.server.host}/icons/${this.id as string}/${this.id as string}-${version}${path.extname(this.icon)}`;
   });
 }
