@@ -430,6 +430,10 @@ export function setupMethods(packageSchema: Schema<IPackage, PackageModel, IPack
     const installedSize = revisionData ? toBytes(revisionData.filesize) : 0;
 
     const revisions = (this.revisions || []).map((rData) => {
+      if (!Object.values(Architecture).includes(rData.architecture)) {
+        return null; // Filter out unsupported arches like i386 (legacy apps)
+      }
+
       const revision = {
         ...rData.toObject(),
         _id: undefined,
@@ -444,7 +448,7 @@ export function setupMethods(packageSchema: Schema<IPackage, PackageModel, IPack
 
       delete revision._id;
       return revision;
-    });
+    }).filter((revision) => !!revision);
 
     const originalManifest = this.manifest || {};
     const manifest = { ...omit(originalManifest, 'hooks'), hooks: {} };
@@ -454,7 +458,7 @@ export function setupMethods(packageSchema: Schema<IPackage, PackageModel, IPack
     }
 
     const json = {
-      architectures: this.architectures || [],
+      architectures: this.architectures.filter((arch) => Object.values(Architecture).includes(arch)) || [],
       category: this.category || '',
       changelog: this.changelog || '',
       channels: this.channels || [DEFAULT_CHANNEL],
