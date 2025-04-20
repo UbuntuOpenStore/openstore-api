@@ -2,17 +2,17 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2017-06-20 01:45:+0000\n"
-"PO-Revision-Date: 2021-01-31 12:27+0000\n"
-"Last-Translator: ierihon <idekovets@mail.ru>\n"
-"Language-Team: Russian <https://translate.ubports.com/projects/openstore/"
+"PO-Revision-Date: 2025-04-21 21:01+0000\n"
+"Last-Translator: Yurt Page <yurtpage@gmail.com>\n"
+"Language-Team: Russian <https://hosted.weblate.org/projects/open-store-io/"
 "openstore-api/ru/>\n"
 "Language: ru\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
-"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 3.11.3\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"X-Generator: Weblate 5.11.1-dev\n"
 
 msgid "Accessibility"
 msgstr "Доступность"
@@ -132,107 +132,102 @@ msgstr "Приложения с наивысшей оценкой"
 
 # Discovery section category tagline for "Utilities"
 msgid "It is essential to have good tools"
-msgstr ""
+msgstr "Важно иметь хорошие инструменты"
 
 # Discovery section category name
 msgid "Tools"
-msgstr ""
+msgstr "Инструменты"
 
 # Discovery section category tagline for "Tools"
 msgid "Even the simplest tools can empower people to do great things"
 msgstr ""
+"Даже самые простые инструменты могут позволить людям делать великие вещи"
 
 # Discovery section category name
 msgid "Toolbox"
-msgstr ""
+msgstr "Инструментарий"
 
 # Discovery section category tagline for "Toolbox"
 msgid "It's not the thing itself, but how you use it."
-msgstr ""
+msgstr "Это не сама вещь, но как вы её используете."
 
 # Discovery section category tagline for "Games"
 msgid "We are all our own worst enemy. But also, our best teacher."
-msgstr ""
+msgstr "Мы все - наш худший враг. Но и наш лучший учитель."
 
-#, fuzzy
-#| msgid "Games"
 msgid "Fun Games"
-msgstr "Игры"
+msgstr "Весёлые игры"
 
 # Discovery section category tagline for "Fun Games"
 msgid "Cause I always play to win!"
-msgstr ""
+msgstr "Потому что я всегда играю, чтобы выиграть!"
 
-#, fuzzy
-#| msgid "Games"
 msgid "Best Games"
-msgstr "Игры"
+msgstr "Лучшие игры"
 
 # Discovery section category tagline for "Best Games"
 msgid "Didn't we have some fun though?"
-msgstr ""
+msgstr "Разве нам не весело?"
 
 # Discovery section category name
 msgid "Awesome Games"
-msgstr ""
+msgstr "Потрясающие игры"
 
 # Discovery section category tagline for "Awesome Games"
 msgid "It's dangerous to go alone, take this!"
-msgstr ""
+msgstr "Опасно идти одному, возьми это!"
 
 # Discovery section category name
 msgid "Game Helpers"
-msgstr ""
+msgstr "Игровые помощники"
 
 # Discovery section category tagline for "Game Helpers"
 msgid "No matter what the game, everyone can agree, games are fun."
-msgstr ""
+msgstr "Неважно какая игра, все могут согласиться, что игры — это весело."
 
 # Discovery section category name
 msgid "News"
-msgstr ""
+msgstr "Новинки"
 
 # Discovery section category tagline for "News"
 msgid "News is only the first rough draft of history"
-msgstr ""
+msgstr "Новинки — это лишь первое попытки истории"
 
-#, fuzzy
-#| msgid "Games"
 msgid "Godot Games"
-msgstr "Игры"
+msgstr "Игры Godot"
 
 # Discovery section category tagline for "Godot Games"
 msgid "The game engine you waited for"
-msgstr ""
+msgstr "Игровой движок который вы ждали"
 
 # Discovery section category name
 msgid "Fediverse"
-msgstr ""
+msgstr "Федивёрс"
 
 # Discovery section category tagline for "Fediverse"
 msgid "To infinity and beyond!"
-msgstr ""
+msgstr "К бесконечности и за её пределами!"
 
 # Discovery section category name
 msgid "Chat Connection"
-msgstr ""
+msgstr "Подключение к чату"
 
 # Discovery section category tagline for "Chat Connection"
 msgid "Don't forget to text mom!"
-msgstr ""
+msgstr "Не забудь написать маме!"
 
 # Discovery section category name
 msgid "RSS Feed Readers"
-msgstr ""
+msgstr "Читалки RSS"
 
 # Discovery section category tagline for "RSS Feed Readers"
 msgid "RSS is dead, long live RSS!"
-msgstr ""
+msgstr "RSS мертв, да здравствует RSS!"
 
 # Discovery section category name
 msgid "Core Apps"
-msgstr ""
+msgstr "Основные приложения"
 
 # Discovery section category tagline for "Core Apps"
 msgid "There is an app for that"
-msgstr ""
+msgstr "Есть приложение для этого"
