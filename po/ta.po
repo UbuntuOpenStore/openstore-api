@@ -95,7 +95,7 @@ msgstr "உற்சாகமான புதிய பயன்பாடுக�
 
 # Discovery section category name
 msgid "Health & Wellness"
-msgstr "உடல்நலம் & உடல்நலம்"
+msgstr "உடல்நலம் & மனநலம்"
 
 # Discovery section category tagline for "Health & Wellness"
 msgid "An apple a day..."
