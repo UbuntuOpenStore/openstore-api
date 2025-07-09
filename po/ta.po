@@ -2,233 +2,240 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "POT-Creation-Date: 2017-06-20 01:45:+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Language-Team: none\n"
+"PO-Revision-Date: 2025-07-11 00:01+0000\n"
+"Last-Translator: தமிழ்நேரம் <anishprabu.t@gmail.com>\n"
+"Language-Team: Tamil <https://hosted.weblate.org/projects/open-store-io/"
+"openstore-api/ta/>\n"
 "Language: ta\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.13-dev\n"
 
 msgid "Accessibility"
-msgstr ""
+msgstr "அணுகல்"
 
 msgid "Books & Comics"
-msgstr ""
+msgstr "புத்தகங்கள் & காமிக்ச்"
 
 msgid "Business & Finance"
-msgstr ""
+msgstr "வணிகம் மற்றும் பொருள்"
 
 msgid "Communication & Social"
-msgstr ""
+msgstr "தொடர்பு & சமூக"
 
 msgid "Developer Tools"
-msgstr ""
+msgstr "உருவாக்குபவர் கருவிகள்"
 
 msgid "Education & Reference"
-msgstr ""
+msgstr "கல்வி & குறிப்பு"
 
 msgid "Entertainment"
-msgstr ""
+msgstr "பொழுதுபோக்கு"
 
 msgid "Food & Drink"
-msgstr ""
+msgstr "உணவு & பானம்"
 
 # Discovery section category name
 msgid "Games"
-msgstr ""
+msgstr "விளையாட்டுகள்"
 
 msgid "Graphics"
-msgstr ""
+msgstr "கிராபிக்ச்"
 
 msgid "Health & Fitness"
-msgstr ""
+msgstr "உடல்நலம் மற்றும் உடற்பயிற்சி"
 
 msgid "Lifestyle"
-msgstr ""
+msgstr "வாழ்க்கை முறை"
 
 msgid "Media & Video"
-msgstr ""
+msgstr "மீடியா & வீடியோ"
 
 msgid "Music & Audio"
-msgstr ""
+msgstr "இசை & ஆடியோ"
 
 msgid "News & Magazines"
-msgstr ""
+msgstr "செய்தி & பத்திரிகைகள்"
 
 msgid "Personalisation"
-msgstr ""
+msgstr "தனிப்பயனாக்கம்"
 
 msgid "Productivity"
-msgstr ""
+msgstr "உற்பத்தித்திறன்"
 
 msgid "Science & Engineering"
-msgstr ""
+msgstr "அறிவியல் மற்றும் பொறியியல்"
 
 msgid "Shopping"
-msgstr ""
+msgstr "சாப்பிங்"
 
 msgid "Sports"
-msgstr ""
+msgstr "விளையாட்டு"
 
 msgid "Travel & Weather"
-msgstr ""
+msgstr "பயணம் & வானிலை"
 
 # Discovery section category name
 msgid "Utilities"
-msgstr ""
+msgstr "பயன்பாடுகள்"
 
 # This is text to go on a button that will say "Download from the\nOpenStore" (where \n is a line break)
 msgid "Download from the"
-msgstr ""
+msgstr "இருந்து பதிவிறக்கவும்"
 
 # Discovery section category name
 msgid "New and Updated Apps"
-msgstr ""
+msgstr "புதிய மற்றும் புதுப்பிக்கப்பட்ட பயன்பாடுகள்"
 
 # Discovery section category tagline for "New and Updated Apps"
 msgid "Exciting new apps & updates"
-msgstr ""
+msgstr "உற்சாகமான புதிய பயன்பாடுகள் மற்றும் புதுப்பிப்புகள்"
 
 # Discovery section category name
 msgid "Health & Wellness"
-msgstr ""
+msgstr "உடல்நலம் & உடல்நலம்"
 
 # Discovery section category tagline for "Health & Wellness"
 msgid "An apple a day..."
-msgstr ""
+msgstr "ஒரு நாள் ஒரு நாள் ..."
 
 # Discovery section category name
 msgid "Cross Platform Apps"
-msgstr ""
+msgstr "குறுக்கு மேடை பயன்பாடுகள்"
 
 # Discovery section category tagline for "Cross Platform Apps"
 msgid "Find these apps anywhere"
-msgstr ""
+msgstr "இந்த பயன்பாடுகளை எங்கும் கண்டறியவும்"
 
 # Discovery section category name
 msgid "Essential Apps"
-msgstr ""
+msgstr "அத்தியாவசிய பயன்பாடுகள்"
 
 # Discovery section category tagline for "Essential Apps"
 msgid "Check these out first"
-msgstr ""
+msgstr "முதலில் இவற்றைப் பாருங்கள்"
 
 # Discovery section category name
 msgid "Dev Tools & Reference"
-msgstr ""
+msgstr "தேவ் கருவிகள் & குறிப்பு"
 
 # Discovery section category tagline for "Dev Tools & Reference"
 msgid "Talk is cheap. Show me the code."
-msgstr ""
+msgstr "பேச்சு மலிவானது. குறியீட்டை எனக்குக் காட்டு."
 
 # Discovery section category name
 msgid "Most Loved"
-msgstr ""
+msgstr "மிகவும் நேசித்தது"
 
 # Discovery section category tagline for "Most Loved"
 msgid "Apps with the highest ratings"
-msgstr ""
+msgstr "அதிக மதிப்பீடுகளைக் கொண்ட பயன்பாடுகள்"
 
 # Discovery section category tagline for "Utilities"
 msgid "It is essential to have good tools"
-msgstr ""
+msgstr "நல்ல கருவிகளைக் கொண்டிருப்பது தேவை"
 
 # Discovery section category name
 msgid "Tools"
-msgstr ""
+msgstr "கருவிகள்"
 
 # Discovery section category tagline for "Tools"
 msgid "Even the simplest tools can empower people to do great things"
 msgstr ""
+"எளிமையான கருவிகள் கூட பெரிய காரியங்களைச் செய்ய மக்களுக்கு அதிகாரம் அளிக்கும்"
 
 # Discovery section category name
 msgid "Toolbox"
-msgstr ""
+msgstr "கருவிப்பெட்டி"
 
 # Discovery section category tagline for "Toolbox"
 msgid "It's not the thing itself, but how you use it."
-msgstr ""
+msgstr "இது சேதி அல்ல, ஆனால் நீங்கள் அதை எவ்வாறு பயன்படுத்துகிறீர்கள்."
 
 # Discovery section category tagline for "Games"
 msgid "We are all our own worst enemy. But also, our best teacher."
-msgstr ""
+msgstr "நாம் அனைவரும் எங்கள் சொந்த மோசமான எதிரி. ஆனால், எங்கள் சிறந்த ஆசிரியர்."
 
 # Discovery section category name
 msgid "Fun Games"
-msgstr ""
+msgstr "வேடிக்கையான விளையாட்டுகள்"
 
 # Discovery section category tagline for "Fun Games"
 msgid "Cause I always play to win!"
-msgstr ""
+msgstr "நான் எப்போதும் வெற்றிபெற விளையாடுகிறேன்!"
 
 # Discovery section category name
 msgid "Best Games"
-msgstr ""
+msgstr "சிறந்த விளையாட்டுகள்"
 
 # Discovery section category tagline for "Best Games"
 msgid "Didn't we have some fun though?"
-msgstr ""
+msgstr "எங்களுக்கு கொஞ்சம் வேடிக்கையாக இல்லையா?"
 
 # Discovery section category name
 msgid "Awesome Games"
-msgstr ""
+msgstr "அற்புதமான விளையாட்டுகள்"
 
 # Discovery section category tagline for "Awesome Games"
 msgid "It's dangerous to go alone, take this!"
-msgstr ""
+msgstr "தனியாக செல்வது ஆபத்தானது, இதை எடுத்துக் கொள்ளுங்கள்!"
 
 # Discovery section category name
 msgid "Game Helpers"
-msgstr ""
+msgstr "விளையாட்டு உதவியாளர்கள்"
 
 # Discovery section category tagline for "Game Helpers"
 msgid "No matter what the game, everyone can agree, games are fun."
 msgstr ""
+"என்ன விளையாட்டு இருந்தாலும், எல்லோரும் ஒப்புக் கொள்ளலாம், விளையாட்டுகள் வேடிக்கையாக "
+"இருக்கின்றன."
 
 # Discovery section category name
 msgid "News"
-msgstr ""
+msgstr "செய்தி"
 
 # Discovery section category tagline for "News"
 msgid "News is only the first rough draft of history"
-msgstr ""
+msgstr "செய்திகள் வரலாற்றின் முதல் கடினமான வரைவு மட்டுமே"
 
 # Discovery section category name
 msgid "Godot Games"
-msgstr ""
+msgstr "கோடோட் விளையாட்டுகள்"
 
 # Discovery section category tagline for "Godot Games"
 msgid "The game engine you waited for"
-msgstr ""
+msgstr "நீங்கள் காத்திருந்த விளையாட்டு இயந்திரம்"
 
 # Discovery section category name
 msgid "Fediverse"
-msgstr ""
+msgstr "ஃபெடிவர்ச்"
 
 # Discovery section category tagline for "Fediverse"
 msgid "To infinity and beyond!"
-msgstr ""
+msgstr "முடிவிலி மற்றும் அதற்கு அப்பால்!"
 
 # Discovery section category name
 msgid "Chat Connection"
-msgstr ""
+msgstr "அரட்டை இணைப்பு"
 
 # Discovery section category tagline for "Chat Connection"
 msgid "Don't forget to text mom!"
-msgstr ""
+msgstr "அம்மாவுக்கு உரை செய்ய மறக்காதீர்கள்!"
 
 # Discovery section category name
 msgid "RSS Feed Readers"
-msgstr ""
+msgstr "ஆர்.எச்.எச் உணவக வாசகர்களுக்கு"
 
 # Discovery section category tagline for "RSS Feed Readers"
 msgid "RSS is dead, long live RSS!"
-msgstr ""
+msgstr "ஆர்.எச்.எச் இறந்துவிட்டது, நீண்ட நேரடி ஆர்.எச்.எச்!"
 
 # Discovery section category name
 msgid "Core Apps"
-msgstr ""
+msgstr "முக்கிய பயன்பாடுகள்"
 
 # Discovery section category tagline for "Core Apps"
 msgid "There is an app for that"
-msgstr ""
+msgstr "அதற்கான பயன்பாடு உள்ளது"
