@@ -87,6 +87,7 @@ describe('Manage Revision POST', () => {
         version: '1.0.0',
         architecture: 'armhf',
         apps: [],
+        framework: 'ubuntu-sdk-20.04',
       }));
 
       const res = await request(app).post(route2)
@@ -110,6 +111,7 @@ describe('Manage Revision POST', () => {
         version: '1.0.0',
         architecture: 'armhf',
         apps: [],
+        framework: 'ubuntu-sdk-20.04',
       }));
 
       const res = await request(app).post(route1)
@@ -136,6 +138,7 @@ describe('Manage Revision POST', () => {
         version: '1.0.0',
         architecture: 'armhf',
         apps: [],
+        framework: 'ubuntu-sdk-20.04',
       }));
 
       const res = await request(app).post(route1)
@@ -166,6 +169,7 @@ describe('Manage Revision POST', () => {
         version: '1.0.0',
         architecture: 'armhf',
         apps: [],
+        framework: 'ubuntu-sdk-20.04',
       }));
 
       const res = await request(app).post(route1)
@@ -318,6 +322,7 @@ describe('Manage Revision POST', () => {
         name: 'foo',
         version: '1.0.0',
         architecture: 'armhf',
+        framework: 'ubuntu-sdk-20.04',
       }));
 
       const res = await request(app).post(route1)
@@ -407,7 +412,10 @@ describe('Manage Revision POST', () => {
       const data = res.body.data;
       assert.ok(res.body.success);
       assert.equal(data.revisions.length, 2);
-      assert.equal(data.revisions[1].revision, 2);
+      assert.equal(
+        data.revisions[1].revision,
+        package1.generateRevisionCode('1.0.0', Channel.FOCAL, Architecture.ARMHF, 'ubuntu-sdk-20.04'),
+      );
       assert.equal(data.revisions[1].version, '1.0.0');
       assert.equal(data.revisions[1].channel, Channel.FOCAL);
       assert.equal(data.revisions[1].architecture, Architecture.ARMHF);
@@ -661,6 +669,7 @@ describe('Manage Revision POST', () => {
         version: '1.0.0',
         architecture: 'armhf',
         apps: [],
+        framework: 'ubuntu-sdk-20.04',
       }));
 
       const res = await request(app).post(route1)
@@ -710,7 +719,10 @@ describe('Manage Revision POST', () => {
       assert.equal(data.version, '1.0.0');
       assert.deepEqual(data.types, ['app']);
       assert.equal(data.revisions.length, 2);
-      assert.equal(data.revisions[1].revision, 2);
+      assert.equal(
+        data.revisions[1].revision,
+        package1.generateRevisionCode('1.0.0', Channel.FOCAL, Architecture.ARMHF, 'ubuntu-sdk-20.04.1'),
+      );
       assert.equal(data.revisions[1].version, '1.0.0');
       assert.equal(data.revisions[1].channel, Channel.FOCAL);
       assert.equal(data.revisions[1].architecture, Architecture.ARMHF);
@@ -822,6 +834,7 @@ describe('Manage Revision POST', () => {
         version: '1.0.0',
         architecture: 'armhf',
         apps: [],
+        framework: 'ubuntu-sdk-20.04',
       }));
 
       const res = await request(app).post(route1)
@@ -857,6 +870,7 @@ describe('Manage Revision POST', () => {
         version: '1.0.0',
         architecture: 'armhf',
         apps: [],
+        framework: 'ubuntu-sdk-20.04',
       }));
 
       const res = await request(app).post(route1)

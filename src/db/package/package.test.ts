@@ -91,8 +91,8 @@ describe('Package', () => {
         id: { $in: ['foo.bar'] },
         device_compatibilities: {
           $in: [
-          `${Channel.FOCAL}:${Architecture.ARMHF}:ubuntu-16.04`,
-          `${Channel.FOCAL}:${Architecture.ALL}:ubuntu-16.04`,
+            `${Channel.FOCAL}:${Architecture.ARMHF}:ubuntu-16.04`,
+            `${Channel.FOCAL}:${Architecture.ALL}:ubuntu-16.04`,
           ],
         },
         category: 'Category',
@@ -145,6 +145,7 @@ describe('Package', () => {
         support_url: 'https://example.com/support',
         video_url: 'https://example.com/video',
         translation_url: 'https://example.com/translations',
+        icon: 'icon.png',
       });
     });
 
@@ -269,7 +270,7 @@ describe('Package', () => {
               installedSize: 10240,
               filesize: 10240,
               framework: 'ubuntu-sdk-20.04',
-              revision: 2,
+              revision: package1.generateRevisionCode('1.0.0', Channel.FOCAL, Architecture.ARM64, 'ubuntu-sdk-20.04'),
               version: '1.0.0',
               permissions: [],
             },
@@ -284,7 +285,7 @@ describe('Package', () => {
               installedSize: 10240,
               filesize: 10240,
               framework: 'ubuntu-sdk-20.04',
-              revision: 1,
+              revision: package1.generateRevisionCode('1.0.0', Channel.FOCAL, Architecture.ARMHF, 'ubuntu-sdk-20.04'),
               version: '1.0.0',
               permissions: [],
             },
@@ -323,7 +324,7 @@ describe('Package', () => {
               installedSize: 10240,
               filesize: 10240,
               framework: 'ubuntu-sdk-20.04',
-              revision: 1,
+              revision: package1.generateRevisionCode('1.0.0', Channel.FOCAL, Architecture.ARMHF, 'ubuntu-sdk-20.04'),
               version: '1.0.0',
               permissions: [],
             },
@@ -338,7 +339,7 @@ describe('Package', () => {
               installedSize: 10240,
               filesize: 10240,
               framework: 'ubuntu-sdk-20.04',
-              revision: 2,
+              revision: package1.generateRevisionCode('1.0.0', Channel.FOCAL, Architecture.ARM64, 'ubuntu-sdk-20.04'),
               version: '1.0.0',
               permissions: [],
             },
@@ -374,7 +375,7 @@ describe('Package', () => {
             installedSize: 10240,
             filesize: 10240,
             framework: 'ubuntu-sdk-16.04',
-            revision: 1,
+            revision: package1.generateRevisionCode('1.0.0', Channel.FOCAL, Architecture.ARM64, 'ubuntu-sdk-16.04'),
             version: '1.0.0',
             permissions: [],
           },
@@ -389,7 +390,7 @@ describe('Package', () => {
             installedSize: 10240,
             filesize: 10240,
             framework: 'ubuntu-sdk-20.04',
-            revision: 2,
+            revision: package1.generateRevisionCode('1.0.1', Channel.FOCAL, Architecture.ARM64, 'ubuntu-sdk-20.04'),
             version: '1.0.1',
             permissions: [],
           },
@@ -408,7 +409,7 @@ describe('Package', () => {
             installedSize: 10240,
             filesize: 10240,
             framework: 'ubuntu-sdk-16.04',
-            revision: 1,
+            revision: package1.generateRevisionCode('1.0.0', Channel.FOCAL, Architecture.ARM64, 'ubuntu-sdk-16.04'),
             version: '1.0.0',
             permissions: [],
           },
@@ -427,7 +428,7 @@ describe('Package', () => {
             installedSize: 10240,
             filesize: 10240,
             framework: 'ubuntu-sdk-20.04',
-            revision: 2,
+            revision: package1.generateRevisionCode('1.0.1', Channel.FOCAL, Architecture.ARM64, 'ubuntu-sdk-20.04'),
             version: '1.0.1',
             permissions: [],
           },
@@ -448,6 +449,111 @@ describe('Package', () => {
           BUGGY: 0,
         });
       });
+    });
+  });
+
+  describe('getLatestRevision', () => {
+    let package1: TestPackage;
+
+    beforeEach(() => {
+      package1 = new Package({
+        id: 'app.id',
+        name: 'Best App Ever',
+        channels: [DEFAULT_CHANNEL],
+        architectures: [Architecture.ARMHF, Architecture.ARM64],
+      });
+
+      // First version
+      package1.createNextRevision('1.0.0', Channel.FOCAL, Architecture.ARMHF, 'ubuntu-sdk-16.04', 'url', 'shasum', 10, 8);
+      package1.createNextRevision('1.0.0', Channel.FOCAL, Architecture.ARM64, 'ubuntu-sdk-16.04', 'url', 'shasum', 10, 8);
+      package1.createNextRevision('1.0.0', Channel.XENIAL, Architecture.ARMHF, 'ubuntu-sdk-16.04', 'url', 'shasum', 10, 8);
+      package1.createNextRevision('1.0.0', Channel.XENIAL, Architecture.ARM64, 'ubuntu-sdk-16.04', 'url', 'shasum', 10, 8);
+
+      // Second version
+      package1.createNextRevision('1.0.1', Channel.FOCAL, Architecture.ARMHF, 'ubuntu-sdk-16.04', 'url', 'shasum', 10, 8);
+      package1.createNextRevision('1.0.1', Channel.FOCAL, Architecture.ARM64, 'ubuntu-sdk-16.04', 'url', 'shasum', 10, 8);
+      package1.createNextRevision('1.0.1', Channel.XENIAL, Architecture.ARMHF, 'ubuntu-sdk-16.04', 'url', 'shasum', 10, 8);
+      package1.createNextRevision('1.0.1', Channel.XENIAL, Architecture.ARM64, 'ubuntu-sdk-16.04', 'url', 'shasum', 10, 8);
+
+      // Third version, dropped xenial
+      package1.createNextRevision('1.0.2', Channel.FOCAL, Architecture.ARMHF, 'ubuntu-sdk-20.04', 'url', 'shasum', 10, 8);
+      package1.createNextRevision('1.0.2', Channel.FOCAL, Architecture.ARM64, 'ubuntu-sdk-20.04', 'url', 'shasum', 10, 8);
+
+      // Four version
+      package1.createNextRevision('1.0.3', Channel.FOCAL, Architecture.ARMHF, 'ubuntu-sdk-20.04', 'url', 'shasum', 10, 8);
+      package1.createNextRevision('1.0.3', Channel.FOCAL, Architecture.ARM64, 'ubuntu-sdk-20.04', 'url', 'shasum', 10, 8);
+
+      // Fifth version, supports the new framework
+      package1.createNextRevision('2.0.0', Channel.FOCAL, Architecture.ARMHF, 'ubuntu-touch-24.04-1.x', 'url', 'shasum', 10, 8);
+      package1.createNextRevision('2.0.0', Channel.FOCAL, Architecture.ARM64, 'ubuntu-touch-24.04-1.x', 'url', 'shasum', 10, 8);
+
+      // Sixth version, a fix to the old framework version
+      package1.createNextRevision('1.0.4', Channel.FOCAL, Architecture.ARMHF, 'ubuntu-sdk-20.04', 'url', 'shasum', 10, 8);
+      package1.createNextRevision('1.0.4', Channel.FOCAL, Architecture.ARM64, 'ubuntu-sdk-20.04', 'url', 'shasum', 10, 8);
+    });
+
+    test('gets the latest revision for an arch/channel/framework', () => {
+      const { revisionData: rev1 } = package1.getLatestRevision(Channel.XENIAL, Architecture.ARM64, undefined, ['ubuntu-sdk-16.04']);
+      assert.equal(rev1?.version, '1.0.1');
+      assert.equal(rev1?.architecture, Architecture.ARM64);
+      assert.equal(rev1?.channel, Channel.XENIAL);
+      assert.equal(rev1?.framework, 'ubuntu-sdk-16.04');
+
+      const { revisionData: rev2 } = package1.getLatestRevision(Channel.FOCAL, Architecture.ARM64, undefined, ['ubuntu-sdk-16.04']);
+      assert.equal(rev2?.version, '1.0.1');
+      assert.equal(rev2?.architecture, Architecture.ARM64);
+      assert.equal(rev2?.channel, Channel.FOCAL);
+      assert.equal(rev2?.framework, 'ubuntu-sdk-16.04');
+
+      const { revisionData: rev3 } = package1.getLatestRevision(
+        Channel.FOCAL,
+        Architecture.ARM64,
+        undefined,
+        ['ubuntu-sdk-16.04', 'ubuntu-sdk-20.04'],
+      );
+      assert.equal(rev3?.version, '1.0.4');
+      assert.equal(rev3?.architecture, Architecture.ARM64);
+      assert.equal(rev3?.channel, Channel.FOCAL);
+      assert.equal(rev3?.framework, 'ubuntu-sdk-20.04');
+
+      const { revisionData: rev4 } = package1.getLatestRevision(
+        Channel.FOCAL,
+        Architecture.ARM64,
+        undefined,
+        ['ubuntu-sdk-20.04', 'ubuntu-touch-24.04-1.x'],
+      );
+      assert.equal(rev4?.version, '2.0.0');
+      assert.equal(rev4?.architecture, Architecture.ARM64);
+      assert.equal(rev4?.channel, Channel.FOCAL);
+      assert.equal(rev4?.framework, 'ubuntu-touch-24.04-1.x');
+    });
+
+    test('with a different frameworks using the same version', () => {
+      // Same version as the ubuntu-touch-24.04-1.x framework
+      package1.createNextRevision('2.0.0', Channel.FOCAL, Architecture.ARMHF, 'ubuntu-sdk-20.04', 'url', 'shasum', 10, 8);
+      package1.createNextRevision('2.0.0', Channel.FOCAL, Architecture.ARM64, 'ubuntu-sdk-20.04', 'url', 'shasum', 10, 8);
+
+      const { revisionData: rev1 } = package1.getLatestRevision(
+        Channel.FOCAL,
+        Architecture.ARM64,
+        undefined,
+        ['ubuntu-sdk-20.04', 'ubuntu-touch-24.04-1.x'],
+      );
+      assert.equal(rev1?.version, '2.0.0');
+      assert.equal(rev1?.architecture, Architecture.ARM64);
+      assert.equal(rev1?.channel, Channel.FOCAL);
+      assert.equal(rev1?.framework, 'ubuntu-touch-24.04-1.x');
+
+      const { revisionData: rev2 } = package1.getLatestRevision(
+        Channel.FOCAL,
+        Architecture.ARM64,
+        undefined,
+        ['ubuntu-sdk-16.04', 'ubuntu-sdk-20.04'],
+      );
+      assert.equal(rev2?.version, '2.0.0');
+      assert.equal(rev2?.architecture, Architecture.ARM64);
+      assert.equal(rev2?.channel, Channel.FOCAL);
+      assert.equal(rev2?.framework, 'ubuntu-sdk-20.04');
     });
   });
 });

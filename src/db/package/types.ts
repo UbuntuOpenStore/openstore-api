@@ -15,6 +15,104 @@ export enum Channel {
   FOCAL = 'focal',
 }
 
+export const CHANNEL_CODE = {
+  [Channel.XENIAL]: 0,
+  [Channel.FOCAL]: 1,
+
+  // More channels can be added later
+  // [Channel.BETA]: 2,
+  // [Channel.EDGE]: 3,
+};
+
+export const FRAMEWORKS = [
+  'ubuntu-sdk-13.10',
+  'ubuntu-sdk-14.04',
+  'ubuntu-sdk-14.04-html',
+  'ubuntu-sdk-14.04-papi',
+  'ubuntu-sdk-14.04-qml',
+  'ubuntu-sdk-14.10',
+  'ubuntu-sdk-14.10-html',
+  'ubuntu-sdk-14.10-papi',
+  'ubuntu-sdk-14.10-qml',
+  'ubuntu-sdk-15.04',
+  'ubuntu-sdk-15.04-html',
+  'ubuntu-sdk-15.04-papi',
+  'ubuntu-sdk-15.04-qml',
+  'ubuntu-sdk-15.04.1-html',
+  'ubuntu-sdk-15.04.1-papi',
+  'ubuntu-sdk-15.04.1-qml',
+  'ubuntu-sdk-15.04.1',
+  'ubuntu-sdk-15.04.2-html',
+  'ubuntu-sdk-15.04.2-papi',
+  'ubuntu-sdk-15.04.2-qml',
+  'ubuntu-sdk-15.04.2',
+  'ubuntu-sdk-15.04.3-html',
+  'ubuntu-sdk-15.04.3-papi',
+  'ubuntu-sdk-15.04.3-qml',
+  'ubuntu-sdk-15.04.3',
+  'ubuntu-sdk-15.04.4-html',
+  'ubuntu-sdk-15.04.4-papi',
+  'ubuntu-sdk-15.04.4-qml',
+  'ubuntu-sdk-15.04.4',
+  'ubuntu-sdk-15.04.5-html',
+  'ubuntu-sdk-15.04.5-papi',
+  'ubuntu-sdk-15.04.5-qml',
+  'ubuntu-sdk-15.04.5',
+  'ubuntu-sdk-15.04.6-html',
+  'ubuntu-sdk-15.04.6-papi',
+  'ubuntu-sdk-15.04.6-qml',
+  'ubuntu-sdk-15.04.6',
+  'ubuntu-sdk-15.04.7-html',
+  'ubuntu-sdk-15.04.7-papi',
+  'ubuntu-sdk-15.04.7-qml',
+  'ubuntu-sdk-15.04.7',
+  'ubuntu-sdk-16.04',
+  'ubuntu-sdk-16.04-html',
+  'ubuntu-sdk-16.04-papi',
+  'ubuntu-sdk-16.04-qml',
+  'ubuntu-sdk-16.04.1',
+  'ubuntu-sdk-16.04.1-html',
+  'ubuntu-sdk-16.04.1-papi',
+  'ubuntu-sdk-16.04.1-qml',
+  'ubuntu-sdk-16.04.2',
+  'ubuntu-sdk-16.04.2-html',
+  'ubuntu-sdk-16.04.2-papi',
+  'ubuntu-sdk-16.04.2-qml',
+  'ubuntu-sdk-16.04.3',
+  'ubuntu-sdk-16.04.3-html',
+  'ubuntu-sdk-16.04.3-papi',
+  'ubuntu-sdk-16.04.3-qml',
+  'ubuntu-sdk-16.04.4',
+  'ubuntu-sdk-16.04.4-html',
+  'ubuntu-sdk-16.04.4-papi',
+  'ubuntu-sdk-16.04.4-qml',
+  'ubuntu-sdk-16.04.5',
+  'ubuntu-sdk-16.04.5-html',
+  'ubuntu-sdk-16.04.5-papi',
+  'ubuntu-sdk-16.04.5-qml',
+  'ubuntu-sdk-16.04.6',
+  'ubuntu-sdk-16.04.6-html',
+  'ubuntu-sdk-16.04.6-papi',
+  'ubuntu-sdk-16.04.6-qml',
+  'ubuntu-sdk-16.04.7',
+  'ubuntu-sdk-16.04.7-html',
+  'ubuntu-sdk-16.04.7-papi',
+  'ubuntu-sdk-16.04.7-qml',
+  'ubuntu-sdk-16.04.8',
+  'ubuntu-sdk-16.04.8-html',
+  'ubuntu-sdk-16.04.8-papi',
+  'ubuntu-sdk-16.04.8-qml',
+  'ubuntu-sdk-20.04',
+  'ubuntu-sdk-20.04-qml',
+  'ubuntu-sdk-20.04.1',
+  'ubuntu-sdk-20.04.1-qml',
+  'ubuntu-touch-24.04-1.x',
+  'ubuntu-touch-24.04-1.x-papi',
+  'ubuntu-touch-24.04-1.x-qml',
+];
+
+export const FRAMEWORK_SET = new Set(FRAMEWORKS);
+
 export const DEPRECATED_CHANNELS: Channel[] = [Channel.XENIAL];
 
 export const DEFAULT_CHANNEL = Channel.FOCAL;
@@ -25,6 +123,13 @@ export enum Architecture {
   AMD64 = 'amd64',
   ARM64 = 'arm64',
 }
+
+export const ARCHITECTURE_CODE = {
+  [Architecture.ALL]: 0,
+  [Architecture.ARMHF]: 1,
+  [Architecture.AMD64]: 2,
+  [Architecture.ARM64]: 3,
+};
 
 export enum ChannelArchitecture {
   FOCAL_ALL = 'focal:all',
@@ -60,7 +165,7 @@ export interface IRevision {
 
 export type HydratedRevision = HydratedDocument<IRevision>;
 
-export interface RevisionModel extends Model<IRevision> {}
+export interface RevisionModel extends Model<IRevision> { }
 
 export interface SerializedDownload extends IRevision { }
 
@@ -251,6 +356,12 @@ export interface IPackageMethods {
   ) => { revisionData?: HydratedRevision | null; revisionIndex: number };
   updateFromClick: (data: ClickParserData) => void;
   updateFromBody: (body: BodyUpdate) => Promise<void>;
+  generateRevisionCode: (
+    version: string,
+    channel: Channel,
+    architecture: Architecture,
+    framework: string
+  ) => number;
   createNextRevision: (
     version: string,
     channel: Channel,
@@ -261,7 +372,7 @@ export interface IPackageMethods {
     installedSize: number,
     downloadSize: number,
     permissions?: string[],
-  ) => void;
+  ) => number;
   getClickFilePath: (channel: Channel, arch: Architecture, version: string) => string;
   getIconFilePath: (ext: string) => string;
   getDownloadUrl: (channel: Channel, arch: Architecture, version?: string) => string;

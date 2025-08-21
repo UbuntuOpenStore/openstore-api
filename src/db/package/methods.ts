@@ -36,6 +36,9 @@ import {
   type IPackageMethods,
   type HydratedPackage,
   type HydratedRevision,
+  CHANNEL_CODE,
+  ARCHITECTURE_CODE,
+  FRAMEWORKS,
 } from './types';
 import { User } from '../user';
 
@@ -299,6 +302,42 @@ export function setupMethods(packageSchema: Schema<IPackage, PackageModel, IPack
     }
   });
 
+  packageSchema.method<HydratedPackage>('generateRevisionCode', function (
+    version: string,
+    channel: Channel,
+    architecture: Architecture,
+    framework: string,
+  ) {
+    // Version must be in the format of major.minor.patch, major.minor, or major
+    if (!/^\d+(\.\d+){0,2}$/.test(version)) {
+      throw new UserError('Invalid version. Version must be X.Y.Z, X.Y, or X');
+    }
+
+    // Change the version from X.Y.Z to 00X00Y00Z
+    const versionParts = version.split('.').map((part) => part.padStart(2, '0'));
+    const versionCode = parseInt(versionParts.join(''), 10);
+    if (isNaN(versionCode)) {
+      throw new UserError('Invalid version');
+    }
+
+    const channelCode = CHANNEL_CODE[channel];
+    if (channelCode === undefined) {
+      throw new UserError(`Invalid channel: ${channel}`);
+    }
+
+    const architectureCode = ARCHITECTURE_CODE[architecture];
+    if (architectureCode === undefined) {
+      throw new UserError(`Invalid architecture: ${architecture}`);
+    }
+
+    const frameworkCode = FRAMEWORKS.indexOf(framework);
+    if (frameworkCode === -1) {
+      throw new UserError(`Invalid framework: ${framework}`);
+    }
+
+    return parseInt(`${versionCode}${channelCode}${architectureCode}${frameworkCode.toString().padStart(4, '0')}`, 10);
+  });
+
   packageSchema.method<HydratedPackage>('createNextRevision', function (
     version: string,
     channel: Channel,
@@ -310,8 +349,28 @@ export function setupMethods(packageSchema: Schema<IPackage, PackageModel, IPack
     downloadSize: number,
     permissions: string[] = [],
   ) {
+    const revisionCode = this.generateRevisionCode(version, channel, architecture, framework);
+    if (this.revisions.find((r) => r.revision === revisionCode)) {
+      throw new UserError(EXISTING_VERSION);
+    }
+
+    const conflictingRevision = this.revisions
+      .filter(
+        (r) =>
+          r.channel === channel &&
+          r.architecture === architecture &&
+          r.framework === framework,
+      )
+      .find((r) => r.revision >= revisionCode);
+
+    if (conflictingRevision) {
+      throw new UserError(
+        'Version must be greater than existing revisions for the same channel, architecture, and framework',
+      );
+    }
+
     this.revisions.push({
-      revision: this.next_revision,
+      revision: revisionCode,
       version,
       downloads: 0,
       channel,
@@ -326,6 +385,8 @@ export function setupMethods(packageSchema: Schema<IPackage, PackageModel, IPack
     });
 
     this.updated_date = (new Date()).toISOString();
+
+    return revisionCode;
   });
 
   packageSchema.method<HydratedPackage>('getClickFilePath', function (channel: Channel, arch: Architecture, version: string) {
@@ -516,33 +577,33 @@ export function setupMethods(packageSchema: Schema<IPackage, PackageModel, IPack
     if (this.revisions) {
       const jsonDownloads = Object.values(Channel)
         .reduce<(SerializedDownload | null)[]>((downloads: (SerializedDownload | null)[], channel: Channel) => {
-        return [...downloads, ...this.architectures.map((arch) => {
-          if (!Object.values(Architecture).includes(arch)) {
-            return null; // Filter out unsupported arches like i386 (legacy apps)
-          }
+          return [...downloads, ...this.architectures.map((arch) => {
+            if (!Object.values(Architecture).includes(arch)) {
+              return null; // Filter out unsupported arches like i386 (legacy apps)
+            }
 
-          const { revisionData: downloadRevisionData } = this.getLatestRevision(channel, arch, false, frameworks);
+            const { revisionData: downloadRevisionData } = this.getLatestRevision(channel, arch, false, frameworks);
 
-          if (downloadRevisionData) {
-            const download = {
-              ...downloadRevisionData.toObject(),
-              _id: undefined,
-              architecture: downloadRevisionData.architecture.includes(',') ? arch : downloadRevisionData.architecture,
-              download_url: this.getDownloadUrl(channel, arch, downloadRevisionData.version),
-              installedSize: toBytes(downloadRevisionData.filesize),
-              downloadSize: downloadRevisionData.downloadSize ?? 0,
+            if (downloadRevisionData) {
+              const download = {
+                ...downloadRevisionData.toObject(),
+                _id: undefined,
+                architecture: downloadRevisionData.architecture.includes(',') ? arch : downloadRevisionData.architecture,
+                download_url: this.getDownloadUrl(channel, arch, downloadRevisionData.version),
+                installedSize: toBytes(downloadRevisionData.filesize),
+                downloadSize: downloadRevisionData.downloadSize ?? 0,
 
-              // TODO deprecate
-              filesize: toBytes(downloadRevisionData.filesize),
-            };
+                // TODO deprecate
+                filesize: toBytes(downloadRevisionData.filesize),
+              };
 
-            delete download._id;
-            return download;
-          }
+              delete download._id;
+              return download;
+            }
 
-          return null;
-        })];
-      }, []).filter((revision) => (revision?.download_url)) as SerializedDownload[];
+            return null;
+          })];
+        }, []).filter((revision) => (revision?.download_url)) as SerializedDownload[];
 
       jsonDownloads.sort((a, b) => {
         // Sort xenial to the bottom
