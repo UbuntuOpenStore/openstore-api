@@ -91,8 +91,8 @@ describe('Package', () => {
         id: { $in: ['foo.bar'] },
         device_compatibilities: {
           $in: [
-          `${Channel.FOCAL}:${Architecture.ARMHF}:ubuntu-16.04`,
-          `${Channel.FOCAL}:${Architecture.ALL}:ubuntu-16.04`,
+            `${Channel.FOCAL}:${Architecture.ARMHF}:ubuntu-16.04`,
+            `${Channel.FOCAL}:${Architecture.ALL}:ubuntu-16.04`,
           ],
         },
         category: 'Category',
@@ -145,6 +145,7 @@ describe('Package', () => {
         support_url: 'https://example.com/support',
         video_url: 'https://example.com/video',
         translation_url: 'https://example.com/translations',
+        icon: 'icon.png',
       });
     });
 
