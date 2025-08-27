@@ -5,15 +5,19 @@ import path from 'path';
 import fs from 'fs/promises';
 
 import { sanitize, type ClickParserData, config, moveFile, sha512Checksum } from 'utils';
+// @ts-ignore
+import compareVersions from 'dpkg-compare-versions';
 import { type HydratedRatingCount } from 'db/rating_count/types';
 import { v4 } from 'uuid';
 import {
   EXISTING_VERSION,
+  INVALID_VERSION,
   MALFORMED_MANIFEST,
   MISMATCHED_FRAMEWORK,
   MISMATCHED_PERMISSIONS,
   NO_ALL,
   NO_NON_ALL,
+  NON_ASCENDING_VERSION,
   WRONG_PACKAGE,
 } from 'utils/error-messages';
 import { UserError } from 'exceptions';
@@ -516,33 +520,33 @@ export function setupMethods(packageSchema: Schema<IPackage, PackageModel, IPack
     if (this.revisions) {
       const jsonDownloads = Object.values(Channel)
         .reduce<(SerializedDownload | null)[]>((downloads: (SerializedDownload | null)[], channel: Channel) => {
-        return [...downloads, ...this.architectures.map((arch) => {
-          if (!Object.values(Architecture).includes(arch)) {
-            return null; // Filter out unsupported arches like i386 (legacy apps)
-          }
+          return [...downloads, ...this.architectures.map((arch) => {
+            if (!Object.values(Architecture).includes(arch)) {
+              return null; // Filter out unsupported arches like i386 (legacy apps)
+            }
 
-          const { revisionData: downloadRevisionData } = this.getLatestRevision(channel, arch, false, frameworks);
+            const { revisionData: downloadRevisionData } = this.getLatestRevision(channel, arch, false, frameworks);
 
-          if (downloadRevisionData) {
-            const download = {
-              ...downloadRevisionData.toObject(),
-              _id: undefined,
-              architecture: downloadRevisionData.architecture.includes(',') ? arch : downloadRevisionData.architecture,
-              download_url: this.getDownloadUrl(channel, arch, downloadRevisionData.version),
-              installedSize: toBytes(downloadRevisionData.filesize),
-              downloadSize: downloadRevisionData.downloadSize ?? 0,
+            if (downloadRevisionData) {
+              const download = {
+                ...downloadRevisionData.toObject(),
+                _id: undefined,
+                architecture: downloadRevisionData.architecture.includes(',') ? arch : downloadRevisionData.architecture,
+                download_url: this.getDownloadUrl(channel, arch, downloadRevisionData.version),
+                installedSize: toBytes(downloadRevisionData.filesize),
+                downloadSize: downloadRevisionData.downloadSize ?? 0,
 
-              // TODO deprecate
-              filesize: toBytes(downloadRevisionData.filesize),
-            };
+                // TODO deprecate
+                filesize: toBytes(downloadRevisionData.filesize),
+              };
 
-            delete download._id;
-            return download;
-          }
+              delete download._id;
+              return download;
+            }
 
-          return null;
-        })];
-      }, []).filter((revision) => (revision?.download_url)) as SerializedDownload[];
+            return null;
+          })];
+        }, []).filter((revision) => (revision?.download_url)) as SerializedDownload[];
 
       jsonDownloads.sort((a, b) => {
         // Sort xenial to the bottom
@@ -642,9 +646,22 @@ export function setupMethods(packageSchema: Schema<IPackage, PackageModel, IPack
       throw new UserError(WRONG_PACKAGE);
     }
 
+    // TODO make this a reusable function
+    // Check if the version is valid debian version
+    let isVersionValid = false;
+    try {
+      compareVersions(version, version);
+      isVersionValid = true;
+    }
+    catch (e) {
+      isVersionValid = false;
+    }
+    if (!isVersionValid) {
+      throw new UserError(INVALID_VERSION);
+    }
+
     if (this.revisions) {
       // Check for existing revisions (for this channel) with the same version string
-
       const matches = this.revisions.find((revision) => {
         return (
           revision.version === version &&
@@ -652,9 +669,22 @@ export function setupMethods(packageSchema: Schema<IPackage, PackageModel, IPack
           revision.architecture === architecture
         );
       });
-
       if (matches) {
         throw new UserError(EXISTING_VERSION);
+      }
+
+      // Check for strictly increasing version for same channel, framework, and architecture
+      const sameGroup = this.revisions.filter((rev) =>
+        rev.channel === channel &&
+        rev.architecture === architecture &&
+        rev.framework === parseData.framework,
+      );
+      for (const rev of sameGroup) {
+        // TODO this won't work for broken version, only check the most recent one.
+        // TODO In the event the old version is not correct, let it slide?
+        if (compareVersions(version, rev.version) < 1) {
+          throw new UserError(NON_ASCENDING_VERSION);
+        }
       }
 
       const currentRevisions = this.revisions.filter((rev) => rev.version === version && rev.channel === channel);

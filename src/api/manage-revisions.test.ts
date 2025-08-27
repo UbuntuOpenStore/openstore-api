@@ -353,6 +353,68 @@ describe('Manage Revision POST', () => {
       assert.equal(lockReleaseSpy.mock.callCount(), 1);
     });
 
+    test('fails with an invalid version string', async (t) => {
+      const lockAcquireSpy = t.mock.method(Lock, 'acquire');
+      const lockReleaseSpy = t.mock.method(Lock, 'release');
+
+      const reviewMock = t.mock.method(reviewPackage, 'clickReview', async () => GOOD_REVIEW);
+      // Simulate clickParser returning an invalid version string
+      const parseMock = t.mock.method(clickParser, 'parseClickPackage', async () => ({
+        name: package1.id,
+        version: '...not_a_valid_version!',
+        architecture: 'armhf',
+        apps: [],
+      }));
+
+      const res = await request(app).post(route1)
+        .attach('file', emptyClick)
+        .field('channel', Channel.FOCAL)
+        .expect(400);
+
+      assert.equal(res.body.success, false);
+      assert.equal(res.body.message, messages.INVALID_VERSION);
+      assert.equal(reviewMock.mock.callCount(), 1);
+      assert.equal(parseMock.mock.callCount(), 1);
+      assert.equal(lockAcquireSpy.mock.callCount(), 1);
+      assert.equal(lockReleaseSpy.mock.callCount(), 1);
+    });
+
+    test('fails with a non-ascending version for the same channel, arch, and framework', async (t) => {
+      const lockAcquireSpy = t.mock.method(Lock, 'acquire');
+      const lockReleaseSpy = t.mock.method(Lock, 'release');
+
+      // Add a higher version first
+      package1.createNextRevision('2.0.0', Channel.FOCAL, Architecture.ARMHF, 'ubuntu-sdk-20.04', 'url', 'shasum', 10, 8);
+      // Different arch
+      package1.createNextRevision('2.0.0', Channel.FOCAL, Architecture.AMD64, 'ubuntu-sdk-20.04', 'url', 'shasum', 10, 8);
+      // Different channel
+      package1.createNextRevision('2.0.0', Channel.XENIAL, Architecture.ARMHF, 'ubuntu-sdk-20.04', 'url', 'shasum', 10, 8);
+      // Different framework
+      package1.createNextRevision('2.0.0', Channel.FOCAL, Architecture.ARMHF, 'ubuntu-sdk-16.04', 'url', 'shasum', 10, 8);
+      await package1.save();
+
+      const reviewMock = t.mock.method(reviewPackage, 'clickReview', async () => GOOD_REVIEW);
+      const parseMock = t.mock.method(clickParser, 'parseClickPackage', async () => ({
+        name: package1.id,
+        version: '1.0.0', // Lower version
+        architecture: Architecture.ARMHF,
+        framework: 'ubuntu-sdk-20.04',
+        apps: [],
+      }));
+
+      const res = await request(app).post(route1)
+        .attach('file', emptyClick)
+        .field('channel', Channel.FOCAL)
+        .expect(400);
+
+      assert.equal(res.body.success, false);
+      assert.equal(res.body.message, messages.NON_ASCENDING_VERSION);
+      assert.equal(reviewMock.mock.callCount(), 1);
+      assert.equal(parseMock.mock.callCount(), 1);
+      assert.equal(lockAcquireSpy.mock.callCount(), 1);
+      assert.equal(lockReleaseSpy.mock.callCount(), 1);
+    });
+
     test('fails with an existing version of the same arch', async (t) => {
       const lockAcquireSpy = t.mock.method(Lock, 'acquire');
       const lockReleaseSpy = t.mock.method(Lock, 'release');
