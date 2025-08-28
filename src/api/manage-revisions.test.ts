@@ -415,6 +415,34 @@ describe('Manage Revision POST', () => {
       assert.equal(lockReleaseSpy.mock.callCount(), 1);
     });
 
+    test('passes if the previous version was not a valid debian version', async (t) => {
+      const lockAcquireSpy = t.mock.method(Lock, 'acquire');
+      const lockReleaseSpy = t.mock.method(Lock, 'release');
+
+      package1.createNextRevision('...invalid!!!', Channel.FOCAL, Architecture.ARMHF, 'ubuntu-sdk-20.04', 'url', 'shasum', 10, 8);
+      await package1.save();
+
+      const reviewMock = t.mock.method(reviewPackage, 'clickReview', async () => GOOD_REVIEW);
+      const parseMock = t.mock.method(clickParser, 'parseClickPackage', async () => ({
+        name: package1.id,
+        version: '1.0.0',
+        architecture: Architecture.ARMHF,
+        framework: 'ubuntu-sdk-20.04',
+        apps: [],
+      }));
+
+      const res = await request(app).post(route1)
+        .attach('file', emptyClick)
+        .field('channel', Channel.FOCAL)
+        .expect(200);
+
+      assert.equal(res.body.success, true);
+      assert.equal(reviewMock.mock.callCount(), 1);
+      assert.equal(parseMock.mock.callCount(), 1);
+      assert.equal(lockAcquireSpy.mock.callCount(), 1);
+      assert.equal(lockReleaseSpy.mock.callCount(), 1);
+    });
+
     test('fails with an existing version of the same arch', async (t) => {
       const lockAcquireSpy = t.mock.method(Lock, 'acquire');
       const lockReleaseSpy = t.mock.method(Lock, 'release');

@@ -5,8 +5,6 @@ import path from 'path';
 import fs from 'fs/promises';
 
 import { sanitize, type ClickParserData, config, moveFile, sha512Checksum } from 'utils';
-// @ts-ignore
-import compareVersions from 'dpkg-compare-versions';
 import { type HydratedRatingCount } from 'db/rating_count/types';
 import { v4 } from 'uuid';
 import {
@@ -42,6 +40,7 @@ import {
   type HydratedRevision,
 } from './types';
 import { User } from '../user';
+import { compareVersions, isValidVersion } from 'utils/dpkg-compare-versions';
 
 /*
   The filesize is stored in kilobytes (from the click package
@@ -94,6 +93,12 @@ export function setupMethods(packageSchema: Schema<IPackage, PackageModel, IPack
 
       if (
         (!revisionData || revisionData.revision < data.revision) &&
+        (
+          !revisionData ||
+          !isValidVersion(data.version) ||
+          !isValidVersion(revisionData.version) ||
+          compareVersions(revisionData.version, data.version) === -1
+        ) &&
         data.channel === channel &&
         (!arch || archCheck) &&
         (!frameworks || frameworks.length === 0 || frameworks.includes(data.framework)) &&
@@ -646,17 +651,7 @@ export function setupMethods(packageSchema: Schema<IPackage, PackageModel, IPack
       throw new UserError(WRONG_PACKAGE);
     }
 
-    // TODO make this a reusable function
-    // Check if the version is valid debian version
-    let isVersionValid = false;
-    try {
-      compareVersions(version, version);
-      isVersionValid = true;
-    }
-    catch (e) {
-      isVersionValid = false;
-    }
-    if (!isVersionValid) {
+    if (!isValidVersion(version)) {
       throw new UserError(INVALID_VERSION);
     }
 
@@ -679,10 +674,9 @@ export function setupMethods(packageSchema: Schema<IPackage, PackageModel, IPack
         rev.architecture === architecture &&
         rev.framework === parseData.framework,
       );
-      for (const rev of sameGroup) {
-        // TODO this won't work for broken version, only check the most recent one.
-        // TODO In the event the old version is not correct, let it slide?
-        if (compareVersions(version, rev.version) < 1) {
+      if (sameGroup.length > 0) {
+        const latest = sameGroup[sameGroup.length - 1];
+        if (isValidVersion(latest.version) && compareVersions(version, latest.version) < 1) {
           throw new UserError(NON_ASCENDING_VERSION);
         }
       }
