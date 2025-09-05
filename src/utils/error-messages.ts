@@ -17,7 +17,7 @@ export const NON_ASCENDING_VERSION =
   'Version must be greater than all existing revisions for the same channel, architecture, and framework';
 export const INVALID_VERSION =
   // eslint-disable-next-line max-len
-  "The version number is not valid for a Click package. Click packages' version follow the same rules as Debian packages.See https://manpages.debian.org/testing/dpkg-dev/deb-version.7.en.html";
+  "The version number is not valid for a Click package. Click packages' version follow the same rules as Debian packages. See https://manpages.debian.org/testing/dpkg-dev/deb-version.7.en.html";
 export const NO_FILE = 'No file upload specified';
 export const NO_REVISIONS = 'You cannot publish your package until you upload a revision';
 export const NO_APP_NAME = 'No app name specified';
