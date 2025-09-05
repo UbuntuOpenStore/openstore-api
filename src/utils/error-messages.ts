@@ -13,6 +13,11 @@ export const BAD_FILE = 'The file must be a click package';
 export const WRONG_PACKAGE = 'The uploaded package does not match the name of the package you are editing';
 export const BAD_NAMESPACE = 'You package name is for a domain that you do not have access to';
 export const EXISTING_VERSION = 'A revision already exists with this version and architecture';
+export const NON_ASCENDING_VERSION =
+  'Version must be greater than all existing revisions for the same channel, architecture, and framework';
+export const INVALID_VERSION =
+  // eslint-disable-next-line max-len
+  "The version number is not valid for a Click package. Click packages' version follow the same rules as Debian packages. See https://manpages.debian.org/testing/dpkg-dev/deb-version.7.en.html";
 export const NO_FILE = 'No file upload specified';
 export const NO_REVISIONS = 'You cannot publish your package until you upload a revision';
 export const NO_APP_NAME = 'No app name specified';
