@@ -47,6 +47,7 @@
     "cookie-parser": "^1.4.6",
     "cookie-session": "^2.1.0",
     "dotenv": "^16.4.5",
+    "dpkg-compare-versions": "^1.0.3",
     "express": "^4.21.0",
     "gettext-parser": "^8.0.0",
     "lodash": "^4.17.21",
