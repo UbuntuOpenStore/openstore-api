@@ -9,11 +9,13 @@ import { type HydratedRatingCount } from 'db/rating_count/types';
 import { v4 } from 'uuid';
 import {
   EXISTING_VERSION,
+  INVALID_VERSION,
   MALFORMED_MANIFEST,
   MISMATCHED_FRAMEWORK,
   MISMATCHED_PERMISSIONS,
   NO_ALL,
   NO_NON_ALL,
+  NON_ASCENDING_VERSION,
   WRONG_PACKAGE,
 } from 'utils/error-messages';
 import { UserError } from 'exceptions';
@@ -38,6 +40,7 @@ import {
   type HydratedRevision,
 } from './types';
 import { User } from '../user';
+import { compareVersions, isValidVersion } from 'utils/dpkg-compare-versions';
 
 /*
   The filesize is stored in kilobytes (from the click package
@@ -90,6 +93,12 @@ export function setupMethods(packageSchema: Schema<IPackage, PackageModel, IPack
 
       if (
         (!revisionData || revisionData.revision < data.revision) &&
+        (
+          !revisionData ||
+          !isValidVersion(data.version) ||
+          !isValidVersion(revisionData.version) ||
+          compareVersions(revisionData.version, data.version) < 0
+        ) &&
         data.channel === channel &&
         (!arch || archCheck) &&
         (!frameworks || frameworks.length === 0 || frameworks.includes(data.framework)) &&
@@ -516,33 +525,33 @@ export function setupMethods(packageSchema: Schema<IPackage, PackageModel, IPack
     if (this.revisions) {
       const jsonDownloads = Object.values(Channel)
         .reduce<(SerializedDownload | null)[]>((downloads: (SerializedDownload | null)[], channel: Channel) => {
-        return [...downloads, ...this.architectures.map((arch) => {
-          if (!Object.values(Architecture).includes(arch)) {
-            return null; // Filter out unsupported arches like i386 (legacy apps)
-          }
+          return [...downloads, ...this.architectures.map((arch) => {
+            if (!Object.values(Architecture).includes(arch)) {
+              return null; // Filter out unsupported arches like i386 (legacy apps)
+            }
 
-          const { revisionData: downloadRevisionData } = this.getLatestRevision(channel, arch, false, frameworks);
+            const { revisionData: downloadRevisionData } = this.getLatestRevision(channel, arch, false, frameworks);
 
-          if (downloadRevisionData) {
-            const download = {
-              ...downloadRevisionData.toObject(),
-              _id: undefined,
-              architecture: downloadRevisionData.architecture.includes(',') ? arch : downloadRevisionData.architecture,
-              download_url: this.getDownloadUrl(channel, arch, downloadRevisionData.version),
-              installedSize: toBytes(downloadRevisionData.filesize),
-              downloadSize: downloadRevisionData.downloadSize ?? 0,
+            if (downloadRevisionData) {
+              const download = {
+                ...downloadRevisionData.toObject(),
+                _id: undefined,
+                architecture: downloadRevisionData.architecture.includes(',') ? arch : downloadRevisionData.architecture,
+                download_url: this.getDownloadUrl(channel, arch, downloadRevisionData.version),
+                installedSize: toBytes(downloadRevisionData.filesize),
+                downloadSize: downloadRevisionData.downloadSize ?? 0,
 
-              // TODO deprecate
-              filesize: toBytes(downloadRevisionData.filesize),
-            };
+                // TODO deprecate
+                filesize: toBytes(downloadRevisionData.filesize),
+              };
 
-            delete download._id;
-            return download;
-          }
+              delete download._id;
+              return download;
+            }
 
-          return null;
-        })];
-      }, []).filter((revision) => (revision?.download_url)) as SerializedDownload[];
+            return null;
+          })];
+        }, []).filter((revision) => (revision?.download_url)) as SerializedDownload[];
 
       jsonDownloads.sort((a, b) => {
         // Sort xenial to the bottom
@@ -642,9 +651,12 @@ export function setupMethods(packageSchema: Schema<IPackage, PackageModel, IPack
       throw new UserError(WRONG_PACKAGE);
     }
 
+    if (!isValidVersion(version)) {
+      throw new UserError(INVALID_VERSION);
+    }
+
     if (this.revisions) {
       // Check for existing revisions (for this channel) with the same version string
-
       const matches = this.revisions.find((revision) => {
         return (
           revision.version === version &&
@@ -652,9 +664,21 @@ export function setupMethods(packageSchema: Schema<IPackage, PackageModel, IPack
           revision.architecture === architecture
         );
       });
-
       if (matches) {
         throw new UserError(EXISTING_VERSION);
+      }
+
+      // Check for strictly increasing version for same channel, framework, and architecture
+      const sameGroup = this.revisions.filter((rev) =>
+        rev.channel === channel &&
+        rev.architecture === architecture &&
+        rev.framework === parseData.framework,
+      );
+      if (sameGroup.length > 0) {
+        const latest = sameGroup[sameGroup.length - 1];
+        if (isValidVersion(latest.version) && compareVersions(version, latest.version) <= 0) {
+          throw new UserError(NON_ASCENDING_VERSION);
+        }
       }
 
       const currentRevisions = this.revisions.filter((rev) => rev.version === version && rev.channel === channel);
